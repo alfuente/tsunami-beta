@@ -1,0 +1,70 @@
+version: "3.9"
+
+services:
+
+  neo4j:
+    image: neo4j:2025.06.0     # Versión 5.x estable
+    container_name: neo4j
+    environment:
+      - NEO4J_AUTH=neo4j/test.password
+      - NEO4J_PLUGINS=["apoc"]
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*
+    volumes:
+      - neo4j-data:/data
+      - neo4j-plugins:/plugins
+      - neo4j-import:/var/lib/neo4j/import
+      - neo4j-backups:/backups         # para los dumps
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "test.password", "RETURN 1"]
+      interval: 30s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+    volumes:
+      - minio-data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+  iceberg-rest:
+    image: tabulario/iceberg-rest:latest   # REST Catalog listo para producción :contentReference[oaicite:0]{index=0}
+    container_name: iceberg-rest
+    environment:
+      - CATALOG_WAREHOUSE=s3://iceberg/warehouse
+      - CATALOG_S3_ENDPOINT=http://minio:9000
+      - CATALOG_S3_ACCESS_KEY=minio
+      - CATALOG_S3_SECRET_KEY=minio123
+      - CATALOG_IO_IMPL=org.apache.iceberg.aws.s3.S3FileIO
+    depends_on: [minio]
+    ports:
+      - "8181:8181"
+
+  spark:
+    image: tabulario/spark-iceberg:latest  # Spark con Iceberg pre-instalado :contentReference[oaicite:1]{index=1}
+    container_name: spark
+    environment:
+      - AWS_REGION=us-east-1
+      - AWS_ACCESS_KEY_ID=minio
+      - AWS_SECRET_ACCESS_KEY=minio123
+      - SPARK_LOCAL_IP=spark
+    depends_on: [iceberg-rest]
+    volumes:
+      - minio-data:/data
+
+networks: {default: {driver: bridge}}
+
+volumes:
+  neo4j-data:
+  neo4j-plugins:
+  neo4j-import:
+  neo4j-backups:
+  minio-data:

@@ -1,0 +1,33 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+<modelVersion>4.0.0</modelVersion>
+<groupId>com.example</groupId><artifactId>risk-warehouse-service</artifactId><version>1.0.0</version>
+<properties>
+  <quarkus.platform.version>3.15.0</quarkus.platform.version>
+  <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+  <java.version>21</java.version>
+  <iceberg.version>1.5.0</iceberg.version>
+</properties>
+<dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>${quarkus.platform.group-id}</groupId>
+      <artifactId>quarkus-bom</artifactId>
+      <version>${quarkus.platform.version}</version>
+      <type>pom</type><scope>import</scope>
+    </dependency>
+  </dependencies>
+</dependencyManagement>
+<dependencies>
+  <dependency><groupId>io.quarkus</groupId><artifactId>quarkus-resteasy-reactive</artifactId></dependency>
+  <dependency><groupId>io.quarkus</groupId><artifactId>quarkus-jackson</artifactId></dependency>
+  <dependency><groupId>org.apache.iceberg</groupId><artifactId>iceberg-rest-catalog</artifactId><version>${iceberg.version}</version></dependency>
+</dependencies>
+<build>
+ <plugins>
+   <plugin><groupId>io.quarkus</groupId><artifactId>quarkus-maven-plugin</artifactId>
+     <version>${quarkus.platform.version}</version>
+     <executions><execution><goals><goal>build</goal></goals></execution></executions>
+   </plugin>
+ </plugins>
+</build>
+</project>
