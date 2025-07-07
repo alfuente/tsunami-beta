@@ -58,3 +58,4 @@ coverage.xml
 # Otros
 *.sqlite3
 
+**/**/ipinfo.mmdb
