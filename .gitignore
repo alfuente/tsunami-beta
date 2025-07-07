@@ -1,0 +1,60 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+pip-wheel-metadata/
+*.pyo
+*.pyd
+
+# Entornos virtuales
+venv/
+.venv/
+ENV/
+env/
+.ENV/
+.env/
+.envrc
+
+# Archivos de configuración Python
+.Python
+*.manifest
+*.spec
+
+# Archivos creados por editores/IDE
+.DS_Store
+*.swp
+*.swo
+*.bak
+*.tmp
+*.log
+
+# Archivos de test y cobertura
+htmlcov/
+.coverage
+.coverage.*
+.tox/
+.nox/
+.cache/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Otros
+*.sqlite3
+
