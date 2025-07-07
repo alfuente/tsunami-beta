@@ -1364,11 +1364,25 @@ class GraphIngester:
         self.csv_path = csv_path
 
     # dominios ------------------------------------------------------------------
-    def merge_domain(self, fqdn: str, who: Optional[Mapping[str, Any]] = None):
+    def merge_domain(self, fqdn: str, who: Optional[Mapping[str, Any]] = None, tx=None):
         debug_log(f"Creando nodo Domain: {fqdn}")
-        with self.drv.session() as s:
-            with s.begin_transaction() as tx:
-                result = tx.run("""
+        if tx is None:
+            with self.drv.session() as s:
+                with s.begin_transaction() as tx:
+                    result = tx.run("""
+MERGE (d:Domain {fqdn:$fqdn})
+SET d.tld = $tld,
+    d.registered_date = coalesce($created, d.registered_date),
+    d.expiry_date     = coalesce($expires, d.expiry_date)
+RETURN d
+""",
+                          fqdn=fqdn,
+                          tld=fqdn.split('.')[-1],
+                          created=who.get("creation_date") if who else None,
+                          expires=who.get("expiration_date") if who else None)
+                    tx.commit()
+        else:
+            result = tx.run("""
 MERGE (d:Domain {fqdn:$fqdn})
 SET d.tld = $tld,
     d.registered_date = coalesce($created, d.registered_date),
@@ -1379,33 +1393,40 @@ RETURN d
                       tld=fqdn.split('.')[-1],
                       created=who.get("creation_date") if who else None,
                       expires=who.get("expiration_date") if who else None)
-                tx.commit()
-            debug_log(f"✓ Nodo Domain creado/actualizado: {fqdn}")
+        debug_log(f"✓ Nodo Domain creado/actualizado: {fqdn}")
 
-    def relate_subdomain(self, parent: str, child: str):
+    def relate_subdomain(self, parent: str, child: str, tx=None):
         debug_log(f"Creando relación subdomain: {parent} -> {child}")
-        with self.drv.session() as s:
-            with s.begin_transaction() as tx:
-                tx.run("""
+        if tx is None:
+            with self.drv.session() as s:
+                with s.begin_transaction() as tx:
+                    tx.run("""
 MERGE (p:Domain {fqdn:$parent})
 MERGE (c:Domain {fqdn:$child})
 MERGE (p)-[:HAS_SUBDOMAIN]->(c)
 """, parent=parent, child=child)
-                tx.commit()
-            debug_log(f"✓ Relación subdomain creada: {parent} -> {child}")
+                    tx.commit()
+        else:
+            tx.run("""
+MERGE (p:Domain {fqdn:$parent})
+MERGE (c:Domain {fqdn:$child})
+MERGE (p)-[:HAS_SUBDOMAIN]->(c)
+""", parent=parent, child=child)
+        debug_log(f"✓ Relación subdomain creada: {parent} -> {child}")
 
     # ip ------------------------------------------------------------------------
-    def merge_ip(self, domain: str, ip: str):
+    def merge_ip(self, domain: str, ip: str, tx=None):
         debug_log(f"Creando nodo IP: {ip} para dominio {domain}")
         # Usar detección avanzada de proveedor con token
         prov = detect_cloud_provider_by_ip(ip, self.ipinfo_token, self.mmdb_path, self.csv_path)
         cloud_info = get_cloud_provider_info(ip, self.ipinfo_token, self.mmdb_path, self.csv_path)
         debug_log(f"Proveedor detectado para {ip}: {prov}")
         
-        with self.drv.session() as s:
-            with s.begin_transaction() as tx:
-                # Crear IP con información detallada del proveedor
-                tx.run("""
+        if tx is None:
+            with self.drv.session() as s:
+                with s.begin_transaction() as tx:
+                    # Crear IP con información detallada del proveedor
+                    tx.run("""
 MERGE (d:Domain {fqdn:$fqdn})
 MERGE (i:IP {ip:$ip})
 ON CREATE SET i.provider_name = $prov,
@@ -1430,18 +1451,96 @@ MERGE (d)-[:RESOLVES_TO]->(i)
     hostname=cloud_info.get('hostname') if cloud_info else None,
     anycast=cloud_info.get('anycast') if cloud_info else False,
     source=cloud_info.get('source') if cloud_info else 'pattern_matching')
-                tx.commit()
-            debug_log(f"✓ Nodo IP creado: {ip} con proveedor {prov}")
+                    tx.commit()
+                    
+                    # Si detectamos un proveedor conocido, crear nodo Provider con información detallada
+                    if prov != "unknown":
+                        self.merge_provider_detailed(prov, ip, cloud_info)
+        else:
+            # Crear IP con información detallada del proveedor
+            tx.run("""
+MERGE (d:Domain {fqdn:$fqdn})
+MERGE (i:IP {ip:$ip})
+ON CREATE SET i.provider_name = $prov,
+              i.organization = $org,
+              i.country = $country,
+              i.region = $region,
+              i.city = $city,
+              i.postal = $postal,
+              i.timezone = $timezone,
+              i.hostname = $hostname,
+              i.anycast = $anycast,
+              i.detection_source = $source,
+              i.detected_at = datetime()
+MERGE (d)-[:RESOLVES_TO]->(i)
+""", fqdn=domain, ip=ip, prov=prov,
+    org=cloud_info.get('organization') if cloud_info else None,
+    country=cloud_info.get('country') if cloud_info else None,
+    region=cloud_info.get('region') if cloud_info else None,
+    city=cloud_info.get('city') if cloud_info else None,
+    postal=cloud_info.get('postal') if cloud_info else None,
+    timezone=cloud_info.get('timezone') if cloud_info else None,
+    hostname=cloud_info.get('hostname') if cloud_info else None,
+    anycast=cloud_info.get('anycast') if cloud_info else False,
+    source=cloud_info.get('source') if cloud_info else 'pattern_matching')
             
             # Si detectamos un proveedor conocido, crear nodo Provider con información detallada
             if prov != "unknown":
-                self.merge_provider_detailed(prov, ip, cloud_info)
+                self.merge_provider_detailed(prov, ip, cloud_info, tx)
+        debug_log(f"✓ Nodo IP creado: {ip} con proveedor {prov}")
 
-    def merge_provider_detailed(self, provider_name: str, host_or_ip: str, cloud_info: dict = None):
+    def merge_provider_detailed(self, provider_name: str, host_or_ip: str, cloud_info: dict = None, tx=None):
         """Crea nodo Provider con información detallada del servicio externo."""
-        with self.drv.session() as s:
-            # Crear nodo Provider con información detallada
-            s.run("""
+        if tx is None:
+            with self.drv.session() as s:
+                # Crear nodo Provider con información detallada
+                s.run("""
+MERGE (p:Provider {name:$provider_name})
+ON CREATE SET p.type = 'Cloud',
+              p.tier = 1,
+              p.detected_from = 'api_service',
+              p.created_at = datetime()
+ON MATCH SET p.organization = coalesce($org, p.organization),
+             p.detection_source = coalesce($source, p.detection_source),
+             p.last_verified = datetime()
+""", provider_name=provider_name, 
+    org=cloud_info.get('organization') if cloud_info else None,
+    source=cloud_info.get('source') if cloud_info else 'pattern_matching')
+                
+                # Si es una IP, crear relación Provider -> IP
+                if re.match(r"^\d+\.\d+\.\d+\.\d+$", host_or_ip):
+                    s.run("""
+MERGE (p:Provider {name:$provider_name})
+MERGE (i:IP {ip:$host_or_ip})
+MERGE (p)-[:MANAGES {
+    detected_at: datetime(),
+    confidence: $confidence,
+    source: $source
+}]->(i)
+""", provider_name=provider_name, host_or_ip=host_or_ip,
+    confidence='high' if cloud_info and cloud_info.get('source') else 'medium',
+    source=cloud_info.get('source') if cloud_info else 'pattern_matching')
+                else:
+                    # Si es un hostname, crear como Service
+                    s.run("""
+MERGE (p:Provider {name:$provider_name})
+MERGE (svc:Service {name:$host_or_ip, type:'Infrastructure'})
+ON CREATE SET svc.category = 'Cloud',
+              svc.provider_name = $provider_name,
+              svc.detected_at = datetime(),
+              svc.organization = $org
+MERGE (p)-[:PROVIDES {
+    detected_at: datetime(),
+    confidence: $confidence,
+    source: $source
+}]->(svc)
+""", provider_name=provider_name, host_or_ip=host_or_ip,
+    org=cloud_info.get('organization') if cloud_info else None,
+    confidence='high' if cloud_info and cloud_info.get('source') else 'medium',
+    source=cloud_info.get('source') if cloud_info else 'pattern_matching')
+        else:
+            # Crear nodo Provider con información detallada usando transacción pasada
+            tx.run("""
 MERGE (p:Provider {name:$provider_name})
 ON CREATE SET p.type = 'Cloud',
               p.tier = 1,
@@ -1456,7 +1555,7 @@ ON MATCH SET p.organization = coalesce($org, p.organization),
             
             # Si es una IP, crear relación Provider -> IP
             if re.match(r"^\d+\.\d+\.\d+\.\d+$", host_or_ip):
-                s.run("""
+                tx.run("""
 MERGE (p:Provider {name:$provider_name})
 MERGE (i:IP {ip:$host_or_ip})
 MERGE (p)-[:MANAGES {
@@ -1469,7 +1568,7 @@ MERGE (p)-[:MANAGES {
     source=cloud_info.get('source') if cloud_info else 'pattern_matching')
             else:
                 # Si es un hostname, crear como Service
-                s.run("""
+                tx.run("""
 MERGE (p:Provider {name:$provider_name})
 MERGE (svc:Service {name:$host_or_ip, type:'Infrastructure'})
 ON CREATE SET svc.category = 'Cloud',
@@ -1649,6 +1748,228 @@ SET d.wildcard_detected = true,
 
 
 # --- Carga masiva --------------------------------------------------------------
+
+def enrich_and_ingest_domain_transaction(domain: str, depth: int, ing: GraphIngester,
+                                        queue_manager: SQLiteQueueManager, sample_mode: bool = False, 
+                                        worker_id: str = None, amass_results: List[dict] = None) -> dict:
+    """Procesa un dominio completo usando una sola transacción para mejor consistencia."""
+    start_time = time.time()
+    stats = {
+        'subdomain_count': 0,
+        'ip_count': 0,
+        'error_count': 0,
+        'processing_time': 0
+    }
+    debug_log(f"[{worker_id}] Iniciando procesamiento con transacción única para {domain} (depth={depth})")
+
+    # WHOIS (opcional, ignora errores)
+    try:
+        w = whois.whois(domain)
+    except Exception:
+        w = {}
+
+    # Usar una sola transacción para todo el procesamiento del dominio
+    with ing.drv.session() as s:
+        with s.begin_transaction() as tx:
+            try:
+                # Crear el dominio principal
+                ing.merge_domain(domain, w, tx)
+
+                # Detectar wildcard DNS
+                if detect_wildcard_dns(domain):
+                    tx.run("""
+MERGE (d:Domain {fqdn:$domain})
+SET d.wildcard_detected = true,
+    d.wildcard_resolver = '8.8.8.8',
+    d.wildcard_timestamp = datetime()
+""", domain=domain)
+
+                # DNS A/AAAA + ASN/Netblock enrichment
+                for rdtype in ("A", "AAAA"):
+                    for addr in dns_query(domain, rdtype):
+                        ing.merge_ip(domain, addr, tx)
+                        stats['ip_count'] += 1
+                        
+                        # Enriquecer con información de ASN
+                        asn_info = get_asn_info(addr, ing.mmdb_path, ing.csv_path)
+                        if asn_info and asn_info.get('asn'):
+                            asn = asn_info['asn']
+                            org_name = asn_info.get('org_name', '')
+                            tx.run("MERGE (a:ASN {asn:$asn}) ON CREATE SET a.org_name = $org_name", asn=asn, org_name=org_name)
+                            if org_name:
+                                tx.run("""
+MERGE (a:ASN {asn:$asn})
+MERGE (o:Organization {name:$org_name, type:'RIROrganization'})
+MERGE (a)-[:MANAGED_BY]->(o)
+""", asn=asn, org_name=org_name)
+                        
+                        # Enriquecer con información de netblock
+                        netblock_info = get_netblock_info(addr)
+                        if netblock_info:
+                            asn = asn_info.get('asn') if asn_info else None
+                            tx.run("MERGE (n:Netblock {cidr:$netblock})", netblock=netblock_info['cidr'])
+                            if asn:
+                                tx.run("""
+MERGE (a:ASN {asn:$asn})
+MERGE (n:Netblock {cidr:$netblock})
+MERGE (a)-[:ANNOUNCES]->(n)
+""", asn=asn, netblock=netblock_info['cidr'])
+                            tx.run("""
+MERGE (i:IP {ip:$ip})
+MERGE (n:Netblock {cidr:$netblock})
+MERGE (n)-[:CONTAINS]->(i)
+""", ip=addr, netblock=netblock_info['cidr'])
+
+                # NS / MX / TXT / CNAME - procesar dentro de la transacción
+                for rtype in ("NS", "MX", "TXT", "CNAME"):
+                    for rec in dns_query(domain, rtype):
+                        if rtype == "NS":
+                            prov = guess_provider(rec)
+                            tx.run("""
+MERGE (svc:Service {name:$host, type:'DNS'})
+ON CREATE SET svc.category = 'Infrastructure',
+              svc.hostname = $host,
+              svc.provider_name = $prov
+MERGE (d:Domain {fqdn:$fqdn})
+MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'DNS', record_type:'NS'}]->(svc)
+""", host=rec, fqdn=domain, prov=prov)
+                        elif rtype == "MX":
+                            prio, host = rec.split() if " " in rec else ("10", rec)
+                            prov = guess_provider(host)
+                            tx.run("""
+MERGE (svc:Service {name:$host, type:'Email'})
+ON CREATE SET svc.category = 'Infrastructure',
+              svc.provider_name = $prov
+MERGE (d:Domain {fqdn:$fqdn})
+MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'MX', priority:toInteger($prio), record_type:'MX'}]->(svc)
+""", host=host, prov=prov, fqdn=domain, prio=prio)
+                        elif rtype == "TXT":
+                            tx.run("MERGE (d:Domain {fqdn:$fqdn}) SET d.txt = coalesce(d.txt,'') + $txt + '\\n'", fqdn=domain, txt=rec)
+                        elif rtype == "CNAME":
+                            prov = guess_provider(rec)
+                            tx.run("""
+MERGE (alias:Domain {fqdn:$fqdn})
+MERGE (target:Domain {fqdn:$target})
+ON CREATE SET target.provider_name = $prov
+MERGE (alias)-[:CNAME_TO]->(target)
+""", fqdn=domain, target=rec, prov=prov)
+
+                # Certificado TLS
+                cert = fetch_certificate(domain)
+                if cert:
+                    cert_dict = cert_to_dict(cert)
+                    tx.run("""
+MERGE (c:Certificate {serial_number:$serial})
+SET c.issuer_cn=$issuer,
+    c.valid_from=datetime($valid_from),
+    c.valid_to=datetime($valid_to),
+    c.signature_algorithm=$alg,
+    c.key_size=$key
+WITH c
+MATCH (d:Domain {fqdn:$fqdn})
+MERGE (d)-[:SECURED_BY]->(c)
+""", fqdn=domain, serial=cert_dict["serial"], issuer=cert_dict["issuer"],
+                           valid_from=cert_dict["valid_from"], valid_to=cert_dict["valid_to"],
+                           alg=cert_dict["algorithm"], key=cert_dict["key_size"])
+
+                # Procesar subdominios descubiertos por Amass
+                if amass_results:
+                    # Procesar datos de ASN, Netblocks y Organizaciones una sola vez
+                    first_entry = amass_results[0]
+                    if 'asn_data' in first_entry:
+                        # Procesar organizaciones
+                        for org_name, org_info in first_entry.get('org_data', {}).items():
+                            tx.run("""
+MERGE (o:Organization {name:$org_name})
+ON CREATE SET o.type = $org_type,
+              o.created_at = datetime()
+""", org_name=org_name, org_type=org_info.get('type', 'RIROrganization'))
+                        
+                        # Procesar ASNs
+                        for asn, asn_info in first_entry.get('asn_data', {}).items():
+                            org_name = asn_info.get('organization')
+                            tx.run("MERGE (a:ASN {asn:$asn}) ON CREATE SET a.org_name = $org_name", asn=asn, org_name=org_name)
+                            if org_name:
+                                tx.run("""
+MERGE (a:ASN {asn:$asn})
+MERGE (o:Organization {name:$org_name, type:'RIROrganization'})
+MERGE (a)-[:MANAGED_BY]->(o)
+""", asn=asn, org_name=org_name)
+                    
+                    for entry in amass_results:
+                        name = entry.get("name")
+                        if name and name != domain:
+                            # Crear subdominio
+                            ing.merge_domain(name, {}, tx)
+                            
+                            # Verificar si es un subdominio directo
+                            parent = entry.get("parent")
+                            if parent:
+                                ing.relate_subdomain(parent, name, tx)
+                            else:
+                                ing.relate_subdomain(domain, name, tx)
+                            
+                            # Siempre registrar el subdominio descubierto
+                            debug_log(f"[{worker_id}] Registrando subdominio: {domain} -> {name}")
+                            stats['subdomain_count'] += 1
+                            
+                            # Procesar direcciones IP
+                            for addr in entry.get("addresses", []):
+                                ip = addr.get("ip")
+                                if ip:
+                                    ing.merge_ip(name, ip, tx)
+                                    stats['ip_count'] += 1
+                            
+                            # Procesar registros DNS adicionales
+                            dns_records = entry.get("dns_records", [])
+                            for record in dns_records:
+                                if record['type'] in ['CNAME', 'MX', 'NS', 'PTR']:
+                                    # Procesar dentro de la transacción
+                                    if record['type'] == "NS":
+                                        prov = guess_provider(record['target'])
+                                        tx.run("""
+MERGE (svc:Service {name:$host, type:'DNS'})
+ON CREATE SET svc.category = 'Infrastructure',
+              svc.hostname = $host,
+              svc.provider_name = $prov
+MERGE (d:Domain {fqdn:$fqdn})
+MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'DNS', record_type:'NS'}]->(svc)
+""", host=record['target'], fqdn=name, prov=prov)
+                
+                # Commit de la transacción completa
+                tx.commit()
+                debug_log(f"[{worker_id}] ✓ Transacción completa para {domain}")
+                
+            except Exception as e:
+                debug_log(f"[{worker_id}] ✗ Error en transacción para {domain}: {e}")
+                tx.rollback()
+                stats['error_count'] += 1
+                raise e
+
+    # Ahora agregar a la cola fuera de la transacción
+    if amass_results:
+        for entry in amass_results:
+            name = entry.get("name")
+            if name and name != domain:
+                # Registrar en SQLite
+                success = queue_manager.add_discovered_domain(domain, name, 'amass')
+                if success:
+                    debug_log(f"[{worker_id}] ✓ Registrado en SQLite: {name}")
+                else:
+                    debug_log(f"[{worker_id}] ! Ya existe en SQLite: {name}")
+                
+                # Agregar a cola solo si tenemos profundidad restante
+                if depth > 0:
+                    debug_log(f"[{worker_id}] Agregando a cola: {name} (depth={depth-1})")
+                    queue_manager.add_domain(name, depth - 1)
+                else:
+                    debug_log(f"[{worker_id}] Subdominio descubierto (sin profundidad): {name}")
+
+    # Calculate processing time
+    stats['processing_time'] = time.time() - start_time
+    debug_log(f"[{worker_id}] ✓ Completado {domain} en {stats['processing_time']:.2f}s")
+    
+    return stats
 
 
 def enrich_and_ingest_sqlite(domain: str, depth: int, ing: GraphIngester,
@@ -2186,8 +2507,8 @@ def main():
                         entry_name = entry.get('name', 'NO_NAME')
                         debug_log(f"[{worker_id}] Sample Amass entry {i}: {entry_name}")
                 
-                # Process the domain
-                processing_stats = enrich_and_ingest_with_amass_results_sqlite(
+                # Process the domain with single transaction
+                processing_stats = enrich_and_ingest_domain_transaction(
                     domain, depth, ing, queue_manager, args.sample, worker_id, amass_results
                 )
                 
