@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { DomainResponse, DomainsListResponse, RiskScoreResponse, SecuritySummary, CalculationResponse } from '../types/api';
+import { DomainResponse, DomainsListResponse, RiskScoreResponse, SecuritySummary, CalculationResponse, BaseDomainsListResponse, BaseDomainDetailsResponse } from '../types/api';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8081';
 
@@ -55,6 +55,25 @@ export const domainApi = {
 
   getSecuritySummary: async (): Promise<SecuritySummary> => {
     const response = await api.get('/api/v1/domains/security-summary');
+    return response.data;
+  },
+
+  listBaseDomains: async (params: {
+    riskTier?: string;
+    businessCriticality?: string;
+    monitoringEnabled?: boolean;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  } = {}): Promise<BaseDomainsListResponse> => {
+    const response = await api.get('/api/v1/domains/base-domains', { params });
+    return response.data;
+  },
+
+  getBaseDomainDetails: async (baseDomain: string, includeRiskBreakdown: boolean = true): Promise<BaseDomainDetailsResponse> => {
+    const response = await api.get(`/api/v1/domains/base-domains/${baseDomain}/details`, {
+      params: { includeRiskBreakdown }
+    });
     return response.data;
   }
 };

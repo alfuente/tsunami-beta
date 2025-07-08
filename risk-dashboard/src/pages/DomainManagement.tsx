@@ -37,11 +37,11 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { domainApi, calculationApi } from '../services/api';
-import { DomainResponse, DomainsListResponse } from '../types/api';
+import { DomainResponse, DomainsListResponse, BaseDomainResponse, BaseDomainsListResponse } from '../types/api';
 
 const DomainManagement: React.FC = () => {
   const navigate = useNavigate();
-  const [domains, setDomains] = useState<DomainResponse[]>([]);
+  const [domains, setDomains] = useState<BaseDomainResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -60,7 +60,7 @@ const DomainManagement: React.FC = () => {
   const fetchDomains = async () => {
     try {
       setLoading(true);
-      const response: DomainsListResponse = await domainApi.listDomains({
+      const response: BaseDomainsListResponse = await domainApi.listBaseDomains({
         riskTier: filters.riskTier || undefined,
         businessCriticality: filters.businessCriticality || undefined,
         search: filters.search || undefined,
@@ -68,12 +68,12 @@ const DomainManagement: React.FC = () => {
         offset: pagination.page * pagination.pageSize,
       });
       
-      setDomains(response.domains);
+      setDomains(response.base_domains);
       setPagination(prev => ({ ...prev, total: response.total_count }));
       setError(null);
     } catch (err) {
-      setError('Failed to load domains');
-      console.error('Domains error:', err);
+      setError('Failed to load base domains');
+      console.error('Base domains error:', err);
     } finally {
       setLoading(false);
     }
@@ -121,7 +121,7 @@ const DomainManagement: React.FC = () => {
   return (
     <Box>
       <Box display="flex" justifyContent="between" alignItems="center" mb={3}>
-        <Typography variant="h4">Domain Management</Typography>
+        <Typography variant="h4">Base Domain Management</Typography>
         <Button
           variant="contained"
           startIcon={<AddIcon />}
@@ -135,7 +135,7 @@ const DomainManagement: React.FC = () => {
         <Grid item xs={12} sm={6} md={3}>
           <TextField
             fullWidth
-            label="Search Domains"
+            label="Search Base Domains"
             value={filters.search}
             onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
           />
@@ -193,22 +193,45 @@ const DomainManagement: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Domain</TableCell>
+                  <TableCell>Base Domain</TableCell>
+                  <TableCell>Subdomains</TableCell>
+                  <TableCell>Services</TableCell>
+                  <TableCell>Providers</TableCell>
                   <TableCell>Risk Score</TableCell>
                   <TableCell>Risk Tier</TableCell>
-                  <TableCell>Criticality</TableCell>
-                  <TableCell>Monitored</TableCell>
-                  <TableCell>Last Calculated</TableCell>
+                  <TableCell>Critical/High</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {domains.map((domain) => (
-                  <TableRow key={domain.fqdn}>
-                    <TableCell>{domain.fqdn}</TableCell>
+                  <TableRow key={domain.base_domain}>
                     <TableCell>
                       <Typography variant="body2" fontWeight="bold">
-                        {domain.risk_score.toFixed(1)}
+                        {domain.base_domain}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">
+                        {domain.subdomain_count}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">
+                        {domain.service_count}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2">
+                        {domain.provider_count}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Typography variant="body2" fontWeight="bold">
+                        {domain.max_risk_score.toFixed(1)}
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        (avg: {domain.avg_risk_score.toFixed(1)})
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -219,26 +242,27 @@ const DomainManagement: React.FC = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <Chip 
-                        label={domain.business_criticality} 
-                        variant="outlined"
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Chip 
-                        label={domain.monitoring_enabled ? 'Yes' : 'No'} 
-                        color={domain.monitoring_enabled ? 'success' : 'default'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {domain.last_calculated ? new Date(domain.last_calculated).toLocaleDateString() : '-'}
+                      <Box display="flex" gap={1}>
+                        {domain.critical_subdomains > 0 && (
+                          <Chip 
+                            label={`${domain.critical_subdomains} Critical`} 
+                            color="error"
+                            size="small"
+                          />
+                        )}
+                        {domain.high_risk_subdomains > 0 && (
+                          <Chip 
+                            label={`${domain.high_risk_subdomains} High`} 
+                            color="warning"
+                            size="small"
+                          />
+                        )}
+                      </Box>
                     </TableCell>
                     <TableCell>
                       <IconButton 
                         size="small" 
-                        onClick={() => navigate(`/domains/${domain.fqdn}`)}
+                        onClick={() => navigate(`/base-domains/${domain.base_domain}`)}
                       >
                         <ViewIcon />
                       </IconButton>

@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/api/v1/domains")
@@ -54,6 +56,70 @@ public class DomainResource {
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(Map.of("error", "Failed to retrieve domain information", "message", e.getMessage()))
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/base-domains")
+    @Operation(summary = "List base domains", 
+               description = "Retrieves a list of base domains grouped by root domain")
+    public Response listBaseDomains(
+            @Parameter(description = "Filter by risk tier")
+            @QueryParam("riskTier") String riskTier,
+            @Parameter(description = "Filter by business criticality")
+            @QueryParam("businessCriticality") String businessCriticality,
+            @Parameter(description = "Filter by monitoring status")
+            @QueryParam("monitoringEnabled") Boolean monitoringEnabled,
+            @Parameter(description = "Search by domain name pattern")
+            @QueryParam("search") String search,
+            @Parameter(description = "Maximum number of results")
+            @QueryParam("limit") @DefaultValue("50") int limit,
+            @Parameter(description = "Offset for pagination")
+            @QueryParam("offset") @DefaultValue("0") int offset) {
+        
+        try {
+            String query = buildBaseDomainQuery(riskTier, businessCriticality, monitoringEnabled, search, limit, offset);
+            
+            try (Session session = driver.session()) {
+                Result result = session.run(query);
+                List<Map<String, Object>> baseDomains = new ArrayList<>();
+                
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    Map<String, Object> baseDomain = new HashMap<>();
+                    baseDomain.put("base_domain", record.get("base_domain").asString());
+                    baseDomain.put("subdomain_count", record.get("subdomain_count").asInt());
+                    baseDomain.put("service_count", record.get("service_count").asInt());
+                    baseDomain.put("provider_count", record.get("provider_count").asInt());
+                    baseDomain.put("avg_risk_score", record.get("avg_risk_score").asDouble(0.0));
+                    baseDomain.put("max_risk_score", record.get("max_risk_score").asDouble(0.0));
+                    baseDomain.put("risk_tier", record.get("risk_tier").asString("Unknown"));
+                    baseDomain.put("critical_subdomains", record.get("critical_subdomains").asInt());
+                    baseDomain.put("high_risk_subdomains", record.get("high_risk_subdomains").asInt());
+                    baseDomain.put("business_criticality", record.get("business_criticality").asString("Unknown"));
+                    baseDomain.put("monitoring_enabled", record.get("monitoring_enabled").asBoolean(false));
+                    baseDomains.add(baseDomain);
+                }
+                
+                return Response.ok(Map.of(
+                    "base_domains", baseDomains,
+                    "total_count", baseDomains.size(),
+                    "filters", Map.of(
+                        "risk_tier", riskTier != null ? riskTier : "all",
+                        "business_criticality", businessCriticality != null ? businessCriticality : "all",
+                        "monitoring_enabled", monitoringEnabled != null ? monitoringEnabled : "all",
+                        "search", search != null ? search : ""
+                    ),
+                    "pagination", Map.of(
+                        "limit", limit,
+                        "offset", offset
+                    )
+                )).build();
+            }
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Failed to list base domains", "message", e.getMessage()))
                     .build();
         }
     }
@@ -431,5 +497,175 @@ public class DomainResource {
 
     private double calculatePercentage(int part, int total) {
         return total > 0 ? (double) part / total * 100.0 : 0.0;
+    }
+
+    private String buildBaseDomainQuery(String riskTier, String businessCriticality, 
+                                       Boolean monitoringEnabled, String search, int limit, int offset) {
+        StringBuilder query = new StringBuilder("""
+            MATCH (d:Domain)
+            WITH d, 
+                 CASE 
+                     WHEN d.fqdn CONTAINS '.' THEN 
+                         CASE 
+                             WHEN size(split(d.fqdn, '.')) >= 2 THEN 
+                                 split(d.fqdn, '.')[-2] + '.' + split(d.fqdn, '.')[-1]
+                             ELSE d.fqdn
+                         END
+                     ELSE d.fqdn
+                 END as base_domain
+            WHERE 1=1
+            """);
+        
+        if (riskTier != null && !riskTier.isEmpty()) {
+            query.append(" AND d.risk_tier = '").append(riskTier).append("'");
+        }
+        
+        if (businessCriticality != null && !businessCriticality.isEmpty()) {
+            query.append(" AND d.business_criticality = '").append(businessCriticality).append("'");
+        }
+        
+        if (monitoringEnabled != null) {
+            query.append(" AND d.monitoring_enabled = ").append(monitoringEnabled);
+        }
+        
+        if (search != null && !search.isEmpty()) {
+            query.append(" AND base_domain CONTAINS '").append(search).append("'");
+        }
+        
+        query.append("""
+            OPTIONAL MATCH (d)-[:RUNS]->(s:Service)
+            OPTIONAL MATCH (d)-[:HOSTED_BY]->(p:Provider)
+            WITH base_domain, 
+                 count(DISTINCT d) as subdomain_count,
+                 count(DISTINCT s) as service_count,
+                 count(DISTINCT p) as provider_count,
+                 avg(d.risk_score) as avg_risk_score,
+                 max(d.risk_score) as max_risk_score,
+                 count(CASE WHEN d.risk_tier = 'Critical' THEN 1 END) as critical_subdomains,
+                 count(CASE WHEN d.risk_tier = 'High' THEN 1 END) as high_risk_subdomains,
+                 max(d.business_criticality) as business_criticality,
+                 bool_or(d.monitoring_enabled) as monitoring_enabled,
+                 CASE 
+                     WHEN max(d.risk_score) >= 80 THEN 'Critical'
+                     WHEN max(d.risk_score) >= 60 THEN 'High'
+                     WHEN max(d.risk_score) >= 40 THEN 'Medium'
+                     ELSE 'Low'
+                 END as risk_tier
+            RETURN base_domain, subdomain_count, service_count, provider_count, 
+                   avg_risk_score, max_risk_score, risk_tier, 
+                   critical_subdomains, high_risk_subdomains, business_criticality, monitoring_enabled
+            ORDER BY max_risk_score DESC
+            SKIP """).append(offset).append(" LIMIT ").append(limit);
+        
+        return query.toString();
+    }
+
+    @GET
+    @Path("/base-domains/{baseDomain}/details")
+    @Operation(summary = "Get base domain details", 
+               description = "Retrieves detailed information for a base domain including subdomains, services, and providers")
+    public Response getBaseDomainDetails(
+            @Parameter(description = "Base domain name (e.g., bice.cl)")
+            @PathParam("baseDomain") String baseDomain,
+            @Parameter(description = "Include risk breakdown")
+            @QueryParam("includeRiskBreakdown") @DefaultValue("true") boolean includeRiskBreakdown) {
+        
+        try {
+            String query = """
+                MATCH (d:Domain)
+                WITH d, 
+                     CASE 
+                         WHEN d.fqdn CONTAINS '.' THEN 
+                             CASE 
+                                 WHEN size(split(d.fqdn, '.')) >= 2 THEN 
+                                     split(d.fqdn, '.')[-2] + '.' + split(d.fqdn, '.')[-1]
+                                 ELSE d.fqdn
+                             END
+                         ELSE d.fqdn
+                     END as base_domain
+                WHERE base_domain = $baseDomain
+                OPTIONAL MATCH (d)-[:RUNS]->(s:Service)
+                OPTIONAL MATCH (d)-[:HOSTED_BY]->(p:Provider)
+                OPTIONAL MATCH (d)<-[:AFFECTS]-(i:Incident)
+                WHERE i.resolved IS NULL
+                RETURN d.fqdn as subdomain,
+                       d.risk_score as risk_score,
+                       d.risk_tier as risk_tier,
+                       d.business_criticality as business_criticality,
+                       d.monitoring_enabled as monitoring_enabled,
+                       d.last_calculated as last_calculated,
+                       collect(DISTINCT s.name) as services,
+                       collect(DISTINCT p.name) as providers,
+                       count(DISTINCT i) as active_incidents
+                ORDER BY d.risk_score DESC
+                """;
+            
+            try (Session session = driver.session()) {
+                Result result = session.run(query, Map.of("baseDomain", baseDomain));
+                List<Map<String, Object>> subdomains = new ArrayList<>();
+                Map<String, Object> riskSummary = new HashMap<>();
+                Map<String, Object> serviceSummary = new HashMap<>();
+                Map<String, Object> providerSummary = new HashMap<>();
+                
+                List<Double> riskScores = new ArrayList<>();
+                Set<String> allServices = new HashSet<>();
+                Set<String> allProviders = new HashSet<>();
+                int totalIncidents = 0;
+                
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    Map<String, Object> subdomain = new HashMap<>();
+                    subdomain.put("fqdn", record.get("subdomain").asString());
+                    subdomain.put("risk_score", record.get("risk_score").asDouble(0.0));
+                    subdomain.put("risk_tier", record.get("risk_tier").asString("Unknown"));
+                    subdomain.put("business_criticality", record.get("business_criticality").asString("Unknown"));
+                    subdomain.put("monitoring_enabled", record.get("monitoring_enabled").asBoolean(false));
+                    subdomain.put("last_calculated", record.get("last_calculated").asLocalDateTime(null));
+                    subdomain.put("services", record.get("services").asList());
+                    subdomain.put("providers", record.get("providers").asList());
+                    subdomain.put("active_incidents", record.get("active_incidents").asInt());
+                    subdomains.add(subdomain);
+                    
+                    riskScores.add(record.get("risk_score").asDouble(0.0));
+                    List<Object> services = record.get("services").asList();
+                    List<Object> providers = record.get("providers").asList();
+                    services.forEach(service -> allServices.add(service.toString()));
+                    providers.forEach(provider -> allProviders.add(provider.toString()));
+                    totalIncidents += record.get("active_incidents").asInt();
+                }
+                
+                if (!subdomains.isEmpty()) {
+                    double avgRisk = riskScores.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+                    double maxRisk = riskScores.stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
+                    long criticalCount = riskScores.stream().filter(score -> score >= 80).count();
+                    long highCount = riskScores.stream().filter(score -> score >= 60 && score < 80).count();
+                    
+                    riskSummary.put("average_risk_score", avgRisk);
+                    riskSummary.put("max_risk_score", maxRisk);
+                    riskSummary.put("critical_subdomains", criticalCount);
+                    riskSummary.put("high_risk_subdomains", highCount);
+                    riskSummary.put("total_incidents", totalIncidents);
+                    
+                    serviceSummary.put("total_services", allServices.size());
+                    serviceSummary.put("services", new ArrayList<>(allServices));
+                    
+                    providerSummary.put("total_providers", allProviders.size());
+                    providerSummary.put("providers", new ArrayList<>(allProviders));
+                }
+                
+                return Response.ok(Map.of(
+                    "base_domain", baseDomain,
+                    "subdomains", subdomains,
+                    "risk_summary", riskSummary,
+                    "service_summary", serviceSummary,
+                    "provider_summary", providerSummary,
+                    "total_count", subdomains.size()
+                )).build();
+            }
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Failed to retrieve base domain details", "message", e.getMessage()))
+                    .build();
+        }
     }
 }

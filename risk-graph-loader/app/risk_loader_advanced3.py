@@ -159,13 +159,23 @@ class SQLiteQueueManager:
             try:
                 with sqlite3.connect(self.db_path, timeout=DB_TIMEOUT) as conn:
                     now = datetime.now().isoformat()
-                    conn.execute("""
+                    # First try to insert new domain
+                    cursor = conn.execute("""
                         INSERT OR IGNORE INTO domain_queue 
                         (domain, depth, state, priority, created_at, updated_at)
                         VALUES (?, ?, 'pending', ?, ?, ?)
                     """, (domain, depth, priority, now, now))
+                    
+                    # If domain already exists, check if it's in error state and reset it
+                    if cursor.rowcount == 0:
+                        cursor = conn.execute("""
+                            UPDATE domain_queue 
+                            SET state = 'pending', priority = ?, updated_at = ?, worker_id = NULL
+                            WHERE domain = ? AND depth = ? AND state = 'error'
+                        """, (priority, now, domain, depth))
+                    
                     conn.commit()
-                    return conn.total_changes > 0
+                    return cursor.rowcount > 0
             except sqlite3.Error as e:
                 print(f"[!] Error adding domain {domain}: {e}")
                 return False
@@ -1594,31 +1604,49 @@ MERGE (p)-[:PROVIDES {
         with self.drv.session() as s:
             if rdtype == "NS":
                 prov = guess_provider(value)
+                # Mejorar con información detallada del proveedor
+                cloud_info = get_cloud_provider_info(value, self.ipinfo_token, self.mmdb_path, self.csv_path)
                 s.run("""
 MERGE (svc:Service {name:$host, type:'DNS'})
 ON CREATE SET svc.category = 'Infrastructure',
               svc.hostname = $host,
-              svc.provider_name = $prov
+              svc.provider_name = $prov,
+              svc.organization = $org,
+              svc.detection_source = $source,
+              svc.created_at = datetime()
+ON MATCH SET svc.last_verified = datetime()
 MERGE (d:Domain {fqdn:$fqdn})
-MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'DNS', record_type:'NS'}]->(svc)
-""", host=value, fqdn=domain, prov=prov)
+MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'DNS', record_type:'NS', detected_at: datetime()}]->(svc)
+MERGE (svc)-[:HOSTS {service_type:'DNS', confidence:'high'}]->(d)
+""", host=value, fqdn=domain, prov=prov,
+    org=cloud_info.get('organization') if cloud_info else None,
+    source=cloud_info.get('source') if cloud_info else 'dns_lookup')
                 # Crear nodo Provider si es detectado
                 if prov != "unknown":
-                    self.merge_provider(prov, value)
+                    self.merge_provider_detailed(prov, value, cloud_info)
                     
             elif rdtype == "MX":
                 prio, host = value.split() if " " in value else ("10", value)
                 prov = guess_provider(host)
+                # Mejorar con información detallada del proveedor
+                cloud_info = get_cloud_provider_info(host, self.ipinfo_token, self.mmdb_path, self.csv_path)
                 s.run("""
 MERGE (svc:Service {name:$host, type:'Email'})
 ON CREATE SET svc.category = 'Infrastructure',
-              svc.provider_name = $prov
+              svc.provider_name = $prov,
+              svc.organization = $org,
+              svc.detection_source = $source,
+              svc.created_at = datetime()
+ON MATCH SET svc.last_verified = datetime()
 MERGE (d:Domain {fqdn:$fqdn})
-MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'MX', priority:toInteger($prio), record_type:'MX'}]->(svc)
-""", host=host, prov=prov, fqdn=domain, prio=prio)
+MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'MX', priority:toInteger($prio), record_type:'MX', detected_at: datetime()}]->(svc)
+MERGE (svc)-[:HOSTS {service_type:'Email', priority:toInteger($prio), confidence:'high'}]->(d)
+""", host=host, prov=prov, fqdn=domain, prio=prio,
+    org=cloud_info.get('organization') if cloud_info else None,
+    source=cloud_info.get('source') if cloud_info else 'dns_lookup')
                 # Crear nodo Provider si es detectado
                 if prov != "unknown":
-                    self.merge_provider(prov, host)
+                    self.merge_provider_detailed(prov, host, cloud_info)
                     
             elif rdtype == "TXT":
                 s.run("MERGE (d:Domain {fqdn:$fqdn}) SET d.txt = coalesce(d.txt,'') + $txt + '\\n'",
@@ -1626,15 +1654,20 @@ MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'MX', priority
                       
             elif rdtype == "CNAME":
                 prov = guess_provider(value)
+                cloud_info = get_cloud_provider_info(value, self.ipinfo_token, self.mmdb_path, self.csv_path)
                 s.run("""
 MERGE (alias:Domain {fqdn:$fqdn})
 MERGE (target:Domain {fqdn:$target})
-ON CREATE SET target.provider_name = $prov
-MERGE (alias)-[:CNAME_TO]->(target)
-""", fqdn=domain, target=value, prov=prov)
+ON CREATE SET target.provider_name = $prov,
+              target.organization = $org,
+              target.detection_source = $source
+MERGE (alias)-[:CNAME_TO {detected_at: datetime()}]->(target)
+""", fqdn=domain, target=value, prov=prov,
+    org=cloud_info.get('organization') if cloud_info else None,
+    source=cloud_info.get('source') if cloud_info else 'dns_lookup')
                 # Crear nodo Provider si es detectado
                 if prov != "unknown":
-                    self.merge_provider(prov, value)
+                    self.merge_provider_detailed(prov, value, cloud_info)
                     
             elif rdtype == "PTR":
                 s.run("""
@@ -1659,6 +1692,74 @@ MERGE (d)-[:SECURED_BY]->(c)
 """, fqdn=domain, serial=certinfo["serial"], issuer=certinfo["issuer"],
                    valid_from=certinfo["valid_from"], valid_to=certinfo["valid_to"],
                    alg=certinfo["algorithm"], key=certinfo["key_size"])
+
+    # service-domain relationships ----------------------------------------------
+    def merge_service_domain_relationship(self, service_name: str, service_type: str, domain: str, relationship_type: str = "HOSTS"):
+        """Crea relaciones bidireccionales entre servicios y dominios/subdominios."""
+        with self.drv.session() as s:
+            s.run("""
+MERGE (svc:Service {name:$service_name, type:$service_type})
+MERGE (d:Domain {fqdn:$domain})
+MERGE (svc)-[:""" + relationship_type + """ {
+    detected_at: datetime(),
+    confidence: 'high'
+}]->(d)
+MERGE (d)-[:DEPENDS_ON {
+    dependency_type: 'Critical',
+    service_type: $service_type,
+    detected_at: datetime()
+}]->(svc)
+""", service_name=service_name, service_type=service_type, domain=domain)
+
+    def associate_service_with_subdomains(self, service_name: str, service_type: str, parent_domain: str):
+        """Asocia un servicio con todos los subdominios de un dominio padre."""
+        with self.drv.session() as s:
+            # Encontrar todos los subdominios del dominio padre
+            result = s.run("""
+MATCH (parent:Domain {fqdn:$parent_domain})-[:HAS_SUBDOMAIN]->(subdomain:Domain)
+RETURN subdomain.fqdn as subdomain_fqdn
+""", parent_domain=parent_domain)
+            
+            # Asociar el servicio con cada subdominio
+            for record in result:
+                subdomain = record["subdomain_fqdn"]
+                self.merge_service_domain_relationship(service_name, service_type, subdomain, "HOSTS")
+
+    def process_service_subdomain_associations(self, domain: str):
+        """Procesa automáticamente las asociaciones de servicios con subdominios después del descubrimiento."""
+        with self.drv.session() as s:
+            # Encontrar todos los servicios asociados con el dominio padre
+            result = s.run("""
+MATCH (parent:Domain {fqdn:$domain})-[:DEPENDS_ON]->(svc:Service)
+RETURN svc.name as service_name, svc.type as service_type
+""", domain=domain)
+            
+            # Para cada servicio, asociarlo con todos los subdominios
+            for record in result:
+                service_name = record["service_name"]
+                service_type = record["service_type"]
+                self.associate_service_with_subdomains(service_name, service_type, domain)
+
+    def enhance_provider_relationships(self):
+        """Mejora las relaciones entre proveedores y servicios basándose en patrones de organización."""
+        with self.drv.session() as s:
+            # Encontrar servicios sin proveedor asignado pero con organización
+            s.run("""
+MATCH (svc:Service) 
+WHERE svc.provider_name IS NULL AND svc.organization IS NOT NULL
+WITH svc, svc.organization as org
+MERGE (p:Provider {name: org})
+ON CREATE SET p.type = 'Inferred',
+              p.tier = 2,
+              p.detected_from = 'organization_analysis',
+              p.created_at = datetime()
+MERGE (p)-[:PROVIDES {
+    detected_at: datetime(),
+    confidence: 'medium',
+    source: 'organization_analysis'
+}]->(svc)
+SET svc.provider_name = org
+""")
 
     # asn/netblock/organization -------------------------------------------------
     def merge_asn(self, asn: str, org_name: str = None):
@@ -1825,34 +1926,64 @@ MERGE (n)-[:CONTAINS]->(i)
                     for rec in dns_query(domain, rtype):
                         if rtype == "NS":
                             prov = guess_provider(rec)
+                            cloud_info = get_cloud_provider_info(rec, ing.ipinfo_token, ing.mmdb_path, ing.csv_path)
                             tx.run("""
 MERGE (svc:Service {name:$host, type:'DNS'})
 ON CREATE SET svc.category = 'Infrastructure',
               svc.hostname = $host,
-              svc.provider_name = $prov
+              svc.provider_name = $prov,
+              svc.organization = $org,
+              svc.detection_source = $source,
+              svc.created_at = datetime()
+ON MATCH SET svc.last_verified = datetime()
 MERGE (d:Domain {fqdn:$fqdn})
-MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'DNS', record_type:'NS'}]->(svc)
-""", host=rec, fqdn=domain, prov=prov)
+MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'DNS', record_type:'NS', detected_at: datetime()}]->(svc)
+MERGE (svc)-[:HOSTS {service_type:'DNS', confidence:'high'}]->(d)
+""", host=rec, fqdn=domain, prov=prov,
+    org=cloud_info.get('organization') if cloud_info else None,
+    source=cloud_info.get('source') if cloud_info else 'dns_lookup')
+                            # Crear nodo Provider si es detectado
+                            if prov != "unknown":
+                                ing.merge_provider_detailed(prov, rec, cloud_info, tx)
                         elif rtype == "MX":
                             prio, host = rec.split() if " " in rec else ("10", rec)
                             prov = guess_provider(host)
+                            cloud_info = get_cloud_provider_info(host, ing.ipinfo_token, ing.mmdb_path, ing.csv_path)
                             tx.run("""
 MERGE (svc:Service {name:$host, type:'Email'})
 ON CREATE SET svc.category = 'Infrastructure',
-              svc.provider_name = $prov
+              svc.provider_name = $prov,
+              svc.organization = $org,
+              svc.detection_source = $source,
+              svc.created_at = datetime()
+ON MATCH SET svc.last_verified = datetime()
 MERGE (d:Domain {fqdn:$fqdn})
-MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'MX', priority:toInteger($prio), record_type:'MX'}]->(svc)
-""", host=host, prov=prov, fqdn=domain, prio=prio)
+MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'MX', priority:toInteger($prio), record_type:'MX', detected_at: datetime()}]->(svc)
+MERGE (svc)-[:HOSTS {service_type:'Email', priority:toInteger($prio), confidence:'high'}]->(d)
+""", host=host, prov=prov, fqdn=domain, prio=prio,
+    org=cloud_info.get('organization') if cloud_info else None,
+    source=cloud_info.get('source') if cloud_info else 'dns_lookup')
+                            # Crear nodo Provider si es detectado
+                            if prov != "unknown":
+                                ing.merge_provider_detailed(prov, host, cloud_info, tx)
                         elif rtype == "TXT":
                             tx.run("MERGE (d:Domain {fqdn:$fqdn}) SET d.txt = coalesce(d.txt,'') + $txt + '\\n'", fqdn=domain, txt=rec)
                         elif rtype == "CNAME":
                             prov = guess_provider(rec)
+                            cloud_info = get_cloud_provider_info(rec, ing.ipinfo_token, ing.mmdb_path, ing.csv_path)
                             tx.run("""
 MERGE (alias:Domain {fqdn:$fqdn})
 MERGE (target:Domain {fqdn:$target})
-ON CREATE SET target.provider_name = $prov
-MERGE (alias)-[:CNAME_TO]->(target)
-""", fqdn=domain, target=rec, prov=prov)
+ON CREATE SET target.provider_name = $prov,
+              target.organization = $org,
+              target.detection_source = $source
+MERGE (alias)-[:CNAME_TO {detected_at: datetime()}]->(target)
+""", fqdn=domain, target=rec, prov=prov,
+    org=cloud_info.get('organization') if cloud_info else None,
+    source=cloud_info.get('source') if cloud_info else 'dns_lookup')
+                            # Crear nodo Provider si es detectado
+                            if prov != "unknown":
+                                ing.merge_provider_detailed(prov, rec, cloud_info, tx)
 
                 # Certificado TLS
                 cert = fetch_certificate(domain)
@@ -1964,6 +2095,20 @@ MERGE (d)-[:DEPENDS_ON {dependency_type:'Critical', service_level:'DNS', record_
                     queue_manager.add_domain(name, depth - 1)
                 else:
                     debug_log(f"[{worker_id}] Subdominio descubierto (sin profundidad): {name}")
+
+    # Procesar asociaciones automáticas de servicios con subdominios
+    try:
+        ing.process_service_subdomain_associations(domain)
+        debug_log(f"[{worker_id}] ✓ Procesadas asociaciones servicio-subdominio para {domain}")
+    except Exception as e:
+        debug_log(f"[{worker_id}] ! Error procesando asociaciones servicio-subdominio: {e}")
+    
+    # Mejorar relaciones de proveedores
+    try:
+        ing.enhance_provider_relationships()
+        debug_log(f"[{worker_id}] ✓ Mejoradas relaciones de proveedores")
+    except Exception as e:
+        debug_log(f"[{worker_id}] ! Error mejorando relaciones de proveedores: {e}")
 
     # Calculate processing time
     stats['processing_time'] = time.time() - start_time

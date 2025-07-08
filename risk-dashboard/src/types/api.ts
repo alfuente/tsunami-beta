@@ -89,3 +89,65 @@ export interface CalculationResponse {
   message?: string;
   error?: string;
 }
+
+export interface BaseDomainResponse {
+  base_domain: string;
+  subdomain_count: number;
+  service_count: number;
+  provider_count: number;
+  avg_risk_score: number;
+  max_risk_score: number;
+  risk_tier: string;
+  critical_subdomains: number;
+  high_risk_subdomains: number;
+  business_criticality: string;
+  monitoring_enabled: boolean;
+}
+
+export interface BaseDomainsListResponse {
+  base_domains: BaseDomainResponse[];
+  total_count: number;
+  filters: {
+    risk_tier: string;
+    business_criticality: string;
+    monitoring_enabled: string;
+    search: string;
+  };
+  pagination: {
+    limit: number;
+    offset: number;
+  };
+}
+
+export interface SubdomainDetail {
+  fqdn: string;
+  risk_score: number;
+  risk_tier: string;
+  business_criticality: string;
+  monitoring_enabled: boolean;
+  last_calculated: string | null;
+  services: string[];
+  providers: string[];
+  active_incidents: number;
+}
+
+export interface BaseDomainDetailsResponse {
+  base_domain: string;
+  subdomains: SubdomainDetail[];
+  risk_summary: {
+    average_risk_score: number;
+    max_risk_score: number;
+    critical_subdomains: number;
+    high_risk_subdomains: number;
+    total_incidents: number;
+  };
+  service_summary: {
+    total_services: number;
+    services: string[];
+  };
+  provider_summary: {
+    total_providers: number;
+    providers: string[];
+  };
+  total_count: number;
+}
