@@ -8,8 +8,7 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-import { PieChart } from '@mui/x-charts/PieChart';
-import { BarChart } from '@mui/x-charts/BarChart';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { domainApi, riskApi } from '../services/api';
 import { SecuritySummary, RiskScoreResponse } from '../types/api';
 
@@ -55,16 +54,18 @@ const Dashboard: React.FC = () => {
   }
 
   const riskDistributionData = securitySummary ? [
-    { id: 0, value: securitySummary.risk_distribution.critical, label: 'Critical' },
-    { id: 1, value: securitySummary.risk_distribution.high, label: 'High' },
-    { id: 2, value: securitySummary.total_domains - securitySummary.risk_distribution.critical - securitySummary.risk_distribution.high, label: 'Other' },
+    { name: 'Critical', value: securitySummary.risk_distribution.critical },
+    { name: 'High', value: securitySummary.risk_distribution.high },
+    { name: 'Other', value: securitySummary.total_domains - securitySummary.risk_distribution.critical - securitySummary.risk_distribution.high },
   ] : [];
 
   const securityMetrics = securitySummary ? [
-    { category: 'DNSSEC Enabled', value: securitySummary.security.dnssec_enabled },
-    { category: 'Good TLS Grade', value: securitySummary.security.good_tls_grade },
-    { category: 'Monitored', value: securitySummary.monitoring.monitored_domains },
+    { name: 'DNSSEC Enabled', value: securitySummary.security.dnssec_enabled },
+    { name: 'Good TLS Grade', value: securitySummary.security.good_tls_grade },
+    { name: 'Monitored', value: securitySummary.monitoring.monitored_domains },
   ] : [];
+
+  const COLORS = ['#f44336', '#ff9800', '#4caf50'];
 
   return (
     <Box>
@@ -132,15 +133,24 @@ const Dashboard: React.FC = () => {
                 Risk Distribution
               </Typography>
               {riskDistributionData.length > 0 && (
-                <PieChart
-                  series={[
-                    {
-                      data: riskDistributionData,
-                    },
-                  ]}
-                  width={400}
-                  height={200}
-                />
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={riskDistributionData}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={60}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`}
+                    >
+                      {riskDistributionData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
               )}
             </CardContent>
           </Card>
@@ -153,17 +163,15 @@ const Dashboard: React.FC = () => {
                 Security Metrics
               </Typography>
               {securityMetrics.length > 0 && (
-                <BarChart
-                  xAxis={[{
-                    scaleType: 'band',
-                    data: securityMetrics.map(item => item.category),
-                  }]}
-                  series={[{
-                    data: securityMetrics.map(item => item.value),
-                  }]}
-                  width={400}
-                  height={200}
-                />
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={securityMetrics}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#1976d2" />
+                  </BarChart>
+                </ResponsiveContainer>
               )}
             </CardContent>
           </Card>

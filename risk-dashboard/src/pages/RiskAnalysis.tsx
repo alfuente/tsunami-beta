@@ -14,10 +14,29 @@ import {
   Alert,
   Slider,
 } from '@mui/material';
-import { BarChart } from '@mui/x-charts/BarChart';
-import { LineChart } from '@mui/x-charts/LineChart';
-import { ScatterChart } from '@mui/x-charts/ScatterChart';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { 
+  BarChart, 
+  Bar, 
+  LineChart, 
+  Line, 
+  ScatterChart, 
+  Scatter, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  Legend, 
+  ResponsiveContainer 
+} from 'recharts';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper 
+} from '@mui/material';
 import { Refresh as RefreshIcon } from '@mui/icons-material';
 import { riskApi, domainApi } from '../services/api';
 import { RiskScoreResponse, DomainResponse } from '../types/api';
@@ -71,27 +90,24 @@ const RiskAnalysis: React.FC = () => {
       return acc;
     }, {} as Record<string, number>);
 
-    return {
-      categories: Object.keys(distribution),
-      values: Object.values(distribution),
-    };
+    return Object.keys(distribution).map(key => ({
+      name: key,
+      value: distribution[key],
+    }));
   }, [riskScores]);
 
   const riskScoreHistogram = React.useMemo(() => {
     const buckets = Array.from({ length: 10 }, (_, i) => ({
-      range: `${i * 10}-${(i + 1) * 10}`,
-      count: 0,
+      name: `${i * 10}-${(i + 1) * 10}`,
+      value: 0,
     }));
 
     riskScores.forEach(score => {
       const bucketIndex = Math.min(Math.floor(score.risk_score / 10), 9);
-      buckets[bucketIndex].count++;
+      buckets[bucketIndex].value++;
     });
 
-    return {
-      ranges: buckets.map(b => b.range),
-      counts: buckets.map(b => b.count),
-    };
+    return buckets;
   }, [riskScores]);
 
   const riskTrendData = React.useMemo(() => {
@@ -100,59 +116,12 @@ const RiskAnalysis: React.FC = () => {
       .sort((a, b) => new Date(a.last_calculated!).getTime() - new Date(b.last_calculated!).getTime())
       .slice(-30);
 
-    return {
-      dates: sortedScores.map(s => new Date(s.last_calculated!).toLocaleDateString()),
-      scores: sortedScores.map(s => s.risk_score),
-    };
-  }, [riskScores]);
-
-  const scatterData = React.useMemo(() => {
-    return riskScores.map((score, index) => ({
-      id: index,
-      x: score.risk_score,
-      y: Math.random() * 100,
-      nodeType: score.node_type,
+    return sortedScores.map(s => ({
+      date: new Date(s.last_calculated!).toLocaleDateString(),
+      score: s.risk_score,
     }));
   }, [riskScores]);
 
-  const columns: GridColDef[] = [
-    {
-      field: 'node_id',
-      headerName: 'Node ID',
-      flex: 1,
-      minWidth: 200,
-    },
-    {
-      field: 'node_type',
-      headerName: 'Type',
-      width: 120,
-    },
-    {
-      field: 'risk_score',
-      headerName: 'Risk Score',
-      width: 120,
-      renderCell: (params) => (
-        <Typography variant="body2" fontWeight="bold">
-          {params.value.toFixed(1)}
-        </Typography>
-      ),
-    },
-    {
-      field: 'risk_tier',
-      headerName: 'Risk Tier',
-      width: 120,
-    },
-    {
-      field: 'last_calculated',
-      headerName: 'Last Calculated',
-      width: 150,
-      renderCell: (params) => {
-        if (!params.value) return '-';
-        const date = new Date(params.value);
-        return date.toLocaleDateString();
-      },
-    },
-  ];
 
   return (
     <Box>
@@ -226,19 +195,16 @@ const RiskAnalysis: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Risk Distribution by Tier
               </Typography>
-              {riskDistributionData.categories.length > 0 && (
-                <BarChart
-                  xAxis={[{
-                    scaleType: 'band',
-                    data: riskDistributionData.categories,
-                  }]}
-                  series={[{
-                    data: riskDistributionData.values,
-                    label: 'Count',
-                  }]}
-                  width={500}
-                  height={300}
-                />
+              {riskDistributionData.length > 0 && (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={riskDistributionData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#1976d2" />
+                  </BarChart>
+                </ResponsiveContainer>
               )}
             </CardContent>
           </Card>
@@ -250,19 +216,16 @@ const RiskAnalysis: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Risk Score Distribution
               </Typography>
-              {riskScoreHistogram.ranges.length > 0 && (
-                <BarChart
-                  xAxis={[{
-                    scaleType: 'band',
-                    data: riskScoreHistogram.ranges,
-                  }]}
-                  series={[{
-                    data: riskScoreHistogram.counts,
-                    label: 'Count',
-                  }]}
-                  width={500}
-                  height={300}
-                />
+              {riskScoreHistogram.length > 0 && (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={riskScoreHistogram}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#ff9800" />
+                  </BarChart>
+                </ResponsiveContainer>
               )}
             </CardContent>
           </Card>
@@ -274,19 +237,16 @@ const RiskAnalysis: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Risk Score Trend (Last 30 Calculations)
               </Typography>
-              {riskTrendData.dates.length > 0 && (
-                <LineChart
-                  xAxis={[{
-                    scaleType: 'point',
-                    data: riskTrendData.dates,
-                  }]}
-                  series={[{
-                    data: riskTrendData.scores,
-                    label: 'Risk Score',
-                  }]}
-                  width={500}
-                  height={300}
-                />
+              {riskTrendData.length > 0 && (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={riskTrendData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line type="monotone" dataKey="score" stroke="#4caf50" />
+                  </LineChart>
+                </ResponsiveContainer>
               )}
             </CardContent>
           </Card>
@@ -296,19 +256,23 @@ const RiskAnalysis: React.FC = () => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Risk Score vs Node Distribution
+                Risk Score Statistics
               </Typography>
-              {scatterData.length > 0 && (
-                <ScatterChart
-                  series={[{
-                    data: scatterData,
-                    label: 'Nodes',
-                  }]}
-                  width={500}
-                  height={300}
-                  xAxis={[{ label: 'Risk Score' }]}
-                  yAxis={[{ label: 'Distribution' }]}
-                />
+              {riskScores.length > 0 && (
+                <Box>
+                  <Typography variant="body2">
+                    Total Nodes: {riskScores.length}
+                  </Typography>
+                  <Typography variant="body2">
+                    Average Score: {(riskScores.reduce((sum, s) => sum + s.risk_score, 0) / riskScores.length).toFixed(1)}
+                  </Typography>
+                  <Typography variant="body2">
+                    Max Score: {Math.max(...riskScores.map(s => s.risk_score)).toFixed(1)}
+                  </Typography>
+                  <Typography variant="body2">
+                    Min Score: {Math.min(...riskScores.map(s => s.risk_score)).toFixed(1)}
+                  </Typography>
+                </Box>
               )}
             </CardContent>
           </Card>
@@ -320,16 +284,36 @@ const RiskAnalysis: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 High Risk Nodes (Score ≥ {filters.threshold})
               </Typography>
-              <DataGrid
-                rows={highRiskNodes}
-                columns={columns}
-                getRowId={(row) => `${row.node_type}-${row.node_id}`}
-                pageSize={10}
-                rowsPerPageOptions={[10, 25, 50]}
-                disableSelectionOnClick
-                autoHeight
-                loading={loading}
-              />
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Node ID</TableCell>
+                      <TableCell>Type</TableCell>
+                      <TableCell>Risk Score</TableCell>
+                      <TableCell>Risk Tier</TableCell>
+                      <TableCell>Last Calculated</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {highRiskNodes.slice(0, 10).map((node, index) => (
+                      <TableRow key={`${node.node_type}-${node.node_id}`}>
+                        <TableCell>{node.node_id}</TableCell>
+                        <TableCell>{node.node_type}</TableCell>
+                        <TableCell>
+                          <Typography variant="body2" fontWeight="bold">
+                            {node.risk_score.toFixed(1)}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>{node.risk_tier}</TableCell>
+                        <TableCell>
+                          {node.last_calculated ? new Date(node.last_calculated).toLocaleDateString() : '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </CardContent>
           </Card>
         </Grid>

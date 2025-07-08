@@ -59,3 +59,5 @@ coverage.xml
 *.sqlite3
 
 **/**/ipinfo.mmdb
+
+.vscode/*

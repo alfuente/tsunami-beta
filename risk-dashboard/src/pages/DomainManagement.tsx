@@ -20,7 +20,17 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import { DataGrid, GridColDef, GridActionsCellItem } from '@mui/x-data-grid';
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableContainer, 
+  TableHead, 
+  TableRow, 
+  Paper,
+  TablePagination,
+  IconButton 
+} from '@mui/material';
 import {
   Add as AddIcon,
   Visibility as ViewIcon,
@@ -96,83 +106,17 @@ const DomainManagement: React.FC = () => {
     }
   };
 
-  const columns: GridColDef[] = [
-    {
-      field: 'fqdn',
-      headerName: 'Domain',
-      flex: 1,
-      minWidth: 200,
-    },
-    {
-      field: 'risk_score',
-      headerName: 'Risk Score',
-      width: 120,
-      renderCell: (params) => (
-        <Typography variant="body2" fontWeight="bold">
-          {params.value.toFixed(1)}
-        </Typography>
-      ),
-    },
-    {
-      field: 'risk_tier',
-      headerName: 'Risk Tier',
-      width: 120,
-      renderCell: (params) => (
-        <Chip 
-          label={params.value} 
-          color={getRiskTierColor(params.value) as any}
-          size="small"
-        />
-      ),
-    },
-    {
-      field: 'business_criticality',
-      headerName: 'Criticality',
-      width: 130,
-      renderCell: (params) => (
-        <Chip 
-          label={params.value} 
-          variant="outlined"
-          size="small"
-        />
-      ),
-    },
-    {
-      field: 'monitoring_enabled',
-      headerName: 'Monitored',
-      width: 100,
-      renderCell: (params) => (
-        <Chip 
-          label={params.value ? 'Yes' : 'No'} 
-          color={params.value ? 'success' : 'default'}
-          size="small"
-        />
-      ),
-    },
-    {
-      field: 'last_calculated',
-      headerName: 'Last Calculated',
-      width: 150,
-      renderCell: (params) => {
-        if (!params.value) return '-';
-        const date = new Date(params.value);
-        return date.toLocaleDateString();
-      },
-    },
-    {
-      field: 'actions',
-      type: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      getActions: (params) => [
-        <GridActionsCellItem
-          icon={<ViewIcon />}
-          label="View"
-          onClick={() => navigate(`/domains/${params.row.fqdn}`)}
-        />,
-      ],
-    },
-  ];
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPagination(prev => ({ 
+      ...prev, 
+      pageSize: parseInt(event.target.value, 10),
+      page: 0 
+    }));
+  };
 
   return (
     <Box>
@@ -245,21 +189,73 @@ const DomainManagement: React.FC = () => {
 
       <Card>
         <CardContent>
-          <DataGrid
-            rows={domains}
-            columns={columns}
-            loading={loading}
-            getRowId={(row) => row.fqdn}
-            pagination
-            paginationMode="server"
-            rowCount={pagination.total}
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Domain</TableCell>
+                  <TableCell>Risk Score</TableCell>
+                  <TableCell>Risk Tier</TableCell>
+                  <TableCell>Criticality</TableCell>
+                  <TableCell>Monitored</TableCell>
+                  <TableCell>Last Calculated</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {domains.map((domain) => (
+                  <TableRow key={domain.fqdn}>
+                    <TableCell>{domain.fqdn}</TableCell>
+                    <TableCell>
+                      <Typography variant="body2" fontWeight="bold">
+                        {domain.risk_score.toFixed(1)}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={domain.risk_tier} 
+                        color={getRiskTierColor(domain.risk_tier) as any}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={domain.business_criticality} 
+                        variant="outlined"
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={domain.monitoring_enabled ? 'Yes' : 'No'} 
+                        color={domain.monitoring_enabled ? 'success' : 'default'}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {domain.last_calculated ? new Date(domain.last_calculated).toLocaleDateString() : '-'}
+                    </TableCell>
+                    <TableCell>
+                      <IconButton 
+                        size="small" 
+                        onClick={() => navigate(`/domains/${domain.fqdn}`)}
+                      >
+                        <ViewIcon />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 50, 100]}
+            component="div"
+            count={pagination.total}
+            rowsPerPage={pagination.pageSize}
             page={pagination.page}
-            pageSize={pagination.pageSize}
-            onPageChange={(newPage) => setPagination(prev => ({ ...prev, page: newPage }))}
-            onPageSizeChange={(newPageSize) => setPagination(prev => ({ ...prev, pageSize: newPageSize }))}
-            pageSizeOptions={[10, 25, 50, 100]}
-            disableSelectionOnClick
-            autoHeight
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
           />
         </CardContent>
       </Card>
