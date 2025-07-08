@@ -1,19 +1,20 @@
 package com.example.risk.validation;
 
+import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Record;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
-@Service
+@ApplicationScoped
 public class RiskValidationService {
     
-    @Autowired
-    private Session neo4jSession;
+    @Inject
+    Driver driver;
     
     public List<ValidationResult> validateRiskCalculations() {
         List<ValidationResult> results = new ArrayList<>();
@@ -45,21 +46,23 @@ public class RiskValidationService {
                 n.risk_score as riskScore
         """;
         
-        Result result = neo4jSession.run(query);
-        while (result.hasNext()) {
-            Record record = result.next();
-            results.add(new ValidationResult(
-                ValidationResult.Severity.ERROR,
-                "INVALID_RISK_SCORE_RANGE",
-                String.format("Node %s:%s has invalid risk score: %.2f (must be 0-100)",
-                    record.get("nodeType").asString(),
-                    record.get("nodeId").asString(),
-                    record.get("riskScore").asDouble()),
-                record.get("nodeId").asString()
-            ));
+        try (Session session = driver.session()) {
+            Result result = session.run(query);
+            while (result.hasNext()) {
+                Record record = result.next();
+                results.add(new ValidationResult(
+                    ValidationResult.Severity.ERROR,
+                    "INVALID_RISK_SCORE_RANGE",
+                    String.format("Node %s:%s has invalid risk score: %.2f (must be 0-100)",
+                        record.get("nodeType").asString(),
+                        record.get("nodeId").asString(),
+                        record.get("riskScore").asDouble()),
+                    record.get("nodeId").asString()
+                ));
+            }
+            
+            return results;
         }
-        
-        return results;
     }
     
     private List<ValidationResult> validateRiskTierConsistency() {
@@ -86,22 +89,24 @@ public class RiskValidationService {
                 n.risk_tier as riskTier
         """;
         
-        Result result = neo4jSession.run(query);
-        while (result.hasNext()) {
-            Record record = result.next();
-            results.add(new ValidationResult(
-                ValidationResult.Severity.WARNING,
-                "INCONSISTENT_RISK_TIER",
-                String.format("Node %s:%s has inconsistent risk tier: score=%.2f, tier=%s",
-                    record.get("nodeType").asString(),
-                    record.get("nodeId").asString(),
-                    record.get("riskScore").asDouble(),
-                    record.get("riskTier").asString()),
-                record.get("nodeId").asString()
-            ));
+        try (Session session = driver.session()) {
+            Result result = session.run(query);
+            while (result.hasNext()) {
+                Record record = result.next();
+                results.add(new ValidationResult(
+                    ValidationResult.Severity.WARNING,
+                    "INCONSISTENT_RISK_TIER",
+                    String.format("Node %s:%s has inconsistent risk tier: score=%.2f, tier=%s",
+                        record.get("nodeType").asString(),
+                        record.get("nodeId").asString(),
+                        record.get("riskScore").asDouble(),
+                        record.get("riskTier").asString()),
+                    record.get("nodeId").asString()
+                ));
+            }
+            
+            return results;
         }
-        
-        return results;
     }
     
     private List<ValidationResult> validateDependencyChains() {
@@ -120,18 +125,20 @@ public class RiskValidationService {
                 length(path) as pathLength
         """;
         
-        Result result = neo4jSession.run(circularQuery);
-        while (result.hasNext()) {
-            Record record = result.next();
-            results.add(new ValidationResult(
-                ValidationResult.Severity.ERROR,
-                "CIRCULAR_DEPENDENCY",
-                String.format("Circular dependency detected for %s:%s (path length: %d)",
-                    record.get("nodeType").asString(),
-                    record.get("nodeId").asString(),
-                    record.get("pathLength").asInt()),
-                record.get("nodeId").asString()
-            ));
+        try (Session session = driver.session()) {
+            Result result = session.run(circularQuery);
+            while (result.hasNext()) {
+                Record record = result.next();
+                results.add(new ValidationResult(
+                    ValidationResult.Severity.ERROR,
+                    "CIRCULAR_DEPENDENCY",
+                    String.format("Circular dependency detected for %s:%s (path length: %d)",
+                        record.get("nodeType").asString(),
+                        record.get("nodeId").asString(),
+                        record.get("pathLength").asInt()),
+                    record.get("nodeId").asString()
+                ));
+            }
         }
         
         // Check for missing dependency types
@@ -152,22 +159,24 @@ public class RiskValidationService {
             LIMIT 100
         """;
         
-        result = neo4jSession.run(missingTypeQuery);
-        while (result.hasNext()) {
-            Record record = result.next();
-            results.add(new ValidationResult(
-                ValidationResult.Severity.WARNING,
-                "MISSING_DEPENDENCY_TYPE",
-                String.format("Missing dependency type for %s:%s -> %s:%s",
-                    record.get("nodeType").asString(),
-                    record.get("nodeId").asString(),
-                    record.get("depType").asString(),
-                    record.get("depId").asString()),
-                record.get("nodeId").asString()
-            ));
+        try (Session session = driver.session()) {
+            Result result = session.run(missingTypeQuery);
+            while (result.hasNext()) {
+                Record record = result.next();
+                results.add(new ValidationResult(
+                    ValidationResult.Severity.WARNING,
+                    "MISSING_DEPENDENCY_TYPE",
+                    String.format("Missing dependency type for %s:%s -> %s:%s",
+                        record.get("nodeType").asString(),
+                        record.get("nodeId").asString(),
+                        record.get("depType").asString(),
+                        record.get("depId").asString()),
+                    record.get("nodeId").asString()
+                ));
+            }
+            
+            return results;
         }
-        
-        return results;
     }
     
     private List<ValidationResult> validateIncidentImpacts() {
@@ -180,16 +189,18 @@ public class RiskValidationService {
             RETURN i.id as incidentId, i.severity as severity
         """;
         
-        Result result = neo4jSession.run(orphanIncidentsQuery);
-        while (result.hasNext()) {
-            Record record = result.next();
-            results.add(new ValidationResult(
-                ValidationResult.Severity.WARNING,
-                "ORPHAN_INCIDENT",
-                String.format("Incident %s does not affect any nodes",
-                    record.get("incidentId").asString()),
-                record.get("incidentId").asString()
-            ));
+        try (Session session = driver.session()) {
+            Result result = session.run(orphanIncidentsQuery);
+            while (result.hasNext()) {
+                Record record = result.next();
+                results.add(new ValidationResult(
+                    ValidationResult.Severity.WARNING,
+                    "ORPHAN_INCIDENT",
+                    String.format("Incident %s does not affect any nodes",
+                        record.get("incidentId").asString()),
+                    record.get("incidentId").asString()
+                ));
+            }
         }
         
         // Check for resolved incidents still marked as affecting nodes
@@ -208,22 +219,24 @@ public class RiskValidationService {
             LIMIT 50
         """;
         
-        result = neo4jSession.run(resolvedIncidentsQuery);
-        while (result.hasNext()) {
-            Record record = result.next();
-            results.add(new ValidationResult(
-                ValidationResult.Severity.INFO,
-                "OLD_RESOLVED_INCIDENT",
-                String.format("Old resolved incident %s still affects %s:%s (resolved: %s)",
-                    record.get("incidentId").asString(),
-                    record.get("nodeType").asString(),
-                    record.get("nodeId").asString(),
-                    record.get("resolved").asLocalDateTime()),
-                record.get("incidentId").asString()
-            ));
+        try (Session session = driver.session()) {
+            Result result = session.run(resolvedIncidentsQuery);
+            while (result.hasNext()) {
+                Record record = result.next();
+                results.add(new ValidationResult(
+                    ValidationResult.Severity.INFO,
+                    "OLD_RESOLVED_INCIDENT",
+                    String.format("Old resolved incident %s still affects %s:%s (resolved: %s)",
+                        record.get("incidentId").asString(),
+                        record.get("nodeType").asString(),
+                        record.get("nodeId").asString(),
+                        record.get("resolved").asLocalDateTime()),
+                    record.get("incidentId").asString()
+                ));
+            }
+            
+            return results;
         }
-        
-        return results;
     }
     
     private List<ValidationResult> validateTemporalDecay() {
@@ -246,24 +259,26 @@ public class RiskValidationService {
             LIMIT 100
         """;
         
-        Result result = neo4jSession.run(query);
-        while (result.hasNext()) {
-            Record record = result.next();
-            LocalDateTime lastCalc = record.get("lastCalculated").asLocalDateTime();
-            long daysSince = ChronoUnit.DAYS.between(lastCalc, LocalDateTime.now());
+        try (Session session = driver.session()) {
+            Result result = session.run(query);
+            while (result.hasNext()) {
+                Record record = result.next();
+                LocalDateTime lastCalc = record.get("lastCalculated").asLocalDateTime();
+                long daysSince = ChronoUnit.DAYS.between(lastCalc, LocalDateTime.now());
+                
+                results.add(new ValidationResult(
+                    daysSince > 30 ? ValidationResult.Severity.WARNING : ValidationResult.Severity.INFO,
+                    "STALE_RISK_CALCULATION",
+                    String.format("Risk score for %s:%s is stale (last calculated %d days ago)",
+                        record.get("nodeType").asString(),
+                        record.get("nodeId").asString(),
+                        daysSince),
+                    record.get("nodeId").asString()
+                ));
+            }
             
-            results.add(new ValidationResult(
-                daysSince > 30 ? ValidationResult.Severity.WARNING : ValidationResult.Severity.INFO,
-                "STALE_RISK_CALCULATION",
-                String.format("Risk score for %s:%s is stale (last calculated %d days ago)",
-                    record.get("nodeType").asString(),
-                    record.get("nodeId").asString(),
-                    daysSince),
-                record.get("nodeId").asString()
-            ));
+            return results;
         }
-        
-        return results;
     }
     
     private List<ValidationResult> validateOrphanedNodes() {
@@ -277,19 +292,21 @@ public class RiskValidationService {
             LIMIT 50
         """;
         
-        Result result = neo4jSession.run(orphanDomainsQuery);
-        while (result.hasNext()) {
-            Record record = result.next();
-            results.add(new ValidationResult(
-                ValidationResult.Severity.INFO,
-                "ORPHAN_DOMAIN",
-                String.format("Domain %s has no relationships",
-                    record.get("fqdn").asString()),
-                record.get("fqdn").asString()
-            ));
+        try (Session session = driver.session()) {
+            Result result = session.run(orphanDomainsQuery);
+            while (result.hasNext()) {
+                Record record = result.next();
+                results.add(new ValidationResult(
+                    ValidationResult.Severity.INFO,
+                    "ORPHAN_DOMAIN",
+                    String.format("Domain %s has no relationships",
+                        record.get("fqdn").asString()),
+                    record.get("fqdn").asString()
+                ));
+            }
+            
+            return results;
         }
-        
-        return results;
     }
     
     private List<ValidationResult> validateBusinessRules() {
@@ -303,16 +320,18 @@ public class RiskValidationService {
             RETURN d.fqdn as fqdn
         """;
         
-        Result result = neo4jSession.run(criticalDomainsQuery);
-        while (result.hasNext()) {
-            Record record = result.next();
-            results.add(new ValidationResult(
-                ValidationResult.Severity.WARNING,
-                "CRITICAL_DOMAIN_NO_MONITORING",
-                String.format("Critical domain %s does not have monitoring enabled",
-                    record.get("fqdn").asString()),
-                record.get("fqdn").asString()
-            ));
+        try (Session session = driver.session()) {
+            Result result = session.run(criticalDomainsQuery);
+            while (result.hasNext()) {
+                Record record = result.next();
+                results.add(new ValidationResult(
+                    ValidationResult.Severity.WARNING,
+                    "CRITICAL_DOMAIN_NO_MONITORING",
+                    String.format("Critical domain %s does not have monitoring enabled",
+                        record.get("fqdn").asString()),
+                    record.get("fqdn").asString()
+                ));
+            }
         }
         
         // High-risk nodes should have recent assessments
@@ -330,21 +349,23 @@ public class RiskValidationService {
                 n.risk_score as riskScore
         """;
         
-        result = neo4jSession.run(highRiskQuery);
-        while (result.hasNext()) {
-            Record record = result.next();
-            results.add(new ValidationResult(
-                ValidationResult.Severity.WARNING,
-                "HIGH_RISK_NO_RECENT_ASSESSMENT",
-                String.format("High-risk %s %s (score: %.2f) lacks recent security assessment",
-                    record.get("nodeType").asString(),
-                    record.get("nodeId").asString(),
-                    record.get("riskScore").asDouble()),
-                record.get("nodeId").asString()
-            ));
+        try (Session session = driver.session()) {
+            Result result = session.run(highRiskQuery);
+            while (result.hasNext()) {
+                Record record = result.next();
+                results.add(new ValidationResult(
+                    ValidationResult.Severity.WARNING,
+                    "HIGH_RISK_NO_RECENT_ASSESSMENT",
+                    String.format("High-risk %s %s (score: %.2f) lacks recent security assessment",
+                        record.get("nodeType").asString(),
+                        record.get("nodeId").asString(),
+                        record.get("riskScore").asDouble()),
+                    record.get("nodeId").asString()
+                ));
+            }
+            
+            return results;
         }
-        
-        return results;
     }
     
     public static class ValidationResult {

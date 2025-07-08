@@ -2,7 +2,7 @@ package com.example.risk.service;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import org.neo4j.driver.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.inject.Inject;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -12,17 +12,17 @@ public class RiskCalculator {
 
     private final Driver driver;
     
-    @Autowired
-    private BaseScoreCalculator baseScoreCalculator;
+    @Inject
+    BaseScoreCalculator baseScoreCalculator;
     
-    @Autowired
-    private ThirdPartyScoreCalculator thirdPartyScoreCalculator;
+    @Inject
+    ThirdPartyScoreCalculator thirdPartyScoreCalculator;
     
-    @Autowired
-    private IncidentImpactCalculator incidentImpactCalculator;
+    @Inject
+    IncidentImpactCalculator incidentImpactCalculator;
     
-    @Autowired
-    private ContextBoostCalculator contextBoostCalculator;
+    @Inject
+    ContextBoostCalculator contextBoostCalculator;
 
     public RiskCalculator(Driver driver) {
         this.driver = driver;
@@ -38,7 +38,7 @@ public class RiskCalculator {
                 
                 int count = 0;
                 while (result.hasNext()) {
-                    Record record = result.next();
+                    org.neo4j.driver.Record record = result.next();
                     String domainFqdn = record.get("fqdn").asString();
                     
                     double riskScore = calculateCompleteRiskScore(domainFqdn, "domain");
@@ -138,7 +138,7 @@ public class RiskCalculator {
                 """, Map.of("orgId", organizationId));
                 
                 if (result.hasNext()) {
-                    Record record = result.next();
+                    org.neo4j.driver.Record record = result.next();
                     double avgDomainRisk = record.get("avgDomainRisk").asDouble();
                     double avgProviderRisk = record.get("avgProviderRisk").asDouble();
                     double avgServiceRisk = record.get("avgServiceRisk").asDouble();
@@ -166,7 +166,7 @@ public class RiskCalculator {
         }
     }
     
-    private Map<String, Object> fetchDomainData(String fqdn) {
+    public Map<String, Object> fetchDomainData(String fqdn) {
         try (Session s = driver.session()) {
             Result result = s.run("""
                 MATCH (d:Domain {fqdn: $fqdn})
@@ -183,7 +183,7 @@ public class RiskCalculator {
             """, Map.of("fqdn", fqdn));
             
             if (result.hasNext()) {
-                Record record = result.next();
+                org.neo4j.driver.Record record = result.next();
                 Map<String, Object> data = new HashMap<>();
                 data.put("dns_sec_enabled", record.get("dns_sec_enabled").asBoolean(false));
                 data.put("multi_az", record.get("multi_az").asBoolean(false));

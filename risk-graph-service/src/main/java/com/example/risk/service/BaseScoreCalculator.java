@@ -1,12 +1,12 @@
 package com.example.risk.service;
 
-import org.springframework.stereotype.Service;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
-@Service
+@ApplicationScoped
 public class BaseScoreCalculator {
     
     public double calculateBaseScore(Map<String, Object> domainData) {

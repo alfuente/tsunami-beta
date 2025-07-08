@@ -1,21 +1,22 @@
 package com.example.risk.service;
 
+import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Record;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
-@Service
+@ApplicationScoped
 public class RiskPropagationService {
     
-    @Autowired
-    private Session neo4jSession;
+    @Inject
+    Driver driver;
     
-    @Autowired
-    private RiskCalculator riskCalculator;
+    @Inject
+    RiskCalculator riskCalculator;
     
     private static final int BATCH_SIZE = 100;
     private static final int MAX_PROPAGATION_DEPTH = 3;
@@ -32,18 +33,20 @@ public class RiskPropagationService {
                 END as nodeId
         """;
         
-        Result result = neo4jSession.run(query, Map.of("incidentId", incidentId));
-        Set<String> affectedNodes = new HashSet<>();
-        
-        while (result.hasNext()) {
-            Record record = result.next();
-            String nodeType = record.get("nodeType").asString();
-            String nodeId = record.get("nodeId").asString();
+        try (Session session = driver.session()) {
+            Result result = session.run(query, Map.of("incidentId", incidentId));
+            Set<String> affectedNodes = new HashSet<>();
             
-            propagateRiskFromNode(nodeId, nodeType, 0, affectedNodes);
+            while (result.hasNext()) {
+                Record record = result.next();
+                String nodeType = record.get("nodeType").asString();
+                String nodeId = record.get("nodeId").asString();
+                
+                propagateRiskFromNode(nodeId, nodeType, 0, affectedNodes);
+            }
+            
+            return affectedNodes.size();
         }
-        
-        return affectedNodes.size();
     }
     
     private void propagateRiskFromNode(String nodeId, String nodeType, int depth, Set<String> visited) {
@@ -56,14 +59,16 @@ public class RiskPropagationService {
         riskCalculator.calculateCompleteRiskScore(nodeId, nodeType);
         
         String dependentQuery = buildDependentNodesQuery(nodeType);
-        Result result = neo4jSession.run(dependentQuery, Map.of("nodeId", nodeId));
-        
-        while (result.hasNext()) {
-            Record record = result.next();
-            String dependentId = record.get("dependentId").asString();
-            String dependentType = record.get("dependentType").asString();
+        try (Session session = driver.session()) {
+            Result result = session.run(dependentQuery, Map.of("nodeId", nodeId));
             
-            propagateRiskFromNode(dependentId, dependentType, depth + 1, visited);
+            while (result.hasNext()) {
+                Record record = result.next();
+                String dependentId = record.get("dependentId").asString();
+                String dependentType = record.get("dependentType").asString();
+                
+                propagateRiskFromNode(dependentId, dependentType, depth + 1, visited);
+            }
         }
     }
     
@@ -100,19 +105,21 @@ public class RiskPropagationService {
             LIMIT $batchSize
         """;
         
-        Result result = neo4jSession.run(query, Map.of("batchSize", BATCH_SIZE));
-        int count = 0;
-        
-        while (result.hasNext()) {
-            Record record = result.next();
-            String fqdn = record.get("fqdn").asString();
+        try (Session session = driver.session()) {
+            Result result = session.run(query, Map.of("batchSize", BATCH_SIZE));
+            int count = 0;
             
-            double riskScore = riskCalculator.calculateCompleteRiskScore(fqdn, "domain");
-            updateNodeRiskScore(fqdn, "Domain", "fqdn", riskScore);
-            count++;
+            while (result.hasNext()) {
+                Record record = result.next();
+                String fqdn = record.get("fqdn").asString();
+                
+                double riskScore = riskCalculator.calculateCompleteRiskScore(fqdn, "domain");
+                updateNodeRiskScore(fqdn, "Domain", "fqdn", riskScore);
+                count++;
+            }
+            
+            return count;
         }
-        
-        return count;
     }
     
     private int bulkUpdateProviders() {
@@ -125,19 +132,21 @@ public class RiskPropagationService {
             LIMIT $batchSize
         """;
         
-        Result result = neo4jSession.run(query, Map.of("batchSize", BATCH_SIZE));
-        int count = 0;
-        
-        while (result.hasNext()) {
-            Record record = result.next();
-            String id = record.get("id").asString();
+        try (Session session = driver.session()) {
+            Result result = session.run(query, Map.of("batchSize", BATCH_SIZE));
+            int count = 0;
             
-            double riskScore = riskCalculator.calculateCompleteRiskScore(id, "provider");
-            updateNodeRiskScore(id, "Provider", "id", riskScore);
-            count++;
+            while (result.hasNext()) {
+                Record record = result.next();
+                String id = record.get("id").asString();
+                
+                double riskScore = riskCalculator.calculateCompleteRiskScore(id, "provider");
+                updateNodeRiskScore(id, "Provider", "id", riskScore);
+                count++;
+            }
+            
+            return count;
         }
-        
-        return count;
     }
     
     private int bulkUpdateServices() {
@@ -150,19 +159,21 @@ public class RiskPropagationService {
             LIMIT $batchSize
         """;
         
-        Result result = neo4jSession.run(query, Map.of("batchSize", BATCH_SIZE));
-        int count = 0;
-        
-        while (result.hasNext()) {
-            Record record = result.next();
-            String id = record.get("id").asString();
+        try (Session session = driver.session()) {
+            Result result = session.run(query, Map.of("batchSize", BATCH_SIZE));
+            int count = 0;
             
-            double riskScore = riskCalculator.calculateCompleteRiskScore(id, "service");
-            updateNodeRiskScore(id, "Service", "id", riskScore);
-            count++;
+            while (result.hasNext()) {
+                Record record = result.next();
+                String id = record.get("id").asString();
+                
+                double riskScore = riskCalculator.calculateCompleteRiskScore(id, "service");
+                updateNodeRiskScore(id, "Service", "id", riskScore);
+                count++;
+            }
+            
+            return count;
         }
-        
-        return count;
     }
     
     private int bulkUpdateOrganizations() {
@@ -174,18 +185,20 @@ public class RiskPropagationService {
             LIMIT $batchSize
         """;
         
-        Result result = neo4jSession.run(query, Map.of("batchSize", BATCH_SIZE));
-        int count = 0;
-        
-        while (result.hasNext()) {
-            Record record = result.next();
-            String id = record.get("id").asString();
+        try (Session session = driver.session()) {
+            Result result = session.run(query, Map.of("batchSize", BATCH_SIZE));
+            int count = 0;
             
-            riskCalculator.recalcForOrganization(id);
-            count++;
+            while (result.hasNext()) {
+                Record record = result.next();
+                String id = record.get("id").asString();
+                
+                riskCalculator.recalcForOrganization(id);
+                count++;
+            }
+            
+            return count;
         }
-        
-        return count;
     }
     
     private void updateNodeRiskScore(String nodeId, String nodeLabel, String idField, double riskScore) {
@@ -196,11 +209,13 @@ public class RiskPropagationService {
                 n.last_calculated = datetime()
         """, nodeLabel, idField);
         
-        neo4jSession.run(query, Map.of(
-            "nodeId", nodeId,
-            "riskScore", riskScore,
-            "riskTier", getRiskTier(riskScore)
-        ));
+        try (Session session = driver.session()) {
+            session.run(query, Map.of(
+                "nodeId", nodeId,
+                "riskScore", riskScore,
+                "riskTier", getRiskTier(riskScore)
+            ));
+        }
     }
     
     private String buildDependentNodesQuery(String nodeType) {
@@ -259,22 +274,24 @@ public class RiskPropagationService {
             RETURN nodeType, totalNodes, calculatedNodes, avgRiskScore
         """;
         
-        Result result = neo4jSession.run(query);
-        Map<String, Object> metrics = new HashMap<>();
-        
-        while (result.hasNext()) {
-            Record record = result.next();
-            String nodeType = record.get("nodeType").asString();
+        try (Session session = driver.session()) {
+            Result result = session.run(query);
+            Map<String, Object> metrics = new HashMap<>();
             
-            Map<String, Object> typeMetrics = new HashMap<>();
-            typeMetrics.put("totalNodes", record.get("totalNodes").asInt());
-            typeMetrics.put("calculatedNodes", record.get("calculatedNodes").asInt());
-            typeMetrics.put("avgRiskScore", record.get("avgRiskScore").asDouble(0.0));
+            while (result.hasNext()) {
+                Record record = result.next();
+                String nodeType = record.get("nodeType").asString();
+                
+                Map<String, Object> typeMetrics = new HashMap<>();
+                typeMetrics.put("totalNodes", record.get("totalNodes").asInt());
+                typeMetrics.put("calculatedNodes", record.get("calculatedNodes").asInt());
+                typeMetrics.put("avgRiskScore", record.get("avgRiskScore").asDouble(0.0));
+                
+                metrics.put(nodeType, typeMetrics);
+            }
             
-            metrics.put(nodeType, typeMetrics);
+            return metrics;
         }
-        
-        return metrics;
     }
     
     public List<Map<String, Object>> getHighRiskNodes(double threshold) {
@@ -295,22 +312,24 @@ public class RiskPropagationService {
             LIMIT 100
         """;
         
-        Result result = neo4jSession.run(query, Map.of("threshold", threshold));
-        List<Map<String, Object>> highRiskNodes = new ArrayList<>();
-        
-        while (result.hasNext()) {
-            Record record = result.next();
-            Map<String, Object> node = new HashMap<>();
-            node.put("nodeType", record.get("nodeType").asString());
-            node.put("nodeId", record.get("nodeId").asString());
-            node.put("riskScore", record.get("riskScore").asDouble());
-            node.put("riskTier", record.get("riskTier").asString());
-            node.put("lastCalculated", record.get("lastCalculated").asLocalDateTime());
+        try (Session session = driver.session()) {
+            Result result = session.run(query, Map.of("threshold", threshold));
+            List<Map<String, Object>> highRiskNodes = new ArrayList<>();
             
-            highRiskNodes.add(node);
+            while (result.hasNext()) {
+                Record record = result.next();
+                Map<String, Object> node = new HashMap<>();
+                node.put("nodeType", record.get("nodeType").asString());
+                node.put("nodeId", record.get("nodeId").asString());
+                node.put("riskScore", record.get("riskScore").asDouble());
+                node.put("riskTier", record.get("riskTier").asString());
+                node.put("lastCalculated", record.get("lastCalculated").asLocalDateTime());
+                
+                highRiskNodes.add(node);
+            }
+            
+            return highRiskNodes;
         }
-        
-        return highRiskNodes;
     }
     
     private String getRiskTier(double riskScore) {

@@ -3,15 +3,16 @@ package com.example.risk.service;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Record;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import org.neo4j.driver.Driver;
 import java.util.*;
 
-@Service
+@ApplicationScoped
 public class ThirdPartyScoreCalculator {
     
-    @Autowired
-    private Session neo4jSession;
+    @Inject
+    Driver driver;
     
     private static final int MAX_DEPTH = 2;
     private static final double DEPTH_ATTENUATION = 0.8;
@@ -35,7 +36,8 @@ public class ThirdPartyScoreCalculator {
         visited.add(nodeId);
         
         String query = buildDependencyQuery(nodeType);
-        Result result = neo4jSession.run(query, Map.of("nodeId", nodeId));
+        try (Session session = driver.session()) {
+            Result result = session.run(query, Map.of("nodeId", nodeId));
         
         double totalWeightedScore = 0.0;
         double totalWeight = 0.0;
@@ -58,9 +60,10 @@ public class ThirdPartyScoreCalculator {
             totalWeight += effectiveWeight;
         }
         
-        visited.remove(nodeId);
-        
-        return totalWeight > 0 ? totalWeightedScore / totalWeight : 0.0;
+            visited.remove(nodeId);
+            
+            return totalWeight > 0 ? totalWeightedScore / totalWeight : 0.0;
+        }
     }
     
     private String buildDependencyQuery(String nodeType) {
@@ -144,8 +147,10 @@ public class ThirdPartyScoreCalculator {
                 END as concentrationRisk
         """.formatted(nodeType, getIdField(nodeType));
         
-        Result result = neo4jSession.run(query, Map.of("nodeId", nodeId));
-        return result.hasNext() ? result.next().get("concentrationRisk").asDouble(0.0) : 0.0;
+        try (Session session = driver.session()) {
+            Result result = session.run(query, Map.of("nodeId", nodeId));
+            return result.hasNext() ? result.next().get("concentrationRisk").asDouble(0.0) : 0.0;
+        }
     }
     
     private String getIdField(String nodeType) {
