@@ -533,29 +533,59 @@ public class DomainResource {
         }
         
         query.append("""
-            OPTIONAL MATCH (d)-[:RUNS]->(s:Service)
-            OPTIONAL MATCH (d)-[:HOSTED_BY]->(p:Provider)
-            WITH base_domain, 
-                 count(DISTINCT d) as subdomain_count,
-                 count(DISTINCT s) as service_count,
-                 count(DISTINCT p) as provider_count,
-                 avg(d.risk_score) as avg_risk_score,
-                 max(d.risk_score) as max_risk_score,
-                 count(CASE WHEN d.risk_tier = 'Critical' THEN 1 END) as critical_subdomains,
-                 count(CASE WHEN d.risk_tier = 'High' THEN 1 END) as high_risk_subdomains,
-                 max(d.business_criticality) as business_criticality,
-                 bool_or(d.monitoring_enabled) as monitoring_enabled,
-                 CASE 
-                     WHEN max(d.risk_score) >= 80 THEN 'Critical'
-                     WHEN max(d.risk_score) >= 60 THEN 'High'
-                     WHEN max(d.risk_score) >= 40 THEN 'Medium'
-                     ELSE 'Low'
-                 END as risk_tier
+            // Get all subdomains for this base domain
+            OPTIONAL MATCH (d)-[:HAS_SUBDOMAIN]->(sub:Subdomain)
+            
+            // Get all services and providers from both domains and subdomains
+            OPTIONAL MATCH (d)-[:RUNS]->(ds:Service)
+            OPTIONAL MATCH (sub)-[:RUNS]->(ss:Service)
+            OPTIONAL MATCH (d)-[:RESOLVES_TO]->(dip:IPAddress)-[:HOSTED_BY]->(dp:Provider)  
+            OPTIONAL MATCH (sub)-[:RESOLVES_TO]->(sip:IPAddress)-[:HOSTED_BY]->(sp:Provider)
+            
+            WITH base_domain, d, 
+                 collect(DISTINCT sub) as subdomains,
+                 collect(DISTINCT ds.name) + collect(DISTINCT ss.name) as all_service_names,
+                 collect(DISTINCT dp.name) + collect(DISTINCT sp.name) as all_provider_names,
+                 coalesce(d.risk_score, 0) as domain_risk_score,
+                 coalesce(d.business_criticality, 'Unknown') as business_criticality,
+                 coalesce(d.monitoring_enabled, false) as monitoring_enabled
+            
+            WITH base_domain,
+                 1 + size(subdomains) as subdomain_count,
+                 size([name in all_service_names WHERE name IS NOT NULL AND name <> '']) as service_count,
+                 size([name in all_provider_names WHERE name IS NOT NULL AND name <> '']) as provider_count,
+                 domain_risk_score,
+                 [sub in subdomains WHERE sub.risk_score IS NOT NULL | sub.risk_score] as subdomain_risks,
+                 size([sub in subdomains WHERE sub.risk_tier = 'Critical']) as critical_subdomains,
+                 size([sub in subdomains WHERE sub.risk_tier = 'High']) as high_risk_subdomains,
+                 business_criticality, monitoring_enabled
+            
+            WITH base_domain, subdomain_count, service_count, provider_count,
+                 domain_risk_score,
+                 CASE WHEN size(subdomain_risks) > 0 
+                      THEN reduce(sum = 0.0, score IN subdomain_risks | sum + score) / size(subdomain_risks)
+                      ELSE 0.0 END as avg_subdomain_risk,
+                 CASE WHEN size(subdomain_risks) > 0
+                      THEN reduce(max = 0.0, score IN subdomain_risks | CASE WHEN score > max THEN score ELSE max END)
+                      ELSE 0.0 END as max_subdomain_risk,
+                 critical_subdomains, high_risk_subdomains, business_criticality, monitoring_enabled
+            
+            WITH base_domain, subdomain_count, service_count, provider_count,
+                 CASE WHEN avg_subdomain_risk > 0 THEN (domain_risk_score + avg_subdomain_risk) / 2 ELSE domain_risk_score END as avg_risk_score,
+                 CASE WHEN domain_risk_score > max_subdomain_risk THEN domain_risk_score ELSE max_subdomain_risk END as max_risk_score,
+                 critical_subdomains, high_risk_subdomains, business_criticality, monitoring_enabled
+            
             RETURN base_domain, subdomain_count, service_count, provider_count, 
-                   avg_risk_score, max_risk_score, risk_tier, 
+                   avg_risk_score, max_risk_score,
+                   CASE 
+                       WHEN max_risk_score >= 80 THEN 'Critical'
+                       WHEN max_risk_score >= 60 THEN 'High'
+                       WHEN max_risk_score >= 40 THEN 'Medium'
+                       ELSE 'Low'
+                   END as risk_tier,
                    critical_subdomains, high_risk_subdomains, business_criticality, monitoring_enabled
             ORDER BY max_risk_score DESC
-            SKIP """).append(offset).append(" LIMIT ").append(limit);
+            """).append("SKIP ").append(offset).append(" LIMIT ").append(limit);
         
         return query.toString();
     }
@@ -584,20 +614,34 @@ public class DomainResource {
                          ELSE d.fqdn
                      END as base_domain
                 WHERE base_domain = $baseDomain
-                OPTIONAL MATCH (d)-[:RUNS]->(s:Service)
-                OPTIONAL MATCH (d)-[:HOSTED_BY]->(p:Provider)
-                OPTIONAL MATCH (d)<-[:AFFECTS]-(i:Incident)
+                
+                // Get both the domain and its subdomains
+                OPTIONAL MATCH (d)-[:HAS_SUBDOMAIN]->(sub:Subdomain)
+                
+                // Combine domain and subdomains into a single collection
+                WITH d, collect({node: d, type: 'Domain'}) + collect({node: sub, type: 'Subdomain'}) as all_nodes
+                
+                // Unwind to process each node individually
+                UNWIND all_nodes as node_info
+                WITH node_info.node as n, node_info.type as node_type
+                WHERE n IS NOT NULL
+                
+                // Get services, providers, and incidents for each node
+                OPTIONAL MATCH (n)-[:RUNS]->(s:Service)
+                OPTIONAL MATCH (n)-[:RESOLVES_TO]->(ip:IPAddress)-[:HOSTED_BY]->(p:Provider)
+                OPTIONAL MATCH (n)<-[:AFFECTS]-(i:Incident)
                 WHERE i.resolved IS NULL
-                RETURN d.fqdn as subdomain,
-                       d.risk_score as risk_score,
-                       d.risk_tier as risk_tier,
-                       d.business_criticality as business_criticality,
-                       d.monitoring_enabled as monitoring_enabled,
-                       d.last_calculated as last_calculated,
+                
+                RETURN n.fqdn as subdomain,
+                       coalesce(n.risk_score, 0.0) as risk_score,
+                       coalesce(n.risk_tier, 'Unknown') as risk_tier,
+                       coalesce(n.business_criticality, 'Unknown') as business_criticality,
+                       coalesce(n.monitoring_enabled, false) as monitoring_enabled,
+                       n.last_calculated as last_calculated,
                        collect(DISTINCT s.name) as services,
                        collect(DISTINCT p.name) as providers,
                        count(DISTINCT i) as active_incidents
-                ORDER BY d.risk_score DESC
+                ORDER BY risk_score DESC
                 """;
             
             try (Session session = driver.session()) {

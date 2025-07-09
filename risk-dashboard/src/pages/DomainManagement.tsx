@@ -37,7 +37,7 @@ import {
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
 import { domainApi, calculationApi } from '../services/api';
-import { DomainResponse, DomainsListResponse, BaseDomainResponse, BaseDomainsListResponse } from '../types/api';
+import { BaseDomainResponse, BaseDomainsListResponse } from '../types/api';
 
 const DomainManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const DomainManagement: React.FC = () => {
   });
   const [pagination, setPagination] = useState({
     page: 0,
-    pageSize: 25,
+    pageSize: 100,
     total: 0,
   });
 
@@ -186,6 +186,12 @@ const DomainManagement: React.FC = () => {
       </Grid>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      
+      {domains.length > 0 && domains.every(d => d.service_count === 0 && d.provider_count === 0) && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          Notice: Service and provider data appears to be incomplete. Consider running domain discovery to populate detailed information.
+        </Alert>
+      )}
 
       <Card>
         <CardContent>
@@ -204,8 +210,23 @@ const DomainManagement: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {domains.map((domain) => (
-                  <TableRow key={domain.base_domain}>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={8} align="center">
+                      <CircularProgress />
+                    </TableCell>
+                  </TableRow>
+                ) : domains.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} align="center">
+                      <Typography variant="body2" color="textSecondary">
+                        No base domains found
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  domains.map((domain) => (
+                    <TableRow key={domain.base_domain}>
                     <TableCell>
                       <Typography variant="body2" fontWeight="bold">
                         {domain.base_domain}
@@ -267,13 +288,14 @@ const DomainManagement: React.FC = () => {
                         <ViewIcon />
                       </IconButton>
                     </TableCell>
-                  </TableRow>
-                ))}
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </TableContainer>
           <TablePagination
-            rowsPerPageOptions={[10, 25, 50, 100]}
+            rowsPerPageOptions={[25, 50, 100, 200]}
             component="div"
             count={pagination.total}
             rowsPerPage={pagination.pageSize}

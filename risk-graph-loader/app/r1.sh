@@ -1,0 +1,1 @@
+python3 risk_loader_improved.py --domains fsi.txt --password test.password --depth 2 --max-depth 4 --parallel-amass --workers 8  --amass-workers 4 --ipinfo-token 0bf607ce2c13ac 1>output.log 2>output.err 

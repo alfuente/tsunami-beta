@@ -61,14 +61,18 @@ const DomainDetail: React.FC = () => {
     
     try {
       setCalculating(true);
-      await calculationApi.calculateDomainRisk(fqdn, false);
+      const response = await calculationApi.calculateDomainRisk(fqdn, false);
+      console.log('Risk calculation started:', response);
+      
+      // Wait a bit longer for calculation to complete
       setTimeout(() => {
         fetchDomainData();
         setCalculating(false);
-      }, 2000);
+      }, 3000);
     } catch (err) {
       setCalculating(false);
       console.error('Risk calculation error:', err);
+      setError('Failed to recalculate risk. Please try again.');
     }
   };
 
@@ -118,14 +122,23 @@ const DomainDetail: React.FC = () => {
           </Button>
           <Typography variant="h4">{domain.fqdn}</Typography>
         </Box>
-        <Button
-          variant="outlined"
-          startIcon={calculating ? <CircularProgress size={20} /> : <RefreshIcon />}
-          onClick={handleRecalculateRisk}
-          disabled={calculating}
-        >
-          Recalculate Risk
-        </Button>
+        <Box display="flex" gap={1}>
+          <Button
+            variant="outlined"
+            startIcon={<RefreshIcon />}
+            onClick={fetchDomainData}
+          >
+            Refresh
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={calculating ? <CircularProgress size={20} /> : <SecurityIcon />}
+            onClick={handleRecalculateRisk}
+            disabled={calculating}
+          >
+            {calculating ? 'Calculating...' : 'Recalculate Risk'}
+          </Button>
+        </Box>
       </Box>
 
       <Grid container spacing={3}>

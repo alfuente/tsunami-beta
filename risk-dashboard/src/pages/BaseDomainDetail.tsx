@@ -11,20 +11,18 @@ import {
   CircularProgress,
   Alert,
   Divider,
-  List,
-  ListItem,
-  ListItemText,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   IconButton,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  TablePagination,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -32,10 +30,9 @@ import {
   Security as SecurityIcon,
   Public as PublicIcon,
   Storage as StorageIcon,
-  ExpandMore as ExpandMoreIcon,
   Visibility as VisibilityIcon,
 } from '@mui/icons-material';
-import { domainApi } from '../services/api';
+import { domainApi, calculationApi } from '../services/api';
 import { BaseDomainDetailsResponse } from '../types/api';
 
 const BaseDomainDetail: React.FC = () => {
@@ -44,6 +41,10 @@ const BaseDomainDetail: React.FC = () => {
   const [domainDetails, setDomainDetails] = useState<BaseDomainDetailsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [calculating, setCalculating] = useState(false);
+  const [pagination, setPagination] = useState({ page: 0, pageSize: 10 });
+  const [servicesDialogOpen, setServicesDialogOpen] = useState(false);
+  const [providersDialogOpen, setProvidersDialogOpen] = useState(false);
 
   const fetchDomainDetails = async () => {
     if (!baseDomain) return;
@@ -58,6 +59,29 @@ const BaseDomainDetail: React.FC = () => {
       console.error('Base domain detail error:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRecalculateRisk = async () => {
+    if (!baseDomain) return;
+    
+    try {
+      setCalculating(true);
+      // Calculate risk for all subdomains in the base domain
+      const promises = domainDetails?.subdomains.map(subdomain => 
+        calculationApi.calculateDomainRisk(subdomain.fqdn, false)
+      ) || [];
+      
+      await Promise.all(promises);
+      
+      // Wait a bit for calculations to complete and then refresh
+      setTimeout(() => {
+        fetchDomainDetails();
+        setCalculating(false);
+      }, 3000);
+    } catch (err) {
+      setCalculating(false);
+      console.error('Risk calculation error:', err);
     }
   };
 
@@ -94,6 +118,23 @@ const BaseDomainDetail: React.FC = () => {
     }
   };
 
+  const handleChangePage = (event: unknown, newPage: number) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setPagination(prev => ({ 
+      ...prev, 
+      pageSize: parseInt(event.target.value, 10),
+      page: 0 
+    }));
+  };
+
+  const paginatedSubdomains = domainDetails?.subdomains.slice(
+    pagination.page * pagination.pageSize,
+    pagination.page * pagination.pageSize + pagination.pageSize
+  ) || [];
+
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
@@ -107,14 +148,30 @@ const BaseDomainDetail: React.FC = () => {
           </Button>
           <Typography variant="h4">{domainDetails.base_domain}</Typography>
         </Box>
-        <Button
-          variant="outlined"
-          startIcon={<RefreshIcon />}
-          onClick={fetchDomainDetails}
-        >
-          Refresh
-        </Button>
+        <Box display="flex" gap={1}>
+          <Button
+            variant="outlined"
+            startIcon={<RefreshIcon />}
+            onClick={fetchDomainDetails}
+          >
+            Refresh
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={calculating ? <CircularProgress size={20} /> : <SecurityIcon />}
+            onClick={handleRecalculateRisk}
+            disabled={calculating}
+          >
+            {calculating ? 'Calculating...' : 'Recalculate Risk'}
+          </Button>
+        </Box>
       </Box>
+
+      {domainDetails && domainDetails.subdomains.every(d => d.services.length === 0 && d.providers.length === 0) && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          Notice: This base domain has limited service and provider information. Use the "Recalculate Risk" button to trigger a comprehensive analysis.
+        </Alert>
+      )}
 
       <Grid container spacing={3}>
         {/* Risk Summary */}
@@ -177,7 +234,12 @@ const BaseDomainDetail: React.FC = () => {
                       <Chip key={index} label={service} size="small" variant="outlined" />
                     ))}
                     {domainDetails.service_summary.services.length > 5 && (
-                      <Chip label={`+${domainDetails.service_summary.services.length - 5} more`} size="small" />
+                      <Chip 
+                        label={`+${domainDetails.service_summary.services.length - 5} more`} 
+                        size="small" 
+                        onClick={() => setServicesDialogOpen(true)}
+                        sx={{ cursor: 'pointer' }}
+                      />
                     )}
                   </Box>
                 </Box>
@@ -208,7 +270,12 @@ const BaseDomainDetail: React.FC = () => {
                       <Chip key={index} label={provider} size="small" variant="outlined" />
                     ))}
                     {domainDetails.provider_summary.providers.length > 5 && (
-                      <Chip label={`+${domainDetails.provider_summary.providers.length - 5} more`} size="small" />
+                      <Chip 
+                        label={`+${domainDetails.provider_summary.providers.length - 5} more`} 
+                        size="small" 
+                        onClick={() => setProvidersDialogOpen(true)}
+                        sx={{ cursor: 'pointer' }}
+                      />
                     )}
                   </Box>
                 </Box>
@@ -238,7 +305,7 @@ const BaseDomainDetail: React.FC = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {domainDetails.subdomains.map((subdomain) => (
+                    {paginatedSubdomains.map((subdomain) => (
                       <TableRow key={subdomain.fqdn}>
                         <TableCell>
                           <Typography variant="body2" fontWeight="bold">
@@ -295,10 +362,49 @@ const BaseDomainDetail: React.FC = () => {
                   </TableBody>
                 </Table>
               </TableContainer>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25, 50]}
+                component="div"
+                count={domainDetails.total_count}
+                rowsPerPage={pagination.pageSize}
+                page={pagination.page}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
             </CardContent>
           </Card>
         </Grid>
       </Grid>
+
+      {/* Services Dialog */}
+      <Dialog open={servicesDialogOpen} onClose={() => setServicesDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>All Services ({domainDetails?.service_summary.total_services})</DialogTitle>
+        <DialogContent>
+          <Box display="flex" flexWrap="wrap" gap={1}>
+            {domainDetails?.service_summary.services.map((service, index) => (
+              <Chip key={index} label={service} variant="outlined" />
+            ))}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setServicesDialogOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Providers Dialog */}
+      <Dialog open={providersDialogOpen} onClose={() => setProvidersDialogOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>All Providers ({domainDetails?.provider_summary.total_providers})</DialogTitle>
+        <DialogContent>
+          <Box display="flex" flexWrap="wrap" gap={1}>
+            {domainDetails?.provider_summary.providers.map((provider, index) => (
+              <Chip key={index} label={provider} variant="outlined" />
+            ))}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setProvidersDialogOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

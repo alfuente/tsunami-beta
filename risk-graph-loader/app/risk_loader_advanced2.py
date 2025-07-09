@@ -214,7 +214,7 @@ def parse_amass_output(output_path: Path) -> List[dict]:
                         # ASN managed by Organization
                         if source_type == "ASN" and target_type == "RIROrganization":
                             if source_clean not in asn_data:
-                                asn_data[source_clean] = {}
+                                asn_data[source_clean] = {"netblocks": []}
                             asn_data[source_clean]["organization"] = target_clean
                             org_data[target_clean] = {"type": "RIROrganization"}
     
