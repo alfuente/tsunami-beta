@@ -1,0 +1,1 @@
+python3 risk_loader_two_phase.py --domains fsi.txt --password test.password     --discovery-workers 4 --processing-workers 8 --batch-size 100 --phase2-only --ipinfo-token 0bf607ce2c13ac 1>phase2_output.log 2>phase2_error.log &
