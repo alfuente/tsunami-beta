@@ -26,6 +26,7 @@ import time
 import queue
 from dataclasses import dataclass
 from enum import Enum
+import random
 
 import dns.resolver, dns.exception, requests, logging
 import csv
@@ -423,6 +424,28 @@ class TwoPhaseGraphIngester:
         """Close Neo4j connection."""
         self.drv.close()
 
+def retry_on_deadlock(func, max_retries=3, initial_delay=0.1):
+    """Decorator to retry operations on Neo4j deadlock detection."""
+    def wrapper(*args, **kwargs):
+        for attempt in range(max_retries):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                error_msg = str(e).lower()
+                if "deadlock" in error_msg or "transient" in error_msg:
+                    if attempt < max_retries - 1:
+                        delay = initial_delay * (2 ** attempt) + random.uniform(0, 0.1)
+                        print(f"Deadlock detected, retrying in {delay:.2f}s (attempt {attempt + 1}/{max_retries})")
+                        time.sleep(delay)
+                        continue
+                    else:
+                        print(f"Max retries reached for deadlock, giving up: {e}")
+                        raise e
+                else:
+                    raise e
+        return None
+    return wrapper
+
 def dns_query(domain: str, rdtype: str) -> List[str]:
     """DNS query with enhanced error handling."""
     try:
@@ -502,7 +525,8 @@ def process_subdomain_worker(args: Tuple[str, str, str, str, str]) -> Dict[str, 
     """Worker function for processing a single subdomain in a separate process."""
     fqdn, neo4j_uri, neo4j_user, neo4j_pass, ipinfo_token = args
     
-    try:
+    @retry_on_deadlock
+    def process_with_retry():
         # Create new ingester instance for this process
         ingester = TwoPhaseGraphIngester(neo4j_uri, neo4j_user, neo4j_pass, ipinfo_token)
         
@@ -514,21 +538,32 @@ def process_subdomain_worker(args: Tuple[str, str, str, str, str]) -> Dict[str, 
             'error': None
         }
         
-        # Process DNS records
-        with ingester.drv.session() as s:
-            with s.begin_transaction() as tx:
-                # Process A and AAAA records
-                for rdtype in ("A", "AAAA"):
-                    for addr in dns_query(fqdn, rdtype):
-                        ingester.merge_ip_with_enhanced_tracking(fqdn, addr, tx)
-                        stats['ip_count'] += 1
-                
-                # Mark as processed
-                ingester.mark_subdomain_as_processed(fqdn, tx)
-                
-                tx.commit()
+        # Process DNS records with smaller transactions to reduce deadlock probability
+        try:
+            # Process A and AAAA records
+            for rdtype in ("A", "AAAA"):
+                addrs = dns_query(fqdn, rdtype)
+                for addr in addrs:
+                    # Use separate transaction for each IP to minimize lock time
+                    with ingester.drv.session() as s:
+                        with s.begin_transaction() as tx:
+                            ingester.merge_ip_with_enhanced_tracking(fqdn, addr, tx)
+                            tx.commit()
+                    stats['ip_count'] += 1
+            
+            # Mark as processed in separate transaction
+            with ingester.drv.session() as s:
+                with s.begin_transaction() as tx:
+                    ingester.mark_subdomain_as_processed(fqdn, tx)
+                    tx.commit()
         
-        ingester.close()
+        finally:
+            ingester.close()
+        
+        return stats
+    
+    try:
+        stats = process_with_retry()
         print(f"✓ Processed subdomain: {fqdn} ({stats['ip_count']} IPs)")
         return stats
         
@@ -726,8 +761,8 @@ def main():
     
     # Worker configuration
     parser.add_argument("--discovery-workers", type=int, default=4, help="Number of discovery workers")
-    parser.add_argument("--processing-workers", type=int, default=8, help="Number of processing workers")
-    parser.add_argument("--batch-size", type=int, default=100, help="Batch size for processing")
+    parser.add_argument("--processing-workers", type=int, default=4, help="Number of processing workers")
+    parser.add_argument("--batch-size", type=int, default=50, help="Batch size for processing")
     parser.add_argument("--mock-mode", action="store_true", help="Use mock subdomain discovery for testing")
     parser.add_argument("--sample-mode", action="store_true", help="Use Amass sample mode (faster but less comprehensive)")
     

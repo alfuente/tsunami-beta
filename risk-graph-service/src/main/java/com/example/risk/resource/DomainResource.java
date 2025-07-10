@@ -15,6 +15,7 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.neo4j.driver.Value;
 
 @Path("/api/v1/domains")
 @Tag(name = "Domains", description = "APIs for domain information and management")
@@ -212,7 +214,7 @@ public class DomainResource {
                     domainInfo.put("fqdn", record.get("fqdn").asString());
                     domainInfo.put("risk_score", record.get("risk_score").asDouble(0.0));
                     domainInfo.put("risk_tier", record.get("risk_tier").asString("Unknown"));
-                    domainInfo.put("last_calculated", record.get("last_calculated").asLocalDateTime(null));
+                    domainInfo.put("last_calculated", safeAsLocalDateTime(record.get("last_calculated")));
                     domainInfo.put("business_criticality", record.get("business_criticality").asString("Unknown"));
                     domainInfo.put("monitoring_enabled", record.get("monitoring_enabled").asBoolean(false));
                     domainTree.add(domainInfo);
@@ -271,9 +273,9 @@ public class DomainResource {
                         "fqdn", record.get("fqdn").asString(),
                         "risk_score", record.get("risk_score").asDouble(0.0),
                         "risk_tier", record.get("risk_tier").asString("Unknown"),
-                        "last_calculated", record.get("last_calculated").asLocalDateTime(null),
+                        "last_calculated", safeAsLocalDateTime(record.get("last_calculated")),
                         "monitoring_enabled", record.get("monitoring_enabled").asBoolean(false),
-                        "last_assessment", record.get("last_assessment").asLocalDateTime(null)
+                        "last_assessment", safeAsLocalDateTime(record.get("last_assessment"))
                     ));
                 }
                 
@@ -433,7 +435,7 @@ public class DomainResource {
         DomainResponse response = new DomainResponse(record.get("fqdn").asString());
         response.setRiskScore(record.get("risk_score").asDouble(0.0));
         response.setRiskTier(record.get("risk_tier").asString("Unknown"));
-        response.setLastCalculated(record.get("last_calculated").asLocalDateTime(null));
+        response.setLastCalculated(safeAsLocalDateTime(record.get("last_calculated")));
         response.setBusinessCriticality(record.get("business_criticality").asString("Unknown"));
         response.setMonitoringEnabled(record.get("monitoring_enabled").asBoolean(false));
         
@@ -450,7 +452,7 @@ public class DomainResource {
         securityInfo.setTlsGrade(record.get("tls_grade").asString("Unknown"));
         securityInfo.setCriticalCves(record.get("critical_cves").asInt(0));
         securityInfo.setHighCves(record.get("high_cves").asInt(0));
-        securityInfo.setLastAssessment(record.get("last_assessment").asLocalDateTime(null));
+        securityInfo.setLastAssessment(safeAsLocalDateTime(record.get("last_assessment")));
         response.setSecurityInfo(securityInfo);
         
         // Infrastructure Info
@@ -484,8 +486,8 @@ public class DomainResource {
                 incidents.add(new DomainResponse.IncidentInfo(
                     record.get("incident_id").asString(),
                     record.get("severity").asString(),
-                    record.get("detected").asLocalDateTime(),
-                    record.get("resolved").asLocalDateTime(null)
+                    safeAsLocalDateTime(record.get("detected")),
+                    safeAsLocalDateTime(record.get("resolved"))
                 ));
             }
             
@@ -538,6 +540,28 @@ public class DomainResource {
 
     private double calculatePercentage(int part, int total) {
         return total > 0 ? (double) part / total * 100.0 : 0.0;
+    }
+    
+    /**
+     * Helper method to safely convert Neo4j datetime values to LocalDateTime
+     */
+    private LocalDateTime safeAsLocalDateTime(Value value) {
+        if (value == null || value.isNull()) {
+            return null;
+        }
+        
+        try {
+            Object obj = value.asObject();
+            if (obj instanceof ZonedDateTime) {
+                return ((ZonedDateTime) obj).toLocalDateTime();
+            } else if (obj instanceof LocalDateTime) {
+                return (LocalDateTime) obj;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private String buildBaseDomainQuery(String riskTier, String businessCriticality, 
@@ -671,11 +695,15 @@ public class DomainResource {
                 WITH node_info.node as n, node_info.type as node_type
                 WHERE n IS NOT NULL
                 
-                // Get services, providers, and incidents for each node
+                // Get services, providers, incidents, and risk breakdown for each node
                 OPTIONAL MATCH (n)-[:RUNS]->(s:Service)
                 OPTIONAL MATCH (n)-[:RESOLVES_TO]->(ip:IPAddress)-[:HOSTED_BY]->(p:Provider)
                 OPTIONAL MATCH (n)<-[:AFFECTS]-(i:Incident)
                 WHERE i.resolved IS NULL
+                
+                // Get risk calculation details if includeRiskBreakdown is true
+                OPTIONAL MATCH (n)<-[:AFFECTS]-(r:Risk)
+                WHERE $includeRiskBreakdown = true
                 
                 RETURN n.fqdn as subdomain,
                        coalesce(n.risk_score, 0.0) as risk_score,
@@ -685,12 +713,25 @@ public class DomainResource {
                        n.last_calculated as last_calculated,
                        collect(DISTINCT s.name) as services,
                        collect(DISTINCT p.name) as providers,
-                       count(DISTINCT i) as active_incidents
+                       count(DISTINCT i) as active_incidents,
+                       // Risk breakdown information
+                       coalesce(n.base_score, 0.0) as base_score,
+                       coalesce(n.third_party_score, 0.0) as third_party_score,
+                       coalesce(n.incident_impact, 0.0) as incident_impact,
+                       coalesce(n.context_boost, 0.0) as context_boost,
+                       collect(DISTINCT {
+                           risk_type: r.risk_type,
+                           severity: r.severity,
+                           score: r.score,
+                           description: r.description,
+                           remediation: r.remediation,
+                           discovered_at: r.discovered_at
+                       }) as risk_details
                 ORDER BY risk_score DESC
                 """;
             
             try (Session session = driver.session()) {
-                Result result = session.run(query, Map.of("baseDomain", baseDomain));
+                Result result = session.run(query, Map.of("baseDomain", baseDomain, "includeRiskBreakdown", includeRiskBreakdown));
                 List<Map<String, Object>> subdomains = new ArrayList<>();
                 Map<String, Object> riskSummary = new HashMap<>();
                 Map<String, Object> serviceSummary = new HashMap<>();
@@ -709,10 +750,42 @@ public class DomainResource {
                     subdomain.put("risk_tier", record.get("risk_tier").asString("Unknown"));
                     subdomain.put("business_criticality", record.get("business_criticality").asString("Unknown"));
                     subdomain.put("monitoring_enabled", record.get("monitoring_enabled").asBoolean(false));
-                    subdomain.put("last_calculated", record.get("last_calculated").asLocalDateTime(null));
+                    subdomain.put("last_calculated", safeAsLocalDateTime(record.get("last_calculated")));
                     subdomain.put("services", record.get("services").asList());
                     subdomain.put("providers", record.get("providers").asList());
                     subdomain.put("active_incidents", record.get("active_incidents").asInt());
+                    
+                    // Add risk breakdown if requested
+                    if (includeRiskBreakdown) {
+                        Map<String, Object> riskBreakdown = new HashMap<>();
+                        riskBreakdown.put("base_score", record.get("base_score").asDouble(0.0));
+                        riskBreakdown.put("third_party_score", record.get("third_party_score").asDouble(0.0));
+                        riskBreakdown.put("incident_impact", record.get("incident_impact").asDouble(0.0));
+                        riskBreakdown.put("context_boost", record.get("context_boost").asDouble(0.0));
+                        riskBreakdown.put("weights", Map.of(
+                            "base_score", 0.40,
+                            "third_party_score", 0.25,
+                            "incident_impact", 0.30,
+                            "context_boost", 0.05
+                        ));
+                        
+                        List<Object> riskDetailsList = record.get("risk_details").asList();
+                        List<Map<String, Object>> processedRiskDetails = new ArrayList<>();
+                        for (Object riskDetailObj : riskDetailsList) {
+                            if (riskDetailObj instanceof Map) {
+                                @SuppressWarnings("unchecked")
+                                Map<String, Object> riskDetail = (Map<String, Object>) riskDetailObj;
+                                // Only include non-null risk details
+                                if (riskDetail.get("risk_type") != null) {
+                                    processedRiskDetails.add(riskDetail);
+                                }
+                            }
+                        }
+                        
+                        riskBreakdown.put("risk_details", processedRiskDetails);
+                        subdomain.put("risk_breakdown", riskBreakdown);
+                    }
+                    
                     subdomains.add(subdomain);
                     
                     riskScores.add(record.get("risk_score").asDouble(0.0));
@@ -748,7 +821,8 @@ public class DomainResource {
                     "risk_summary", riskSummary,
                     "service_summary", serviceSummary,
                     "provider_summary", providerSummary,
-                    "total_count", subdomains.size()
+                    "total_count", subdomains.size(),
+                    "include_risk_breakdown", includeRiskBreakdown
                 )).build();
             }
         } catch (Exception e) {
