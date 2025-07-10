@@ -205,6 +205,20 @@ public class RiskScoringResource {
         String nodeLabel = nodeType.substring(0, 1).toUpperCase() + nodeType.substring(1).toLowerCase();
         String idField = getIdField(nodeType);
         
+        // For domains, also check subdomain nodes
+        if ("domain".equalsIgnoreCase(nodeType)) {
+            return """
+                OPTIONAL MATCH (d:Domain {fqdn: $nodeId})
+                OPTIONAL MATCH (s:Subdomain {fqdn: $nodeId})
+                WITH CASE WHEN d IS NOT NULL THEN d ELSE s END as n
+                WHERE n IS NOT NULL
+                RETURN 
+                    n.risk_score as risk_score,
+                    n.risk_tier as risk_tier,
+                    n.last_calculated as last_calculated
+                """;
+        }
+        
         return String.format("""
             MATCH (n:%s {%s: $nodeId})
             RETURN 

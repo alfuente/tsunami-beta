@@ -73,13 +73,15 @@ public class DomainResource {
             @QueryParam("monitoringEnabled") Boolean monitoringEnabled,
             @Parameter(description = "Search by domain name pattern")
             @QueryParam("search") String search,
+            @Parameter(description = "Filter by TLD (Top Level Domain)")
+            @QueryParam("tld") String tld,
             @Parameter(description = "Maximum number of results")
             @QueryParam("limit") @DefaultValue("50") int limit,
             @Parameter(description = "Offset for pagination")
             @QueryParam("offset") @DefaultValue("0") int offset) {
         
         try {
-            String query = buildBaseDomainQuery(riskTier, businessCriticality, monitoringEnabled, search, limit, offset);
+            String query = buildBaseDomainQuery(riskTier, businessCriticality, monitoringEnabled, search, tld, limit, offset);
             
             try (Session session = driver.session()) {
                 Result result = session.run(query);
@@ -109,7 +111,8 @@ public class DomainResource {
                         "risk_tier", riskTier != null ? riskTier : "all",
                         "business_criticality", businessCriticality != null ? businessCriticality : "all",
                         "monitoring_enabled", monitoringEnabled != null ? monitoringEnabled : "all",
-                        "search", search != null ? search : ""
+                        "search", search != null ? search : "",
+                        "tld", tld != null ? tld : "all"
                     ),
                     "pagination", Map.of(
                         "limit", limit,
@@ -347,7 +350,8 @@ public class DomainResource {
     }
 
     private DomainResponse getDomainInfo(String fqdn, boolean includeIncidents) {
-        String query = """
+        // First try to find as Domain
+        String domainQuery = """
             MATCH (d:Domain {fqdn: $fqdn})
             OPTIONAL MATCH (d)-[:SECURED_BY]->(c:Certificate)
             OPTIONAL MATCH (d)-[:RESOLVES_TO]->(ip:IP)-[:BELONGS_TO]->(asn:ASN)
@@ -370,21 +374,58 @@ public class DomainResource {
             """;
         
         try (Session session = driver.session()) {
-            Result result = session.run(query, Map.of("fqdn", fqdn));
+            Result result = session.run(domainQuery, Map.of("fqdn", fqdn));
             
-            if (!result.hasNext()) {
-                return null;
+            if (result.hasNext()) {
+                Record record = result.next();
+                DomainResponse response = mapRecordToDomainResponse(record, includeIncidents);
+                
+                if (includeIncidents) {
+                    List<DomainResponse.IncidentInfo> incidents = getIncidentsForDomain(fqdn);
+                    response.setIncidents(incidents);
+                }
+                
+                return response;
             }
             
-            Record record = result.next();
-            DomainResponse response = mapRecordToDomainResponse(record, includeIncidents);
+            // If not found as Domain, try as Subdomain
+            String subdomainQuery = """
+                MATCH (s:Subdomain {fqdn: $fqdn})
+                OPTIONAL MATCH (s)-[:SECURED_BY]->(c:Certificate)
+                OPTIONAL MATCH (s)-[:RESOLVES_TO]->(ip:IP)-[:BELONGS_TO]->(asn:ASN)
+                RETURN 
+                    s.fqdn as fqdn,
+                    s.risk_score as risk_score,
+                    s.risk_tier as risk_tier,
+                    s.last_calculated as last_calculated,
+                    s.business_criticality as business_criticality,
+                    s.monitoring_enabled as monitoring_enabled,
+                    coalesce(s.dns_sec_enabled, false) as dns_sec_enabled,
+                    coalesce(s.multi_az, false) as multi_az,
+                    coalesce(s.multi_region, false) as multi_region,
+                    coalesce(s.has_failover, false) as has_failover,
+                    coalesce(s.critical_cves, 0) as critical_cves,
+                    coalesce(s.high_cves, 0) as high_cves,
+                    s.last_assessment as last_assessment,
+                    c.tls_grade as tls_grade,
+                    collect(DISTINCT {asn: asn.asn, country: asn.country}) as name_servers
+                """;
             
-            if (includeIncidents) {
-                List<DomainResponse.IncidentInfo> incidents = getIncidentsForDomain(fqdn);
-                response.setIncidents(incidents);
+            Result subdomainResult = session.run(subdomainQuery, Map.of("fqdn", fqdn));
+            
+            if (subdomainResult.hasNext()) {
+                Record record = subdomainResult.next();
+                DomainResponse response = mapRecordToDomainResponse(record, includeIncidents);
+                
+                if (includeIncidents) {
+                    List<DomainResponse.IncidentInfo> incidents = getIncidentsForDomain(fqdn);
+                    response.setIncidents(incidents);
+                }
+                
+                return response;
             }
             
-            return response;
+            return null;
         }
     }
 
@@ -500,7 +541,7 @@ public class DomainResource {
     }
 
     private String buildBaseDomainQuery(String riskTier, String businessCriticality, 
-                                       Boolean monitoringEnabled, String search, int limit, int offset) {
+                                       Boolean monitoringEnabled, String search, String tld, int limit, int offset) {
         StringBuilder query = new StringBuilder("""
             MATCH (d:Domain)
             WITH d, 
@@ -530,6 +571,10 @@ public class DomainResource {
         
         if (search != null && !search.isEmpty()) {
             query.append(" AND base_domain CONTAINS '").append(search).append("'");
+        }
+        
+        if (tld != null && !tld.isEmpty()) {
+            query.append(" AND base_domain ENDS WITH '").append(tld).append("'");
         }
         
         query.append("""

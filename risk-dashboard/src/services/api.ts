@@ -63,6 +63,7 @@ export const domainApi = {
     businessCriticality?: string;
     monitoringEnabled?: boolean;
     search?: string;
+    tld?: string;
     limit?: number;
     offset?: number;
   } = {}): Promise<BaseDomainsListResponse> => {

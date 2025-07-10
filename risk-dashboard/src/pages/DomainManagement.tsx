@@ -46,10 +46,41 @@ const DomainManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [newDomainFqdn, setNewDomainFqdn] = useState('');
+
+  // TLD to Country mapping
+  const tldCountryMap: { [key: string]: string } = {
+    '.cl': 'Chile (.cl)',
+    '.ar': 'Argentina (.ar)',
+    '.br': 'Brazil (.br)',
+    '.mx': 'Mexico (.mx)',
+    '.co': 'Colombia (.co)',
+    '.pe': 'Peru (.pe)',
+    '.ve': 'Venezuela (.ve)',
+    '.uy': 'Uruguay (.uy)',
+    '.py': 'Paraguay (.py)',
+    '.ec': 'Ecuador (.ec)',
+    '.bo': 'Bolivia (.bo)',
+    '.gt': 'Guatemala (.gt)',
+    '.cr': 'Costa Rica (.cr)',
+    '.pa': 'Panama (.pa)',
+    '.us': 'United States (.us)',
+    '.ca': 'Canada (.ca)',
+    '.uk': 'United Kingdom (.uk)',
+    '.de': 'Germany (.de)',
+    '.fr': 'France (.fr)',
+    '.es': 'Spain (.es)',
+    '.it': 'Italy (.it)',
+    '.com': 'Commercial (.com)',
+    '.org': 'Organization (.org)',
+    '.net': 'Network (.net)',
+    '.edu': 'Education (.edu)',
+    '.gov': 'Government (.gov)',
+  };
   const [filters, setFilters] = useState({
     riskTier: '',
     businessCriticality: '',
     search: '',
+    tld: '',
   });
   const [pagination, setPagination] = useState({
     page: 0,
@@ -64,6 +95,7 @@ const DomainManagement: React.FC = () => {
         riskTier: filters.riskTier || undefined,
         businessCriticality: filters.businessCriticality || undefined,
         search: filters.search || undefined,
+        tld: filters.tld || undefined,
         limit: pagination.pageSize,
         offset: pagination.page * pagination.pageSize,
       });
@@ -169,6 +201,23 @@ const DomainManagement: React.FC = () => {
               <MenuItem value="High">High</MenuItem>
               <MenuItem value="Medium">Medium</MenuItem>
               <MenuItem value="Low">Low</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={6} md={3}>
+          <FormControl fullWidth>
+            <InputLabel>Country / TLD</InputLabel>
+            <Select
+              value={filters.tld}
+              label="Country / TLD"
+              onChange={(e) => setFilters(prev => ({ ...prev, tld: e.target.value }))}
+            >
+              <MenuItem value="">All Countries</MenuItem>
+              {Object.entries(tldCountryMap).map(([tld, country]) => (
+                <MenuItem key={tld} value={tld}>
+                  {country}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Grid>

@@ -191,7 +191,7 @@ const Dashboard: React.FC = () => {
                         {node.node_id} ({node.node_type})
                       </Typography>
                       <Typography variant="body2" color="textSecondary">
-                        Risk Score: {node.risk_score.toFixed(1)} - {node.risk_tier}
+                        Risk Score: {node.risk_score?.toFixed(1) || 'N/A'} - {node.risk_tier || 'Unknown'}
                       </Typography>
                     </Box>
                   ))}

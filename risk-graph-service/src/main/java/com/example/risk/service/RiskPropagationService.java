@@ -323,7 +323,7 @@ public class RiskPropagationService {
                 node.put("nodeId", record.get("nodeId").asString());
                 node.put("riskScore", record.get("riskScore").asDouble());
                 node.put("riskTier", record.get("riskTier").asString());
-                node.put("lastCalculated", record.get("lastCalculated").asLocalDateTime());
+                node.put("lastCalculated", record.get("lastCalculated").isNull() ? null : record.get("lastCalculated").asLocalDateTime());
                 
                 highRiskNodes.add(node);
             }

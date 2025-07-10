@@ -302,7 +302,7 @@ const RiskAnalysis: React.FC = () => {
                         <TableCell>{node.node_type}</TableCell>
                         <TableCell>
                           <Typography variant="body2" fontWeight="bold">
-                            {node.risk_score.toFixed(1)}
+                            {node.risk_score?.toFixed(1) || 'N/A'}
                           </Typography>
                         </TableCell>
                         <TableCell>{node.risk_tier}</TableCell>
