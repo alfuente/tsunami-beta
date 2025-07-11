@@ -133,7 +133,7 @@ class DomainRiskCalculator:
                 // Collect all domain and subdomain nodes
                 WITH collect(d) + collect(s) as all_nodes
                 UNWIND all_nodes as node
-                WHERE node IS NOT NULL
+                WITH node WHERE node IS NOT NULL
                 
                 // Get services
                 OPTIONAL MATCH (node)-[:RUNS]->(svc:Service)
@@ -506,6 +506,17 @@ class DomainRiskCalculator:
                     if isinstance(creation_date, list):
                         creation_date = creation_date[0]
                     
+                    # Handle both datetime objects and strings
+                    if isinstance(creation_date, str):
+                        try:
+                            creation_date = datetime.strptime(creation_date, '%Y-%m-%d')
+                        except ValueError:
+                            try:
+                                creation_date = datetime.strptime(creation_date, '%Y-%m-%d %H:%M:%S')
+                            except ValueError:
+                                print(f"Could not parse creation date: {creation_date}")
+                                continue
+                    
                     age_days = (datetime.now() - creation_date).days
                     
                     if age_days < 30:  # Very new domain
@@ -537,6 +548,17 @@ class DomainRiskCalculator:
                     if isinstance(expiration_date, list):
                         expiration_date = expiration_date[0]
                     
+                    # Handle both datetime objects and strings
+                    if isinstance(expiration_date, str):
+                        try:
+                            expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d')
+                        except ValueError:
+                            try:
+                                expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d %H:%M:%S')
+                            except ValueError:
+                                print(f"Could not parse expiration date: {expiration_date}")
+                                continue
+                    
                     days_to_expiry = (expiration_date - datetime.now()).days
                     
                     if days_to_expiry < 30:
@@ -555,6 +577,179 @@ class DomainRiskCalculator:
                         
             except Exception as e:
                 print(f"Domain reputation analysis error for {domain_fqdn}: {e}")
+        
+        return risks
+    
+    def _analyze_subdomain_specific_risks(self, subdomain_fqdn: str) -> List[DomainRisk]:
+        """Analyze risks specific to subdomains."""
+        risks = []
+        
+        try:
+            # Check for exposed development/testing subdomains
+            sensitive_keywords = ['dev', 'test', 'staging', 'admin', 'internal', 'api', 'ftp', 'ssh', 'vpn', 'backup']
+            subdomain_parts = subdomain_fqdn.lower().split('.')
+            
+            for keyword in sensitive_keywords:
+                if any(keyword in part for part in subdomain_parts):
+                    # Check if subdomain is publicly accessible
+                    if self._is_subdomain_publicly_accessible(subdomain_fqdn):
+                        severity = RiskSeverity.HIGH if keyword in ['admin', 'internal', 'ssh', 'vpn'] else RiskSeverity.MEDIUM
+                        score = 7.5 if keyword in ['admin', 'internal', 'ssh', 'vpn'] else 6.0
+                        
+                        risks.append(DomainRisk(
+                            domain_fqdn=subdomain_fqdn,
+                            risk_type=f"subdomain_sensitive_{keyword}_exposed",
+                            severity=severity,
+                            score=score,
+                            description=f"Sensitive subdomain exposed: {keyword} subdomain is publicly accessible",
+                            evidence={"subdomain": subdomain_fqdn, "sensitive_keyword": keyword},
+                            remediation=f"Restrict access to {keyword} subdomain or move to internal network",
+                            discovered_at=datetime.now()
+                        ))
+                    break  # Only flag once per subdomain
+            
+            # Check for subdomain takeover vulnerability
+            takeover_risk = self._check_subdomain_takeover_risk(subdomain_fqdn)
+            if takeover_risk:
+                risks.append(takeover_risk)
+                
+            # Check for subdomain certificate issues
+            cert_risks = self._analyze_subdomain_certificate_risks(subdomain_fqdn)
+            risks.extend(cert_risks)
+            
+        except Exception as e:
+            print(f"Subdomain-specific analysis error for {subdomain_fqdn}: {e}")
+        
+        return risks
+    
+    def _is_subdomain_publicly_accessible(self, subdomain_fqdn: str) -> bool:
+        """Check if subdomain is publicly accessible."""
+        try:
+            # Try to resolve the subdomain
+            ips = self._dns_query(subdomain_fqdn, "A")
+            if not ips:
+                ips = self._dns_query(subdomain_fqdn, "AAAA")
+            
+            return len(ips) > 0
+        except:
+            return False
+    
+    def _check_subdomain_takeover_risk(self, subdomain_fqdn: str) -> Optional[DomainRisk]:
+        """Check for subdomain takeover vulnerability."""
+        try:
+            # Check CNAME records that might point to external services
+            cname_records = self._dns_query(subdomain_fqdn, "CNAME")
+            
+            # Known vulnerable service patterns
+            vulnerable_patterns = [
+                'github.io', 'herokuapp.com', 'azurewebsites.net', 
+                'cloudapp.net', 'amazonaws.com', 'elasticbeanstalk.com',
+                'wordpress.com', 'tumblr.com', 'bitbucket.io'
+            ]
+            
+            for cname in cname_records:
+                for pattern in vulnerable_patterns:
+                    if pattern in cname.lower():
+                        return DomainRisk(
+                            domain_fqdn=subdomain_fqdn,
+                            risk_type="subdomain_takeover_vulnerable",
+                            severity=RiskSeverity.HIGH,
+                            score=8.5,
+                            description=f"Potential subdomain takeover: CNAME points to {pattern}",
+                            evidence={"cname_target": cname, "vulnerable_service": pattern},
+                            remediation="Verify service ownership or remove CNAME record",
+                            discovered_at=datetime.now()
+                        )
+            
+            return None
+            
+        except Exception as e:
+            print(f"Subdomain takeover check error for {subdomain_fqdn}: {e}")
+            return None
+    
+    def _analyze_subdomain_certificate_risks(self, subdomain_fqdn: str) -> List[DomainRisk]:
+        """Analyze certificate-specific risks for subdomains."""
+        risks = []
+        
+        try:
+            cert_info = self._get_ssl_certificate_info(subdomain_fqdn)
+            if not cert_info:
+                return risks
+            
+            # Check if subdomain uses wildcard certificate
+            subject = cert_info.get('subject', {})
+            if subject.get('commonName', '').startswith('*'):
+                risks.append(DomainRisk(
+                    domain_fqdn=subdomain_fqdn,
+                    risk_type="subdomain_wildcard_certificate",
+                    severity=RiskSeverity.MEDIUM,
+                    score=5.5,
+                    description="Subdomain uses wildcard certificate - potential security implications",
+                    evidence={"common_name": subject.get('commonName'), "certificate_info": cert_info},
+                    remediation="Consider using specific certificates for sensitive subdomains",
+                    discovered_at=datetime.now()
+                ))
+            
+        except Exception as e:
+            print(f"Subdomain certificate analysis error for {subdomain_fqdn}: {e}")
+        
+        return risks
+    
+    def _analyze_dependency_risks(self, base_domain: str, dependencies: Dict[str, List[str]]) -> List[DomainRisk]:
+        """Analyze risks related to domain dependencies."""
+        risks = []
+        
+        try:
+            # Check for too many external dependencies
+            total_dependencies = (
+                len(dependencies['services']) + 
+                len(dependencies['providers']) + 
+                len(dependencies['related_domains'])
+            )
+            
+            if total_dependencies > 20:
+                risks.append(DomainRisk(
+                    domain_fqdn=base_domain,
+                    risk_type="dependency_high_complexity",
+                    severity=RiskSeverity.MEDIUM,
+                    score=6.0,
+                    description=f"High dependency complexity: {total_dependencies} external dependencies",
+                    evidence=dependencies,
+                    remediation="Review and reduce unnecessary dependencies",
+                    discovered_at=datetime.now()
+                ))
+            
+            # Check for unknown or risky providers
+            risky_providers = ['unknown', 'unidentified', 'residential']
+            for provider in dependencies['providers']:
+                if any(risky in provider.lower() for risky in risky_providers):
+                    risks.append(DomainRisk(
+                        domain_fqdn=base_domain,
+                        risk_type="dependency_risky_provider",
+                        severity=RiskSeverity.HIGH,
+                        score=7.0,
+                        description=f"Domain uses risky provider: {provider}",
+                        evidence={"risky_provider": provider, "all_providers": dependencies['providers']},
+                        remediation=f"Migrate away from {provider} to trusted provider",
+                        discovered_at=datetime.now()
+                    ))
+            
+            # Check for IP address concentration risk
+            ip_count = len(dependencies['ip_addresses'])
+            if ip_count > 50:
+                risks.append(DomainRisk(
+                    domain_fqdn=base_domain,
+                    risk_type="dependency_ip_concentration",
+                    severity=RiskSeverity.LOW,
+                    score=4.0,
+                    description=f"High IP address concentration: {ip_count} IPs",
+                    evidence={"ip_count": ip_count},
+                    remediation="Review IP usage and consider load balancing improvements",
+                    discovered_at=datetime.now()
+                ))
+            
+        except Exception as e:
+            print(f"Dependency analysis error for {base_domain}: {e}")
         
         return risks
     
@@ -699,6 +894,155 @@ class DomainRiskCalculator:
         
         return result
     
+    def calculate_domain_and_subdomain_risks(self, base_domain: str, include_dependencies: bool = True) -> Dict[str, Any]:
+        """Calculate risks for a base domain including all its subdomains and dependencies."""
+        print(f"\n🚀 Starting Comprehensive Risk Analysis for {base_domain}")
+        print(f"   Include dependencies: {include_dependencies}")
+        print("="*60)
+        
+        start_time = time.time()
+        
+        # Results containers
+        all_risks = []
+        analysis_results = {
+            'base_domain': base_domain,
+            'domain_risks': [],
+            'subdomain_risks': [],
+            'dependency_risks': [],
+            'summary': {
+                'total_risks': 0,
+                'subdomains_analyzed': 0,
+                'dependencies_found': {}
+            }
+        }
+        
+        try:
+            # 1. Analyze the base domain
+            print(f"\n[1/4] Analyzing base domain: {base_domain}")
+            domain_risks = self.calculate_domain_risks(base_domain)
+            analysis_results['domain_risks'] = [
+                {
+                    'fqdn': risk.domain_fqdn,
+                    'risk_type': risk.risk_type,
+                    'severity': risk.severity.value,
+                    'score': risk.score,
+                    'description': risk.description,
+                    'remediation': risk.remediation
+                }
+                for risk in domain_risks
+            ]
+            all_risks.extend(domain_risks)
+            print(f"  ✓ Found {len(domain_risks)} risks for base domain")
+            
+            # 2. Get and analyze subdomains
+            print(f"\n[2/4] Discovering and analyzing subdomains...")
+            subdomains = self.get_subdomains_for_base_domain(base_domain)
+            analysis_results['summary']['subdomains_analyzed'] = len(subdomains)
+            
+            if subdomains:
+                print(f"  Found {len(subdomains)} subdomains to analyze")
+                subdomain_risks = []
+                
+                for i, subdomain in enumerate(subdomains, 1):
+                    print(f"    [{i}/{len(subdomains)}] Analyzing {subdomain}")
+                    
+                    # Basic domain analysis for subdomain
+                    basic_risks = self.calculate_domain_risks(subdomain)
+                    
+                    # Subdomain-specific analysis
+                    specific_risks = self._analyze_subdomain_specific_risks(subdomain)
+                    
+                    subdomain_all_risks = basic_risks + specific_risks
+                    all_risks.extend(subdomain_all_risks)
+                    
+                    subdomain_risks.append({
+                        'fqdn': subdomain,
+                        'risk_count': len(subdomain_all_risks),
+                        'risks': [
+                            {
+                                'risk_type': risk.risk_type,
+                                'severity': risk.severity.value,
+                                'score': risk.score,
+                                'description': risk.description,
+                                'remediation': risk.remediation
+                            }
+                            for risk in subdomain_all_risks
+                        ]
+                    })
+                    
+                    print(f"      ✓ Found {len(subdomain_all_risks)} risks")
+                
+                analysis_results['subdomain_risks'] = subdomain_risks
+            else:
+                print("  No subdomains found")
+            
+            # 3. Analyze dependencies if requested
+            if include_dependencies:
+                print(f"\n[3/4] Analyzing domain dependencies...")
+                dependencies = self.get_domain_dependencies(base_domain)
+                analysis_results['summary']['dependencies_found'] = dependencies
+                
+                dependency_risks = self._analyze_dependency_risks(base_domain, dependencies)
+                all_risks.extend(dependency_risks)
+                
+                analysis_results['dependency_risks'] = [
+                    {
+                        'risk_type': risk.risk_type,
+                        'severity': risk.severity.value,
+                        'score': risk.score,
+                        'description': risk.description,
+                        'remediation': risk.remediation
+                    }
+                    for risk in dependency_risks
+                ]
+                
+                print(f"  ✓ Found {len(dependency_risks)} dependency-related risks")
+                print(f"  Dependencies summary:")
+                print(f"    - Services: {len(dependencies['services'])}")
+                print(f"    - Providers: {len(dependencies['providers'])}")
+                print(f"    - IP addresses: {len(dependencies['ip_addresses'])}")
+                print(f"    - Related domains: {len(dependencies['related_domains'])}")
+            
+            # 4. Save all risks to graph
+            print(f"\n[4/4] Saving risks to graph...")
+            saved_count = self.save_risks_to_graph(all_risks)
+            
+            # Update summary
+            analysis_results['summary']['total_risks'] = len(all_risks)
+            analysis_results['summary']['risks_saved'] = saved_count
+            analysis_results['summary']['elapsed_time'] = time.time() - start_time
+            
+            # Risk breakdown by severity
+            severity_breakdown = {}
+            for risk in all_risks:
+                sev = risk.severity.value
+                severity_breakdown[sev] = severity_breakdown.get(sev, 0) + 1
+            analysis_results['summary']['severity_breakdown'] = severity_breakdown
+            
+            # Risk breakdown by type
+            type_breakdown = {}
+            for risk in all_risks:
+                risk_type = risk.risk_type
+                type_breakdown[risk_type] = type_breakdown.get(risk_type, 0) + 1
+            analysis_results['summary']['type_breakdown'] = type_breakdown
+            
+            elapsed_time = time.time() - start_time
+            
+            print(f"\n🎉 Comprehensive Analysis Completed!")
+            print(f"   Base domain: {base_domain}")
+            print(f"   Subdomains analyzed: {len(subdomains)}")
+            print(f"   Total risks found: {len(all_risks)}")
+            print(f"   Risks saved to graph: {saved_count}")
+            print(f"   Analysis time: {elapsed_time:.1f} seconds")
+            print(f"   Severity breakdown: {severity_breakdown}")
+            print("="*60)
+            
+        except Exception as e:
+            print(f"✗ Error during comprehensive analysis: {e}")
+            analysis_results['error'] = str(e)
+        
+        return analysis_results
+    
     def get_risk_statistics(self) -> Dict[str, Any]:
         """Get risk statistics from the graph."""
         with self.drv.session() as s:
@@ -763,6 +1107,12 @@ def main():
     parser.add_argument("--domain", help="Analyze single domain")
     parser.add_argument("--stats-only", action="store_true", help="Show only risk statistics")
     
+    # New subdomain and dependency analysis options
+    parser.add_argument("--include-subdomains", action="store_true", help="Include subdomains in analysis")
+    parser.add_argument("--include-dependencies", action="store_true", help="Include dependency analysis")
+    parser.add_argument("--comprehensive", action="store_true", help="Run comprehensive analysis (includes subdomains and dependencies)")
+    parser.add_argument("--subdomains-only", action="store_true", help="Analyze only subdomains of the specified domain")
+    
     args = parser.parse_args()
     
     # Initialize calculator
@@ -774,8 +1124,49 @@ def main():
             stats = calculator.get_risk_statistics()
             print(f"\n📊 Domain Risk Statistics:")
             print(json.dumps(stats, indent=2, default=str))
+        elif args.comprehensive or (args.include_subdomains and args.include_dependencies):
+            # Run comprehensive analysis
+            if not args.domain:
+                print("❌ Error: --comprehensive analysis requires --domain to be specified")
+                return
+            
+            results = calculator.calculate_domain_and_subdomain_risks(
+                args.domain, 
+                include_dependencies=True
+            )
+            
+            print(f"\n📊 Comprehensive Risk Analysis Results:")
+            print(json.dumps(results, indent=2, default=str))
+            
+        elif args.include_subdomains or args.subdomains_only:
+            # Run subdomain-focused analysis
+            if not args.domain:
+                print("❌ Error: Subdomain analysis requires --domain to be specified")
+                return
+                
+            if args.subdomains_only:
+                # Analyze only subdomains, not the base domain
+                print(f"\n🔍 Analyzing ONLY subdomains of {args.domain}")
+                subdomains = calculator.get_subdomains_for_base_domain(args.domain)
+                
+                if not subdomains:
+                    print(f"No subdomains found for {args.domain}")
+                    return
+                
+                results = calculator.calculate_all_domain_risks(subdomains)
+                
+            else:
+                # Include subdomains in analysis
+                results = calculator.calculate_domain_and_subdomain_risks(
+                    args.domain, 
+                    include_dependencies=args.include_dependencies
+                )
+            
+            print(f"\n📊 Subdomain Risk Analysis Results:")
+            print(json.dumps(results, indent=2, default=str))
+            
         else:
-            # Determine domains to analyze
+            # Standard domain analysis (base domains only)
             domains = None
             if args.domain:
                 domains = [args.domain]
@@ -783,10 +1174,10 @@ def main():
                 with open(args.domains, 'r') as f:
                     domains = [line.strip() for line in f if line.strip()]
             
-            # Run risk analysis
+            # Run standard risk analysis
             results = calculator.calculate_all_domain_risks(domains)
             
-            print(f"\n📊 Final Risk Analysis Results:")
+            print(f"\n📊 Standard Risk Analysis Results:")
             print(json.dumps(results, indent=2, default=str))
         
     finally:

@@ -71,6 +71,16 @@ RESOLVER = dns.resolver.Resolver(configure=True)
 IPINFO_MMDB_PATH = "ipinfo_data/ipinfo.mmdb"
 IPINFO_CSV_PATH = "ipinfo_data/ipinfo.csv"
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('provider_detection.log')
+    ]
+)
+
 # Suppress logging noise
 logging.getLogger('whois.whois').setLevel(logging.CRITICAL)
 RESOLVER.lifetime = RESOLVER.timeout = 5.0
@@ -181,7 +191,59 @@ class TwoPhaseGraphIngester:
         self.ipinfo_token = ipinfo_token
         self.mmdb_path = mmdb_path
         self.csv_path = csv_path
+        
+        # Check configuration and issue warnings
+        self._check_configuration()
+        
         self.setup_constraints()
+    
+    def _check_configuration(self):
+        """Check configuration and issue warnings for missing components."""
+        import os
+        
+        print("\n=== PROVIDER DETECTION CONFIGURATION CHECK ===")
+        
+        # Check API tokens
+        if not self.ipinfo_token:
+            print("⚠️  WARNING: No IPInfo token provided")
+            print("   → Provider detection will use free tier with rate limits")
+            print("   → Consider using --ipinfo-token for better results")
+        else:
+            print("✅ IPInfo token provided")
+            
+        # Check MMDB database
+        if not os.path.exists(self.mmdb_path):
+            print(f"⚠️  WARNING: MMDB database not found at {self.mmdb_path}")
+            print("   → Local IP geolocation will be unavailable")
+            print("   → Will rely on external APIs for provider detection")
+        else:
+            print(f"✅ MMDB database found at {self.mmdb_path}")
+            
+        # Check CSV database
+        if not os.path.exists(self.csv_path):
+            print(f"⚠️  WARNING: CSV database not found at {self.csv_path}")
+            print("   → Local IP data will be unavailable")
+        else:
+            print(f"✅ CSV database found at {self.csv_path}")
+            
+        # Check optional dependencies
+        missing_deps = []
+        if not HAS_TLDEXTRACT:
+            missing_deps.append('tldextract')
+        if not HAS_WHOIS:
+            missing_deps.append('whois')
+        if not HAS_CRYPTOGRAPHY:
+            missing_deps.append('cryptography')
+        if not HAS_MAXMINDDB:
+            missing_deps.append('maxminddb')
+            
+        if missing_deps:
+            print(f"⚠️  WARNING: Missing optional dependencies: {', '.join(missing_deps)}")
+            print("   → Some features may be limited")
+        else:
+            print("✅ All optional dependencies available")
+            
+        print("================================================\n")
     
     def setup_constraints(self):
         """Setup Neo4j constraints for enhanced model."""
@@ -337,7 +399,7 @@ class TwoPhaseGraphIngester:
     
     def _merge_ip_internal(self, domain_info: DomainInfo, ip: str, prov: str, cloud_info: dict, 
                           current_time: str, tx):
-        """Internal IP merge logic."""
+        """Internal IP merge logic with enhanced Service node creation."""
         
         # Create IP node with provider info
         tx.run("""
@@ -364,13 +426,18 @@ class TwoPhaseGraphIngester:
                 MERGE (s)-[:RESOLVES_TO]->(ip)
             """, fqdn=domain_info.fqdn, ip=ip)
         
-        # Create provider service if not exists
+        # Enhanced Service node creation with fallback
         if prov and prov != "unknown":
+            # Create provider service node
             tx.run("""
                 MERGE (svc:Service {name: $provider, type: 'cloud_provider'})
-                SET svc.last_updated = $current_time
+                SET svc.last_updated = $current_time,
+                    svc.detection_method = $detection_method,
+                    svc.source_info = $source_info
                 RETURN svc
-            """, provider=prov, current_time=current_time)
+            """, provider=prov, current_time=current_time, 
+                 detection_method=cloud_info.get('detection_method', 'unknown'),
+                 source_info=json.dumps(cloud_info))
             
             # Link IP to provider service
             tx.run("""
@@ -378,21 +445,48 @@ class TwoPhaseGraphIngester:
                 MATCH (svc:Service {name: $provider, type: 'cloud_provider'})
                 MERGE (ip)-[:HOSTED_BY]->(svc)
             """, ip=ip, provider=prov)
+        else:
+            # Create unknown provider service for tracking
+            tx.run("""
+                MERGE (svc:Service {name: 'unknown', type: 'cloud_provider'})
+                SET svc.last_updated = $current_time,
+                    svc.detection_method = 'failed',
+                    svc.description = 'Provider detection failed or unknown'
+                RETURN svc
+            """)
+            
+            # Link IP to unknown provider service
+            tx.run("""
+                MATCH (ip:IPAddress {address: $ip})
+                MATCH (svc:Service {name: 'unknown', type: 'cloud_provider'})
+                MERGE (ip)-[:HOSTED_BY]->(svc)
+            """, ip=ip)
     
     def detect_cloud_provider_by_ip(self, ip: str) -> str:
         """Detect cloud provider for IP address using existing detection logic."""
         try:
             from risk_loader_advanced3 import detect_cloud_provider_by_ip
-            return detect_cloud_provider_by_ip(ip, self.ipinfo_token, self.mmdb_path, self.csv_path)
-        except ImportError:
+            result = detect_cloud_provider_by_ip(ip, self.ipinfo_token, self.mmdb_path, self.csv_path)
+            logging.info(f"[PROVIDER_DETECTION] Result for IP {ip}: {result}")
+            return result
+        except ImportError as e:
+            logging.warning(f"[PROVIDER_DETECTION] Cannot import detection functions: {e}")
+            return "unknown"
+        except Exception as e:
+            logging.error(f"[PROVIDER_DETECTION] Unexpected error detecting provider for IP {ip}: {e}")
             return "unknown"
     
     def get_cloud_provider_info(self, ip: str) -> dict:
         """Get detailed cloud provider info for IP."""
         try:
             from risk_loader_advanced3 import get_cloud_provider_info
-            return get_cloud_provider_info(ip, self.ipinfo_token, self.mmdb_path, self.csv_path)
-        except ImportError:
+            result = get_cloud_provider_info(ip, self.ipinfo_token, self.mmdb_path, self.csv_path)
+            return result or {}
+        except ImportError as e:
+            logging.warning(f"[PROVIDER_DETECTION] Cannot import cloud provider info functions: {e}")
+            return {}
+        except Exception as e:
+            logging.error(f"[PROVIDER_DETECTION] Unexpected error getting cloud info for IP {ip}: {e}")
             return {}
     
     def get_discovery_statistics(self) -> Dict[str, Any]:

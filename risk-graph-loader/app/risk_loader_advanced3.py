@@ -994,10 +994,15 @@ def get_asn_info(ip: str, mmdb_path: str = IPINFO_MMDB_PATH, csv_path: str = IPI
 def get_cloud_provider_info(ip: str, ipinfo_token: str = None, mmdb_path: str = IPINFO_MMDB_PATH, csv_path: str = IPINFO_CSV_PATH) -> Optional[Dict[str, Any]]:
     """Obtiene información específica del proveedor cloud usando múltiples servicios."""
     provider_info = {}
+    detection_method = None
+    
+    # Verificar disponibilidad de recursos
+    warnings_issued = []
     
     # Primero intentar con base de datos MMDB local
     mmdb_info = get_ip_info_from_mmdb(ip, mmdb_path)
     if mmdb_info:
+        detection_method = 'mmdb_local'
         provider_info.update(mmdb_info)
         # Detectar proveedor usando información MMDB
         org = provider_info.get('organization', '')
@@ -1125,18 +1130,25 @@ def get_cloud_provider_info(ip: str, ipinfo_token: str = None, mmdb_path: str = 
                         return provider_info
                         
         elif response.status_code == 429:
-            print(f"[!] Rate limit reached for ipinfo.io. Consider upgrading plan or using token.")
+            warnings_issued.append("Rate limit reached for ipinfo.io. Consider upgrading plan or using token.")
+            logging.warning(f"[PROVIDER_DETECTION] Rate limit reached for ipinfo.io for IP {ip}")
         elif response.status_code == 401:
-            print(f"[!] Invalid ipinfo.io token provided.")
+            warnings_issued.append("Invalid ipinfo.io token provided.")
+            logging.warning(f"[PROVIDER_DETECTION] Invalid ipinfo.io token for IP {ip}")
+        else:
+            warnings_issued.append(f"ipinfo.io API returned status {response.status_code}")
             
     except Exception as e:
-        print(f"[!] Error querying ipinfo.io: {e}")
+        warnings_issued.append(f"Error querying ipinfo.io: {e}")
+        logging.warning(f"[PROVIDER_DETECTION] Error querying ipinfo.io for IP {ip}: {e}")
         pass
     
     # 2. Usar ip-api.com para verificación adicional
     try:
         response = requests.get(f"http://ip-api.com/json/{ip}?fields=status,message,country,regionName,city,org,as,hosting", timeout=5)
         if response.status_code == 200:
+            if not detection_method:
+                detection_method = 'ip_api'
             data = response.json()
             if data.get('status') == 'success':
                 org = data.get('org', '')
@@ -1159,7 +1171,9 @@ def get_cloud_provider_info(ip: str, ipinfo_token: str = None, mmdb_path: str = 
                         if keyword.lower() in org.lower():
                             provider_info['provider'] = provider
                             return provider_info
-    except Exception:
+    except Exception as e:
+        warnings_issued.append(f"Error querying ip-api.com: {e}")
+        logging.warning(f"[PROVIDER_DETECTION] Error querying ip-api.com for IP {ip}: {e}")
         pass
     
     # 3. Usar shodan.io si hay API key disponible (opcional)
@@ -1181,18 +1195,53 @@ def get_cloud_provider_info(ip: str, ipinfo_token: str = None, mmdb_path: str = 
         except Exception:
             pass
     
+    # Añadir información de detección y warnings
+    if provider_info:
+        provider_info['detection_method'] = detection_method
+        provider_info['warnings'] = warnings_issued
+        if warnings_issued:
+            logging.info(f"[PROVIDER_DETECTION] Warnings for IP {ip}: {warnings_issued}")
+    else:
+        if warnings_issued:
+            logging.warning(f"[PROVIDER_DETECTION] Failed to detect provider for IP {ip}. Warnings: {warnings_issued}")
+    
     return provider_info if provider_info else None
 
 
 def detect_cloud_provider_by_ip(ip: str, ipinfo_token: str = None, mmdb_path: str = IPINFO_MMDB_PATH, csv_path: str = IPINFO_CSV_PATH) -> str:
     """Detecta el proveedor cloud usando servicios externos y patrones."""
-    # Primero intentar con servicios externos
+    # Verificar disponibilidad de recursos
+    import os
+    import pathlib
+    
+    # Verificar bases de datos locales
+    if not os.path.exists(mmdb_path):
+        logging.warning(f"[PROVIDER_DETECTION] MMDB database not found at {mmdb_path}")
+    if not os.path.exists(csv_path):
+        logging.warning(f"[PROVIDER_DETECTION] CSV database not found at {csv_path}")
+    
+    # Intentar con servicios externos
     cloud_info = get_cloud_provider_info(ip, ipinfo_token, mmdb_path, csv_path)
     if cloud_info and cloud_info.get('provider'):
+        detection_method = cloud_info.get('detection_method', 'unknown')
+        warnings = cloud_info.get('warnings', [])
+        
+        logging.info(f"[PROVIDER_DETECTION] Successfully detected provider '{cloud_info['provider']}' for IP {ip} using {detection_method}")
+        if warnings:
+            logging.info(f"[PROVIDER_DETECTION] Warnings for IP {ip}: {warnings}")
+        
         return cloud_info['provider']
     
     # Fallback a detección por patrones
-    return guess_provider(ip)
+    logging.info(f"[PROVIDER_DETECTION] Falling back to pattern-based detection for IP {ip}")
+    fallback_provider = guess_provider(ip)
+    
+    if fallback_provider == 'unknown':
+        logging.warning(f"[PROVIDER_DETECTION] Could not determine provider for IP {ip} - will be marked as 'unknown'")
+    else:
+        logging.info(f"[PROVIDER_DETECTION] Pattern-based detection found provider '{fallback_provider}' for IP {ip}")
+    
+    return fallback_provider
 
 
 def get_netblock_info(ip: str) -> Optional[Dict[str, Any]]:
