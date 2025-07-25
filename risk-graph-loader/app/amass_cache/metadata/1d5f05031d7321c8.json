@@ -1,0 +1,10 @@
+{
+  "domain": "public.static.dx.qa.principal.cl",
+  "timestamp": "2025-07-13T20:42:20.277317",
+  "mode": "passive",
+  "timeout": 60,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 31,
+  "cache_version": "1.0"
+}

@@ -4,10 +4,13 @@ import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.Record;
+import org.neo4j.driver.Value;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @ApplicationScoped
 public class RiskPropagationService {
@@ -20,6 +23,27 @@ public class RiskPropagationService {
     
     private static final int BATCH_SIZE = 100;
     private static final int MAX_PROPAGATION_DEPTH = 3;
+    
+    /**
+     * Safely converts a Neo4j Value to LocalDateTime, handling both ZonedDateTime and LocalDateTime objects
+     */
+    private LocalDateTime safeAsLocalDateTime(Value value) {
+        if (value == null || value.isNull()) {
+            return null;
+        }
+        try {
+            Object obj = value.asObject();
+            if (obj instanceof ZonedDateTime) {
+                return ((ZonedDateTime) obj).toLocalDateTime();
+            } else if (obj instanceof LocalDateTime) {
+                return (LocalDateTime) obj;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
     
     public int propagateRiskForIncident(String incidentId) {
         String query = """
@@ -323,7 +347,7 @@ public class RiskPropagationService {
                 node.put("nodeId", record.get("nodeId").asString());
                 node.put("riskScore", record.get("riskScore").asDouble());
                 node.put("riskTier", record.get("riskTier").asString());
-                node.put("lastCalculated", record.get("lastCalculated").isNull() ? null : record.get("lastCalculated").asLocalDateTime());
+                node.put("lastCalculated", safeAsLocalDateTime(record.get("lastCalculated")));
                 
                 highRiskNodes.add(node);
             }

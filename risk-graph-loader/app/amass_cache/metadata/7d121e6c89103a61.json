@@ -1,0 +1,10 @@
+{
+  "domain": "ns1-104.akam.net",
+  "timestamp": "2025-07-23T22:13:09.340553",
+  "mode": "passive",
+  "timeout": 300,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 0,
+  "cache_version": "1.0"
+}

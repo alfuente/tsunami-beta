@@ -14,6 +14,7 @@ com/example/risk/dto/DependencyResponse$Dependency.class
 com/example/risk/dto/RiskScoreResponse$ScoreBreakdown.class
 com/example/risk/validation/RiskValidationService.class
 com/example/risk/RiskGraphApplication.class
+com/example/risk/dto/BaseDomainResponse.class
 com/example/risk/service/RiskPropagationService.class
 com/example/risk/resource/DependencyResource.class
 com/example/risk/service/BaseScoreCalculator.class

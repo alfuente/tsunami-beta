@@ -1,0 +1,10 @@
+{
+  "domain": "bb.cl",
+  "timestamp": "2025-07-23T22:18:58.213674",
+  "mode": "brute+passive",
+  "timeout": 300,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 177,
+  "cache_version": "1.0"
+}

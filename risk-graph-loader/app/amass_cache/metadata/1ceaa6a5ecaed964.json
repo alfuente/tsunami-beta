@@ -1,0 +1,10 @@
+{
+  "domain": "ns-1539.awsdns-00.co.uk",
+  "timestamp": "2025-07-16T01:03:28.811705",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 0,
+  "cache_version": "1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "domain": "bancochile.cl",
+  "timestamp": "2025-07-23T21:56:43.627948",
+  "mode": "brute+passive",
+  "timeout": 300,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 349,
+  "cache_version": "1.0"
+}

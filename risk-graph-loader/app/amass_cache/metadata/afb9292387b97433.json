@@ -1,0 +1,10 @@
+{
+  "domain": "2884f381385667cdfaf1aff95b40ef1a.santander.cl",
+  "timestamp": "2025-07-14T14:58:11.745923",
+  "mode": "passive",
+  "timeout": 60,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 0,
+  "cache_version": "1.0"
+}

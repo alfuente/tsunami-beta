@@ -10,6 +10,7 @@ import DomainManagement from './pages/DomainManagement';
 import RiskAnalysis from './pages/RiskAnalysis';
 import DomainDetail from './pages/DomainDetail';
 import BaseDomainDetail from './pages/BaseDomainDetail';
+import Queries from './pages/Queries';
 
 const theme = createTheme({
   palette: {
@@ -53,8 +54,10 @@ function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/domains" element={<DomainManagement />} />
               <Route path="/domains/:fqdn" element={<DomainDetail />} />
+              <Route path="/domains/base-domains/:baseDomain" element={<BaseDomainDetail />} />
               <Route path="/base-domains/:baseDomain" element={<BaseDomainDetail />} />
               <Route path="/risk-analysis" element={<RiskAnalysis />} />
+              <Route path="/queries" element={<Queries />} />
             </Routes>
           </Box>
         </Box>

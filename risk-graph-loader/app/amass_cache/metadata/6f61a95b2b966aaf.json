@@ -1,0 +1,10 @@
+{
+  "domain": "168.165.202.45",
+  "timestamp": "2025-07-13T13:53:09.146656",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 0,
+  "cache_version": "1.0"
+}

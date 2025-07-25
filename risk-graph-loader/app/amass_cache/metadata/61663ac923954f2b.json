@@ -1,0 +1,10 @@
+{
+  "domain": "derivacion.sura-priv-dev.sura.cl",
+  "timestamp": "2025-07-13T14:40:26.628953",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 37,
+  "cache_version": "1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "domain": "a24-65.akam.net",
+  "timestamp": "2025-07-13T20:33:37.320058",
+  "mode": "passive",
+  "timeout": 60,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 0,
+  "cache_version": "1.0"
+}

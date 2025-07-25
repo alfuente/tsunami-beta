@@ -1,0 +1,10 @@
+{
+  "domain": "s1027594027.t.en25.com",
+  "timestamp": "2025-07-13T14:19:02.470570",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 2,
+  "cache_version": "1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "domain": "cup.bancofalabella.cl",
+  "timestamp": "2025-07-14T00:10:40.944872",
+  "mode": "passive",
+  "timeout": 60,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 2,
+  "cache_version": "1.0"
+}

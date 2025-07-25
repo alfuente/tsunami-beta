@@ -1,0 +1,10 @@
+{
+  "domain": "cuenta-corriente.banco.prod.digital.consorcio.cl",
+  "timestamp": "2025-07-16T01:27:18.124096",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 0,
+  "cache_version": "1.0"
+}

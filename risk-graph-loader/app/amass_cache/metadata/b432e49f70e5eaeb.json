@@ -1,0 +1,10 @@
+{
+  "domain": "mx1.metlife.com",
+  "timestamp": "2025-07-13T14:51:46.014447",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 25,
+  "cache_version": "1.0"
+}

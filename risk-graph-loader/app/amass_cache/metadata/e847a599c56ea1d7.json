@@ -1,0 +1,10 @@
+{
+  "domain": "apollo.ns.cloudflare.com",
+  "timestamp": "2025-07-13T20:09:53.001428",
+  "mode": "passive",
+  "timeout": 60,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 25,
+  "cache_version": "1.0"
+}

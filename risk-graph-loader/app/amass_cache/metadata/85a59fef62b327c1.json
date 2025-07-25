@@ -1,0 +1,10 @@
+{
+  "domain": "dev-api-ecert-cs.losheroes.cl",
+  "timestamp": "2025-07-13T20:21:59.263526",
+  "mode": "passive",
+  "timeout": 60,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 0,
+  "cache_version": "1.0"
+}

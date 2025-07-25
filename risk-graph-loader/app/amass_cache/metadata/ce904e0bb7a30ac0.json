@@ -1,0 +1,10 @@
+{
+  "domain": "ns-2000.awsdns-58.co.uk",
+  "timestamp": "2025-07-13T20:36:41.530417",
+  "mode": "passive",
+  "timeout": 60,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 39,
+  "cache_version": "1.0"
+}

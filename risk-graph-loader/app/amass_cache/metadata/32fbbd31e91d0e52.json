@@ -1,0 +1,10 @@
+{
+  "domain": "alb-device-farm-superapp-est-qa-291953344.us-east-1.elb.amazonaws.com",
+  "timestamp": "2025-07-14T14:50:06.972935",
+  "mode": "passive",
+  "timeout": 60,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 0,
+  "cache_version": "1.0"
+}

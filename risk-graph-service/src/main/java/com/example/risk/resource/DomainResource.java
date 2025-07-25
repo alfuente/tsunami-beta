@@ -397,19 +397,19 @@ public class DomainResource {
                 OPTIONAL MATCH (s)-[:RESOLVES_TO]->(ip:IP)-[:BELONGS_TO]->(asn:ASN)
                 RETURN 
                     s.fqdn as fqdn,
-                    s.risk_score as risk_score,
-                    s.risk_tier as risk_tier,
+                    coalesce(s.risk_score, 0.0) as risk_score,
+                    coalesce(s.risk_tier, 'Unknown') as risk_tier,
                     s.last_calculated as last_calculated,
-                    s.business_criticality as business_criticality,
-                    s.monitoring_enabled as monitoring_enabled,
-                    coalesce(s.dns_sec_enabled, false) as dns_sec_enabled,
+                    coalesce(s.business_criticality, 'Unknown') as business_criticality,
+                    coalesce(s.monitoring_enabled, false) as monitoring_enabled,
+                    coalesce(s.dns_sec_enabled, s.dns_has_spf, false) as dns_sec_enabled,
                     coalesce(s.multi_az, false) as multi_az,
                     coalesce(s.multi_region, false) as multi_region,
                     coalesce(s.has_failover, false) as has_failover,
                     coalesce(s.critical_cves, 0) as critical_cves,
                     coalesce(s.high_cves, 0) as high_cves,
                     s.last_assessment as last_assessment,
-                    c.tls_grade as tls_grade,
+                    coalesce(c.tls_grade, s.tls_grade, 'Unknown') as tls_grade,
                     collect(DISTINCT {asn: asn.asn, country: asn.country}) as name_servers
                 """;
             
@@ -684,20 +684,17 @@ public class DomainResource {
                      END as base_domain
                 WHERE base_domain = $baseDomain
                 
-                // Get both the domain and its subdomains
+                // Get only subdomains (exclude the base domain from results)
                 OPTIONAL MATCH (d)-[:HAS_SUBDOMAIN]->(sub:Subdomain)
                 
-                // Combine domain and subdomains into a single collection
-                WITH d, collect({node: d, type: 'Domain'}) + collect({node: sub, type: 'Subdomain'}) as all_nodes
-                
-                // Unwind to process each node individually
-                UNWIND all_nodes as node_info
-                WITH node_info.node as n, node_info.type as node_type
+                // Only process subdomains, not the base domain
+                WITH sub as n, 'Subdomain' as node_type
                 WHERE n IS NOT NULL
                 
                 // Get services, providers, incidents, and risk breakdown for each node
                 OPTIONAL MATCH (n)-[:RUNS]->(s:Service)
-                OPTIONAL MATCH (n)-[:RESOLVES_TO]->(ip:IPAddress)-[:HOSTED_BY]->(p:Provider)
+                OPTIONAL MATCH (n)-[:USES_SERVICE]->(p:Provider)
+                OPTIONAL MATCH (n)-[:RESOLVES_TO]->(ip:IPAddress)-[:HOSTED_BY]->(ph:Provider)
                 OPTIONAL MATCH (n)<-[:AFFECTS]-(i:Incident)
                 WHERE i.resolved IS NULL
                 
@@ -712,7 +709,7 @@ public class DomainResource {
                        coalesce(n.monitoring_enabled, false) as monitoring_enabled,
                        n.last_calculated as last_calculated,
                        collect(DISTINCT s.name) as services,
-                       collect(DISTINCT p.name) as providers,
+                       collect(DISTINCT p.name) + collect(DISTINCT ph.name) as providers,
                        count(DISTINCT i) as active_incidents,
                        // Risk breakdown information
                        coalesce(n.base_score, 0.0) as base_score,

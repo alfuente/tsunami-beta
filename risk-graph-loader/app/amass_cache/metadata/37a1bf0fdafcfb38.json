@@ -1,0 +1,10 @@
+{
+  "domain": "aa58f849235b043be94b460247aa0237-a05a0618504813c8.elb.us-east-1.amazonaws.com",
+  "timestamp": "2025-07-16T01:25:22.270403",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 0,
+  "cache_version": "1.0"
+}

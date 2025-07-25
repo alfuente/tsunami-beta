@@ -1,0 +1,10 @@
+{
+  "domain": "va06.ingress.herokuapp.com",
+  "timestamp": "2025-07-16T01:10:37.908269",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 0,
+  "cache_version": "1.0"
+}

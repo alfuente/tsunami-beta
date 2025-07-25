@@ -15,6 +15,7 @@ import {
   Domain as DomainIcon,
   Analytics as AnalyticsIcon,
   Security as SecurityIcon,
+  Search as SearchIcon,
 } from '@mui/icons-material';
 
 interface SidebarProps {
@@ -25,6 +26,7 @@ const menuItems = [
   { text: 'Dashboard', path: '/', icon: <DashboardIcon /> },
   { text: 'Domain Management', path: '/domains', icon: <DomainIcon /> },
   { text: 'Risk Analysis', path: '/risk-analysis', icon: <AnalyticsIcon /> },
+  { text: 'Queries', path: '/queries', icon: <SearchIcon /> },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ drawerWidth }) => {

@@ -1,21 +1,29 @@
 #!/usr/bin/env python3
 """
-subdomain_relationship_discovery.py - Enhanced subdomain relationship discovery
+subdomain_relationship_discovery.py - Enhanced subdomain relationship discovery v2.0
 
 This module extends the two-phase subdomain discovery to include comprehensive relationship
-mapping between subdomains, domains, services, and providers. It fixes the issue where
-base domains appear as subdomains and adds advanced relationship discovery capabilities.
+mapping between subdomains, domains, services, providers, and risk analysis. It fixes the 
+issues where Risk and Provider nodes were not being generated and adds multi-level 
+subdomain discovery capabilities.
 
 Key features:
 1. Fixed domain hierarchy to prevent base domains appearing as subdomains
-2. Cross-domain relationship discovery
-3. Service provider relationship mapping
-4. Enhanced subdomain relationship tracking
-5. Provider service discovery and mapping
+2. Cross-domain relationship discovery  
+3. Provider node creation (not just Service nodes)
+4. Risk node generation and analysis
+5. Multi-level subdomain chain discovery (depth > 1)
+6. Enhanced subdomain relationship tracking
+7. Provider service discovery and mapping
+
+Version history:
+- v1.0: Initial implementation with Service nodes only
+- v2.0: Added Provider nodes, Risk analysis, and multi-level subdomain discovery
 """
 
 from __future__ import annotations
 import argparse, json, subprocess, tempfile, sys, socket, ssl, re
+from typing import Tuple
 from collections import deque, defaultdict
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -282,6 +290,12 @@ class EnhancedSubdomainGraphIngester:
             s.run("CREATE CONSTRAINT provider_name IF NOT EXISTS FOR (p:Provider) REQUIRE p.name IS UNIQUE")
             s.run("CREATE INDEX domain_base_domain IF NOT EXISTS FOR (d:Domain) ON (d.base_domain)")
             s.run("CREATE INDEX subdomain_base_domain IF NOT EXISTS FOR (s:Subdomain) ON (s.base_domain)")
+            
+            # Risk analysis constraints (v2.0)
+            s.run("CREATE CONSTRAINT risk_id IF NOT EXISTS FOR (r:Risk) REQUIRE r.risk_id IS UNIQUE")
+            s.run("CREATE INDEX risk_domain IF NOT EXISTS FOR (r:Risk) ON (r.domain_fqdn)")
+            s.run("CREATE INDEX risk_severity IF NOT EXISTS FOR (r:Risk) ON (r.severity)")
+            s.run("CREATE INDEX risk_score IF NOT EXISTS FOR (r:Risk) ON (r.score)")
     
     def create_enhanced_domain_hierarchy_batch(self, domains: List[str], batch_size: int = 100) -> Dict[str, Any]:
         """Create enhanced domain hierarchy with relationship tracking."""
@@ -369,12 +383,32 @@ class EnhancedSubdomainGraphIngester:
                  domain_name=domain_info.domain, tld=domain_info.tld,
                  base_domain=domain_info.base_domain, current_time=current_time)
             
-            # 5. Create Domain -> Subdomain relationship
+            # 5. Create Subdomain -> Domain relationship (SUBDOMAIN_OF for Java compatibility)
             tx.run("""
                 MATCH (d:Domain {fqdn: $parent_fqdn})
                 MATCH (s:Subdomain {fqdn: $subdomain_fqdn})
+                MERGE (s)-[:SUBDOMAIN_OF]->(d)
                 MERGE (d)-[:HAS_SUBDOMAIN]->(s)
             """, parent_fqdn=domain_info.parent_domain, subdomain_fqdn=domain_info.fqdn)
+            relationships_created += 1
+        
+        # 6. NEW: Detect and create service providers during hierarchy creation
+        service_providers = self._detect_and_create_service_providers(domain_info.fqdn, current_time, tx)
+        
+        # 7. Link domain/subdomain to detected service providers (using DEPENDS_ON for Java compatibility)
+        for service_provider in service_providers:
+            if domain_info.is_tld_domain:
+                tx.run("""
+                    MATCH (d:Domain {fqdn: $fqdn})
+                    MATCH (p:Provider {name: $service_provider, type: 'Service'})
+                    MERGE (d)-[:DEPENDS_ON]->(p)
+                """, fqdn=domain_info.fqdn, service_provider=service_provider)
+            else:
+                tx.run("""
+                    MATCH (s:Subdomain {fqdn: $fqdn})
+                    MATCH (p:Provider {name: $service_provider, type: 'Service'})
+                    MERGE (s)-[:DEPENDS_ON]->(p)
+                """, fqdn=domain_info.fqdn, service_provider=service_provider)
             relationships_created += 1
         
         return relationships_created
@@ -673,41 +707,595 @@ class EnhancedSubdomainGraphIngester:
                 MERGE (s)-[:RESOLVES_TO]->(ip)
             """, fqdn=domain_info.fqdn, ip=ip)
         
-        # Enhanced Service node creation with fallback
-        if prov and prov != "unknown":
-            # Create provider service node
-            tx.run("""
-                MERGE (svc:Service {name: $provider, type: 'cloud_provider'})
-                SET svc.last_updated = $current_time,
-                    svc.detection_method = $detection_method,
-                    svc.source_info = $source_info
-                RETURN svc
-            """, provider=prov, current_time=current_time, 
-                 detection_method=cloud_info.get('detection_method', 'unknown'),
-                 source_info=json.dumps(cloud_info))
+        # Enhanced Provider node creation (v2.0 - FIXED)
+        provider_name = prov if prov and prov != "unknown" else "Unknown Provider"
+        
+        # Detect and create infrastructure provider
+        infrastructure_provider = self._create_infrastructure_provider(provider_name, cloud_info, current_time, tx)
+        
+        # Detect and create service providers based on domain and subdomain patterns
+        service_providers = self._detect_and_create_service_providers(domain_info.fqdn, current_time, tx)
+        
+        # Link IP to infrastructure provider
+        tx.run("""
+            MATCH (ip:IPAddress {address: $ip})
+            MATCH (p:Provider {name: $provider_name, type: 'Infrastructure'})
+            MERGE (ip)-[:HOSTED_BY]->(p)
+        """, ip=ip, provider_name=provider_name)
+        
+        # Link domain/subdomain to service providers
+        for service_provider in service_providers:
+            if domain_info.is_tld_domain:
+                tx.run("""
+                    MATCH (d:Domain {fqdn: $fqdn})
+                    MATCH (p:Provider {name: $service_provider, type: 'Service'})
+                    MERGE (d)-[:USES_SERVICE]->(p)
+                """, fqdn=domain_info.fqdn, service_provider=service_provider)
+            else:
+                tx.run("""
+                    MATCH (s:Subdomain {fqdn: $fqdn})
+                    MATCH (p:Provider {name: $service_provider, type: 'Service'})
+                    MERGE (s)-[:USES_SERVICE]->(p)
+                """, fqdn=domain_info.fqdn, service_provider=service_provider)
+    
+    def _create_infrastructure_provider(self, provider_name: str, cloud_info: dict, current_time: str, tx) -> str:
+        """Create infrastructure provider node (AWS, Azure, GCP, etc.)."""
+        # Create Provider node for infrastructure (with id field for Java compatibility)
+        provider_id = f"provider_{provider_name.lower().replace(' ', '_')}"
+        tx.run("""
+            MERGE (p:Provider {name: $provider_name, type: 'Infrastructure'})
+            SET p.id = $provider_id,
+                p.last_updated = $current_time,
+                p.detection_method = $detection_method,
+                p.source_info = $source_info,
+                p.status = $status,
+                p.tier = 1,
+                p.service_type = 'cloud',
+                p.confidence = $confidence
+            RETURN p
+        """, provider_name=provider_name, provider_id=provider_id, current_time=current_time, 
+             detection_method=cloud_info.get('detection_method', 'ip_analysis'),
+             source_info=json.dumps(cloud_info),
+             status='active' if provider_name and provider_name != "Unknown Provider" else 'unknown',
+             confidence=0.8)
+        
+        # Create Service node for backwards compatibility (with id field for Java compatibility)
+        service_id = f"service_{provider_name.lower().replace(' ', '_')}_cloud"
+        tx.run("""
+            MERGE (svc:Service {name: $provider_name, type: 'cloud_provider'})
+            SET svc.id = $service_id,
+                svc.last_updated = $current_time,
+                svc.detection_method = $detection_method,
+                svc.source_info = $source_info,
+                svc.service_type = 'cloud',
+                svc.confidence = $confidence
+            RETURN svc
+        """, provider_name=provider_name, service_id=service_id, current_time=current_time, 
+             detection_method=cloud_info.get('detection_method', 'ip_analysis'),
+             source_info=json.dumps(cloud_info),
+             confidence=0.8)
+        
+        # Link Provider to Service (using PROVIDED_BY for Java compatibility)
+        tx.run("""
+            MATCH (p:Provider {name: $provider_name, type: 'Infrastructure'})
+            MATCH (svc:Service {name: $provider_name, type: 'cloud_provider'})
+            MERGE (svc)-[:PROVIDED_BY]->(p)
+        """, provider_name=provider_name)
+        
+        return provider_name
+    
+    def analyze_subdomain_tls(self, fqdn: str) -> Optional[Dict[str, Any]]:
+        """Analyze TLS certificate for a subdomain."""
+        try:
+            context = ssl.create_default_context()
+            context.check_hostname = False
+            context.verify_mode = ssl.CERT_NONE
             
-            # Link IP to provider service
-            tx.run("""
-                MATCH (ip:IPAddress {address: $ip})
-                MATCH (svc:Service {name: $provider, type: 'cloud_provider'})
-                MERGE (ip)-[:HOSTED_BY]->(svc)
-            """, ip=ip, provider=prov)
+            with socket.create_connection((fqdn, 443), timeout=10) as sock:
+                with context.wrap_socket(sock, server_hostname=fqdn) as ssock:
+                    cert = ssock.getpeercert()
+                    cipher = ssock.cipher()
+                    
+                    # Parse certificate data
+                    not_after = datetime.strptime(cert['notAfter'], '%b %d %H:%M:%S %Y %Z')
+                    not_before = datetime.strptime(cert['notBefore'], '%b %d %H:%M:%S %Y %Z')
+                    expires_in_days = (not_after - datetime.now()).days
+                    
+                    # Calculate TLS grade based on multiple factors
+                    tls_grade = self._calculate_tls_grade(cert, cipher, expires_in_days)
+                    
+                    return {
+                        'has_tls': True,
+                        'tls_grade': tls_grade,
+                        'expires_in_days': expires_in_days,
+                        'not_after': cert['notAfter'],
+                        'not_before': cert['notBefore'],
+                        'issuer': dict(x[0] for x in cert.get('issuer', [])),
+                        'subject': dict(x[0] for x in cert.get('subject', [])),
+                        'serial_number': cert.get('serialNumber', ''),
+                        'version': cert.get('version', 0),
+                        'is_self_signed': cert.get('issuer') == cert.get('subject'),
+                        'cipher_suite': cipher[0] if cipher else None,
+                        'tls_version': cipher[1] if cipher else None,
+                        'key_exchange': cipher[2] if cipher else None
+                    }
+        except Exception as e:
+            logging.warning(f"TLS analysis failed for {fqdn}: {e}")
+            return {
+                'has_tls': False,
+                'tls_grade': 'F',
+                'error': str(e)
+            }
+    
+    def _calculate_tls_grade(self, cert: Dict, cipher: tuple, expires_in_days: int) -> str:
+        """Calculate TLS grade based on certificate and connection info."""
+        score = 100
+        
+        # Certificate expiration
+        if expires_in_days < 0:
+            return 'F'  # Expired certificate
+        elif expires_in_days < 7:
+            score -= 30
+        elif expires_in_days < 30:
+            score -= 20
+        elif expires_in_days < 90:
+            score -= 10
+        
+        # Self-signed certificate
+        if cert.get('issuer') == cert.get('subject'):
+            score -= 40
+        
+        # TLS version
+        if cipher and len(cipher) > 1:
+            tls_version = cipher[1]
+            if 'TLSv1.3' in tls_version:
+                score += 5
+            elif 'TLSv1.2' in tls_version:
+                pass  # No penalty or bonus
+            elif 'TLSv1.1' in tls_version or 'TLSv1.0' in tls_version:
+                score -= 20
+            elif 'SSLv' in tls_version:
+                score -= 40
+        
+        # Convert score to grade
+        if score >= 95:
+            return 'A+'
+        elif score >= 90:
+            return 'A'
+        elif score >= 80:
+            return 'B'
+        elif score >= 70:
+            return 'C'
+        elif score >= 60:
+            return 'D'
         else:
-            # Create unknown provider service for tracking
-            tx.run("""
-                MERGE (svc:Service {name: 'unknown', type: 'cloud_provider'})
-                SET svc.last_updated = $current_time,
-                    svc.detection_method = 'failed',
-                    svc.description = 'Provider detection failed or unknown'
-                RETURN svc
-            """)
+            return 'F'
+    
+    def detect_services_and_providers(self, fqdn: str, ip_addresses: List[str]) -> tuple:
+        """Detect services and providers for a subdomain."""
+        services = []
+        providers = []
+        
+        # Service detection based on subdomain name patterns
+        service_patterns = {
+            'mail': ['email', 'smtp', 'messaging'],
+            'autodiscover': ['email', 'exchange', 'messaging'],
+            'webmail': ['email', 'web', 'messaging'],
+            'ftp': ['file_transfer', 'storage'],
+            'api': ['api', 'integration', 'development'],
+            'cdn': ['content_delivery', 'web', 'performance'],
+            'www': ['web', 'http', 'frontend'],
+            'blog': ['cms', 'web', 'content'],
+            'shop': ['ecommerce', 'web', 'payment'],
+            'admin': ['administration', 'management', 'web'],
+            'test': ['testing', 'development', 'staging'],
+            'staging': ['testing', 'development', 'staging'],
+            'dev': ['development', 'testing'],
+            'vpn': ['network', 'security', 'remote_access'],
+            'proxy': ['network', 'security', 'proxy'],
+            'monitor': ['monitoring', 'observability', 'management']
+        }
+        
+        # Detect services based on subdomain prefix
+        subdomain_prefix = fqdn.split('.')[0].lower()
+        if subdomain_prefix in service_patterns:
+            service_types = service_patterns[subdomain_prefix]
+            for service_type in service_types:
+                services.append({
+                    'name': f"{service_type}_{subdomain_prefix}",
+                    'type': service_type,
+                    'source': 'subdomain_pattern',
+                    'confidence': 0.8,
+                    'subdomain': fqdn
+                })
+        
+        # Port scanning for common services
+        common_ports = {
+            80: ('http', 'web'),
+            443: ('https', 'web'),
+            25: ('smtp', 'email'),
+            587: ('smtp_submission', 'email'),
+            993: ('imaps', 'email'),
+            995: ('pop3s', 'email'),
+            22: ('ssh', 'remote_access'),
+            21: ('ftp', 'file_transfer'),
+            3389: ('rdp', 'remote_access')
+        }
+        
+        for ip in ip_addresses[:3]:  # Limit to first 3 IPs to avoid too many requests
+            try:
+                ip_obj = ipaddress.ip_address(ip)
+                if not ip_obj.is_private:  # Only scan public IPs
+                    for port, (service_name, service_type) in common_ports.items():
+                        try:
+                            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                            sock.settimeout(2)
+                            result = sock.connect_ex((ip, port))
+                            sock.close()
+                            
+                            if result == 0:  # Port is open
+                                services.append({
+                                    'name': f"{service_name}_{fqdn}",
+                                    'type': service_type,
+                                    'source': 'port_scan',
+                                    'confidence': 0.9,
+                                    'port': port,
+                                    'ip': ip,
+                                    'subdomain': fqdn
+                                })
+                        except Exception:
+                            pass
+            except Exception:
+                continue
+        
+        # Provider detection based on IP geolocation and ASN
+        for ip in ip_addresses:
+            try:
+                provider_info = self._detect_provider_from_ip(ip)
+                if provider_info:
+                    providers.append({
+                        'name': provider_info['name'],
+                        'type': provider_info['type'],
+                        'source': 'ip_geolocation',
+                        'confidence': provider_info['confidence'],
+                        'ip': ip,
+                        'asn': provider_info.get('asn'),
+                        'country': provider_info.get('country'),
+                        'subdomain': fqdn
+                    })
+            except Exception as e:
+                logging.warning(f"Provider detection failed for IP {ip}: {e}")
+        
+        return services, providers
+    
+    def _detect_provider_from_ip(self, ip: str) -> Optional[Dict[str, Any]]:
+        """Detect provider/hosting service from IP address."""
+        try:
+            # Common cloud provider IP ranges (simplified detection)
+            cloud_providers = {
+                'amazonaws.com': {'name': 'Amazon Web Services', 'type': 'cloud', 'confidence': 0.95},
+                'googleusercontent.com': {'name': 'Google Cloud Platform', 'type': 'cloud', 'confidence': 0.95},
+                'azurewebsites.net': {'name': 'Microsoft Azure', 'type': 'cloud', 'confidence': 0.95},
+                'cloudflare.com': {'name': 'Cloudflare', 'type': 'cdn', 'confidence': 0.9},
+                'fastly.com': {'name': 'Fastly', 'type': 'cdn', 'confidence': 0.9}
+            }
             
-            # Link IP to unknown provider service
+            # Try reverse DNS lookup
+            try:
+                hostname = socket.gethostbyaddr(ip)[0]
+                for domain, provider_info in cloud_providers.items():
+                    if domain in hostname.lower():
+                        return {
+                            'name': provider_info['name'],
+                            'type': provider_info['type'],
+                            'confidence': provider_info['confidence'],
+                            'hostname': hostname
+                        }
+            except Exception:
+                pass
+            
+            # Fallback: Basic provider detection
+            ip_obj = ipaddress.ip_address(ip)
+            if ip_obj.is_private:
+                return {
+                    'name': 'Internal Network',
+                    'type': 'internal',
+                    'confidence': 0.8
+                }
+            else:
+                return {
+                    'name': 'External Provider',
+                    'type': 'hosting',
+                    'confidence': 0.5
+                }
+                
+        except Exception:
+            return None
+    
+    def _perform_subdomain_analysis(self, fqdn: str, tx):
+        """Perform comprehensive subdomain analysis including TLS, services, and providers."""
+        try:
+            current_time = datetime.now().isoformat()
+            
+            # Get IP addresses from DNS
+            dns_info = self.analyze_subdomain_dns(fqdn)
+            ip_addresses = dns_info.get('a_records', [])
+            
+            # Analyze TLS
+            tls_info = self.analyze_subdomain_tls(fqdn)
+            
+            # Detect services and providers
+            services, providers = self.detect_services_and_providers(fqdn, ip_addresses)
+            
+            # Update subdomain node with TLS and DNS information
             tx.run("""
-                MATCH (ip:IPAddress {address: $ip})
-                MATCH (svc:Service {name: 'unknown', type: 'cloud_provider'})
-                MERGE (ip)-[:HOSTED_BY]->(svc)
-            """, ip=ip)
+                MATCH (s:Subdomain {fqdn: $fqdn})
+                SET s.has_tls = $has_tls,
+                    s.tls_grade = $tls_grade,
+                    s.tls_expires_in_days = $expires_in_days,
+                    s.dns_a_records = $a_records,
+                    s.dns_has_spf = $has_spf,
+                    s.dns_has_dmarc = $has_dmarc,
+                    s.last_analyzed = datetime(),
+                    s.analysis_version = 'v2.1'
+            """, 
+            fqdn=fqdn,
+            has_tls=tls_info.get('has_tls', False) if tls_info else False,
+            tls_grade=tls_info.get('tls_grade', 'Unknown') if tls_info else 'Unknown',
+            expires_in_days=tls_info.get('expires_in_days', 0) if tls_info else 0,
+            a_records=dns_info.get('a_records', []),
+            has_spf=dns_info.get('has_spf', False),
+            has_dmarc=dns_info.get('has_dmarc', False)
+            )
+            
+            # Create or update Certificate node if TLS info exists
+            if tls_info and tls_info.get('has_tls'):
+                cert_id = f"{fqdn}_{tls_info.get('serial_number', 'unknown')}"
+                
+                tx.run("""
+                    MATCH (s:Subdomain {fqdn: $fqdn})
+                    MERGE (c:Certificate {id: $cert_id})
+                    SET c.tls_grade = $tls_grade,
+                        c.expires_in_days = $expires_in_days,
+                        c.not_after = $not_after,
+                        c.not_before = $not_before,
+                        c.issuer = $issuer,
+                        c.subject = $subject,
+                        c.serial_number = $serial_number,
+                        c.is_self_signed = $is_self_signed,
+                        c.cipher_suite = $cipher_suite,
+                        c.tls_version = $tls_version,
+                        c.domain = $fqdn,
+                        c.created_at = datetime()
+                    MERGE (s)-[:SECURED_BY]->(c)
+                """,
+                fqdn=fqdn,
+                cert_id=cert_id,
+                tls_grade=tls_info.get('tls_grade', 'Unknown'),
+                expires_in_days=tls_info.get('expires_in_days', 0),
+                not_after=tls_info.get('not_after', ''),
+                not_before=tls_info.get('not_before', ''),
+                issuer=json.dumps(tls_info.get('issuer', {})),
+                subject=json.dumps(tls_info.get('subject', {})),
+                serial_number=tls_info.get('serial_number', ''),
+                is_self_signed=tls_info.get('is_self_signed', False),
+                cipher_suite=tls_info.get('cipher_suite', ''),
+                tls_version=tls_info.get('tls_version', '')
+                )
+            
+            # Create Service nodes and relationships
+            for service in services:
+                service_id = f"{fqdn}_{service['name']}"
+                tx.run("""
+                    MATCH (s:Subdomain {fqdn: $fqdn})
+                    MERGE (srv:Service {id: $service_id})
+                    SET srv.name = $service_name,
+                        srv.type = $service_type,
+                        srv.source = $source,
+                        srv.confidence = $confidence,
+                        srv.subdomain = $subdomain,
+                        srv.port = $port,
+                        srv.created_at = datetime()
+                    MERGE (s)-[:RUNS]->(srv)
+                """,
+                fqdn=fqdn,
+                service_id=service_id,
+                service_name=service['name'],
+                service_type=service['type'],
+                source=service['source'],
+                confidence=service['confidence'],
+                subdomain=service.get('subdomain', fqdn),
+                port=service.get('port', 0)
+                )
+            
+            # Create Provider nodes and relationships
+            for i, provider in enumerate(providers):
+                provider_id = f"{fqdn}_provider_{i}_{int(time.time())}"
+                tx.run("""
+                    MATCH (s:Subdomain {fqdn: $fqdn})
+                    MERGE (p:Provider {id: $provider_id})
+                    SET p.name = $provider_name,
+                        p.type = $provider_type,
+                        p.source = $source,
+                        p.confidence = $confidence,
+                        p.ip = $ip,
+                        p.asn = $asn,
+                        p.country = $country,
+                        p.subdomain = $subdomain,
+                        p.created_at = datetime()
+                    MERGE (s)-[:USES_SERVICE]->(p)
+                    MERGE (s)-[:RUNS]->(p)
+                """,
+                fqdn=fqdn,
+                provider_id=provider_id,
+                provider_name=provider['name'],
+                provider_type=provider['type'],
+                source=provider['source'],
+                confidence=provider['confidence'],
+                ip=provider.get('ip', ''),
+                asn=provider.get('asn', ''),
+                country=provider.get('country', ''),
+                subdomain=provider.get('subdomain', fqdn)
+                )
+            
+            logging.info(f"✓ Analyzed {fqdn}: {len(services)} services, {len(providers)} providers, TLS: {tls_info.get('tls_grade', 'N/A') if tls_info else 'N/A'}")
+            return True
+            
+        except Exception as e:
+            logging.error(f"Failed to analyze {fqdn}: {e}")
+            return False
+    
+    def analyze_subdomain_dns(self, fqdn: str) -> Dict[str, Any]:
+        """Analyze DNS configuration for subdomain."""
+        dns_info = {
+            'a_records': [],
+            'aaaa_records': [],
+            'cname_records': [],
+            'mx_records': [],
+            'txt_records': [],
+            'has_spf': False,
+            'has_dmarc': False
+        }
+        
+        try:
+            # A records
+            try:
+                a_records = RESOLVER.resolve(fqdn, 'A')
+                dns_info['a_records'] = [str(r) for r in a_records]
+            except dns.resolver.NXDOMAIN:
+                pass
+            except Exception:
+                pass
+            
+            # AAAA records
+            try:
+                aaaa_records = RESOLVER.resolve(fqdn, 'AAAA')
+                dns_info['aaaa_records'] = [str(r) for r in aaaa_records]
+            except Exception:
+                pass
+            
+            # CNAME records
+            try:
+                cname_records = RESOLVER.resolve(fqdn, 'CNAME')
+                dns_info['cname_records'] = [str(r) for r in cname_records]
+            except Exception:
+                pass
+            
+            # MX records
+            try:
+                mx_records = RESOLVER.resolve(fqdn, 'MX')
+                dns_info['mx_records'] = [f"{r.preference} {r.exchange}" for r in mx_records]
+            except Exception:
+                pass
+            
+            # TXT records
+            try:
+                txt_records = RESOLVER.resolve(fqdn, 'TXT')
+                txt_strings = [str(r) for r in txt_records]
+                dns_info['txt_records'] = txt_strings
+                
+                # Check for SPF and DMARC
+                for txt in txt_strings:
+                    if txt.startswith('"v=spf1'):
+                        dns_info['has_spf'] = True
+                    if txt.startswith('"v=DMARC1'):
+                        dns_info['has_dmarc'] = True
+            except Exception:
+                pass
+            
+        except Exception as e:
+            logging.warning(f"DNS analysis failed for {fqdn}: {e}")
+        
+        return dns_info
+    
+    def _detect_and_create_service_providers(self, fqdn: str, current_time: str, tx) -> List[str]:
+        """Detect and create service provider nodes based on domain patterns."""
+        service_providers = []
+        
+        # Common service provider patterns in domain names
+        service_patterns = {
+            'salesforce': ['salesforce', 'force', 'lightning'],
+            'microsoft': ['outlook', 'onedrive', 'sharepoint', 'office365', 'o365', 'microsoftonline'],
+            'google': ['gmail', 'google', 'workspace', 'gsuite'],
+            'adobe': ['adobe', 'creative', 'acrobat'],
+            'zoom': ['zoom', 'zoomgov'],
+            'slack': ['slack'],
+            'dropbox': ['dropbox'],
+            'atlassian': ['atlassian', 'jira', 'confluence'],
+            'tableau': ['tableau'],
+            'servicenow': ['servicenow', 'service-now'],
+            'workday': ['workday'],
+            'okta': ['okta'],
+            'auth0': ['auth0'],
+            'hubspot': ['hubspot'],
+            'zendesk': ['zendesk'],
+            'freshworks': ['freshworks', 'freshdesk'],
+            'klaviyo': ['klaviyo'],
+            'marketo': ['marketo'],
+            'pardot': ['pardot'],
+            'mailchimp': ['mailchimp'],
+            'constant_contact': ['constantcontact'],
+            'twilio': ['twilio'],
+            'sendgrid': ['sendgrid'],
+            'stripe': ['stripe'],
+            'paypal': ['paypal'],
+            'square': ['square', 'squareup'],
+            'docusign': ['docusign'],
+            'airtable': ['airtable'],
+            'notion': ['notion'],
+            'monday': ['monday'],
+            'asana': ['asana'],
+            'trello': ['trello'],
+            'github': ['github'],
+            'gitlab': ['gitlab'],
+            'bitbucket': ['bitbucket'],
+            'jenkins': ['jenkins'],
+            'circleci': ['circleci'],
+            'travis': ['travis-ci'],
+            'newrelic': ['newrelic'],
+            'datadog': ['datadog'],
+            'splunk': ['splunk'],
+            'elastic': ['elastic', 'elasticsearch'],
+            'cloudflare': ['cloudflare'],
+            'fastly': ['fastly'],
+            'maxcdn': ['maxcdn'],
+            'akamai': ['akamai'],
+            'imperva': ['imperva'],
+            'sucuri': ['sucuri']
+        }
+        
+        fqdn_lower = fqdn.lower()
+        
+        # Check for service patterns in the domain
+        for service_name, patterns in service_patterns.items():
+            for pattern in patterns:
+                if pattern in fqdn_lower:
+                    service_providers.append(service_name.title())
+                    break
+        
+        # Create service provider nodes (with id field for Java compatibility)
+        created_providers = []
+        for service_provider in set(service_providers):  # Remove duplicates
+            # Create Provider node for service
+            provider_id = f"provider_{service_provider.lower().replace(' ', '_')}"
+            tx.run("""
+                MERGE (p:Provider {name: $service_provider, type: 'Service'})
+                SET p.id = $provider_id,
+                    p.last_updated = $current_time,
+                    p.detection_method = 'domain_pattern_analysis',
+                    p.status = 'detected',
+                    p.tier = 1,
+                    p.service_type = 'saas',
+                    p.confidence = $confidence,
+                    p.source_info = $source_info
+                RETURN p
+            """, service_provider=service_provider, provider_id=provider_id, current_time=current_time,
+                 confidence=0.7,
+                 source_info=json.dumps({'detection_domain': fqdn, 'detection_method': 'pattern_matching'}))
+            
+            created_providers.append(service_provider)
+        
+        return created_providers
     
     def detect_cloud_provider_by_ip(self, ip: str) -> str:
         """Detect cloud provider for IP address using enhanced detection logic."""
@@ -768,12 +1356,19 @@ class EnhancedSubdomainGraphIngester:
             rel_stats = dict(rel_result.single())
             stats.update(rel_stats)
             
-            # Provider stats
+            # Provider stats (v2.0: Count actual Provider nodes)
             provider_result = s.run("""
-                MATCH (svc:Service {type: 'cloud_provider'})
-                RETURN count(svc) as provider_count
+                MATCH (p:Provider)
+                RETURN count(p) as provider_count
             """)
             stats['provider_count'] = provider_result.single()['provider_count']
+            
+            # Risk stats (v2.0: Added risk node count)
+            risk_result = s.run("""
+                MATCH (r:Risk)
+                RETURN count(r) as risk_count
+            """)
+            stats['risk_count'] = risk_result.single()['risk_count']
             
             return stats
     
@@ -812,7 +1407,8 @@ def dns_query(domain: str, rdtype: str) -> List[str]:
         return []
 
 def run_amass_discovery_with_relationships(domain: str, timeout: int = 60, mock_mode: bool = False, 
-                                         sample_mode: bool = False) -> List[str]:
+                                         sample_mode: bool = False, amass_timeout: int = None, 
+                                         amass_passive: bool = None, cache_ttl_hours: int = 168) -> List[str]:
     """Run Amass for subdomain discovery with enhanced relationship detection."""
     
     # Mock mode for testing
@@ -823,21 +1419,26 @@ def run_amass_discovery_with_relationships(domain: str, timeout: int = 60, mock_
             f"api.{domain}",
             f"admin.{domain}",
             f"cdn.{domain}",
-            f"app.{domain}"
+            f"app.{domain}",
+            # v2.0: Added second-level mock subdomains
+            f"secure.mail.{domain}",
+            f"dev.api.{domain}",
+            f"staging.app.{domain}"
         ]
         print(f"[DISCOVERY] MOCK MODE: Found {len(mock_subdomains)} subdomains for {domain}")
         return mock_subdomains
     
     try:
-        from risk_loader_advanced3 import run_amass_local
-        
-        print(f"[DISCOVERY] Starting enhanced Amass for {domain} (sample_mode={sample_mode})")
-        results = run_amass_local(domain, sample_mode=sample_mode)
+        # v2.0: Use enhanced multi-level discovery with configurable parameters
+        results = run_enhanced_amass_multilevel(domain, sample_mode=sample_mode, 
+                                               amass_timeout=amass_timeout, 
+                                               amass_passive=amass_passive,
+                                               cache_ttl_hours=cache_ttl_hours)
         
         # Extract subdomain names, excluding the base domain
         subdomains = []
         for result in results:
-            subdomain = result.get('name')
+            subdomain = result.get('name') if isinstance(result, dict) else result
             # FIXED: Don't add the base domain as a subdomain
             if subdomain and subdomain != domain:
                 subdomains.append(subdomain)
@@ -853,6 +1454,65 @@ def run_amass_discovery_with_relationships(domain: str, timeout: int = 60, mock_
         return []
     except Exception as e:
         print(f"[DISCOVERY] Error discovering subdomains for {domain}: {e}")
+        return []
+
+def run_enhanced_amass_multilevel(domain: str, sample_mode: bool = False, amass_timeout: int = None, 
+                                  amass_passive: bool = None, cache_ttl_hours: int = 168) -> List[dict]:
+    """v2.0: Enhanced Amass discovery with multi-level subdomain support."""
+    try:
+        from risk_loader_advanced3 import run_amass_with_fallback
+        
+        print(f"[DISCOVERY] Starting enhanced multi-level Amass for {domain} (sample_mode={sample_mode})")
+        
+        # First pass: Standard discovery with configurable parameters and fallbacks
+        results = run_amass_with_fallback(domain, sample_mode=sample_mode, amass_timeout=amass_timeout, 
+                                         amass_passive=amass_passive, cache_ttl_hours=cache_ttl_hours)
+        all_subdomains = set()
+        
+        # Extract first-level subdomains
+        for result in results:
+            subdomain = result.get('name') if isinstance(result, dict) else result
+            if subdomain and subdomain != domain:
+                all_subdomains.add(subdomain)
+        
+        print(f"[DISCOVERY] First pass: Found {len(all_subdomains)} first-level subdomains")
+        
+        # Second pass: Discover subdomains of subdomains (if not in sample mode)
+        if not sample_mode and all_subdomains:
+            second_level_count = 0
+            subdomain_list = list(all_subdomains)[:10]  # Limit to first 10 to avoid overwhelming
+            
+            print(f"[DISCOVERY] Second pass: Analyzing {len(subdomain_list)} subdomains for second-level discovery")
+            
+            for subdomain in subdomain_list:
+                try:
+                    # Quick discovery for each subdomain with configurable parameters and fallbacks
+                    sub_results = run_amass_with_fallback(subdomain, sample_mode=True, amass_timeout=amass_timeout, 
+                                                         amass_passive=amass_passive, cache_ttl_hours=cache_ttl_hours)  # Use sample mode for speed
+                    
+                    for sub_result in sub_results:
+                        sub_subdomain = sub_result.get('name') if isinstance(sub_result, dict) else sub_result
+                        if sub_subdomain and sub_subdomain not in all_subdomains and sub_subdomain != subdomain:
+                            all_subdomains.add(sub_subdomain)
+                            second_level_count += 1
+                            
+                except Exception as e:
+                    print(f"[DISCOVERY] Error in second-level discovery for {subdomain}: {e}")
+                    continue
+            
+            print(f"[DISCOVERY] Second pass: Found {second_level_count} additional second-level subdomains")
+        
+        # Convert back to dict format for compatibility
+        final_results = [{'name': subdomain} for subdomain in all_subdomains]
+        print(f"[DISCOVERY] Enhanced discovery completed: {len(final_results)} total subdomains")
+        
+        return final_results
+        
+    except ImportError:
+        print(f"[DISCOVERY] Cannot import run_amass_local, falling back to basic discovery")
+        return []
+    except Exception as e:
+        print(f"[DISCOVERY] Error in enhanced multi-level discovery: {e}")
         return []
 
 def enhanced_process_subdomain_worker(args: Tuple[str, str, str, str, str, Set[str]]) -> Dict[str, Any]:
@@ -919,7 +1579,8 @@ class EnhancedSubdomainProcessor:
     
     def __init__(self, ingester: EnhancedSubdomainGraphIngester, neo4j_uri: str, neo4j_user: str, 
                  neo4j_pass: str, max_discovery_workers: int = 4, max_processing_workers: int = 8, 
-                 mock_mode: bool = False, sample_mode: bool = False):
+                 mock_mode: bool = False, sample_mode: bool = False, amass_timeout: int = None, 
+                 amass_passive: bool = None, cache_ttl_hours: int = 168, no_cache: bool = False):
         self.ingester = ingester
         self.max_discovery_workers = max_discovery_workers
         self.max_processing_workers = max_processing_workers
@@ -929,12 +1590,20 @@ class EnhancedSubdomainProcessor:
         self.ipinfo_token = ingester.ipinfo_token
         self.mock_mode = mock_mode
         self.sample_mode = sample_mode
+        self.amass_timeout = amass_timeout
+        self.amass_passive = amass_passive
+        self.cache_ttl_hours = cache_ttl_hours if not no_cache else 0  # 0 = disable cache
+        self.no_cache = no_cache
     
     def enhanced_phase1_discovery(self, domains: List[str]) -> Dict[str, Any]:
         """Enhanced Phase 1: Discovery with proper base domain handling."""
         print(f"\n🔍 ENHANCED PHASE 1: Subdomain Discovery")
         print(f"   Input domains: {len(domains)}")
         print(f"   Discovery workers: {self.max_discovery_workers}")
+        if self.no_cache:
+            print(f"   Cache: DISABLED (fresh execution)")
+        else:
+            print(f"   Cache: ENABLED (TTL: {self.cache_ttl_hours}h)")
         print("="*60)
         
         # Set input domains in the ingester to prevent base domains appearing as subdomains
@@ -947,24 +1616,19 @@ class EnhancedSubdomainProcessor:
         hierarchy_stats = self.ingester.create_enhanced_domain_hierarchy_batch(domains)
         print(f"✓ Created {hierarchy_stats['domains_created']} base domains")
         
-        # Step 2: Run parallel Amass discovery
-        print(f"Step 2: Running enhanced subdomain discovery (sample_mode={self.sample_mode})...")
-        discovery_results = self._run_enhanced_discovery_parallel(domains)
+        # Step 2: Enhanced progressive discovery with real-time graph writing
+        print(f"Step 2: Running enhanced progressive discovery (sample_mode={self.sample_mode})...")
+        print("📝 Writing to graph progressively as subdomains are discovered...")
         
-        # Step 3: Collect all discovered subdomains (excluding base domains)
+        discovery_results, subdomain_stats = self._run_progressive_discovery_with_dependencies(domains)
+        
+        # Collect summary
         all_subdomains = []
         for domain, subdomains in discovery_results.items():
-            # Filter out any base domains that might have been included
             filtered_subdomains = [sub for sub in subdomains if sub not in domains]
             all_subdomains.extend(filtered_subdomains)
         
-        print(f"✓ Discovered {len(all_subdomains)} unique subdomains (base domains excluded)")
-        
-        # Step 4: Write discovered subdomains to graph
-        if all_subdomains:
-            print("Step 3: Writing discovered subdomains to graph...")
-            subdomain_stats = self.ingester.create_enhanced_domain_hierarchy_batch(all_subdomains)
-            print(f"✓ Created {subdomain_stats['subdomains_created']} subdomain nodes")
+        print(f"✓ Discovered and wrote {len(all_subdomains)} unique subdomains to graph")
         
         elapsed_time = time.time() - start_time
         
@@ -990,9 +1654,10 @@ class EnhancedSubdomainProcessor:
         results = {}
         
         with ThreadPoolExecutor(max_workers=self.max_discovery_workers, thread_name_prefix="EnhancedDiscovery") as executor:
-            # Submit all discovery tasks
+            # Submit all discovery tasks with configurable parameters
             future_to_domain = {
-                executor.submit(run_amass_discovery_with_relationships, domain, 60, self.mock_mode, self.sample_mode): domain 
+                executor.submit(run_amass_discovery_with_relationships, domain, 60, self.mock_mode, 
+                               self.sample_mode, self.amass_timeout, self.amass_passive, self.cache_ttl_hours): domain 
                 for domain in domains
             }
             
@@ -1008,6 +1673,214 @@ class EnhancedSubdomainProcessor:
                     results[domain] = []
         
         return results
+    
+    def _run_progressive_discovery_with_dependencies(self, domains: List[str]) -> Tuple[Dict[str, List[str]], Dict[str, Any]]:
+        """
+        Ejecuta descubrimiento progresivo con escritura inmediata al grafo y análisis de dependencias.
+        """
+        from provider_detection import ProviderDetector
+        
+        results = {}
+        total_subdomain_stats = {
+            'subdomains_created': 0,
+            'dependencies_detected': 0,
+            'providers_created': 0,
+            'relationships_created': 0
+        }
+        
+        provider_detector = ProviderDetector()
+        
+        with ThreadPoolExecutor(max_workers=self.max_discovery_workers, thread_name_prefix="ProgressiveDiscovery") as executor:
+            # Submit all discovery tasks
+            future_to_domain = {
+                executor.submit(self._progressive_discovery_worker, domain, provider_detector): domain 
+                for domain in domains
+            }
+            
+            # Process results as they complete
+            for future in as_completed(future_to_domain):
+                domain = future_to_domain[future]
+                try:
+                    subdomains, stats = future.result()
+                    results[domain] = subdomains
+                    
+                    # Aggregate stats
+                    for key in total_subdomain_stats:
+                        total_subdomain_stats[key] += stats.get(key, 0)
+                    
+                    print(f"✓ Progressive discovery completed for {domain}: {len(subdomains)} subdomains, {stats['dependencies_detected']} dependencies")
+                    
+                except Exception as e:
+                    print(f"✗ Progressive discovery failed for {domain}: {e}")
+                    results[domain] = []
+        
+        print(f"📊 Total Dependencies Analysis:")
+        print(f"   - Subdomains created: {total_subdomain_stats['subdomains_created']}")
+        print(f"   - Dependencies detected: {total_subdomain_stats['dependencies_detected']}")
+        print(f"   - Providers identified: {total_subdomain_stats['providers_created']}")
+        print(f"   - Relationships created: {total_subdomain_stats['relationships_created']}")
+        
+        return results, total_subdomain_stats
+    
+    def _progressive_discovery_worker(self, domain: str, provider_detector) -> Tuple[List[str], Dict[str, Any]]:
+        """
+        Worker que ejecuta descubrimiento progresivo para un dominio específico.
+        """
+        stats = {
+            'subdomains_created': 0,
+            'dependencies_detected': 0,
+            'providers_created': 0,
+            'relationships_created': 0
+        }
+        
+        print(f"🔍 Starting progressive analysis for {domain}")
+        
+        # 1. Analizar dependencias del dominio base PRIMERO
+        print(f"📋 Analyzing base domain dependencies: {domain}")
+        base_dependencies = provider_detector.analyze_domain_dependencies(domain)
+        
+        if base_dependencies:
+            # Escribir dependencias del dominio base al grafo inmediatamente
+            deps_written = self._write_dependencies_to_graph(domain, base_dependencies, is_subdomain=False)
+            stats['dependencies_detected'] += len(base_dependencies)
+            stats['providers_created'] += deps_written['providers']
+            stats['relationships_created'] += deps_written['relationships']
+            print(f"   ✓ {domain}: {len(base_dependencies)} dependencies → {deps_written['providers']} providers")
+        
+        # 2. Ejecutar descubrimiento de subdominios
+        subdomains = run_amass_discovery_with_relationships(
+            domain, 60, self.mock_mode, self.sample_mode, 
+            self.amass_timeout, self.amass_passive, self.cache_ttl_hours
+        )
+        
+        # 3. Procesar cada subdominio progresivamente
+        for subdomain in subdomains:
+            try:
+                # Escribir subdominio al grafo inmediatamente
+                self._write_subdomain_to_graph_immediately(subdomain, domain)
+                stats['subdomains_created'] += 1
+                
+                # Analizar dependencias del subdominio
+                subdomain_dependencies = provider_detector.analyze_subdomain_dependencies(subdomain)
+                
+                if subdomain_dependencies:
+                    # Escribir dependencias del subdominio al grafo
+                    deps_written = self._write_dependencies_to_graph(subdomain, subdomain_dependencies, is_subdomain=True)
+                    stats['dependencies_detected'] += len(subdomain_dependencies)
+                    stats['providers_created'] += deps_written['providers']
+                    stats['relationships_created'] += deps_written['relationships']
+                    print(f"   ✓ {subdomain}: {len(subdomain_dependencies)} dependencies → {deps_written['providers']} providers")
+                
+            except Exception as e:
+                print(f"   ✗ Error processing {subdomain}: {e}")
+        
+        return subdomains, stats
+    
+    def _write_subdomain_to_graph_immediately(self, subdomain: str, base_domain: str):
+        """Escribe un subdominio al grafo inmediatamente."""
+        try:
+            # Usar el ingester existente para crear la jerarquía
+            self.ingester.create_enhanced_domain_hierarchy_batch([subdomain])
+        except Exception as e:
+            print(f"Error writing subdomain {subdomain}: {e}")
+    
+    def _write_dependencies_to_graph(self, domain_or_subdomain: str, dependencies: List, is_subdomain: bool = False) -> Dict[str, int]:
+        """
+        Escribe dependencias al grafo y retorna estadísticas.
+        """
+        providers_created = 0
+        relationships_created = 0
+        
+        try:
+            with self.ingester.drv.session() as session:
+                with session.begin_transaction() as tx:
+                    current_time = datetime.now().isoformat()
+                    
+                    for dep in dependencies:
+                        # 1. Crear nodo Provider
+                        tx.run("""
+                            MERGE (p:Provider {name: $provider_name, type: $service_type})
+                            SET p.last_updated = $current_time,
+                                p.detection_method = $detection_method,
+                                p.risk_level = $risk_level,
+                                p.confidence = $confidence,
+                                p.service_category = $service_category,
+                                p.metadata = $metadata
+                            RETURN p
+                        """, 
+                        provider_name=dep.provider,
+                        service_type=dep.service_type.value,
+                        current_time=current_time,
+                        detection_method=dep.detection_method,
+                        risk_level=dep.risk_level.value,
+                        confidence=dep.confidence,
+                        service_category=dep.name,
+                        metadata=json.dumps(dep.metadata))
+                        providers_created += 1
+                        
+                        # 2. Crear nodo Service específico (with id field for Java compatibility)
+                        service_id = f"service_{dep.name.lower().replace(' ', '_')}"
+                        tx.run("""
+                            MERGE (s:Service {name: $service_name, type: $service_type})
+                            SET s.id = $service_id,
+                                s.provider = $provider_name,
+                                s.last_updated = $current_time,
+                                s.detection_method = $detection_method,
+                                s.risk_level = $risk_level,
+                                s.service_type = $service_type,
+                                s.confidence = $confidence,
+                                s.metadata = $metadata
+                            RETURN s
+                        """,
+                        service_name=dep.name,
+                        service_id=service_id,
+                        service_type=dep.service_type.value,
+                        provider_name=dep.provider,
+                        current_time=current_time,
+                        detection_method=dep.detection_method,
+                        risk_level=dep.risk_level.value,
+                        confidence=dep.confidence,
+                        metadata=json.dumps(dep.metadata))
+                        
+                        # 3. Crear relación Service -> Provider (using PROVIDED_BY for Java compatibility)
+                        tx.run("""
+                            MATCH (p:Provider {name: $provider_name})
+                            MATCH (s:Service {name: $service_name})
+                            MERGE (s)-[:PROVIDED_BY]->(p)
+                        """, provider_name=dep.provider, service_name=dep.name)
+                        relationships_created += 1
+                        
+                        # 4. Crear relación Domain/Subdomain -> Service
+                        if is_subdomain:
+                            tx.run("""
+                                MATCH (sub:Subdomain {fqdn: $fqdn})
+                                MATCH (s:Service {name: $service_name})
+                                MERGE (sub)-[r:DEPENDS_ON]->(s)
+                                SET r.detection_method = $detection_method,
+                                    r.confidence = $confidence,
+                                    r.created_at = $current_time
+                            """, fqdn=domain_or_subdomain, service_name=dep.name, 
+                                 detection_method=dep.detection_method, confidence=dep.confidence, 
+                                 current_time=current_time)
+                        else:
+                            tx.run("""
+                                MATCH (d:Domain {fqdn: $fqdn})
+                                MATCH (s:Service {name: $service_name})
+                                MERGE (d)-[r:DEPENDS_ON]->(s)
+                                SET r.detection_method = $detection_method,
+                                    r.confidence = $confidence,
+                                    r.created_at = $current_time
+                            """, fqdn=domain_or_subdomain, service_name=dep.name,
+                                 detection_method=dep.detection_method, confidence=dep.confidence,
+                                 current_time=current_time)
+                        relationships_created += 1
+                    
+                    tx.commit()
+        
+        except Exception as e:
+            print(f"Error writing dependencies for {domain_or_subdomain}: {e}")
+        
+        return {'providers': providers_created, 'relationships': relationships_created}
     
     def enhanced_phase2_processing(self, batch_size: int = 100) -> Dict[str, Any]:
         """Enhanced Phase 2: Process subdomains with relationship discovery."""
@@ -1046,6 +1919,9 @@ class EnhancedSubdomainProcessor:
                     total_processed += 1
                     if result['success']:
                         total_successful += 1
+                        # Log comprehensive analysis results
+                        if result.get('service_count', 0) > 0 or result.get('provider_count', 0) > 0:
+                            print(f"  → {result['fqdn']}: {result['service_count']} services, {result['provider_count']} providers, TLS: {result['tls_grade']}")
                     else:
                         total_errors += 1
                         print(f"Error processing {result['fqdn']}: {result['error']}")
@@ -1061,6 +1937,24 @@ class EnhancedSubdomainProcessor:
         print(f"   - DNS relationships: {relationship_stats['dns_relationships']}")
         print(f"   - Certificate relationships: {relationship_stats['certificate_relationships']}")
         
+        # Phase 2.6: Risk analysis (v2.0 - NEW)
+        print("\n⚠️  Phase 2.6: Performing risk analysis...")
+        risk_stats = self._perform_risk_analysis()
+        print(f"✓ Risk analysis completed:")
+        print(f"   - Risk nodes created: {risk_stats['risk_nodes_created']}")
+        print(f"   - High risk domains: {risk_stats['high_risk_count']}")
+        print(f"   - Medium risk domains: {risk_stats['medium_risk_count']}")
+        print(f"   - Low risk domains: {risk_stats['low_risk_count']}")
+        
+        # Phase 2.7: Subdomain risk calculation (NEW)
+        print("\n🎯 Phase 2.7: Calculating individual subdomain risks...")
+        subdomain_risk_stats = self.calculate_subdomain_risks()
+        print(f"✓ Subdomain risk calculation completed:")
+        print(f"   - Subdomains processed: {subdomain_risk_stats['subdomains_processed']}")
+        print(f"   - High risk subdomains: {subdomain_risk_stats['high_risk_subdomains']}")
+        print(f"   - Medium risk subdomains: {subdomain_risk_stats['medium_risk_subdomains']}")
+        print(f"   - Low risk subdomains: {subdomain_risk_stats['low_risk_subdomains']}")
+        
         elapsed_time = time.time() - start_time
         
         stats = {
@@ -1070,7 +1964,9 @@ class EnhancedSubdomainProcessor:
             'errors': total_errors,
             'elapsed_time': elapsed_time,
             'rate': total_processed / elapsed_time if elapsed_time > 0 else 0,
-            'relationship_stats': relationship_stats
+            'relationship_stats': relationship_stats,
+            'risk_stats': risk_stats,  # v2.0: Added risk statistics
+            'subdomain_risk_stats': subdomain_risk_stats  # NEW: Subdomain risk statistics
         }
         
         print(f"\n✅ Enhanced Phase 2 completed in {elapsed_time:.1f} seconds")
@@ -1079,6 +1975,213 @@ class EnhancedSubdomainProcessor:
         print(f"   Errors: {stats['errors']}")
         print(f"   Rate: {stats['rate']:.1f} subdomains/second")
         print("="*60)
+        
+        return stats
+    
+    def _perform_risk_analysis(self) -> Dict[str, Any]:
+        """v2.0: Perform risk analysis and create Risk nodes."""
+        try:
+            # Import risk calculation functionality
+            from domain_risk_calculator import DomainRiskCalculator
+            
+            risk_calculator = DomainRiskCalculator(
+                self.neo4j_uri, self.neo4j_user, self.neo4j_pass
+            )
+            
+            # Get all domains and subdomains for risk analysis
+            with self.ingester.drv.session() as s:
+                result = s.run("""
+                    MATCH (n)
+                    WHERE n:Domain OR n:Subdomain
+                    RETURN n.fqdn as fqdn, labels(n)[0] as node_type
+                """)
+                nodes_to_analyze = [(record["fqdn"], record["node_type"]) for record in result]
+            
+            stats = {
+                'risk_nodes_created': 0,
+                'high_risk_count': 0,
+                'medium_risk_count': 0,
+                'low_risk_count': 0,
+                'errors': 0
+            }
+            
+            print(f"Analyzing risk for {len(nodes_to_analyze)} nodes...")
+            
+            for fqdn, node_type in nodes_to_analyze:
+                try:
+                    print(f"  Analyzing risks for {fqdn} ({node_type})")
+                    
+                    # Calculate domain risk 
+                    risk_results = risk_calculator.calculate_domain_risks(fqdn)
+                    
+                    # Save risks to graph if any found
+                    if risk_results and len(risk_results) > 0:
+                        saved_count = risk_calculator.save_risks_to_graph(risk_results)
+                        stats['risk_nodes_created'] += saved_count
+                        
+                        print(f"    Found {len(risk_results)} risks, saved {saved_count} to graph")
+                        
+                        # Count by severity from the actual risk objects
+                        for risk in risk_results:
+                            severity = risk.severity.value if hasattr(risk.severity, 'value') else str(risk.severity)
+                            severity = severity.upper()  # Normalize to uppercase
+                            if severity in ['CRITICAL', 'HIGH']:
+                                stats['high_risk_count'] += 1
+                            elif severity == 'MEDIUM':
+                                stats['medium_risk_count'] += 1
+                            else:
+                                stats['low_risk_count'] += 1
+                    else:
+                        print(f"    No risks found for {fqdn}")
+                            
+                except Exception as e:
+                    print(f"  Error analyzing risk for {fqdn}: {e}")
+                    stats['errors'] += 1
+            
+            risk_calculator.close()
+            return stats
+            
+        except ImportError:
+            print("⚠️  Warning: domain_risk_calculator module not available. Skipping risk analysis.")
+            return {
+                'risk_nodes_created': 0,
+                'high_risk_count': 0,
+                'medium_risk_count': 0,
+                'low_risk_count': 0,
+                'errors': 0
+            }
+        except Exception as e:
+            print(f"Error in risk analysis: {e}")
+            return {
+                'risk_nodes_created': 0,
+                'high_risk_count': 0,
+                'medium_risk_count': 0,
+                'low_risk_count': 0,
+                'errors': 1
+            }
+    
+    def calculate_subdomain_risks(self) -> Dict[str, Any]:
+        """Calculate individual risk scores for all subdomains based on their services, providers, and characteristics."""
+        print("\n🎯 Calculating individual subdomain risk scores...")
+        
+        stats = {
+            'subdomains_processed': 0,
+            'subdomains_with_risks': 0,
+            'average_risk_score': 0.0,
+            'high_risk_subdomains': 0,
+            'medium_risk_subdomains': 0,
+            'low_risk_subdomains': 0,
+            'errors': 0
+        }
+        
+        try:
+            with self.ingester.drv.session() as session:
+                # Get all subdomains
+                result = session.run("""
+                    MATCH (s:Subdomain)
+                    RETURN s.fqdn as fqdn, s.base_domain as base_domain
+                    ORDER BY s.base_domain, s.fqdn
+                """)
+                
+                subdomains = [(record["fqdn"], record["base_domain"]) for record in result]
+                print(f"Found {len(subdomains)} subdomains to analyze")
+                
+                total_risk_score = 0.0
+                
+                for fqdn, base_domain in subdomains:
+                    try:
+                        # Calculate risk for individual subdomain
+                        result = session.run("""
+                            MATCH (s:Subdomain {fqdn: $fqdn})
+                            OPTIONAL MATCH (s)-[:RUNS|DEPENDS_ON]->(svc:Service)
+                            OPTIONAL MATCH (s)-[:DEPENDS_ON]->(p:Provider)
+                            OPTIONAL MATCH (s)-[:RESOLVES_TO]->(ip:IPAddress)
+                            OPTIONAL MATCH (s)<-[:AFFECTS]-(risk:Risk)
+                            
+                            WITH s, 
+                                 count(DISTINCT svc) as service_count,
+                                 count(DISTINCT p) as provider_count,
+                                 count(DISTINCT ip) as ip_count,
+                                 avg(CASE WHEN svc.risk_score IS NOT NULL THEN svc.risk_score ELSE 0 END) as avg_service_risk,
+                                 avg(CASE WHEN p.risk_score IS NOT NULL THEN p.risk_score ELSE 0 END) as avg_provider_risk,
+                                 avg(CASE WHEN risk.score IS NOT NULL THEN risk.score ELSE 0 END) as avg_risk_node_score
+                            
+                            // Calculate subdomain risk score
+                            WITH s, service_count, provider_count, ip_count,
+                                 (service_count * 0.4 + 
+                                  provider_count * 0.3 + 
+                                  ip_count * 0.1 + 
+                                  avg_service_risk * 0.1 + 
+                                  avg_provider_risk * 0.05 +
+                                  avg_risk_node_score * 0.05) as calculated_risk
+                            
+                            SET s.risk_score = CASE 
+                                WHEN calculated_risk > 10 THEN 10.0
+                                WHEN calculated_risk < 0.5 THEN CASE 
+                                    WHEN service_count > 0 OR provider_count > 0 OR ip_count > 0 THEN 1.0
+                                    ELSE 0.5
+                                END
+                                ELSE calculated_risk
+                            END,
+                            s.risk_tier = CASE
+                                WHEN s.risk_score >= 7 THEN 'high'
+                                WHEN s.risk_score >= 4 THEN 'medium'
+                                ELSE 'low'
+                            END,
+                            s.last_risk_calculated = datetime(),
+                            s.service_count = service_count,
+                            s.provider_count = provider_count,
+                            s.ip_count = ip_count
+                            
+                            RETURN 
+                                s.risk_score as risk_score, 
+                                s.risk_tier as risk_tier,
+                                service_count,
+                                provider_count,
+                                ip_count
+                        """, fqdn=fqdn)
+                        
+                        if result.peek():
+                            record = result.single()
+                            risk_score = record['risk_score']
+                            risk_tier = record['risk_tier']
+                            
+                            stats['subdomains_processed'] += 1
+                            if risk_score > 0:
+                                stats['subdomains_with_risks'] += 1
+                                total_risk_score += risk_score
+                            
+                            # Count by risk tier
+                            if risk_tier == 'high':
+                                stats['high_risk_subdomains'] += 1
+                            elif risk_tier == 'medium':
+                                stats['medium_risk_subdomains'] += 1
+                            else:
+                                stats['low_risk_subdomains'] += 1
+                            
+                            if stats['subdomains_processed'] % 50 == 0:
+                                print(f"  Processed {stats['subdomains_processed']} subdomains...")
+                        
+                    except Exception as e:
+                        print(f"  Error calculating risk for {fqdn}: {e}")
+                        stats['errors'] += 1
+                
+                # Calculate average risk score
+                if stats['subdomains_with_risks'] > 0:
+                    stats['average_risk_score'] = total_risk_score / stats['subdomains_with_risks']
+                
+                print(f"✅ Subdomain risk calculation completed:")
+                print(f"   - Processed: {stats['subdomains_processed']}")
+                print(f"   - With risks: {stats['subdomains_with_risks']}")
+                print(f"   - Average risk: {stats['average_risk_score']:.2f}")
+                print(f"   - High risk: {stats['high_risk_subdomains']}")
+                print(f"   - Medium risk: {stats['medium_risk_subdomains']}")
+                print(f"   - Low risk: {stats['low_risk_subdomains']}")
+                print(f"   - Errors: {stats['errors']}")
+        
+        except Exception as e:
+            print(f"❌ Error in subdomain risk calculation: {e}")
+            stats['errors'] = 1
         
         return stats
     
@@ -1121,6 +2224,7 @@ class EnhancedSubdomainProcessor:
         print(f"     - Providers: {final_stats['provider_count']}")
         print(f"     - Relationships: {final_stats['total_relationships']}")
         print(f"     - Relationship types: {final_stats['relationship_types']}")
+        print(f"     - Risk nodes: {final_stats.get('risk_count', 0)}")
         print("="*80)
         
         return combined_stats
@@ -1128,10 +2232,10 @@ class EnhancedSubdomainProcessor:
 def main():
     """Main function for enhanced subdomain relationship discovery."""
     parser = argparse.ArgumentParser(description="Enhanced subdomain discovery with relationship mapping")
-    parser.add_argument("--domains", required=True, help="Input domains file")
+    parser.add_argument("--domains", help="Input domains file")
     parser.add_argument("--bolt", default="bolt://localhost:7687", help="Neo4j bolt URI")
     parser.add_argument("--user", default="neo4j", help="Neo4j username")
-    parser.add_argument("--password", required=True, help="Neo4j password", default="test.password")
+    parser.add_argument("--password", help="Neo4j password", default="test.password")
     parser.add_argument("--ipinfo-token", help="IPInfo token", default="0bf607ce2c13ac")
     
     # Phase control
@@ -1146,7 +2250,56 @@ def main():
     parser.add_argument("--mock-mode", action="store_true", help="Use mock subdomain discovery for testing")
     parser.add_argument("--sample-mode", action="store_true", help="Use Amass sample mode (faster but less comprehensive)")
     
+    # Amass configuration
+    parser.add_argument("--amass-timeout", type=int, help="Amass timeout in seconds (overrides default)")
+    parser.add_argument("--amass-passive", action="store_const", const=True, default=None, help="Force Amass to use passive mode only")
+    
+    # Cache configuration
+    parser.add_argument("--cache-ttl", type=int, default=168, help="Cache TTL in hours (default: 168 = 1 week)")
+    parser.add_argument("--cache-dir", default="amass_cache", help="Cache directory (default: amass_cache)")
+    parser.add_argument("--no-cache", action="store_true", help="Disable cache (force fresh Amass execution)")
+    parser.add_argument("--cache-stats", action="store_true", help="Show cache statistics and exit")
+    parser.add_argument("--cache-clear", action="store_true", help="Clear expired cache entries and exit")
+    
+    # v2.0: Version information
+    parser.add_argument("-v", "--version", action="version", version="%(prog)s v2.0")
+    
     args = parser.parse_args()
+    
+    # Handle cache-specific commands (before other validation)
+    if args.cache_stats or args.cache_clear:
+        from amass_cache import AmassCache
+        cache = AmassCache(args.cache_dir, args.cache_ttl)
+        
+        if args.cache_stats:
+            print("🗄️  AMASS CACHE STATISTICS")
+            print("="*50)
+            stats = cache.get_stats()
+            for key, value in stats.items():
+                print(f"{key:20}: {value}")
+            
+            print(f"\n📋 CACHED DOMAINS ({len(cache.list_cached_domains())} entries):")
+            for entry in cache.list_cached_domains()[:10]:  # Show first 10
+                expired = "⚠️ EXPIRED" if entry["expired"] else "✅"
+                print(f"  {expired} {entry['domain']} ({entry['mode']}) - {entry['subdomain_count']} subdomains, {entry['age_hours']}h old")
+            
+            if len(cache.list_cached_domains()) > 10:
+                print(f"  ... and {len(cache.list_cached_domains()) - 10} more")
+            return
+        
+        if args.cache_clear:
+            print("🧹 CLEARING EXPIRED CACHE ENTRIES")
+            cleared = cache.clear_expired()
+            print(f"✅ Cleared {cleared} expired entries")
+            stats = cache.get_stats()
+            print(f"📊 Cache now has {stats['current_entries']} active entries")
+            return
+    
+    # Validate required arguments for normal operation
+    if not args.domains:
+        parser.error("--domains is required for normal operation")
+    if not args.password:
+        parser.error("--password is required for normal operation")
     
     # Initialize enhanced ingester
     ingester = EnhancedSubdomainGraphIngester(args.bolt, args.user, args.password, args.ipinfo_token)
@@ -1165,7 +2318,11 @@ def main():
             args.discovery_workers, 
             args.processing_workers,
             args.mock_mode,
-            args.sample_mode
+            args.sample_mode,
+            args.amass_timeout,
+            args.amass_passive,
+            args.cache_ttl,
+            args.no_cache
         )
         
         # Run appropriate phase(s)

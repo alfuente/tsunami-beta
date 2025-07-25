@@ -1,0 +1,10 @@
+{
+  "domain": "ns-894.awsdns-47.net",
+  "timestamp": "2025-07-13T14:08:55.162466",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 52,
+  "cache_version": "1.0"
+}

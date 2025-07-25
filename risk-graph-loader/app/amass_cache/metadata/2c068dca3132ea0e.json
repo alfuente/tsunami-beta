@@ -1,0 +1,10 @@
+{
+  "domain": "use1.akam.net",
+  "timestamp": "2025-07-14T14:52:57.435612",
+  "mode": "passive",
+  "timeout": 60,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 1,
+  "cache_version": "1.0"
+}

@@ -293,6 +293,298 @@ public class DependencyResource {
         );
     }
 
+    @GET
+    @Path("/domain/{fqdn}/providers-services")
+    @Operation(summary = "Get services and providers for a domain", 
+               description = "Retrieves all services and providers associated with a domain through subdomains, DNS, MX records and dependencies")
+    public Response getDomainProvidersAndServices(
+            @Parameter(description = "Fully qualified domain name")
+            @PathParam("fqdn") String fqdn,
+            @Parameter(description = "Include risk analysis for each provider/service")
+            @QueryParam("includeRisk") @DefaultValue("true") boolean includeRisk,
+            @Parameter(description = "Include dependency paths showing how services are connected")
+            @QueryParam("includePaths") @DefaultValue("false") boolean includePaths) {
+        
+        try {
+            Map<String, Object> result = getDomainProvidersServicesData(fqdn, includeRisk, includePaths);
+            return Response.ok(result).build();
+            
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Failed to retrieve domain providers and services", "message", e.getMessage()))
+                    .build();
+        }
+    }
+
+    private Map<String, Object> getDomainProvidersServicesData(String fqdn, boolean includeRisk, boolean includePaths) {
+        String query = """
+            // Try to match as Domain first, then as Subdomain
+            OPTIONAL MATCH (d:Domain {fqdn: $fqdn})
+            OPTIONAL MATCH (sub:Subdomain {fqdn: $fqdn})
+            
+            // Use either domain or subdomain as the base node
+            WITH CASE WHEN d IS NOT NULL THEN d ELSE sub END as baseNode,
+                 CASE WHEN d IS NOT NULL THEN 'Domain' ELSE 'Subdomain' END as nodeType
+            
+            WHERE baseNode IS NOT NULL
+            
+            // Get providers through USES_SERVICE relationship (works for both Domain and Subdomain)
+            OPTIONAL MATCH (baseNode)-[:USES_SERVICE]->(p:Provider)
+            
+            // Get providers through RUNS relationship (works for both Domain and Subdomain) 
+            OPTIONAL MATCH (baseNode)-[:RUNS]->(rp:Provider)
+            
+            // Get services through RUNS relationship (works for both Domain and Subdomain)
+            OPTIONAL MATCH (baseNode)-[:RUNS]->(s:Service)
+            
+            // If it's a Domain, get providers through subdomains
+            OPTIONAL MATCH (baseNode)-[:HAS_SUBDOMAIN]->(childSub:Subdomain)-[:USES_SERVICE]->(subProv:Provider)
+            OPTIONAL MATCH (baseNode)-[:HAS_SUBDOMAIN]->(childSub2:Subdomain)-[:RUNS]->(subProv2:Provider)
+            WHERE nodeType = 'Domain'
+            
+            // If it's a Domain, get services through subdomains
+            OPTIONAL MATCH (baseNode)-[:HAS_SUBDOMAIN]->(childSub3:Subdomain)-[:RUNS]->(subSvc:Service)
+            WHERE nodeType = 'Domain'
+            
+            RETURN 
+                baseNode.fqdn as domain,
+                nodeType as node_type,
+                CASE WHEN nodeType = 'Subdomain' THEN baseNode.base_domain ELSE null END as base_domain,
+                collect(DISTINCT {
+                    id: p.id,
+                    name: p.name,
+                    type: 'provider',
+                    risk_score: CASE WHEN $includeRisk THEN coalesce(p.risk_score, 0.0) ELSE null END,
+                    risk_tier: CASE WHEN $includeRisk THEN coalesce(p.risk_tier, 'Unknown') ELSE null END,
+                    source: 'uses_service',
+                    service_type: coalesce(p.type, 'unknown'),
+                    confidence: coalesce(p.confidence, 0.8),
+                    subdomain: CASE WHEN nodeType = 'Subdomain' THEN baseNode.fqdn ELSE null END
+                }) + 
+                collect(DISTINCT {
+                    id: rp.id,
+                    name: rp.name,
+                    type: 'provider',
+                    risk_score: CASE WHEN $includeRisk THEN coalesce(rp.risk_score, 0.0) ELSE null END,
+                    risk_tier: CASE WHEN $includeRisk THEN coalesce(rp.risk_tier, 'Unknown') ELSE null END,
+                    source: 'runs_service',
+                    service_type: coalesce(rp.type, 'unknown'),
+                    confidence: coalesce(rp.confidence, 0.8),
+                    subdomain: CASE WHEN nodeType = 'Subdomain' THEN baseNode.fqdn ELSE null END
+                }) +
+                collect(DISTINCT {
+                    id: subProv.id,
+                    name: subProv.name,
+                    type: 'provider',
+                    risk_score: CASE WHEN $includeRisk THEN coalesce(subProv.risk_score, 0.0) ELSE null END,
+                    risk_tier: CASE WHEN $includeRisk THEN coalesce(subProv.risk_tier, 'Unknown') ELSE null END,
+                    source: 'subdomain_provider',
+                    service_type: coalesce(subProv.type, 'unknown'),
+                    confidence: coalesce(subProv.confidence, 0.8),
+                    subdomain: childSub.fqdn
+                }) +
+                collect(DISTINCT {
+                    id: subProv2.id,
+                    name: subProv2.name,
+                    type: 'provider',
+                    risk_score: CASE WHEN $includeRisk THEN coalesce(subProv2.risk_score, 0.0) ELSE null END,
+                    risk_tier: CASE WHEN $includeRisk THEN coalesce(subProv2.risk_tier, 'Unknown') ELSE null END,
+                    source: 'subdomain_provider',
+                    service_type: coalesce(subProv2.type, 'unknown'),
+                    confidence: coalesce(subProv2.confidence, 0.8),
+                    subdomain: childSub2.fqdn
+                }) as allProviders,
+                
+                collect(DISTINCT {
+                    id: s.id,
+                    name: s.name,
+                    type: 'service',
+                    risk_score: CASE WHEN $includeRisk THEN coalesce(s.risk_score, 0.0) ELSE null END,
+                    risk_tier: CASE WHEN $includeRisk THEN coalesce(s.risk_tier, 'Unknown') ELSE null END,
+                    source: 'runs_service',
+                    service_type: coalesce(s.type, 'unknown'),
+                    confidence: coalesce(s.confidence, 0.8),
+                    subdomain: CASE WHEN nodeType = 'Subdomain' THEN baseNode.fqdn ELSE null END
+                }) +
+                collect(DISTINCT {
+                    id: subSvc.id,
+                    name: subSvc.name,
+                    type: 'service',
+                    risk_score: CASE WHEN $includeRisk THEN coalesce(subSvc.risk_score, 0.0) ELSE null END,
+                    risk_tier: CASE WHEN $includeRisk THEN coalesce(subSvc.risk_tier, 'Unknown') ELSE null END,
+                    source: 'subdomain_service',
+                    service_type: coalesce(subSvc.type, 'unknown'),
+                    confidence: coalesce(subSvc.confidence, 0.8),
+                    subdomain: childSub3.fqdn
+                }) as allServices
+            """;
+        
+        try (Session session = driver.session()) {
+            Result result = session.run(query, Map.of("fqdn", fqdn, "includeRisk", includeRisk));
+            
+            if (!result.hasNext()) {
+                return Map.of(
+                    "domain", fqdn,
+                    "providers", List.of(),
+                    "services", List.of(),
+                    "summary", Map.of(
+                        "total_providers", 0,
+                        "total_services", 0,
+                        "error", "Domain not found"
+                    )
+                );
+            }
+            
+            Record record = result.next();
+            
+            // Get providers and services from the new query structure
+            List<Map<String, Object>> allProviders = new ArrayList<>();
+            List<Map<String, Object>> allServices = new ArrayList<>();
+            
+            // Filter out null entries 
+            addNonNullItems(allProviders, record.get("allProviders").asList());
+            addNonNullItems(allServices, record.get("allServices").asList());
+            
+            // Remove duplicates based on ID
+            List<Map<String, Object>> uniqueProviders = removeDuplicatesById(allProviders);
+            List<Map<String, Object>> uniqueServices = removeDuplicatesById(allServices);
+            
+            // Calculate risk statistics
+            Map<String, Object> riskSummary = calculateRiskSummary(uniqueProviders, uniqueServices, includeRisk);
+            
+            // Get dependency paths if requested
+            Map<String, Object> paths = includePaths ? getDependencyPaths(fqdn) : Map.of();
+            
+            Map<String, Object> response = new java.util.HashMap<>();
+            response.put("domain", fqdn);
+            response.put("node_type", record.get("node_type").asString());
+            if (!record.get("base_domain").isNull()) {
+                response.put("base_domain", record.get("base_domain").asString());
+            }
+            response.put("providers", uniqueProviders);
+            response.put("services", uniqueServices);
+            response.put("summary", Map.of(
+                "total_providers", uniqueProviders.size(),
+                "total_services", uniqueServices.size(),
+                "risk_analysis", riskSummary
+            ));
+            
+            if (includePaths) {
+                Map<String, Object> responseWithPaths = new java.util.HashMap<>(response);
+                responseWithPaths.put("dependency_paths", paths);
+                return responseWithPaths;
+            }
+            
+            return response;
+        }
+    }
+    
+    private void addNonNullItems(List<Map<String, Object>> target, List<Object> source) {
+        for (Object item : source) {
+            if (item instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> itemMap = (Map<String, Object>) item;
+                if (itemMap.get("id") != null && !"".equals(itemMap.get("id"))) {
+                    target.add(itemMap);
+                }
+            }
+        }
+    }
+    
+    private List<Map<String, Object>> removeDuplicatesById(List<Map<String, Object>> items) {
+        Map<String, Map<String, Object>> uniqueItems = new java.util.LinkedHashMap<>();
+        
+        for (Map<String, Object> item : items) {
+            String id = (String) item.get("id");
+            if (id != null && !uniqueItems.containsKey(id)) {
+                uniqueItems.put(id, item);
+            }
+        }
+        
+        return new ArrayList<>(uniqueItems.values());
+    }
+    
+    private Map<String, Object> calculateRiskSummary(List<Map<String, Object>> providers, 
+                                                   List<Map<String, Object>> services, 
+                                                   boolean includeRisk) {
+        if (!includeRisk) {
+            return Map.of("risk_analysis_disabled", true);
+        }
+        
+        // Calculate risk statistics for providers
+        List<Double> providerRisks = providers.stream()
+            .map(p -> (Double) p.get("risk_score"))
+            .filter(score -> score != null && score > 0)
+            .toList();
+        
+        // Calculate risk statistics for services  
+        List<Double> serviceRisks = services.stream()
+            .map(s -> (Double) s.get("risk_score"))
+            .filter(score -> score != null && score > 0)
+            .toList();
+        
+        double avgProviderRisk = providerRisks.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+        double avgServiceRisk = serviceRisks.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+        
+        long highRiskProviders = providerRisks.stream().filter(risk -> risk >= 7.0).count();
+        long highRiskServices = serviceRisks.stream().filter(risk -> risk >= 7.0).count();
+        
+        return Map.of(
+            "average_provider_risk", Math.round(avgProviderRisk * 100.0) / 100.0,
+            "average_service_risk", Math.round(avgServiceRisk * 100.0) / 100.0,
+            "high_risk_providers", highRiskProviders,
+            "high_risk_services", highRiskServices,
+            "total_dependencies", providers.size() + services.size(),
+            "risk_distribution", Map.of(
+                "low_risk", providerRisks.stream().filter(r -> r < 4.0).count() + serviceRisks.stream().filter(r -> r < 4.0).count(),
+                "medium_risk", providerRisks.stream().filter(r -> r >= 4.0 && r < 7.0).count() + serviceRisks.stream().filter(r -> r >= 4.0 && r < 7.0).count(),
+                "high_risk", highRiskProviders + highRiskServices
+            )
+        );
+    }
+    
+    private Map<String, Object> getDependencyPaths(String fqdn) {
+        String pathQuery = """
+            MATCH (d:Domain {fqdn: $fqdn})
+            MATCH path = (d)-[:DEPENDS_ON*1..3]->(target)
+            WHERE target:Provider OR target:Service
+            RETURN 
+                target.id as targetId,
+                target.name as targetName,
+                labels(target)[0] as targetType,
+                [node in nodes(path) | 
+                    CASE 
+                        WHEN node:Domain THEN node.fqdn
+                        WHEN node:Subdomain THEN node.fqdn  
+                        ELSE node.name
+                    END
+                ] as dependencyPath,
+                length(path) as pathLength
+            ORDER BY pathLength, targetName
+            """;
+            
+        try (Session session = driver.session()) {
+            Result result = session.run(pathQuery, Map.of("fqdn", fqdn));
+            List<Map<String, Object>> paths = new ArrayList<>();
+            
+            while (result.hasNext()) {
+                Record record = result.next();
+                paths.add(Map.of(
+                    "target_id", record.get("targetId").asString(),
+                    "target_name", record.get("targetName").asString(),
+                    "target_type", record.get("targetType").asString(),
+                    "path", record.get("dependencyPath").asList(),
+                    "path_length", record.get("pathLength").asInt()
+                ));
+            }
+            
+            return Map.of(
+                "paths", paths,
+                "total_paths", paths.size()
+            );
+        }
+    }
+
     private String getIdField(String nodeType) {
         switch (nodeType.toLowerCase()) {
             case "domain":

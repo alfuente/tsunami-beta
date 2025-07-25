@@ -605,59 +605,236 @@ def parse_amass_output(output_path: Path) -> List[dict]:
     return entries
 
 
-def run_amass_local(domain: str, sample_mode: bool = False) -> List[dict]:
-    """Ejecuta Amass local con configuración optimizada."""
-    with tempfile.TemporaryDirectory() as tmp:
-        out = Path(tmp) / "out.txt"
+def run_amass_local(domain: str, sample_mode: bool = False, amass_timeout: int = None, 
+                    amass_passive: bool = None, cache_ttl_hours: int = 168) -> List[dict]:
+    """Ejecuta Amass local con configuración optimizada aprovechando APIs configuradas y caché."""
+    import os
+    from amass_cache import cached_amass_call
+    
+    # Determinar modo para caché
+    cache_mode = []
+    if amass_passive is False:
+        cache_mode.append("active")
+    if not sample_mode:
+        cache_mode.append("brute")
+    cache_mode.append("passive")  # Default base mode
+    mode_str = "+".join(cache_mode)
+    
+    # Determinar timeout final
+    if amass_timeout is not None:
+        final_timeout = amass_timeout
+    elif sample_mode:
+        final_timeout = 60
+    else:
+        final_timeout = 300
+    
+    def _execute_amass():
+        """Función interna que ejecuta Amass sin caché."""
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "out.txt"
+            
+            # Build optimized command for v4.2.0+ using user's API configuration
+            cmd = [
+                "amass", "enum", 
+                "-d", domain, 
+                "-o", str(out),
+                "-dns-qps", "50",  # Increased for APIs
+                "-v"  # Verbose to see API usage
+            ]
+            
+            # Add active scanning if not in passive mode
+            if amass_passive is False:
+                cmd.append("-active")
+            
+            # Add brute forcing if not in sample mode
+            if not sample_mode:
+                cmd.append("-brute")
+            
+            # Use final_timeout determined above
+            cmd.extend(["-timeout", str(final_timeout)])
+            
+            # Show what mode we're using
+            mode_desc = []
+            if amass_passive is False:
+                mode_desc.append("active")
+            if not sample_mode:
+                mode_desc.append("brute")
+            mode_desc.append("APIs")
+            
+            print(f"[AMASS] {domain} ({'+'.join(mode_desc)}, {final_timeout}s)")
+            
+            try:
+                # Use user's environment with their API configurations
+                env = os.environ.copy()
+                
+                # Calculate subprocess timeout based on amass timeout + buffer
+                timeout_seconds = final_timeout + 30
+                result = subprocess.run(
+                    cmd, 
+                    env=env,
+                    check=True, 
+                    stdout=subprocess.DEVNULL, 
+                    stderr=subprocess.PIPE,
+                    timeout=timeout_seconds,
+                    text=True
+                )
+                
+                return parse_amass_output(out)
+                
+            except subprocess.TimeoutExpired:
+                print(f"[AMASS] Timeout for {domain} - checking partial results")
+                if out.exists():
+                    return parse_amass_output(out)
+                return []
+                
+            except subprocess.CalledProcessError as e:
+                # Improved error handling
+                error_msg = "Unknown error"
+                if e.stderr:
+                    error_msg = e.stderr.strip()
+                elif e.returncode:
+                    error_msg = f"Exit code {e.returncode}"
+                    
+                print(f"[AMASS] Error for {domain}: {error_msg}")
+                
+                # Still try to parse partial results
+                if out.exists():
+                    return parse_amass_output(out)
+                return []
+    
+    # Usar caché para la ejecución
+    return cached_amass_call(
+        domain=domain,
+        mode=mode_str,
+        timeout=final_timeout,
+        amass_function=_execute_amass,
+        cache_ttl_hours=cache_ttl_hours
+    )
+
+
+def run_amass_with_fallback(domain: str, sample_mode: bool = False, amass_timeout: int = None, 
+                           amass_passive: bool = None, cache_ttl_hours: int = 168) -> List[dict]:
+    """Ejecuta descubrimiento priorizando siempre Amass primero, con fallbacks DNS."""
+    
+    print(f"[DISCOVERY] Starting discovery for {domain} - Prioritizing Amass first")
+    
+    # Intento 1: Amass (herramienta principal preferida)
+    try:
+        print(f"[DISCOVERY] Attempting Amass discovery for {domain}...")
+        amass_results = run_amass_local(domain, sample_mode=sample_mode, 
+                                       amass_timeout=amass_timeout, amass_passive=amass_passive,
+                                       cache_ttl_hours=cache_ttl_hours)
         
-        # Build optimized command
-        cmd = [
-            "amass", "enum", 
-            "-d", domain, 
-            "-o", str(out),
-            "-max-dns-queries", "20",
-            "-max-depth", "1",
-            "-r", "8.8.8.8,1.1.1.1,9.9.9.9"
-        ]
+        if amass_results:
+            print(f"[DISCOVERY] ✓ Amass found {len(amass_results)} subdomains for {domain}")
+            
+            # Complementar con DNS bruteforce para subdominios comunes que Amass pudo perder
+            try:
+                print(f"[DISCOVERY] Complementing with DNS bruteforce...")
+                dns_results = run_dns_bruteforce_fallback(domain)
+                
+                # Combinar resultados únicos
+                combined_results = amass_results.copy()
+                existing_names = {r.get('name', '') for r in amass_results}
+                
+                for dns_result in dns_results:
+                    name = dns_result.get('name', '')
+                    if name and name not in existing_names:
+                        combined_results.append(dns_result)
+                        existing_names.add(name)
+                
+                if len(combined_results) > len(amass_results):
+                    print(f"[DISCOVERY] DNS bruteforce added {len(combined_results) - len(amass_results)} additional subdomains")
+                
+                return combined_results
+            
+            except Exception as e:
+                print(f"[DISCOVERY] Warning: DNS bruteforce complement failed: {e}")
+                return amass_results
         
-        if sample_mode:
-            timeout_arg = "15"
-            cmd.extend(["-timeout", timeout_arg])
-            cmd.extend(["-passive"])
-            cmd.extend(["-exclude", "crtsh,dnsdumpster,hackertarget,threatcrowd,virustotal"])
-            print(f"[AMASS] {domain} (passive, {timeout_arg}s)")
         else:
-            cmd.extend(["-timeout", "120"])
-            print(f"[AMASS] {domain} (active, 120s)")
-        
-        try:
-            timeout_seconds = 20 if sample_mode else 150
+            print(f"[DISCOVERY] ⚠ Amass found no subdomains for {domain}, falling back to DNS bruteforce")
+            
+    except Exception as e:
+        print(f"[DISCOVERY] ✗ Amass failed for {domain}: {e}")
+        print(f"[DISCOVERY] Falling back to DNS bruteforce...")
+    
+    # Fallback: DNS Bruteforce cuando Amass falla completamente
+    try:
+        results = run_dns_bruteforce_fallback(domain)
+        if results:
+            print(f"[DISCOVERY] DNS bruteforce fallback found {len(results)} subdomains for {domain}")
+            return results
+        else:
+            print(f"[DISCOVERY] ✗ No subdomains found for {domain} with any method")
+            return []
+    
+    except Exception as e:
+        print(f"[DISCOVERY] ✗ All discovery methods failed for {domain}: {e}")
+        return []
+
+
+def run_subfinder_fallback(domain: str, timeout: int = 30) -> List[dict]:
+    """Fallback usando subfinder si amass falla."""
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "subfinder_out.txt"
+            cmd = ["subfinder", "-d", domain, "-o", str(out), "-silent", "-timeout", str(timeout)]
+            
+            print(f"[SUBFINDER] {domain} (fallback, {timeout}s)")
+            
             result = subprocess.run(
                 cmd, 
                 check=True, 
                 stdout=subprocess.DEVNULL, 
-                stderr=subprocess.PIPE,
-                timeout=timeout_seconds,
-                text=True
+                stderr=subprocess.DEVNULL,
+                timeout=timeout + 10
             )
             
-            return parse_amass_output(out)
-            
-        except subprocess.TimeoutExpired:
-            print(f"[AMASS] Timeout for {domain} - checking partial results")
+            # Parse subfinder output (simple format: one domain per line)
             if out.exists():
-                return parse_amass_output(out)
+                domains = []
+                with out.open() as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and "." in line:
+                            domains.append({"name": line, "source": "subfinder"})
+                
+                print(f"[SUBFINDER] Found {len(domains)} subdomains for {domain}")
+                return domains
+            
             return []
             
-        except subprocess.CalledProcessError as e:
-            print(f"[AMASS] Error for {domain}: {e.stderr if e.stderr else 'Unknown error'}")
-            if out.exists():
-                return parse_amass_output(out)
-            return []
-        
-        except FileNotFoundError:
-            print(f"[AMASS] Not found in PATH")
-            return []
+    except (subprocess.TimeoutExpired, subprocess.CalledProcessError, FileNotFoundError):
+        print(f"[SUBFINDER] Fallback failed for {domain}")
+        return []
+
+
+def run_dns_bruteforce_fallback(domain: str) -> List[dict]:
+    """Simple DNS bruteforce fallback como último recurso."""
+    import socket
+    
+    # Lista básica de subdominios comunes
+    common_subs = [
+        "www", "mail", "ftp", "admin", "api", "app", "cdn", "dev", "test", 
+        "staging", "blog", "shop", "store", "support", "help", "docs",
+        "secure", "login", "portal", "dashboard", "console", "panel",
+        "mx", "ns", "dns", "smtp", "pop", "imap", "webmail", "email"
+    ]
+    
+    found_domains = []
+    print(f"[DNS_BRUTEFORCE] Testing {len(common_subs)} common subdomains for {domain}")
+    
+    for sub in common_subs:
+        subdomain = f"{sub}.{domain}"
+        try:
+            socket.gethostbyname(subdomain)
+            found_domains.append({"name": subdomain, "source": "dns_bruteforce"})
+        except socket.gaierror:
+            pass  # Subdomain doesn't exist
+    
+    print(f"[DNS_BRUTEFORCE] Found {len(found_domains)} subdomains for {domain}")
+    return found_domains
 
 
 

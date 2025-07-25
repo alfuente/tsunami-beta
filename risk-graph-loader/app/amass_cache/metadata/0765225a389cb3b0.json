@@ -1,0 +1,10 @@
+{
+  "domain": "vamoschilenos.coopeuch.cl",
+  "timestamp": "2025-07-13T14:20:27.385627",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 14,
+  "cache_version": "1.0"
+}

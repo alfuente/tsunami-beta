@@ -14,6 +14,9 @@ import {
   List,
   ListItem,
   ListItemText,
+  Dialog,
+  DialogTitle,
+  DialogContent,
   IconButton,
 } from '@mui/material';
 import {
@@ -22,9 +25,12 @@ import {
   Security as SecurityIcon,
   Public as PublicIcon,
   Storage as StorageIcon,
+  AccountTree as GraphIcon,
 } from '@mui/icons-material';
 import { domainApi, riskApi, calculationApi } from '../services/api';
 import { DomainResponse, RiskScoreResponse } from '../types/api';
+import DomainDependencies from '../components/DomainDependencies';
+import DependencyGraphView from '../components/DependencyGraphView';
 
 const DomainDetail: React.FC = () => {
   const { fqdn } = useParams<{ fqdn: string }>();
@@ -34,6 +40,8 @@ const DomainDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [calculating, setCalculating] = useState(false);
+  const [baseDomain, setBaseDomain] = useState<string | null>(null);
+  const [graphDialogOpen, setGraphDialogOpen] = useState(false);
 
   const fetchDomainData = async () => {
     if (!fqdn) return;
@@ -78,12 +86,15 @@ const DomainDetail: React.FC = () => {
 
   useEffect(() => {
     fetchDomainData();
-  }, [fqdn]);
+  }, [fqdn]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  console.log('DomainDetail render - loading:', loading, 'error:', error, 'domain:', !!domain, 'fqdn:', fqdn);
 
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" height="400px">
         <CircularProgress />
+        <Typography sx={{ ml: 2 }}>Loading {fqdn}...</Typography>
       </Box>
     );
   }
@@ -94,7 +105,11 @@ const DomainDetail: React.FC = () => {
         <Button startIcon={<ArrowBackIcon />} onClick={() => navigate('/domains')}>
           Back to Domains
         </Button>
-        <Alert severity="error" sx={{ mt: 2 }}>{error || 'Domain not found'}</Alert>
+        <Alert severity="error" sx={{ mt: 2 }}>
+          {error || 'Domain not found'} - {fqdn}
+          <br />
+          Debug: domain exists: {!!domain}, error: {error}
+        </Alert>
       </Box>
     );
   }
@@ -111,18 +126,49 @@ const DomainDetail: React.FC = () => {
 
   return (
     <Box>
+      
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Box display="flex" alignItems="center">
-          <Button
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate('/domains')}
-            sx={{ mr: 2 }}
-          >
-            Back
-          </Button>
-          <Typography variant="h4">{domain.fqdn}</Typography>
+          <Box display="flex" gap={1} mr={2}>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={() => baseDomain ? navigate(`/domains/base-domains/${baseDomain}`) : navigate('/domains')}
+              variant={baseDomain ? "outlined" : "contained"}
+            >
+              {baseDomain ? `Back to ${baseDomain}` : 'Back to Domains'}
+            </Button>
+            {baseDomain && (
+              <Button
+                variant="text"
+                onClick={() => navigate('/domains')}
+                sx={{ ml: 1 }}
+              >
+                All Domains
+              </Button>
+            )}
+          </Box>
+          <Box>
+            <Typography variant="h4">{domain.fqdn}</Typography>
+            {baseDomain && (
+              <Typography variant="body2" color="textSecondary">
+                Subdomain of {baseDomain}
+              </Typography>
+            )}
+          </Box>
         </Box>
         <Box display="flex" gap={1}>
+          <Button
+            variant="contained"
+            startIcon={<GraphIcon />}
+            onClick={() => setGraphDialogOpen(true)}
+            sx={{ 
+              backgroundColor: '#4caf50',
+              '&:hover': { backgroundColor: '#45a049' },
+              fontWeight: 'bold'
+            }}
+          >
+            VIEW GRAPH
+          </Button>
           <Button
             variant="outlined"
             startIcon={<RefreshIcon />}
@@ -367,7 +413,53 @@ const DomainDetail: React.FC = () => {
             </Card>
           </Grid>
         )}
+        
+        {/* Dependencies Section */}
+        <Grid item xs={12} sx={{ mt: 3 }}>
+          <Card>
+            <CardContent>
+              <DomainDependencies 
+                domain={fqdn || ''} 
+                onBaseDomainDetected={setBaseDomain}
+              />
+            </CardContent>
+          </Card>
+        </Grid>
       </Grid>
+
+      {/* Graph Dialog */}
+      <Dialog
+        open={graphDialogOpen}
+        onClose={() => setGraphDialogOpen(false)}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: { height: '90vh' }
+        }}
+      >
+        <DialogTitle>
+          Dependency Graph for {domain?.fqdn}
+          <IconButton
+            aria-label="close"
+            onClick={() => setGraphDialogOpen(false)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            ×
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0, height: 'calc(100% - 64px)' }}>
+          <DependencyGraphView 
+            domain={fqdn || ''} 
+            height={600}
+            showFullscreen={true}
+          />
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

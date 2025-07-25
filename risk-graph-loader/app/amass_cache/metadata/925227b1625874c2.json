@@ -1,0 +1,10 @@
+{
+  "domain": "_dmarc.bice.cl.dmarc.has.pphosted.com",
+  "timestamp": "2025-07-23T22:15:49.976564",
+  "mode": "passive",
+  "timeout": 300,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 65,
+  "cache_version": "1.0"
+}

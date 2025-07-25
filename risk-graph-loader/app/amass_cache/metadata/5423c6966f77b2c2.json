@@ -1,0 +1,10 @@
+{
+  "domain": "load-balancer-hiperjob-prod-594945587.sa-east-1.elb.amazonaws.com",
+  "timestamp": "2025-07-13T20:49:24.901208",
+  "mode": "passive",
+  "timeout": 60,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 65,
+  "cache_version": "1.0"
+}

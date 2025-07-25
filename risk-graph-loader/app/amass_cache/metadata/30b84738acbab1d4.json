@@ -1,0 +1,10 @@
+{
+  "domain": "colectivos.metlife.cl",
+  "timestamp": "2025-07-13T14:43:32.880948",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 5,
+  "cache_version": "1.0"
+}

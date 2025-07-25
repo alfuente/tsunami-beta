@@ -31,9 +31,12 @@ import {
   Public as PublicIcon,
   Storage as StorageIcon,
   Visibility as VisibilityIcon,
+  AccountTree as GraphIcon,
 } from '@mui/icons-material';
 import { domainApi, calculationApi } from '../services/api';
 import { BaseDomainDetailsResponse } from '../types/api';
+import DomainDependencies from '../components/DomainDependencies';
+import DependencyGraphView from '../components/DependencyGraphView';
 
 const BaseDomainDetail: React.FC = () => {
   const { baseDomain } = useParams<{ baseDomain: string }>();
@@ -45,6 +48,7 @@ const BaseDomainDetail: React.FC = () => {
   const [pagination, setPagination] = useState({ page: 0, pageSize: 10 });
   const [servicesDialogOpen, setServicesDialogOpen] = useState(false);
   const [providersDialogOpen, setProvidersDialogOpen] = useState(false);
+  const [graphDialogOpen, setGraphDialogOpen] = useState(false);
 
   const fetchDomainDetails = async () => {
     if (!baseDomain) return;
@@ -87,7 +91,7 @@ const BaseDomainDetail: React.FC = () => {
 
   useEffect(() => {
     fetchDomainDetails();
-  }, [baseDomain]);
+  }, [baseDomain]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (loading) {
     return (
@@ -137,6 +141,30 @@ const BaseDomainDetail: React.FC = () => {
 
   return (
     <Box>
+      {/* Emergency Graph Button - Always Visible */}
+      <Box 
+        position="fixed" 
+        top={80} 
+        right={20} 
+        zIndex={1000}
+        sx={{ display: { xs: 'none', md: 'block' } }}
+      >
+        <Button
+          variant="contained"
+          startIcon={<GraphIcon />}
+          onClick={() => setGraphDialogOpen(true)}
+          sx={{ 
+            backgroundColor: '#ff5722',
+            '&:hover': { backgroundColor: '#e64a19' },
+            fontWeight: 'bold',
+            fontSize: '0.9rem',
+            boxShadow: 3
+          }}
+        >
+          🔍 GRAPH
+        </Button>
+      </Box>
+      
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
         <Box display="flex" alignItems="center">
           <Button
@@ -149,6 +177,18 @@ const BaseDomainDetail: React.FC = () => {
           <Typography variant="h4">{domainDetails.base_domain}</Typography>
         </Box>
         <Box display="flex" gap={1}>
+          <Button
+            variant="contained"
+            startIcon={<GraphIcon />}
+            onClick={() => setGraphDialogOpen(true)}
+            sx={{ 
+              backgroundColor: '#4caf50',
+              '&:hover': { backgroundColor: '#45a049' },
+              fontWeight: 'bold'
+            }}
+          >
+            VIEW GRAPH
+          </Button>
           <Button
             variant="outlined"
             startIcon={<RefreshIcon />}
@@ -405,6 +445,47 @@ const BaseDomainDetail: React.FC = () => {
           <Button onClick={() => setProvidersDialogOpen(false)}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Graph Dialog */}
+      <Dialog
+        open={graphDialogOpen}
+        onClose={() => setGraphDialogOpen(false)}
+        maxWidth="lg"
+        fullWidth
+        PaperProps={{
+          sx: { height: '90vh' }
+        }}
+      >
+        <DialogTitle>
+          Dependency Graph for {domainDetails?.base_domain}
+          <IconButton
+            aria-label="close"
+            onClick={() => setGraphDialogOpen(false)}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            }}
+          >
+            ×
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 0, height: 'calc(100% - 64px)' }}>
+          <DependencyGraphView 
+            domain={baseDomain || ''} 
+            height={600}
+            showFullscreen={true}
+          />
+        </DialogContent>
+      </Dialog>
+
+      {/* Dependencies Section */}
+      <Card sx={{ mt: 3 }}>
+        <CardContent>
+          <DomainDependencies domain={baseDomain || ''} />
+        </CardContent>
+      </Card>
     </Box>
   );
 };

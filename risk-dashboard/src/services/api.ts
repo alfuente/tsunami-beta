@@ -148,4 +148,66 @@ export const calculationApi = {
   }
 };
 
+export const dependencyApi = {
+  getDomainProvidersAndServices: async (fqdn: string, includeRisk: boolean = true, includePaths: boolean = false): Promise<{
+    domain: string;
+    node_type?: string;
+    base_domain?: string;
+    providers: Array<{
+      id: string;
+      name: string;
+      type: 'provider';
+      risk_score?: number;
+      risk_tier?: string;
+      source: string;
+      service_type: string;
+      confidence: number;
+      subdomain?: string;
+      service_name?: string;
+    }>;
+    services: Array<{
+      id: string;
+      name: string;
+      type: 'service';
+      risk_score?: number;
+      risk_tier?: string;
+      source: string;
+      service_type: string;
+      confidence: number;
+      subdomain?: string;
+    }>;
+    summary: {
+      total_providers: number;
+      total_services: number;
+      risk_analysis: {
+        average_provider_risk: number;
+        average_service_risk: number;
+        high_risk_providers: number;
+        high_risk_services: number;
+        total_dependencies: number;
+        risk_distribution: {
+          low_risk: number;
+          medium_risk: number;
+          high_risk: number;
+        };
+      };
+    };
+    dependency_paths?: {
+      paths: Array<{
+        target_id: string;
+        target_name: string;
+        target_type: string;
+        path: string[];
+        path_length: number;
+      }>;
+      total_paths: number;
+    };
+  }> => {
+    const response = await api.get(`/api/v1/dependencies/domain/${fqdn}/providers-services`, {
+      params: { includeRisk, includePaths }
+    });
+    return response.data;
+  }
+};
+
 export default api;

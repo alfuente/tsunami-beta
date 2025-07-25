@@ -1,0 +1,10 @@
+{
+  "domain": "tlpy2jklbws7w8g6689-574mnzv1.cp-sap.sfmc-content.com",
+  "timestamp": "2025-07-13T14:14:06.566154",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 17,
+  "cache_version": "1.0"
+}

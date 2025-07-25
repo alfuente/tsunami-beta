@@ -1,0 +1,10 @@
+{
+  "domain": "auth.bice.cl",
+  "timestamp": "2025-07-14T00:11:28.794080",
+  "mode": "passive",
+  "timeout": 60,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 0,
+  "cache_version": "1.0"
+}

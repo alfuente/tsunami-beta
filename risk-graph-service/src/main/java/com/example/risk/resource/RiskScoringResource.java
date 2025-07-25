@@ -21,9 +21,11 @@ import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import org.neo4j.driver.Value;
 
 @Path("/api/v1/risk")
 @Tag(name = "Risk Scoring", description = "APIs for querying risk scores and related information")
@@ -51,6 +53,27 @@ public class RiskScoringResource {
 
     @Inject
     RiskPropagationService riskPropagationService;
+
+    /**
+     * Safely converts a Neo4j Value to LocalDateTime, handling both ZonedDateTime and LocalDateTime objects
+     */
+    private LocalDateTime safeAsLocalDateTime(Value value) {
+        if (value == null || value.isNull()) {
+            return null;
+        }
+        try {
+            Object obj = value.asObject();
+            if (obj instanceof ZonedDateTime) {
+                return ((ZonedDateTime) obj).toLocalDateTime();
+            } else if (obj instanceof LocalDateTime) {
+                return (LocalDateTime) obj;
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
     @GET
     @Path("/score/{nodeType}/{nodeId}")
@@ -82,7 +105,7 @@ public class RiskScoringResource {
                     nodeType,
                     record.get("risk_score").asDouble(0.0),
                     record.get("risk_tier").asString("Unknown"),
-                    record.get("last_calculated").asLocalDateTime(null)
+                    safeAsLocalDateTime(record.get("last_calculated"))
                 );
                 
                 if (includeBreakdown) {
@@ -181,7 +204,7 @@ public class RiskScoringResource {
                         type,
                         record.get("risk_score").asDouble(0.0),
                         record.get("risk_tier").asString("Unknown"),
-                        record.get("last_calculated").asLocalDateTime(null)
+                        safeAsLocalDateTime(record.get("last_calculated"))
                     ));
                 }
                 

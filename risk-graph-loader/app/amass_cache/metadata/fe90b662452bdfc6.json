@@ -1,0 +1,10 @@
+{
+  "domain": "static.qa.information-management.principal.cl",
+  "timestamp": "2025-07-13T15:05:16.263491",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 5,
+  "cache_version": "1.0"
+}

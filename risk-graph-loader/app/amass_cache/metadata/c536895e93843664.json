@@ -1,0 +1,10 @@
+{
+  "domain": "ns-1223.awsdns-24.org",
+  "timestamp": "2025-07-16T01:06:14.821526",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 3,
+  "cache_version": "1.0"
+}

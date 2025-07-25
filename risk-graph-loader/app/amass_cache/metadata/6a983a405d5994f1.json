@@ -1,0 +1,10 @@
+{
+  "domain": "drnksimp.www.metlife.com.mx",
+  "timestamp": "2025-07-16T01:35:35.749670",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 2,
+  "cache_version": "1.0"
+}

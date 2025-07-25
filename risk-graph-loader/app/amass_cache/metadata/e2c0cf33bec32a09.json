@@ -1,0 +1,10 @@
+{
+  "domain": "caja18.cl",
+  "timestamp": "2025-07-13T14:17:37.354259",
+  "mode": "brute+passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 25,
+  "cache_version": "1.0"
+}

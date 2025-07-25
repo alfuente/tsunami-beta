@@ -515,7 +515,7 @@ class DomainRiskCalculator:
                                 creation_date = datetime.strptime(creation_date, '%Y-%m-%d %H:%M:%S')
                             except ValueError:
                                 print(f"Could not parse creation date: {creation_date}")
-                                continue
+                                return risks  # Return early if we can't parse the date
                     
                     age_days = (datetime.now() - creation_date).days
                     
@@ -557,7 +557,7 @@ class DomainRiskCalculator:
                                 expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d %H:%M:%S')
                             except ValueError:
                                 print(f"Could not parse expiration date: {expiration_date}")
-                                continue
+                                return risks  # Return early if we can't parse the date
                     
                     days_to_expiry = (expiration_date - datetime.now()).days
                     
@@ -795,47 +795,63 @@ class DomainRiskCalculator:
         current_time = datetime.now().isoformat()
         
         with self.drv.session() as s:
-            for risk in risks:
-                try:
-                    # Generate unique risk ID
-                    risk_id = f"{risk.domain_fqdn}_{risk.risk_type}_{int(time.time())}"
-                    
-                    # Create risk node
-                    s.run("""
-                        MERGE (r:Risk {risk_id: $risk_id})
-                        SET r.domain_fqdn = $domain_fqdn,
-                            r.risk_type = $risk_type,
-                            r.severity = $severity,
-                            r.score = $score,
-                            r.description = $description,
-                            r.evidence = $evidence,
-                            r.remediation = $remediation,
-                            r.discovered_at = $discovered_at,
-                            r.last_updated = $current_time
-                        RETURN r
-                    """, 
-                    risk_id=risk_id,
-                    domain_fqdn=risk.domain_fqdn,
-                    risk_type=risk.risk_type,
-                    severity=risk.severity.value,
-                    score=risk.score,
-                    description=risk.description,
-                    evidence=json.dumps(risk.evidence),
-                    remediation=risk.remediation,
-                    discovered_at=risk.discovered_at.isoformat(),
-                    current_time=current_time)
-                    
-                    # Link risk to domain
-                    s.run("""
-                        MATCH (d:Domain {fqdn: $domain_fqdn})
-                        MATCH (r:Risk {risk_id: $risk_id})
-                        MERGE (r)-[:AFFECTS]->(d)
-                    """, domain_fqdn=risk.domain_fqdn, risk_id=risk_id)
-                    
-                    saved_count += 1
-                    
-                except Exception as e:
-                    print(f"Error saving risk {risk.risk_type} for {risk.domain_fqdn}: {e}")
+            with s.begin_transaction() as tx:
+                for risk in risks:
+                    try:
+                        # Generate unique risk ID with random component to avoid collisions
+                        risk_id = f"{risk.domain_fqdn}_{risk.risk_type}_{int(time.time())}_{random.randint(1000, 9999)}"
+                        
+                        # Create risk node
+                        tx.run("""
+                            MERGE (r:Risk {risk_id: $risk_id})
+                            SET r.domain_fqdn = $domain_fqdn,
+                                r.risk_type = $risk_type,
+                                r.severity = $severity,
+                                r.score = $score,
+                                r.description = $description,
+                                r.evidence = $evidence,
+                                r.remediation = $remediation,
+                                r.discovered_at = $discovered_at,
+                                r.last_updated = $current_time
+                            RETURN r
+                        """, 
+                        risk_id=risk_id,
+                        domain_fqdn=risk.domain_fqdn,
+                        risk_type=risk.risk_type,
+                        severity=risk.severity.value,
+                        score=risk.score,
+                        description=risk.description,
+                        evidence=json.dumps(risk.evidence) if risk.evidence else "{}",
+                        remediation=risk.remediation,
+                        discovered_at=risk.discovered_at.isoformat(),
+                        current_time=current_time)
+                        
+                        # Link risk to domain - try both Domain and Subdomain
+                        # First try Domain
+                        result = tx.run("""
+                            MATCH (d:Domain {fqdn: $domain_fqdn})
+                            MATCH (r:Risk {risk_id: $risk_id})
+                            MERGE (r)-[:AFFECTS]->(d)
+                            RETURN COUNT(d) as domain_count
+                        """, domain_fqdn=risk.domain_fqdn, risk_id=risk_id)
+                        
+                        domain_found = result.single()["domain_count"] > 0
+                        
+                        # If no Domain found, try Subdomain
+                        if not domain_found:
+                            tx.run("""
+                                MATCH (s:Subdomain {fqdn: $domain_fqdn})
+                                MATCH (r:Risk {risk_id: $risk_id})
+                                MERGE (r)-[:AFFECTS]->(s)
+                            """, domain_fqdn=risk.domain_fqdn, risk_id=risk_id)
+                        
+                        saved_count += 1
+                        
+                    except Exception as e:
+                        print(f"Error saving risk {risk.risk_type} for {risk.domain_fqdn}: {e}")
+                        continue
+                
+                tx.commit()
         
         return saved_count
     

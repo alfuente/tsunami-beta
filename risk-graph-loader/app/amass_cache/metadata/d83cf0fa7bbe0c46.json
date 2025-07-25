@@ -1,0 +1,10 @@
+{
+  "domain": "d3cp55x5fgdlqy.cloudfront.net",
+  "timestamp": "2025-07-13T15:08:47.267126",
+  "mode": "passive",
+  "timeout": 180,
+  "amass_version": "4.2.0",
+  "config_hash": "1ec28f3f",
+  "subdomain_count": 39,
+  "cache_version": "1.0"
+}
