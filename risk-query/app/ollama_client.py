@@ -171,28 +171,66 @@ Return only the Cypher query:"""
             cypher_query = cypher_query.strip()
             
             # Remove code block markers if present
-            if cypher_query.startswith("```"):
-                lines = cypher_query.split("\n")
-                cypher_query = "\n".join(lines[1:-1]) if len(lines) > 2 else cypher_query
-                cypher_query = cypher_query.strip()
+            if "```" in cypher_query:
+                # Extract content between first ``` and next ```
+                parts = cypher_query.split("```")
+                if len(parts) >= 3:
+                    # Take the first code block
+                    cypher_query = parts[1].strip()
+                    # Remove language identifier like 'cypher'
+                    lines = cypher_query.split('\n')
+                    if lines and lines[0].lower() in ['cypher', 'cql']:
+                        cypher_query = '\n'.join(lines[1:]).strip()
+                elif len(parts) == 2:
+                    cypher_query = parts[1].strip()
             
             # Remove any remaining explanatory text - keep only the query
             lines = cypher_query.split("\n")
             query_lines = []
+            in_query = False
+            
             for line in lines:
                 line = line.strip()
-                if (line.upper().startswith(('MATCH', 'RETURN', 'WHERE', 'WITH', 'ORDER', 'LIMIT', 'CREATE', 'MERGE', 'DELETE', 'SET')) or
-                    line.startswith('-') or
-                    line.endswith(',') or
-                    line.endswith(';') or
-                    (query_lines and not line.startswith('//'))):
+                
+                # Skip empty lines and comments
+                if not line or line.startswith('#') or line.startswith('//'):
+                    continue
+                    
+                # Check if this line starts a Cypher query
+                if line.upper().startswith(('MATCH', 'CREATE', 'MERGE', 'DELETE', 'WITH', 'UNWIND', 'CALL')):
+                    in_query = True
                     query_lines.append(line)
+                # If we're in a query, continue adding lines that are part of it
+                elif in_query and (line.upper().startswith(('WHERE', 'RETURN', 'ORDER', 'LIMIT', 'SKIP', 'SET', 'REMOVE', 'ON', 'AND', 'OR')) or
+                                   line.startswith('-') or
+                                   line.endswith(',') or
+                                   line.endswith(';') or
+                                   '(' in line or ')' in line):
+                    query_lines.append(line)
+                # Stop when we encounter explanatory text
+                elif in_query and (line.startswith('This') or line.startswith('The') or line.startswith('**')):
+                    break
             
             final_query = " ".join(query_lines).strip()
             
             # Remove trailing semicolon if present
             if final_query.endswith(';'):
                 final_query = final_query[:-1]
+            
+            # If we couldn't extract a proper query, try a more aggressive approach
+            if not final_query or not any(final_query.upper().startswith(keyword) for keyword in ['MATCH', 'CREATE', 'MERGE', 'DELETE', 'WITH']):
+                # Look for the first line that starts with a Cypher keyword
+                original_lines = cypher_query.split('\n')
+                for line in original_lines:
+                    line = line.strip()
+                    if line.upper().startswith(('MATCH', 'CREATE', 'MERGE', 'DELETE', 'WITH')):
+                        # Take this line and try to find a complete statement
+                        end_idx = line.find('```')
+                        if end_idx > 0:
+                            final_query = line[:end_idx].strip()
+                        else:
+                            final_query = line
+                        break
             
             logger.info(f"Generated Cypher query: {final_query}")
             return final_query

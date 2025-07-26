@@ -1,13 +1,13 @@
 ollama:
   host: "http://localhost:11434"
-  model: "llama3.1"
-  timeout: 60
+  model: "mistral:7b"
+  timeout: 120
   max_tokens: 2048
 
 neo4j:
   uri: "bolt://localhost:7687"
   user: "neo4j"
-  password: "password"
+  password: "test.password"
   database: "neo4j"
 
 server:

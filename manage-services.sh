@@ -166,25 +166,74 @@ stop_npm() {
 stop_risk_query() {
     print_header "Stopping Risk Query processes"
     
-    # Find and kill Python processes running the risk-query service
-    QUERY_PIDS=$(ps aux | grep -E "python.*main.py|uvicorn.*main:app" | grep risk-query | grep -v grep | awk '{print $2}')
+    # Method 1: Find processes by port 8003
+    PORT_PIDS=$(lsof -ti:8003 2>/dev/null)
     
-    if [ -z "$QUERY_PIDS" ]; then
+    # Method 2: Find Python processes related to risk-query (more comprehensive pattern)
+    QUERY_PIDS=$(ps aux | grep -E "python.*main\.py|uvicorn.*main:app|fastapi" | grep -E "risk-query|app/main" | grep -v grep | awk '{print $2}')
+    
+    # Method 3: Find processes by PID file and validate they exist
+    PID_FILE_PIDS=""
+    if [ -f "risk-query-dev.pid" ]; then
+        POTENTIAL_PID=$(cat risk-query-dev.pid 2>/dev/null)
+        # Only include PID if the process actually exists
+        if [ -n "$POTENTIAL_PID" ] && kill -0 $POTENTIAL_PID 2>/dev/null; then
+            PID_FILE_PIDS=$POTENTIAL_PID
+        else
+            print_status "Removing stale PID file (process $POTENTIAL_PID no longer exists)"
+            rm -f risk-query-dev.pid
+        fi
+    fi
+    
+    # Method 4: Find Python processes by command line pattern (broader search)
+    PYTHON_PIDS=$(pgrep -f "python.*main\.py" 2>/dev/null)
+    
+    # Combine all PIDs
+    ALL_PIDS="$PORT_PIDS $QUERY_PIDS $PID_FILE_PIDS $PYTHON_PIDS"
+    
+    # Remove duplicates and empty values
+    UNIQUE_PIDS=$(echo $ALL_PIDS | tr ' ' '\n' | sort -u | grep -v '^$')
+    
+    if [ -z "$UNIQUE_PIDS" ]; then
         print_status "No Risk Query processes found running"
+        # Clean up stale PID file if it exists
+        if [ -f "risk-query-dev.pid" ]; then
+            print_status "Cleaning up stale PID file"
+            rm -f risk-query-dev.pid
+        fi
     else
-        print_status "Found Risk Query processes: $QUERY_PIDS"
-        for PID in $QUERY_PIDS; do
-            print_status "Killing Risk Query process $PID"
-            kill -15 $PID 2>/dev/null || kill -9 $PID 2>/dev/null
+        print_status "Found Risk Query processes: $(echo $UNIQUE_PIDS | tr '\n' ' ')"
+        for PID in $UNIQUE_PIDS; do
+            if kill -0 $PID 2>/dev/null; then
+                print_status "Killing Risk Query process $PID"
+                kill -15 $PID 2>/dev/null
+                sleep 1
+                # Force kill if still running
+                if kill -0 $PID 2>/dev/null; then
+                    print_status "Force killing process $PID"
+                    kill -9 $PID 2>/dev/null
+                fi
+            else
+                print_status "Process $PID already terminated"
+            fi
         done
         sleep 2
         
         # Verify processes are stopped
-        REMAINING=$(ps aux | grep -E "python.*main.py|uvicorn.*main:app" | grep risk-query | grep -v grep | awk '{print $2}')
-        if [ -z "$REMAINING" ]; then
+        REMAINING_PORT=$(lsof -ti:8003 2>/dev/null)
+        if [ -z "$REMAINING_PORT" ]; then
             print_status "All Risk Query processes stopped successfully"
+            # Clean up PID file
+            rm -f risk-query-dev.pid
         else
-            print_warning "Some processes may still be running: $REMAINING"
+            print_warning "Some processes may still be running on port 8003: $REMAINING_PORT"
+            # Try to kill remaining processes on port 8003
+            for PID in $REMAINING_PORT; do
+                print_status "Force killing remaining process $PID on port 8003"
+                kill -9 $PID 2>/dev/null
+            done
+            sleep 1
+            rm -f risk-query-dev.pid
         fi
     fi
 }
@@ -377,10 +426,13 @@ show_status() {
         print_warning "React Dashboard: STOPPED"
     fi
     
-    # Check Risk Query
-    if ps aux | grep -E "python.*main.py|uvicorn.*main:app" | grep risk-query | grep -v grep > /dev/null; then
-        QUERY_PID=$(ps aux | grep -E "python.*main.py|uvicorn.*main:app" | grep risk-query | grep -v grep | awk '{print $2}' | head -1)
-        print_status "Risk Query: RUNNING (PID: $QUERY_PID)"
+    # Check Risk Query (multiple methods)
+    QUERY_PORT_PID=$(lsof -ti:8003 2>/dev/null | head -1)
+    QUERY_PROCESS_PID=$(ps aux | grep -E "python.*app/main.py" | grep -v grep | awk '{print $2}' | head -1)
+    
+    if [ -n "$QUERY_PORT_PID" ] || [ -n "$QUERY_PROCESS_PID" ]; then
+        ACTIVE_PID=${QUERY_PORT_PID:-$QUERY_PROCESS_PID}
+        print_status "Risk Query: RUNNING (PID: $ACTIVE_PID, Port: 8003)"
     else
         print_warning "Risk Query: STOPPED"
     fi

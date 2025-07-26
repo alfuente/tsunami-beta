@@ -1,8 +1,39 @@
 import logging
-from neo4j import GraphDatabase
+from neo4j import GraphDatabase, time
 from typing import Dict, List, Any, Optional
+from datetime import datetime, date
+import json
 
 logger = logging.getLogger(__name__)
+
+def serialize_neo4j_value(value):
+    """Convert Neo4j values to JSON-serializable Python objects"""
+    if hasattr(value, 'iso_format'):  # Neo4j DateTime
+        return value.iso_format()
+    elif hasattr(value, 'to_native'):  # Neo4j Date, Time
+        native_value = value.to_native()
+        if isinstance(native_value, (datetime, date)):
+            return native_value.isoformat()
+        return native_value
+    elif isinstance(value, (datetime, date)):
+        return value.isoformat()
+    elif hasattr(value, '_properties'):  # Neo4j Node or Relationship
+        result = dict(value._properties)
+        # Recursively serialize properties
+        for key, prop_value in result.items():
+            result[key] = serialize_neo4j_value(prop_value)
+        
+        if hasattr(value, 'labels'):
+            result['_labels'] = list(value.labels)
+        if hasattr(value, 'type'):
+            result['_type'] = value.type
+        return result
+    elif isinstance(value, (list, tuple)):
+        return [serialize_neo4j_value(item) for item in value]
+    elif isinstance(value, dict):
+        return {key: serialize_neo4j_value(val) for key, val in value.items()}
+    else:
+        return value
 
 class Neo4jClient:
     def __init__(self, uri: str, user: str, password: str, database: str = "neo4j"):
@@ -49,32 +80,11 @@ class Neo4jClient:
                 records = []
                 
                 for record in result:
-                    # Convert neo4j record to dictionary
+                    # Convert neo4j record to dictionary using our serialization function
                     record_dict = {}
                     for key in record.keys():
                         value = record[key]
-                        # Handle Neo4j node and relationship objects
-                        if hasattr(value, '_properties'):
-                            record_dict[key] = dict(value._properties)
-                            if hasattr(value, 'labels'):
-                                record_dict[key]['_labels'] = list(value.labels)
-                            if hasattr(value, 'type'):
-                                record_dict[key]['_type'] = value.type
-                        elif isinstance(value, (list, tuple)):
-                            # Handle lists of nodes/relationships
-                            record_dict[key] = []
-                            for item in value:
-                                if hasattr(item, '_properties'):
-                                    item_dict = dict(item._properties)
-                                    if hasattr(item, 'labels'):
-                                        item_dict['_labels'] = list(item.labels)
-                                    if hasattr(item, 'type'):
-                                        item_dict['_type'] = item.type
-                                    record_dict[key].append(item_dict)
-                                else:
-                                    record_dict[key].append(item)
-                        else:
-                            record_dict[key] = value
+                        record_dict[key] = serialize_neo4j_value(value)
                     
                     records.append(record_dict)
                 
@@ -114,8 +124,7 @@ class Neo4jClient:
                         samples = []
                         for record in result:
                             node = record["n"]
-                            sample = dict(node._properties)
-                            sample["_labels"] = list(node.labels)
+                            sample = serialize_neo4j_value(node)
                             samples.append(sample)
                         schema_info["sample_data"][label] = samples
                     except Exception as e:

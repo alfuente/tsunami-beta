@@ -4,15 +4,24 @@ import logging
 import yaml
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
+import json
+from datetime import datetime, date
 
 # Add the app directory to the Python path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from query_processor import QueryProcessor
-from neo4j_client import Neo4jClient
+from neo4j_client import Neo4jClient, serialize_neo4j_value
 from ollama_client import OllamaClient
+
+class CustomJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (datetime, date)):
+            return obj.isoformat()
+        return serialize_neo4j_value(obj)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -117,7 +126,7 @@ async def health_check():
     }
 
 # Main query endpoint
-@app.post("/api/query", response_model=QueryResponse)
+@app.post("/api/query")
 async def process_query(request: QueryRequest):
     if not query_processor:
         raise HTTPException(status_code=503, detail="Service not initialized")
@@ -130,7 +139,13 @@ async def process_query(request: QueryRequest):
             context=request.context
         )
         
-        return QueryResponse(**result)
+        # Ensure all data is properly serialized
+        serialized_result = serialize_neo4j_value(result)
+        
+        return JSONResponse(
+            content=serialized_result,
+            headers={"Content-Type": "application/json"}
+        )
         
     except Exception as e:
         logger.error(f"Query processing error: {e}")
@@ -157,7 +172,8 @@ async def test_neo4j_connection():
     
     try:
         result = neo4j_client.test_connection()
-        return {"status": "connected", "result": result}
+        serialized_result = serialize_neo4j_value({"status": "connected", "result": result})
+        return JSONResponse(content=serialized_result)
     except Exception as e:
         logger.error(f"Neo4j connection test failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
