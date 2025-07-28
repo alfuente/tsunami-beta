@@ -1,8 +1,23 @@
+# AI Provider Configuration
+ai_provider: "mistral"  # Options: "ollama", "anthropic", "mistral"
+
 ollama:
   host: "http://localhost:11434"
   model: "mistral:7b"
-  timeout: 120
+  timeout: 600
   max_tokens: 2048
+
+anthropic:
+  api_key: "${ANTHROPIC_API_KEY}"  # Set via environment variable
+  model: "claude-3-5-sonnet-20241022"
+  timeout: 300
+  max_tokens: 4096
+
+mistral:
+  api_key: "${MISTRAL_API_KEY}"  # Set via environment variable
+  model: "mistral-small-latest"  # Options: mistral-large-latest, mistral-small-latest, codestral-latest
+  timeout: 300
+  max_tokens: 4096
 
 neo4j:
   uri: "bolt://localhost:7687"

@@ -15,7 +15,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from query_processor import QueryProcessor
 from neo4j_client import Neo4jClient, serialize_neo4j_value
-from ollama_client import OllamaClient
+from ai_client_factory import create_ai_client, get_supported_providers
 
 class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -57,12 +57,12 @@ app.add_middleware(
 
 # Initialize clients
 neo4j_client = None
-ollama_client = None
+ai_client = None
 query_processor = None
 
 @app.on_event("startup")
 async def startup_event():
-    global neo4j_client, ollama_client, query_processor
+    global neo4j_client, ai_client, query_processor
     
     logger.info("Starting Risk Query Service...")
     
@@ -76,17 +76,18 @@ async def startup_event():
             database=neo4j_config.get("database", "neo4j")
         )
         
-        # Initialize Ollama client
-        ollama_config = config.get("ollama", {})
-        ollama_client = OllamaClient(
-            host=ollama_config.get("host", "http://localhost:11434"),
-            model=ollama_config.get("model", "llama3.1"),
-            timeout=ollama_config.get("timeout", 60),
-            max_tokens=ollama_config.get("max_tokens", 2048)
-        )
+        # Initialize AI client based on configuration
+        provider = config.get("ai_provider", "ollama")
+        logger.info(f"Initializing AI client: {provider}")
+        
+        ai_client = create_ai_client(config)
+        
+        # Test AI client connection
+        connection_test = await ai_client.test_connection()
+        logger.info(f"AI client connection test: {connection_test.get('status', 'unknown')}")
         
         # Initialize query processor
-        query_processor = QueryProcessor(neo4j_client, ollama_client)
+        query_processor = QueryProcessor(neo4j_client, ai_client)
         
         logger.info("Risk Query Service started successfully")
         
@@ -96,7 +97,7 @@ async def startup_event():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    global neo4j_client, ollama_client
+    global neo4j_client, ai_client
     
     logger.info("Shutting down Risk Query Service...")
     
@@ -154,12 +155,16 @@ async def process_query(request: QueryRequest):
 # Get available models endpoint
 @app.get("/api/models")
 async def get_available_models():
-    if not ollama_client:
-        raise HTTPException(status_code=503, detail="Ollama client not initialized")
+    if not ai_client:
+        raise HTTPException(status_code=503, detail="AI client not initialized")
     
     try:
-        models = await ollama_client.list_models()
-        return {"models": models}
+        models = await ai_client.list_models()
+        provider = config.get("ai_provider", "unknown")
+        return {
+            "provider": provider,
+            "models": models
+        }
     except Exception as e:
         logger.error(f"Failed to get models: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -178,17 +183,36 @@ async def test_neo4j_connection():
         logger.error(f"Neo4j connection test failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-# Test Ollama connection endpoint
-@app.get("/api/test/ollama")
-async def test_ollama_connection():
-    if not ollama_client:
-        raise HTTPException(status_code=503, detail="Ollama client not initialized")
+# Test AI client connection endpoint
+@app.get("/api/test/ai")
+async def test_ai_connection():
+    if not ai_client:
+        raise HTTPException(status_code=503, detail="AI client not initialized")
     
     try:
-        result = await ollama_client.test_connection()
-        return {"status": "connected", "result": result}
+        result = await ai_client.test_connection()
+        provider = config.get("ai_provider", "unknown")
+        return {
+            "provider": provider,
+            "status": "connected", 
+            "result": result
+        }
     except Exception as e:
-        logger.error(f"Ollama connection test failed: {e}")
+        logger.error(f"AI client connection test failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Get supported AI providers endpoint
+@app.get("/api/providers")
+async def get_supported_providers_endpoint():
+    try:
+        providers = get_supported_providers()
+        current_provider = config.get("ai_provider", "ollama")
+        return {
+            "current_provider": current_provider,
+            "supported_providers": providers
+        }
+    except Exception as e:
+        logger.error(f"Failed to get providers: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

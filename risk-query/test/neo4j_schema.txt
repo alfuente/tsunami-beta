@@ -1,0 +1,278 @@
+=== EXTRAYENDO ESQUEMA DE NEO4J ===
+Fecha: sáb 26 jul 2025 17:19:11 EDT
+Host: localhost:7687
+Base de datos: neo4j
+
+=== ETIQUETAS DE NODOS ===
+
+label
+"Certificate"
+"Domain"
+"IPAddress"
+"Provider"
+"Risk"
+"Service"
+"Subdomain"
+"TLD"
+
+----------------------------------------
+
+=== TIPOS DE RELACIONES ===
+
+relationshipType
+"AFFECTS"
+"CONTAINS_DOMAIN"
+"DEPENDS_ON"
+"HAS_SUBDOMAIN"
+"HOSTED_BY"
+"PROVIDED_BY"
+"PROVIDES"
+"RELATED_TO"
+"RESOLVES_TO"
+"RUNS"
+"SUBDOMAIN_OF"
+"USES_SERVICE"
+
+----------------------------------------
+
+=== CLAVES DE PROPIEDADES ===
+
+propertyKey
+"address"
+"analysis_version"
+"avg_subdomain_risk"
+"base_domain"
+"cloud_info"
+"confidence"
+"created_at"
+"description"
+"detection_method"
+"discovered_at"
+"discovery_method"
+"discovery_phase"
+"dns_a_records"
+"dns_has_dmarc"
+"dns_has_spf"
+"domain_fqdn"
+"domain_name"
+"evidence"
+"fqdn"
+"has_tls"
+"high_risk_subdomains"
+"hostname"
+"id"
+"ip"
+"ip_count"
+"last_analyzed"
+"last_calculated"
+"last_processed"
+"last_risk_assessment"
+"last_risk_calculated"
+"last_updated"
+"max_subdomain_risk"
+"medium_risk_subdomains"
+"metadata"
+"name"
+"port"
+"processing_phase"
+"provider"
+"provider_count"
+"relationship_type"
+"remediation"
+"risk_calculation_version"
+"risk_id"
+"risk_level"
+"risk_score"
+"risk_tier"
+"risk_type"
+"score"
+"service_category"
+"service_count"
+"service_type"
+"severity"
+"source"
+"source_info"
+"status"
+"subdomain"
+"subdomain_count"
+"subdomain_name"
+"tier"
+"tld"
+"tls_expires_in_days"
+"tls_grade"
+"type"
+
+----------------------------------------
+
+=== CONTEO DE NODOS POR ETIQUETA ===
+
+label, count
+"TLD", 0
+"Domain", 0
+"Subdomain", 0
+"IPAddress", 0
+"Service", 0
+"Provider", 0
+"Risk", 0
+"Certificate", 0
+
+----------------------------------------
+
+=== CONTEO DE RELACIONES POR TIPO ===
+
+relationshipType, count
+"RELATED_TO", 35144
+"DEPENDS_ON", 9994
+"RESOLVES_TO", 8146
+"HAS_SUBDOMAIN", 4954
+"HOSTED_BY", 4290
+"RUNS", 1544
+"SUBDOMAIN_OF", 1392
+"CONTAINS_DOMAIN", 354
+"USES_SERVICE", 344
+"PROVIDES", 74
+"PROVIDED_BY", 58
+"AFFECTS", 6
+
+----------------------------------------
+
+=== PROPIEDADES POR TIPO DE NODO ===
+
+Error ejecutando consulta: PROPIEDADES POR TIPO DE NODO
+Consulta: 
+CALL db.labels() YIELD label
+CALL {
+    WITH label
+    MATCH (n) WHERE n:`${label}`
+    WITH n, keys(n) as props
+    RETURN label, props, count(*) as nodes_with_these_props
+    ORDER BY nodes_with_these_props DESC
+    LIMIT 5
+}
+RETURN label, props, nodes_with_these_props
+
+
+----------------------------------------
+
+=== PATRONES DE CONEXIÓN MÁS FRECUENTES ===
+
+source_label, rel_type, target_label, frequency
+"Subdomain", "RELATED_TO", "Subdomain", 17572
+"Subdomain", "RESOLVES_TO", "IPAddress", 4073
+"Domain", "DEPENDS_ON", "Provider", 4073
+"Domain", "HAS_SUBDOMAIN", "Subdomain", 2477
+"IPAddress", "HOSTED_BY", "Provider", 2145
+"Subdomain", "SUBDOMAIN_OF", "Domain", 696
+"Domain", "DEPENDS_ON", "Service", 494
+"Domain", "RUNS", "Service", 494
+"Subdomain", "DEPENDS_ON", "Service", 283
+"Subdomain", "RUNS", "Service", 266
+"TLD", "CONTAINS_DOMAIN", "Domain", 177
+"Subdomain", "USES_SERVICE", "Provider", 172
+"Subdomain", "DEPENDS_ON", "Provider", 147
+"Provider", "PROVIDES", "Service", 37
+"Service", "PROVIDED_BY", "Provider", 29
+"Subdomain", "RUNS", "Provider", 12
+"Risk", "AFFECTS", "Domain", 3
+
+----------------------------------------
+
+=== ÍNDICES DISPONIBLES ===
+
+Error ejecutando consulta: ÍNDICES DISPONIBLES
+Consulta: CALL db.indexes() YIELD name, labelsOrTypes, properties, type, state RETURN name, labelsOrTypes, properties, type, state
+
+----------------------------------------
+
+=== RESTRICCIONES ===
+
+Error ejecutando consulta: RESTRICCIONES
+Consulta: CALL db.constraints() YIELD name, description RETURN name, description
+
+----------------------------------------
+
+=== ESTADÍSTICAS GENERALES ===
+
+total_nodes, total_relationships, unique_label_combinations
+4933, 66300, 7
+
+----------------------------------------
+
+=== EJEMPLOS DE NODOS ===
+
+Ejemplos para etiqueta: Certificate
+=== MUESTRA DE NODOS Certificate ===
+
+
+----------------------------------------
+
+Ejemplos para etiqueta: Domain
+=== MUESTRA DE NODOS Domain ===
+
+n
+(:Domain {last_updated: "2025-07-23T21:40:50.140802", discovery_phase: TRUE, risk_score: 6.497643036837378, fqdn: "bice.cl", max_subdomain_risk: 1.6, service_count: 7, created_at: "2025-07-23T21:40:50.140802", base_domain: "bice.cl", provider_count: 5, tld: "cl", last_analyzed: "2025-07-23T21:51:08.328765", subdomain_count: 106, last_calculated: 2025-07-23T05:36:53.486Z, domain_name: "bice", risk_calculation_version: "2.0", risk_tier: "critical", avg_subdomain_risk: 0.7616037735849074, high_risk_subdomains: 0, medium_risk_subdomains: 0})
+(:Domain {last_updated: "2025-07-23T21:40:50.143489", discovery_phase: TRUE, risk_score: 7.662363446630892, fqdn: "bci.cl", max_subdomain_risk: 1.825, service_count: 9, created_at: "2025-07-23T21:40:50.143489", base_domain: "bci.cl", provider_count: 5, tld: "cl", last_analyzed: "2025-07-23T22:14:57.294687", subdomain_count: 129, last_calculated: 2025-07-23T05:36:52.898Z, domain_name: "bci", risk_calculation_version: "2.0", risk_tier: "critical", avg_subdomain_risk: 0.5986046511628074, high_risk_subdomains: 0, medium_risk_subdomains: 0})
+(:Domain {last_updated: "2025-07-23T21:40:50.101220", discovery_phase: TRUE, risk_score: 0.5640000000000001, fqdn: "santander.cl", max_subdomain_risk: 0, service_count: 1, created_at: "2025-07-23T21:40:50.101220", base_domain: "santander.cl", provider_count: 1, tld: "cl", last_analyzed: "2025-07-23T22:14:55.590595", subdomain_count: 0, last_calculated: 2025-07-23T05:36:54.270Z, domain_name: "santander", risk_calculation_version: "2.0", risk_tier: "low", avg_subdomain_risk: 0.0, high_risk_subdomains: 0, medium_risk_subdomains: 0})
+
+----------------------------------------
+
+Ejemplos para etiqueta: IPAddress
+=== MUESTRA DE NODOS IPAddress ===
+
+n
+(:IPAddress {cloud_info: "{\"source\": \"ipinfo.io\", \"organization\": \"AS16509 Amazon.com, Inc.\", \"asn\": \"AS16509\", \"country\": \"US\", \"region\": \"Florida\", \"city\": \"Flagami\", \"postal\": \"33144\", \"timezone\": \"America/New_York\", \"hostname\": \"server-13-249-98-61.mia3.r.cloudfront.net\", \"anycast\": false, \"provider\": \"aws\"}", last_updated: "2025-07-14T01:17:03.213355", address: "13.249.98.61", provider: "aws"})
+(:IPAddress {cloud_info: "{\"source\": \"ipinfo.io\", \"organization\": \"AS16509 Amazon.com, Inc.\", \"asn\": \"AS16509\", \"country\": \"US\", \"region\": \"Virginia\", \"city\": \"Herndon\", \"postal\": \"20171\", \"timezone\": \"America/New_York\", \"hostname\": \"ns-326.awsdns-40.com\", \"anycast\": true, \"provider\": \"aws\"}", last_updated: "2025-07-14T02:36:38.305108", address: "205.251.193.70", provider: "aws"})
+(:IPAddress {cloud_info: "{\"source\": \"ipinfo.io\", \"organization\": \"AS27732 A.F.P. Habitat S.A.\", \"asn\": \"AS27732\", \"country\": \"CL\", \"region\": \"Santiago Metropolitan\", \"city\": \"Santiago\", \"postal\": \"8320000\", \"timezone\": \"America/Santiago\", \"hostname\": null, \"anycast\": false, \"detection_method\": \"mmdb_local\", \"warnings\": []}", last_updated: "2025-07-14T00:44:35.427432", address: "200.55.203.95", provider: "unknown"})
+
+----------------------------------------
+
+Ejemplos para etiqueta: Provider
+=== MUESTRA DE NODOS Provider ===
+
+n
+(:Provider {risk_level: "high", last_updated: "2025-07-23T22:12:24.392317", metadata: "{\"mx_host\": \"mxb-00455301.gslb.pphosted.com\", \"priority\": 5, \"record_type\": \"MX\"}", risk_score: 7.7, confidence: 0.9, service_category: "ProofPoint Email", name: "ProofPoint", detection_method: "mx_record", last_risk_assessment: 2025-07-23T05:03:33.142Z, risk_tier: "low", type: "security"})
+(:Provider {risk_level: "high", last_updated: "2025-07-23T22:12:24.392317", metadata: "{\"subdomain\": \"bitbucket.bice.cl\", \"pattern\": \"bitbucket\", \"record_type\": \"A\"}", risk_score: 2.0, confidence: 0.6, service_category: "Bitbucket Service", detection_method: "subdomain_pattern", name: "Bitbucket", last_risk_assessment: 2025-07-23T05:03:33.142Z, risk_tier: "low", type: "development"})
+(:Provider {risk_level: "medium", last_updated: "2025-07-23T22:12:24.392317", metadata: "{\"subdomain\": \"jira.bice.cl\", \"pattern\": \"jira\", \"record_type\": \"A\"}", risk_score: 3.4, confidence: 0.6, service_category: "Atlassian Jira Service", detection_method: "subdomain_pattern", name: "Atlassian Jira", last_risk_assessment: 2025-07-23T05:03:33.142Z, risk_tier: "low", type: "development"})
+
+----------------------------------------
+
+Ejemplos para etiqueta: Risk
+=== MUESTRA DE NODOS Risk ===
+
+n
+(:Risk {severity: "high", score: 8.0, remediation: "Fix DNS configuration to point to valid IP", domain_fqdn: "bci.cl", last_updated: "2025-07-23T00:37:22.518022", risk_id: "bci.cl_ip_no_resolution_1753245442_4304", risk_type: "ip_no_resolution", evidence: "{\"dns_resolution\": \"failed\"}", description: "Domain does not resolve to any IP address", discovered_at: "2025-07-23T00:37:22.415583"})
+(:Risk {severity: "medium", score: 6.0, domain_fqdn: "bci.cl", remediation: "Review subdomain necessity and remove unused subdomains", last_updated: "2025-07-23T00:37:22.518022", risk_id: "bci.cl_subdomain_high_exposure_1753245442_2365", risk_type: "subdomain_high_exposure", evidence: "{\"subdomain_count\": 129, \"samples\": [\"apiprogram.bci.cl\", \"cust08-expe-4-tic.bci.cl\", \"expe-aco.bci.cl\", \"correomasivo1.bci.cl\", \"gadget.bci.cl\", \"multybox.gslb.bci.cl\", \"mgt.bci.cl\", \"apimarket.bci.cl\", \"oss.bci.cl\", \"b2b.gslb.bci.cl\"]}", description: "High subdomain exposure: 129 subdomains discovered", discovered_at: "2025-07-23T00:37:22.460278"})
+(:Risk {severity: "high", domain_fqdn: "bci.cl", score: 7.5, remediation: "Secure or remove sensitive subdomains from public access", last_updated: "2025-07-23T00:37:22.518022", risk_id: "bci.cl_subdomain_sensitive_exposed_1753245442_9134", risk_type: "subdomain_sensitive_exposed", evidence: "{\"sensitive_subdomains\": [\"apiprogram.bci.cl\", \"apimarket.bci.cl\"]}", description: "Sensitive subdomains exposed: 2 found", discovered_at: "2025-07-23T00:37:22.460314"})
+
+----------------------------------------
+
+Ejemplos para etiqueta: Service
+=== MUESTRA DE NODOS Service ===
+
+n
+(:Service {metadata: "{\"mx_host\": \"mxb-00455301.gslb.pphosted.com\", \"priority\": 5, \"record_type\": \"MX\"}", last_updated: "2025-07-23T22:12:24.392317", risk_score: 5.8, confidence: 0.9, detection_method: "mx_record", type: "security", risk_level: "high", service_type: "security", provider: "ProofPoint", name: "ProofPoint Email", last_risk_assessment: 2025-07-23T05:03:33.189Z, id: "service_proofpoint_email", risk_tier: "low"})
+(:Service {metadata: "{\"subdomain\": \"bitbucket.bice.cl\", \"pattern\": \"bitbucket\", \"record_type\": \"A\"}", last_updated: "2025-07-23T22:12:24.392317", risk_score: 2.5, confidence: 0.6, detection_method: "subdomain_pattern", type: "development", risk_level: "high", service_type: "development", provider: "Bitbucket", name: "Bitbucket Service", last_risk_assessment: 2025-07-23T05:03:33.189Z, id: "service_bitbucket_service", risk_tier: "low"})
+(:Service {metadata: "{\"subdomain\": \"jira.bice.cl\", \"pattern\": \"jira\", \"record_type\": \"A\"}", last_updated: "2025-07-23T22:12:24.392317", risk_score: 7.4, confidence: 0.6, detection_method: "subdomain_pattern", type: "development", risk_level: "medium", service_type: "development", provider: "Atlassian Jira", name: "Atlassian Jira Service", last_risk_assessment: 2025-07-23T05:03:33.189Z, id: "service_atlassian_jira_service", risk_tier: "low"})
+
+----------------------------------------
+
+Ejemplos para etiqueta: Subdomain
+=== MUESTRA DE NODOS Subdomain ===
+
+n
+(:Subdomain {last_processed: "2025-07-16T13:26:45.349368", discovery_phase: TRUE, fqdn: "smtp.bice.cl", risk_score: 1.0, last_risk_calculated: 2025-07-23T05:34:28.142Z, service_count: 0, base_domain: "bice.cl", provider_count: 0, tld: "cl", ip_count: 1, last_analyzed: "2025-07-16T00:59:34.275648", domain_name: "bice", processing_phase: TRUE, risk_tier: "low", subdomain_name: "smtp"})
+(:Subdomain {last_processed: "2025-07-16T12:54:11.573345", discovery_phase: TRUE, fqdn: "www.bice.cl", risk_score: 1.0, last_risk_calculated: 2025-07-23T05:34:28.161Z, service_count: 0, base_domain: "bice.cl", provider_count: 0, tld: "cl", ip_count: 2, last_analyzed: "2025-07-16T00:59:43.466705", domain_name: "bice", processing_phase: TRUE, risk_tier: "low", subdomain_name: "www"})
+(:Subdomain {last_processed: "2025-07-16T15:59:51.018454", discovery_phase: TRUE, fqdn: "api.bice.cl", risk_score: 1.0, last_risk_calculated: 2025-07-23T05:34:28.004Z, service_count: 0, base_domain: "bice.cl", provider_count: 0, tld: "cl", ip_count: 2, last_analyzed: "2025-07-16T00:52:13.504314", domain_name: "bice", processing_phase: TRUE, risk_tier: "low", subdomain_name: "api"})
+
+----------------------------------------
+
+Ejemplos para etiqueta: TLD
+=== MUESTRA DE NODOS TLD ===
+
+n
+(:TLD {name: "cl", last_updated: "2025-07-23T22:14:57.358186"})
+(:TLD {name: "net", last_updated: "2025-07-23T22:14:57.418304"})
+(:TLD {name: "com", last_updated: "2025-07-23T22:14:56.869204"})
+
+----------------------------------------
+

@@ -1,14 +1,14 @@
 import logging
 from typing import Dict, List, Any, Optional
 from neo4j_client import Neo4jClient
-from ollama_client import OllamaClient
+from ai_client_base import AIClientBase
 
 logger = logging.getLogger(__name__)
 
 class QueryProcessor:
-    def __init__(self, neo4j_client: Neo4jClient, ollama_client: OllamaClient):
+    def __init__(self, neo4j_client: Neo4jClient, ai_client: AIClientBase):
         self.neo4j_client = neo4j_client
-        self.ollama_client = ollama_client
+        self.ai_client = ai_client
         self._schema_cache = None
     
     async def get_schema_info(self, force_refresh: bool = False) -> Dict[str, Any]:
@@ -40,7 +40,7 @@ class QueryProcessor:
             
             # Convert natural language to Cypher
             logger.info("Converting natural language to Cypher...")
-            cypher_query = await self.ollama_client.convert_natural_language_to_cypher(
+            cypher_query = await self.ai_client.convert_natural_language_to_cypher(
                 query, schema_info
             )
             
@@ -55,9 +55,9 @@ class QueryProcessor:
             logger.info("Executing Cypher query...")
             raw_results = self.neo4j_client.execute_query(cypher_query)
             
-            # Interpret the results using Ollama
+            # Interpret the results using AI client
             logger.info("Interpreting query results...")
-            interpretation = await self.ollama_client.interpret_cypher_results(
+            interpretation = await self.ai_client.interpret_cypher_results(
                 query, cypher_query, raw_results
             )
             

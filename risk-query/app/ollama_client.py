@@ -2,12 +2,14 @@ import asyncio
 import logging
 import json
 import subprocess
-import requests
+import aiohttp
+import time
 from typing import Dict, List, Any, Optional
+from ai_client_base import AIClientBase
 
 logger = logging.getLogger(__name__)
 
-class OllamaClient:
+class OllamaClient(AIClientBase):
     def __init__(self, host: str = "http://localhost:11434", model: str = "llama3.1", 
                  timeout: int = 60, max_tokens: int = 2048):
         self.host = host.rstrip("/")
@@ -18,14 +20,16 @@ class OllamaClient:
     async def test_connection(self) -> Dict[str, Any]:
         """Test connection to Ollama"""
         try:
-            response = requests.get(f"{self.host}/api/tags", timeout=10)
-            if response.status_code == 200:
-                return {
-                    "status": "connected",
-                    "models": response.json().get("models", [])
-                }
-            else:
-                raise Exception(f"Ollama server returned status {response.status_code}")
+            async with aiohttp.ClientSession() as session:
+                async with session.get(f"{self.host}/api/tags", timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status == 200:
+                        data = await response.json()
+                        return {
+                            "status": "connected",
+                            "models": data.get("models", [])
+                        }
+                    else:
+                        raise Exception(f"Ollama server returned status {response.status}")
         except Exception as e:
             logger.error(f"Ollama connection test failed: {e}")
             raise
@@ -33,12 +37,13 @@ class OllamaClient:
     async def list_models(self) -> List[str]:
         """List available models in Ollama"""
         try:
-            response = requests.get(f"{self.host}/api/tags", timeout=10)
-            if response.status_code == 200:
-                models_data = response.json()
-                return [model["name"] for model in models_data.get("models", [])]
-            else:
-                raise Exception(f"Failed to list models: {response.status_code}")
+            async with aiohttp.ClientSession() as session:
+                async with session.get(f"{self.host}/api/tags", timeout=aiohttp.ClientTimeout(total=10)) as response:
+                    if response.status == 200:
+                        models_data = await response.json()
+                        return [model["name"] for model in models_data.get("models", [])]
+                    else:
+                        raise Exception(f"Failed to list models: {response.status}")
         except Exception as e:
             logger.error(f"Failed to list models: {e}")
             raise
@@ -82,13 +87,10 @@ class OllamaClient:
     async def generate_response(self, prompt: str, system_prompt: Optional[str] = None) -> str:
         """Generate a response using Ollama"""
         try:
-            # Ensure model is available
-            if not await self.check_model_availability(self.model):
-                logger.info(f"Model {self.model} not available, attempting to pull...")
-                if not await self.pull_model(self.model):
-                    raise Exception(f"Failed to pull model {self.model}")
+            # Ensure model is available (skip check for performance if model is already loaded)
+            logger.info(f"Starting generation with model {self.model}, timeout: {self.timeout}s")
             
-            # Prepare the request
+            # Prepare the request with optimized settings
             payload = {
                 "model": self.model,
                 "prompt": prompt,
@@ -97,26 +99,36 @@ class OllamaClient:
                     "num_predict": self.max_tokens,
                     "temperature": 0.1,  # Low temperature for more deterministic responses
                     "top_k": 40,
-                    "top_p": 0.9
+                    "top_p": 0.9,
+                    "num_ctx": 4096,  # Increase context window
+                    "num_thread": 8   # Use more threads for faster processing
                 }
             }
             
             if system_prompt:
                 payload["system"] = system_prompt
             
-            logger.info(f"Sending request to Ollama with model {self.model}")
+            logger.info(f"Sending request to Ollama (prompt length: {len(prompt)} chars)")
+            start_time = time.time()
             
-            response = requests.post(
-                f"{self.host}/api/generate",
-                json=payload,
-                timeout=self.timeout
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                return result.get("response", "").strip()
-            else:
-                raise Exception(f"Ollama API returned status {response.status_code}: {response.text}")
+            async with aiohttp.ClientSession() as session:
+                async with session.post(
+                    f"{self.host}/api/generate",
+                    json=payload,
+                    timeout=aiohttp.ClientTimeout(total=self.timeout)
+                ) as response:
+                    
+                    end_time = time.time()
+                    logger.info(f"Ollama request completed in {end_time - start_time:.2f} seconds")
+                    
+                    if response.status == 200:
+                        result = await response.json()
+                        generated_text = result.get("response", "").strip()
+                        logger.info(f"Generated response length: {len(generated_text)} characters")
+                        return generated_text
+                    else:
+                        response_text = await response.text()
+                        raise Exception(f"Ollama API returned status {response.status}: {response_text}")
                 
         except Exception as e:
             logger.error(f"Failed to generate response: {e}")
@@ -125,44 +137,22 @@ class OllamaClient:
     async def convert_natural_language_to_cypher(self, natural_query: str, schema_info: Dict[str, Any]) -> str:
         """Convert natural language query to Cypher using Ollama"""
         
-        system_prompt = """You are an expert in converting natural language queries to Cypher queries for Neo4j.
+        system_prompt = """Convert natural language to Cypher queries. Return ONLY the query.
 
-You have access to a risk management graph database with the following schema:
-
-Node Labels: Domain, BaseDomain, ThirdPartyProvider, Incident, Assessment
-Relationship Types: DEPENDS_ON, HAS_SUBDOMAIN, USES_PROVIDER, HAS_INCIDENT, HAS_ASSESSMENT
-
-Key Properties:
-- Domain: fqdn, risk_score, risk_tier, business_criticality, monitoring_enabled
-- BaseDomain: base_domain, total_subdomains, avg_risk_score, industry
-- ThirdPartyProvider: provider_name, risk_level, services
-- Incident: severity, detected, resolved, impact_score
-- Assessment: assessment_date, tls_grade, critical_cves, high_cves
-
-Important guidelines:
-1. Always return ONLY the Cypher query, no explanations
-2. Use proper Cypher syntax with MATCH, WHERE, RETURN clauses
-3. Handle case-insensitive searches with toLower() when appropriate
-4. Limit results with LIMIT clause when appropriate (default 20)
-5. Use ORDER BY for sorting results
-6. For risk-related queries, consider risk_score and risk_tier fields
-7. For dependency queries, use DEPENDS_ON relationships
-8. For subdomain queries, use HAS_SUBDOMAIN relationships
+Schema:
+- Nodes: Domain, BaseDomain, ThirdPartyProvider, Incident, Assessment  
+- Relations: DEPENDS_ON, HAS_SUBDOMAIN, USES_PROVIDER, HAS_INCIDENT, HAS_ASSESSMENT
+- Key fields: fqdn, risk_score, risk_tier, business_criticality
 
 Examples:
-- "Show high risk domains" → MATCH (d:Domain) WHERE d.risk_tier = 'high' RETURN d ORDER BY d.risk_score DESC LIMIT 20
-- "Domains with most dependencies" → MATCH (d:Domain)-[r:DEPENDS_ON]->() RETURN d, COUNT(r) as dep_count ORDER BY dep_count DESC LIMIT 10
-- "Financial domains" → MATCH (bd:BaseDomain) WHERE toLower(bd.industry) CONTAINS 'financial' MATCH (bd)-[:HAS_SUBDOMAIN]->(d:Domain) RETURN d LIMIT 20
-"""
+"high risk domains" → MATCH (d:Domain) WHERE d.risk_tier = 'high' RETURN d LIMIT 20
+"domains with dependencies" → MATCH (d:Domain)-[r:DEPENDS_ON]->() RETURN d, COUNT(r) as deps LIMIT 10
+
+Return only the Cypher query."""
         
-        prompt = f"""Convert this natural language query to Cypher:
+        prompt = f"""Query: "{natural_query}"
 
-Query: "{natural_query}"
-
-Schema context:
-{json.dumps(schema_info, indent=2)}
-
-Return only the Cypher query:"""
+Return Cypher:"""
         
         try:
             cypher_query = await self.generate_response(prompt, system_prompt)
