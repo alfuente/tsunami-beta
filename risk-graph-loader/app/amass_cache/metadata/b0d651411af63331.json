@@ -1,10 +1,10 @@
 {
   "domain": "click.btgpactual.cl",
-  "timestamp": "2025-07-16T00:47:25.010356",
+  "timestamp": "2025-07-28T01:51:39.667214",
   "mode": "passive",
   "timeout": 180,
   "amass_version": "4.2.0",
   "config_hash": "1ec28f3f",
-  "subdomain_count": 52,
+  "subdomain_count": 44,
   "cache_version": "1.0"
 }

@@ -126,28 +126,28 @@ export interface SubdomainDetail {
   business_criticality: string;
   monitoring_enabled: boolean;
   last_calculated: string | null;
-  services: string[];
-  providers: string[];
+  services?: string[];
+  providers?: string[];
   active_incidents: number;
 }
 
 export interface BaseDomainDetailsResponse {
-  base_domain: string;
-  subdomains: SubdomainDetail[];
-  risk_summary: {
-    average_risk_score: number;
-    max_risk_score: number;
-    critical_subdomains: number;
-    high_risk_subdomains: number;
-    total_incidents: number;
+  base_domain?: string;
+  subdomains?: SubdomainDetail[];
+  risk_summary?: {
+    average_risk_score?: number;
+    max_risk_score?: number;
+    critical_subdomains?: number;
+    high_risk_subdomains?: number;
+    total_incidents?: number;
   };
-  service_summary: {
-    total_services: number;
-    services: string[];
+  service_summary?: {
+    total_services?: number;
+    services?: string[];
   };
-  provider_summary: {
-    total_providers: number;
-    providers: string[];
+  provider_summary?: {
+    total_providers?: number;
+    providers?: string[];
   };
-  total_count: number;
+  total_count?: number;
 }

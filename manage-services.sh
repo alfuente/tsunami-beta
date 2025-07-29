@@ -69,12 +69,12 @@ start_ollama() {
         print_status "Logs: tail -f ollama.log"
         
         # Check if default model is available
-        print_status "Checking for default model (llama3.1)..."
-        if ollama list | grep -q "llama3.1"; then
-            print_status "Default model llama3.1 is available"
+        print_status "Checking for default model (llama3.2:1b)..."
+        if ollama list | grep -q "llama3.2:1b"; then
+            print_status "Default model llama3.2:1b is available"
         else
-            print_warning "Default model llama3.1 not found. Pulling it now..."
-            ollama pull llama3.1
+            print_warning "Default model llama3.2:1b not found. Pulling it now..."
+            ollama pull llama3.2:1b
         fi
     else
         print_error "Failed to start Ollama service"

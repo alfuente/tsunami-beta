@@ -93,6 +93,7 @@ class OllamaClient(AIClientBase):
             # Prepare the request with optimized settings
             payload = {
                 "model": self.model,
+                "keep_alive": -1,
                 "prompt": prompt,
                 "stream": False,
                 "options": {

@@ -72,7 +72,7 @@ const BaseDomainDetail: React.FC = () => {
     try {
       setCalculating(true);
       // Calculate risk for all subdomains in the base domain
-      const promises = domainDetails?.subdomains.map(subdomain => 
+      const promises = domainDetails?.subdomains?.map(subdomain => 
         calculationApi.calculateDomainRisk(subdomain.fqdn, false)
       ) || [];
       
@@ -134,7 +134,7 @@ const BaseDomainDetail: React.FC = () => {
     }));
   };
 
-  const paginatedSubdomains = domainDetails?.subdomains.slice(
+  const paginatedSubdomains = domainDetails?.subdomains?.slice(
     pagination.page * pagination.pageSize,
     pagination.page * pagination.pageSize + pagination.pageSize
   ) || [];
@@ -174,7 +174,7 @@ const BaseDomainDetail: React.FC = () => {
           >
             Back
           </Button>
-          <Typography variant="h4">{domainDetails.base_domain}</Typography>
+          <Typography variant="h4">{domainDetails?.base_domain || 'Unknown Domain'}</Typography>
         </Box>
         <Box display="flex" gap={1}>
           <Button
@@ -207,7 +207,7 @@ const BaseDomainDetail: React.FC = () => {
         </Box>
       </Box>
 
-      {domainDetails && domainDetails.subdomains.every(d => d.services.length === 0 && d.providers.length === 0) && (
+      {domainDetails && domainDetails.subdomains?.every(d => d.services?.length === 0 && d.providers?.length === 0) && (
         <Alert severity="info" sx={{ mb: 2 }}>
           Notice: This base domain has limited service and provider information. Use the "Recalculate Risk" button to trigger a comprehensive analysis.
         </Alert>
@@ -223,30 +223,30 @@ const BaseDomainDetail: React.FC = () => {
               </Typography>
               <Box display="flex" alignItems="center" mb={2}>
                 <Typography variant="h3" color="primary" sx={{ mr: 2 }}>
-                  {domainDetails.risk_summary.max_risk_score.toFixed(1)}
+                  {domainDetails.risk_summary?.max_risk_score?.toFixed(1) || '0.0'}
                 </Typography>
                 <Typography variant="body2" color="textSecondary">
                   Max Risk Score
                 </Typography>
               </Box>
               <Typography variant="body2" gutterBottom>
-                Average: {domainDetails.risk_summary.average_risk_score.toFixed(1)}
+                Average: {domainDetails.risk_summary?.average_risk_score?.toFixed(1) || '0.0'}
               </Typography>
               <Divider sx={{ my: 2 }} />
               <Box display="flex" gap={1} mb={1}>
                 <Chip 
-                  label={`${domainDetails.risk_summary.critical_subdomains} Critical`} 
+                  label={`${domainDetails.risk_summary?.critical_subdomains || 0} Critical`} 
                   color="error"
                   size="small"
                 />
                 <Chip 
-                  label={`${domainDetails.risk_summary.high_risk_subdomains} High`} 
+                  label={`${domainDetails.risk_summary?.high_risk_subdomains || 0} High`} 
                   color="warning"
                   size="small"
                 />
               </Box>
               <Typography variant="body2" color="textSecondary">
-                Active Incidents: {domainDetails.risk_summary.total_incidents}
+                Active Incidents: {domainDetails.risk_summary?.total_incidents || 0}
               </Typography>
             </CardContent>
           </Card>
@@ -261,12 +261,12 @@ const BaseDomainDetail: React.FC = () => {
                 <Typography variant="h6">Services</Typography>
               </Box>
               <Typography variant="h4" color="primary" gutterBottom>
-                {domainDetails.service_summary.total_services}
+                {domainDetails.service_summary?.total_services || 0}
               </Typography>
               <Typography variant="body2" color="textSecondary" gutterBottom>
                 Total Services
               </Typography>
-              {domainDetails.service_summary.services.length > 0 && (
+              {domainDetails.service_summary?.services && domainDetails.service_summary.services.length > 0 && (
                 <Box>
                   <Divider sx={{ my: 2 }} />
                   <Box display="flex" flexWrap="wrap" gap={0.5}>
@@ -297,12 +297,12 @@ const BaseDomainDetail: React.FC = () => {
                 <Typography variant="h6">Providers</Typography>
               </Box>
               <Typography variant="h4" color="primary" gutterBottom>
-                {domainDetails.provider_summary.total_providers}
+                {domainDetails.provider_summary?.total_providers || 0}
               </Typography>
               <Typography variant="body2" color="textSecondary" gutterBottom>
                 Total Providers
               </Typography>
-              {domainDetails.provider_summary.providers.length > 0 && (
+              {domainDetails.provider_summary?.providers && domainDetails.provider_summary.providers.length > 0 && (
                 <Box>
                   <Divider sx={{ my: 2 }} />
                   <Box display="flex" flexWrap="wrap" gap={0.5}>
@@ -329,7 +329,7 @@ const BaseDomainDetail: React.FC = () => {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Subdomains ({domainDetails.total_count})
+                Subdomains ({domainDetails?.total_count || 0})
               </Typography>
               <TableContainer>
                 <Table>
@@ -366,21 +366,21 @@ const BaseDomainDetail: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <Box display="flex" flexWrap="wrap" gap={0.5}>
-                            {subdomain.services.slice(0, 2).map((service, index) => (
+                            {subdomain.services?.slice(0, 2).map((service, index) => (
                               <Chip key={index} label={service} size="small" variant="outlined" />
-                            ))}
-                            {subdomain.services.length > 2 && (
-                              <Chip label={`+${subdomain.services.length - 2}`} size="small" />
+                            )) || []}
+                            {(subdomain.services?.length || 0) > 2 && (
+                              <Chip label={`+${(subdomain.services?.length || 0) - 2}`} size="small" />
                             )}
                           </Box>
                         </TableCell>
                         <TableCell>
                           <Box display="flex" flexWrap="wrap" gap={0.5}>
-                            {subdomain.providers.slice(0, 2).map((provider, index) => (
+                            {subdomain.providers?.slice(0, 2).map((provider, index) => (
                               <Chip key={index} label={provider} size="small" variant="outlined" />
-                            ))}
-                            {subdomain.providers.length > 2 && (
-                              <Chip label={`+${subdomain.providers.length - 2}`} size="small" />
+                            )) || []}
+                            {(subdomain.providers?.length || 0) > 2 && (
+                              <Chip label={`+${(subdomain.providers?.length || 0) - 2}`} size="small" />
                             )}
                           </Box>
                         </TableCell>
@@ -405,7 +405,7 @@ const BaseDomainDetail: React.FC = () => {
               <TablePagination
                 rowsPerPageOptions={[5, 10, 25, 50]}
                 component="div"
-                count={domainDetails.total_count}
+                count={domainDetails?.total_count || 0}
                 rowsPerPage={pagination.pageSize}
                 page={pagination.page}
                 onPageChange={handleChangePage}
@@ -418,10 +418,10 @@ const BaseDomainDetail: React.FC = () => {
 
       {/* Services Dialog */}
       <Dialog open={servicesDialogOpen} onClose={() => setServicesDialogOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>All Services ({domainDetails?.service_summary.total_services})</DialogTitle>
+        <DialogTitle>All Services ({domainDetails?.service_summary?.total_services})</DialogTitle>
         <DialogContent>
           <Box display="flex" flexWrap="wrap" gap={1}>
-            {domainDetails?.service_summary.services.map((service, index) => (
+            {domainDetails?.service_summary?.services?.map((service, index) => (
               <Chip key={index} label={service} variant="outlined" />
             ))}
           </Box>
@@ -433,10 +433,10 @@ const BaseDomainDetail: React.FC = () => {
 
       {/* Providers Dialog */}
       <Dialog open={providersDialogOpen} onClose={() => setProvidersDialogOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>All Providers ({domainDetails?.provider_summary.total_providers})</DialogTitle>
+        <DialogTitle>All Providers ({domainDetails?.provider_summary?.total_providers})</DialogTitle>
         <DialogContent>
           <Box display="flex" flexWrap="wrap" gap={1}>
-            {domainDetails?.provider_summary.providers.map((provider, index) => (
+            {domainDetails?.provider_summary?.providers?.map((provider, index) => (
               <Chip key={index} label={provider} variant="outlined" />
             ))}
           </Box>

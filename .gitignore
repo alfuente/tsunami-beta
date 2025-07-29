@@ -63,4 +63,5 @@ coverage.xml
 
 .vscode/*
 
+**/**/amass_cache/**
 
