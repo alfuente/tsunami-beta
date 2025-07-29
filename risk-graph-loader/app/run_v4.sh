@@ -1,0 +1,1 @@
+python3 subdomain_relationship_discovery_v4.py --domains chile.txt --password test.password --ipinfo-token 0bf607ce2c13ac --discovery-workers 4 --processing-workers 4 --enable-tls --enable-services --enable-providers --enable-industry --amass-timeout 180 --no-cache
