@@ -514,8 +514,19 @@ class DomainRiskCalculator:
                             try:
                                 creation_date = datetime.strptime(creation_date, '%Y-%m-%d %H:%M:%S')
                             except ValueError:
-                                print(f"Could not parse creation date: {creation_date}")
-                                return risks  # Return early if we can't parse the date
+                                try:
+                                    # Handle Chilean time format (CLST)
+                                    creation_date = datetime.strptime(creation_date, '%Y-%m-%d %H:%M:%S CLST')
+                                except ValueError:
+                                    try:
+                                        # Handle other timezone formats
+                                        import re
+                                        # Remove timezone info for parsing
+                                        date_no_tz = re.sub(r'\s+[A-Z]{3,4}$', '', creation_date)
+                                        creation_date = datetime.strptime(date_no_tz, '%Y-%m-%d %H:%M:%S')
+                                    except ValueError:
+                                        print(f"Could not parse creation date: {creation_date}")
+                                        return risks  # Return early if we can't parse the date
                     
                     age_days = (datetime.now() - creation_date).days
                     
@@ -556,8 +567,19 @@ class DomainRiskCalculator:
                             try:
                                 expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d %H:%M:%S')
                             except ValueError:
-                                print(f"Could not parse expiration date: {expiration_date}")
-                                return risks  # Return early if we can't parse the date
+                                try:
+                                    # Handle Chilean time format (CLST)
+                                    expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d %H:%M:%S CLST')
+                                except ValueError:
+                                    try:
+                                        # Handle other timezone formats
+                                        import re
+                                        # Remove timezone info for parsing
+                                        date_no_tz = re.sub(r'\s+[A-Z]{3,4}$', '', expiration_date)
+                                        expiration_date = datetime.strptime(date_no_tz, '%Y-%m-%d %H:%M:%S')
+                                    except ValueError:
+                                        print(f"Could not parse expiration date: {expiration_date}")
+                                        return risks  # Return early if we can't parse the date
                     
                     days_to_expiry = (expiration_date - datetime.now()).days
                     

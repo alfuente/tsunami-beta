@@ -34,13 +34,16 @@ import { dependencyApi } from '../services/api';
 interface Node {
   id: string;
   label: string;
-  type: 'domain' | 'subdomain' | 'provider' | 'service';
+  type: 'domain' | 'subdomain' | 'related_domain' | 'provider' | 'service';
   x: number;
   y: number;
   risk_score?: number;
   risk_tier?: string;
   industry?: string;
   industry_confidence?: number;
+  is_related?: boolean;
+  relationship_type?: string;
+  discovered_during_scan_of?: string;
   metadata?: any;
 }
 
@@ -67,6 +70,8 @@ const NodeIcon: React.FC<{ type: string }> = ({ type }) => {
   switch (type) {
     case 'domain':
     case 'subdomain':
+      return <TreeIcon />;
+    case 'related_domain':
       return <TreeIcon />;
     case 'provider':
       return <CloudIcon />;
@@ -104,6 +109,7 @@ const getNodeColor = (node: Node): string => {
   switch (node.type) {
     case 'domain': return '#1976d2';
     case 'subdomain': return '#424242';
+    case 'related_domain': return '#9c27b0';
     case 'provider': return '#f57c00';
     case 'service': return '#388e3c';
     default: return '#757575';
@@ -125,6 +131,7 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
     mouseY: number;
   } | null>(null);
   const [showLabels, setShowLabels] = useState(true);
+  const [showRelatedDomains, setShowRelatedDomains] = useState(true);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -143,115 +150,77 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
       setLoading(true);
       setError(null);
       
-      // Fetch dependency data
-      const result = await dependencyApi.getDomainProvidersAndServices(domain, true, true);
+      // Fetch comprehensive graph data with related domains
+      const result = await dependencyApi.getDomainGraphWithRelated(domain, true, true, 2);
       
       // Convert to graph format
       const nodes: Node[] = [];
       const edges: Edge[] = [];
       
-      // Add main domain node
-      nodes.push({
-        id: domain,
-        label: domain,
-        type: result.node_type === 'Subdomain' ? 'subdomain' : 'domain',
-        x: 400,
-        y: 300,
-        risk_score: undefined,
-        risk_tier: undefined
-      });
-
-      // Add provider nodes
-      result.providers.forEach((provider: any, index: number) => {
-        const angle = (index / result.providers.length) * 2 * Math.PI;
-        const radius = 200;
+      // Process nodes from the graph API
+      result.graph.nodes.forEach((node: any, index: number) => {
+        let x, y;
+        
+        // Position nodes in a circular layout based on type
+        if (node.type === 'domain') {
+          x = 400;
+          y = 300;
+        } else if (node.type === 'subdomain') {
+          const angle = (index / result.graph.nodes.filter((n: any) => n.type === 'subdomain').length) * 2 * Math.PI;
+          const radius = 120;
+          x = 400 + Math.cos(angle) * radius;
+          y = 300 + Math.sin(angle) * radius;
+        } else if (node.type === 'related_domain') {
+          const relatedNodes = result.graph.nodes.filter((n: any) => n.type === 'related_domain');
+          const relatedIndex = relatedNodes.findIndex((n: any) => n.id === node.id);
+          const angle = (relatedIndex / relatedNodes.length) * 2 * Math.PI + Math.PI / 4;
+          const radius = 180;
+          x = 400 + Math.cos(angle) * radius;
+          y = 300 + Math.sin(angle) * radius;
+        } else if (node.type === 'provider') {
+          const providerNodes = result.graph.nodes.filter((n: any) => n.type === 'provider');
+          const providerIndex = providerNodes.findIndex((n: any) => n.id === node.id);
+          const angle = (providerIndex / providerNodes.length) * 2 * Math.PI;
+          const radius = 250;
+          x = 400 + Math.cos(angle) * radius;
+          y = 300 + Math.sin(angle) * radius;
+        } else if (node.type === 'service') {
+          const serviceNodes = result.graph.nodes.filter((n: any) => n.type === 'service');
+          const serviceIndex = serviceNodes.findIndex((n: any) => n.id === node.id);
+          const angle = (serviceIndex / serviceNodes.length) * 2 * Math.PI + Math.PI;
+          const radius = 200;
+          x = 400 + Math.cos(angle) * radius;
+          y = 300 + Math.sin(angle) * radius;
+        } else {
+          x = 400 + (Math.random() - 0.5) * 300;
+          y = 300 + (Math.random() - 0.5) * 300;
+        }
+        
         nodes.push({
-          id: provider.id,
-          label: provider.name,
-          type: 'provider',
-          x: 400 + Math.cos(angle) * radius,
-          y: 300 + Math.sin(angle) * radius,
-          risk_score: provider.risk_score,
-          risk_tier: provider.risk_tier,
-          metadata: provider
-        });
-
-        edges.push({
-          id: `${domain}-${provider.id}`,
-          source: domain,
-          target: provider.id,
-          type: 'USES_PROVIDER',
-          label: 'uses'
+          id: node.id,
+          label: node.label,
+          type: node.type,
+          x,
+          y,
+          risk_score: node.risk_score,
+          risk_tier: node.risk_tier,
+          is_related: node.is_related,
+          relationship_type: node.relationship_type,
+          discovered_during_scan_of: node.discovered_during_scan_of,
+          metadata: node
         });
       });
-
-      // Add service nodes
-      result.services.forEach((service: any, index: number) => {
-        const angle = (index / result.services.length) * 2 * Math.PI + Math.PI;
-        const radius = 150;
-        nodes.push({
-          id: service.id,
-          label: service.name,
-          type: 'service',
-          x: 400 + Math.cos(angle) * radius,
-          y: 300 + Math.sin(angle) * radius,
-          risk_score: service.risk_score,
-          risk_tier: service.risk_tier,
-          metadata: service
-        });
-
+      
+      // Process edges from the graph API
+      result.graph.edges.forEach((edge: any) => {
         edges.push({
-          id: `${domain}-${service.id}`,
-          source: domain,
-          target: service.id,
-          type: 'RUNS_SERVICE',
-          label: 'runs'
+          id: edge.id,
+          source: edge.source,
+          target: edge.target,
+          type: edge.type,
+          label: edge.relationship_type
         });
       });
-
-      // Add dependency paths if available
-      if (result.dependency_paths && result.dependency_paths.paths) {
-        result.dependency_paths.paths.forEach((path: any, pathIndex: number) => {
-          // Create intermediate nodes for complex paths
-          for (let i = 0; i < path.path.length - 1; i++) {
-            const sourceId = path.path[i];
-            const targetId = path.path[i + 1];
-            
-            // Check if nodes exist, if not create them
-            if (!nodes.find(n => n.id === sourceId)) {
-              nodes.push({
-                id: sourceId,
-                label: sourceId,
-                type: 'subdomain',
-                x: 400 + (Math.random() - 0.5) * 300,
-                y: 300 + (Math.random() - 0.5) * 300
-              });
-            }
-            
-            if (!nodes.find(n => n.id === targetId)) {
-              nodes.push({
-                id: targetId,
-                label: targetId,
-                type: path.target_type === 'Provider' ? 'provider' : 'service',
-                x: 400 + (Math.random() - 0.5) * 300,
-                y: 300 + (Math.random() - 0.5) * 300
-              });
-            }
-
-            // Add edge
-            const edgeId = `path-${pathIndex}-${i}`;
-            if (!edges.find(e => e.id === edgeId)) {
-              edges.push({
-                id: edgeId,
-                source: sourceId,
-                target: targetId,
-                type: 'DEPENDS_ON',
-                label: 'depends'
-              });
-            }
-          }
-        });
-      }
 
       setGraphData({ nodes, edges });
     } catch (err: any) {
@@ -335,7 +304,6 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
 
   const handleNodeMouseDown = (event: React.MouseEvent, node: Node) => {
     event.stopPropagation();
-    const rect = event.currentTarget.getBoundingClientRect();
     const svgRect = event.currentTarget.closest('svg')?.getBoundingClientRect();
     if (svgRect) {
       const x = (event.clientX - svgRect.left - pan.x) / zoom;
@@ -350,9 +318,15 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
   };
 
   const renderNode = (node: Node) => {
+    // Hide related domains if toggle is off
+    if (node.type === 'related_domain' && !showRelatedDomains) {
+      return null;
+    }
+    
     const nodeColor = getNodeColor(node);
     const isSelected = selectedNode?.id === node.id;
     const isDragged = draggedNode?.id === node.id;
+    const isRelatedDomain = node.type === 'related_domain';
     
     return (
       <g
@@ -367,8 +341,9 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
         <circle
           r={isSelected ? 25 : 20}
           fill={nodeColor}
-          stroke={isSelected ? '#000' : isDragged ? '#333' : '#666'}
-          strokeWidth={isSelected ? 3 : isDragged ? 2 : 1}
+          stroke={isSelected ? '#000' : isDragged ? '#333' : isRelatedDomain ? '#9c27b0' : '#666'}
+          strokeWidth={isSelected ? 3 : isDragged ? 2 : isRelatedDomain ? 2 : 1}
+          strokeDasharray={isRelatedDomain ? '5,5' : 'none'}
           opacity={isDragged ? 0.9 : 0.8}
         />
         <foreignObject x={-15} y={-8} width={30} height={16}>
@@ -389,16 +364,17 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
               y={25}
               width={Math.max(120, node.label.length * 7)}
               height={18}
-              fill="rgba(255, 255, 255, 0.9)"
-              stroke="#ccc"
+              fill={isRelatedDomain ? "rgba(156, 39, 176, 0.1)" : "rgba(255, 255, 255, 0.9)"}
+              stroke={isRelatedDomain ? "#9c27b0" : "#ccc"}
               strokeWidth={0.5}
+              strokeDasharray={isRelatedDomain ? '2,2' : 'none'}
               rx={3}
             />
             <text
               y={37}
               textAnchor="middle"
               fontSize="11"
-              fill="#333"
+              fill={isRelatedDomain ? "#9c27b0" : "#333"}
               fontWeight={isSelected ? 'bold' : 'normal'}
               fontFamily="Arial, sans-serif"
             >
@@ -416,6 +392,17 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
             strokeWidth={1}
           />
         )}
+        {isRelatedDomain && (
+          <text
+            x={-15}
+            y={-20}
+            fontSize="10"
+            fill="#9c27b0"
+            fontWeight="bold"
+          >
+            R
+          </text>
+        )}
       </g>
     );
   };
@@ -425,6 +412,11 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
     const targetNode = graphData.nodes.find(n => n.id === edge.target);
     
     if (!sourceNode || !targetNode) return null;
+    
+    // Hide edges to/from related domains if toggle is off
+    if (!showRelatedDomains && (sourceNode.type === 'related_domain' || targetNode.type === 'related_domain')) {
+      return null;
+    }
 
     const dx = targetNode.x - sourceNode.x;
     const dy = targetNode.y - sourceNode.y;
@@ -437,6 +429,8 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
     const startY = sourceNode.y + unitY * 20;
     const endX = targetNode.x - unitX * 20;
     const endY = targetNode.y - unitY * 20;
+    
+    const isRelatedEdge = edge.type === 'DISCOVERED_RELATED' || sourceNode.type === 'related_domain' || targetNode.type === 'related_domain';
 
     return (
       <g key={edge.id}>
@@ -445,8 +439,9 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
           y1={startY}
           x2={endX}
           y2={endY}
-          stroke="#666"
+          stroke={isRelatedEdge ? "#9c27b0" : "#666"}
           strokeWidth={2}
+          strokeDasharray={isRelatedEdge ? '5,5' : 'none'}
           opacity={0.6}
           markerEnd="url(#arrowhead)"
         />
@@ -456,7 +451,7 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
             y={(startY + endY) / 2}
             textAnchor="middle"
             fontSize="10"
-            fill="#666"
+            fill={isRelatedEdge ? "#9c27b0" : "#666"}
             dy={-5}
           >
             {edge.label}
@@ -510,6 +505,17 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
                 />
               }
               label="Labels"
+              sx={{ mr: 1 }}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showRelatedDomains}
+                  onChange={(e) => setShowRelatedDomains(e.target.checked)}
+                  size="small"
+                />
+              }
+              label="Related"
               sx={{ mr: 1 }}
             />
             <Tooltip title="Zoom In">
@@ -602,8 +608,30 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
                 {selectedNode.label}
               </Typography>
               <Typography variant="body2" color="textSecondary">
-                Type: {selectedNode.type}
+                Type: {selectedNode.type.replace('_', ' ')}
               </Typography>
+              {selectedNode.type === 'related_domain' && (
+                <Box mt={1}>
+                  <Chip
+                    label="Related Domain"
+                    size="small"
+                    sx={{
+                      backgroundColor: '#9c27b0',
+                      color: 'white'
+                    }}
+                  />
+                  {selectedNode.relationship_type && (
+                    <Typography variant="caption" display="block" sx={{ mt: 1 }}>
+                      Relationship: {selectedNode.relationship_type}
+                    </Typography>
+                  )}
+                  {selectedNode.discovered_during_scan_of && (
+                    <Typography variant="caption" display="block">
+                      Discovered during scan of: {selectedNode.discovered_during_scan_of}
+                    </Typography>
+                  )}
+                </Box>
+              )}
               {selectedNode.risk_score !== undefined && (
                 <Box mt={1}>
                   <Chip
@@ -705,6 +733,17 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
 
         <Box mt={1} display="flex" gap={1} flexWrap="wrap" alignItems="center">
           <Chip size="small" icon={<TreeIcon />} label="Domain/Subdomain" />
+          <Chip 
+            size="small" 
+            icon={<TreeIcon />} 
+            label="Related Domain" 
+            sx={{ 
+              bgcolor: '#f3e5f5', 
+              color: '#9c27b0', 
+              border: '1px dashed #9c27b0',
+              '& .MuiChip-icon': { color: '#9c27b0' }
+            }} 
+          />
           <Chip size="small" icon={<CloudIcon />} label="Provider" />
           <Chip size="small" icon={<BusinessIcon />} label="Service" />
           <Typography variant="caption" color="textSecondary" sx={{ ml: 2 }}>

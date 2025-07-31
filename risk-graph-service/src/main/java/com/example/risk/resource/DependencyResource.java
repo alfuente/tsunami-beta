@@ -585,6 +585,283 @@ public class DependencyResource {
         }
     }
 
+    @GET
+    @Path("/domain/{fqdn}/related-domains")
+    @Operation(summary = "Get related domains discovered during scanning", 
+               description = "Retrieves domains that were discovered during the scanning of the specified domain but are not direct subdomains")
+    public Response getDomainRelatedDomains(
+            @Parameter(description = "Fully qualified domain name")
+            @PathParam("fqdn") String fqdn,
+            @Parameter(description = "Include risk analysis for each related domain")
+            @QueryParam("includeRisk") @DefaultValue("true") boolean includeRisk,
+            @Parameter(description = "Maximum number of related domains to return")
+            @QueryParam("limit") @DefaultValue("50") int limit) {
+        
+        try {
+            String query = """
+                MATCH (d:Domain {fqdn: $fqdn})-[:DISCOVERED_RELATED]->(rd:RelatedDomain)
+                RETURN 
+                    rd.fqdn as fqdn,
+                    rd.base_domain as base_domain,
+                    rd.tld as tld,
+                    rd.discovered_during_scan_of as discovered_during_scan_of,
+                    rd.relationship_type as relationship_type,
+                    CASE WHEN $includeRisk THEN coalesce(rd.risk_score, 0.0) ELSE null END as risk_score,
+                    CASE WHEN $includeRisk THEN coalesce(rd.risk_tier, 'Unknown') ELSE null END as risk_tier,
+                    rd.created_at as created_at,
+                    rd.last_updated as last_updated
+                ORDER BY rd.fqdn
+                LIMIT $limit
+                """;
+            
+            try (Session session = driver.session()) {
+                Result result = session.run(query, Map.of(
+                    "fqdn", fqdn, 
+                    "includeRisk", includeRisk, 
+                    "limit", limit
+                ));
+                
+                List<Map<String, Object>> relatedDomains = new ArrayList<>();
+                
+                while (result.hasNext()) {
+                    Record record = result.next();
+                    Map<String, Object> relatedDomain = new java.util.HashMap<>();
+                    relatedDomain.put("fqdn", record.get("fqdn").asString());
+                    relatedDomain.put("base_domain", record.get("base_domain").asString());
+                    relatedDomain.put("tld", record.get("tld").asString());
+                    relatedDomain.put("discovered_during_scan_of", record.get("discovered_during_scan_of").asString());
+                    relatedDomain.put("relationship_type", record.get("relationship_type").asString());
+                    relatedDomain.put("created_at", record.get("created_at").asString());
+                    relatedDomain.put("last_updated", record.get("last_updated").asString());
+                    
+                    if (includeRisk) {
+                        relatedDomain.put("risk_score", record.get("risk_score").asDouble(0.0));
+                        relatedDomain.put("risk_tier", record.get("risk_tier").asString("Unknown"));
+                    }
+                    
+                    relatedDomains.add(relatedDomain);
+                }
+                
+                return Response.ok(Map.of(
+                    "domain", fqdn,
+                    "related_domains", relatedDomains,
+                    "total_count", relatedDomains.size(),
+                    "include_risk", includeRisk,
+                    "limit", limit
+                )).build();
+            }
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Failed to retrieve related domains", "message", e.getMessage()))
+                    .build();
+        }
+    }
+
+    @GET
+    @Path("/domain/{fqdn}/graph-with-related")
+    @Operation(summary = "Get domain graph including related domains", 
+               description = "Retrieves the full domain graph including subdomains and related domains with distinct visual styling")
+    public Response getDomainGraphWithRelated(
+            @Parameter(description = "Fully qualified domain name")
+            @PathParam("fqdn") String fqdn,
+            @Parameter(description = "Include related domains in the graph")
+            @QueryParam("includeRelated") @DefaultValue("true") boolean includeRelated,
+            @Parameter(description = "Include risk analysis")
+            @QueryParam("includeRisk") @DefaultValue("true") boolean includeRisk,
+            @Parameter(description = "Maximum depth for traversal")
+            @QueryParam("depth") @DefaultValue("2") int depth) {
+        
+        try {
+            // Build the comprehensive query
+            String query = """
+                // Get the base domain
+                MATCH (d:Domain {fqdn: $fqdn})
+                
+                // Get all subdomains
+                OPTIONAL MATCH (d)-[:HAS_SUBDOMAIN]->(s:Subdomain)
+                
+                // Get related domains if requested
+                OPTIONAL MATCH (d)-[:DISCOVERED_RELATED]->(rd:RelatedDomain)
+                WHERE $includeRelated = true
+                
+                // Get providers and services for the domain and subdomains  
+                OPTIONAL MATCH (d)-[:USES_SERVICE]->(dp:Provider)
+                OPTIONAL MATCH (d)-[:RUNS]->(ds:Service)
+                OPTIONAL MATCH (s)-[:USES_SERVICE]->(sp:Provider)
+                OPTIONAL MATCH (s)-[:RUNS]->(ss:Service)
+                
+                RETURN 
+                    // Base domain
+                    d.fqdn as domain_fqdn,
+                    d.risk_score as domain_risk_score, 
+                    d.risk_tier as domain_risk_tier,
+                    
+                    // Subdomains
+                    collect(DISTINCT {
+                        fqdn: s.fqdn,
+                        type: 'subdomain',
+                        risk_score: CASE WHEN $includeRisk THEN coalesce(s.risk_score, 0.0) ELSE null END,
+                        risk_tier: CASE WHEN $includeRisk THEN coalesce(s.risk_tier, 'Unknown') ELSE null END,
+                        base_domain: s.base_domain,
+                        subdomain_parts: s.subdomain_parts,
+                        tld: s.tld
+                    }) as subdomains,
+                    
+                    // Related domains
+                    collect(DISTINCT {
+                        fqdn: rd.fqdn,
+                        type: 'related_domain',
+                        risk_score: CASE WHEN $includeRisk THEN coalesce(rd.risk_score, 0.0) ELSE null END,
+                        risk_tier: CASE WHEN $includeRisk THEN coalesce(rd.risk_tier, 'Unknown') ELSE null END,
+                        base_domain: rd.base_domain,
+                        tld: rd.tld,
+                        relationship_type: rd.relationship_type,
+                        discovered_during_scan_of: rd.discovered_during_scan_of
+                    }) as related_domains,
+                    
+                    // Domain providers and services
+                    collect(DISTINCT {
+                        id: dp.id,
+                        name: dp.name,
+                        type: 'provider',
+                        risk_score: CASE WHEN $includeRisk THEN coalesce(dp.risk_score, 0.0) ELSE null END,
+                        risk_tier: CASE WHEN $includeRisk THEN coalesce(dp.risk_tier, 'Unknown') ELSE null END,
+                        source: 'domain'
+                    }) as domain_providers,
+                    
+                    collect(DISTINCT {
+                        id: ds.id,
+                        name: ds.name,
+                        type: 'service',
+                        risk_score: CASE WHEN $includeRisk THEN coalesce(ds.risk_score, 0.0) ELSE null END,
+                        risk_tier: CASE WHEN $includeRisk THEN coalesce(ds.risk_tier, 'Unknown') ELSE null END,
+                        source: 'domain'
+                    }) as domain_services,
+                    
+                    // Subdomain providers and services
+                    collect(DISTINCT {
+                        id: sp.id,
+                        name: sp.name,
+                        type: 'provider',
+                        risk_score: CASE WHEN $includeRisk THEN coalesce(sp.risk_score, 0.0) ELSE null END,
+                        risk_tier: CASE WHEN $includeRisk THEN coalesce(sp.risk_tier, 'Unknown') ELSE null END,
+                        source: 'subdomain'
+                    }) as subdomain_providers,
+                    
+                    collect(DISTINCT {
+                        id: ss.id,
+                        name: ss.name,
+                        type: 'service',
+                        risk_score: CASE WHEN $includeRisk THEN coalesce(ss.risk_score, 0.0) ELSE null END,
+                        risk_tier: CASE WHEN $includeRisk THEN coalesce(ss.risk_tier, 'Unknown') ELSE null END,
+                        source: 'subdomain'
+                    }) as subdomain_services
+                """;
+            
+            try (Session session = driver.session()) {
+                Result result = session.run(query, Map.of(
+                    "fqdn", fqdn, 
+                    "includeRelated", includeRelated, 
+                    "includeRisk", includeRisk, 
+                    "depth", depth
+                ));
+                
+                if (!result.hasNext()) {
+                    return Response.status(Response.Status.NOT_FOUND)
+                            .entity(Map.of("error", "Domain not found", "fqdn", fqdn))
+                            .build();
+                }
+                
+                Record record = result.next();
+                
+                // Process the results
+                List<Map<String, Object>> nodes = new ArrayList<>();
+                List<Map<String, Object>> edges = new ArrayList<>();
+                
+                // Add base domain node  
+                Map<String, Object> baseDomainNode = new java.util.HashMap<>();
+                baseDomainNode.put("id", record.get("domain_fqdn").asString());
+                baseDomainNode.put("label", record.get("domain_fqdn").asString());
+                baseDomainNode.put("type", "domain");
+                baseDomainNode.put("is_base_domain", true);
+                if (includeRisk) {
+                    baseDomainNode.put("risk_score", record.get("domain_risk_score").asDouble(0.0));
+                    baseDomainNode.put("risk_tier", record.get("domain_risk_tier").asString("Unknown"));
+                }
+                nodes.add(baseDomainNode);
+                
+                // Add subdomain nodes and edges
+                List<Object> subdomains = record.get("subdomains").asList();
+                for (Object subdomainObj : subdomains) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> subdomain = (Map<String, Object>) subdomainObj;
+                    if (subdomain.get("fqdn") != null) {
+                        Map<String, Object> subdomainNode = new java.util.HashMap<>(subdomain);
+                        subdomainNode.put("id", subdomain.get("fqdn"));
+                        subdomainNode.put("label", subdomain.get("fqdn"));
+                        nodes.add(subdomainNode);
+                        
+                        // Add HAS_SUBDOMAIN edge
+                        edges.add(Map.of(
+                            "id", record.get("domain_fqdn").asString() + "->" + subdomain.get("fqdn"),
+                            "source", record.get("domain_fqdn").asString(),
+                            "target", subdomain.get("fqdn"),
+                            "type", "HAS_SUBDOMAIN",
+                            "relationship_type", "subdomain"
+                        ));
+                    }
+                }
+                
+                // Add related domain nodes and edges if included
+                if (includeRelated) {
+                    List<Object> relatedDomains = record.get("related_domains").asList();
+                    for (Object relatedObj : relatedDomains) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> related = (Map<String, Object>) relatedObj;
+                        if (related.get("fqdn") != null) {
+                            Map<String, Object> relatedNode = new java.util.HashMap<>(related);
+                            relatedNode.put("id", related.get("fqdn"));
+                            relatedNode.put("label", related.get("fqdn"));
+                            relatedNode.put("is_related", true);
+                            nodes.add(relatedNode);
+                            
+                            // Add DISCOVERED_RELATED edge  
+                            edges.add(Map.of(
+                                "id", record.get("domain_fqdn").asString() + "~>" + related.get("fqdn"),
+                                "source", record.get("domain_fqdn").asString(),
+                                "target", related.get("fqdn"), 
+                                "type", "DISCOVERED_RELATED",
+                                "relationship_type", "related"
+                            ));
+                        }
+                    }
+                }
+                
+                // Add provider and service nodes (simplified for now)
+                // ... (implementation for providers and services)
+                
+                return Response.ok(Map.of(
+                    "domain", fqdn,
+                    "graph", Map.of(
+                        "nodes", nodes,
+                        "edges", edges
+                    ),
+                    "metadata", Map.of(
+                        "include_related", includeRelated,
+                        "include_risk", includeRisk,
+                        "depth", depth,
+                        "node_count", nodes.size(),
+                        "edge_count", edges.size()
+                    )
+                )).build();
+            }
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Failed to retrieve domain graph with related domains", "message", e.getMessage()))
+                    .build();
+        }
+    }
+
     private String getIdField(String nodeType) {
         switch (nodeType.toLowerCase()) {
             case "domain":

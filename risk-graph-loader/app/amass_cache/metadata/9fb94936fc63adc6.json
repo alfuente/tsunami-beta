@@ -1,10 +1,10 @@
 {
   "domain": "afphabitat.cl",
-  "timestamp": "2025-07-13T20:45:53.828402",
+  "timestamp": "2025-07-29T13:56:23.761546",
   "mode": "brute+passive",
   "timeout": 300,
   "amass_version": "4.2.0",
   "config_hash": "1ec28f3f",
-  "subdomain_count": 58,
+  "subdomain_count": 233,
   "cache_version": "1.0"
 }

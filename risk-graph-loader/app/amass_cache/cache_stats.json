@@ -1,6 +1,6 @@
 {
-  "hits": 839,
-  "misses": 2131,
-  "evictions": 91,
-  "total_domains_cached": 2023
+  "hits": 2225,
+  "misses": 3766,
+  "evictions": 179,
+  "total_domains_cached": 3612
 }

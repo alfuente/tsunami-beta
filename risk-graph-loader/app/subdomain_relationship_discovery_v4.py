@@ -520,11 +520,13 @@ class EnhancedSubdomainGraphIngester:
     def __init__(self, neo4j_uri: str, neo4j_user: str, neo4j_pass: str, ipinfo_token: str = None,
                  enable_tls_analysis: bool = True, enable_service_detection: bool = True, 
                  enable_provider_detection: bool = True, enable_industry_classification: bool = True,
-                 max_analysis_workers: int = 4):
+                 max_analysis_workers: int = 4, tls_timeout: int = 30, tls_retries: int = 2):
         
         self.drv = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_pass))
         self.ipinfo_token = ipinfo_token
         self.enable_tls_analysis = enable_tls_analysis
+        self.tls_timeout = tls_timeout
+        self.tls_retries = tls_retries
         self.enable_service_detection = enable_service_detection
         self.enable_provider_detection = enable_provider_detection
         self.enable_industry_classification = enable_industry_classification
@@ -595,51 +597,63 @@ class EnhancedSubdomainGraphIngester:
                     logging.debug(f"Constraint creation result: {e}")
 
     def analyze_subdomain_tls(self, fqdn: str) -> Optional[Dict[str, Any]]:
-        """Analyze TLS certificate for a subdomain with enhanced grading."""
+        """Analyze TLS certificate for a subdomain with enhanced grading and retry logic."""
         if not self.enable_tls_analysis:
             return None
-            
-        try:
-            context = ssl.create_default_context()
-            context.check_hostname = False
-            context.verify_mode = ssl.CERT_NONE
-            
-            with socket.create_connection((fqdn, 443), timeout=10) as sock:
-                with context.wrap_socket(sock, server_hostname=fqdn) as ssock:
-                    cert = ssock.getpeercert()
-                    cipher = ssock.cipher()
-                    
-                    # Parse certificate data
-                    not_after = datetime.strptime(cert['notAfter'], '%b %d %H:%M:%S %Y %Z')
-                    not_before = datetime.strptime(cert['notBefore'], '%b %d %H:%M:%S %Y %Z')
-                    expires_in_days = (not_after - datetime.now()).days
-                    
-                    # Calculate TLS grade using enhanced algorithm
-                    tls_grade = self._calculate_enhanced_tls_grade(cert, cipher, expires_in_days)
-                    
-                    return {
-                        'has_tls': True,
-                        'tls_grade': tls_grade,
-                        'expires_in_days': expires_in_days,
-                        'not_after': cert['notAfter'],
-                        'not_before': cert['notBefore'],
-                        'issuer': dict(x[0] for x in cert.get('issuer', [])),
-                        'subject': dict(x[0] for x in cert.get('subject', [])),
-                        'serial_number': cert.get('serialNumber', ''),
-                        'version': cert.get('version', 0),
-                        'is_self_signed': cert.get('issuer') == cert.get('subject'),
-                        'cipher_suite': cipher[0] if cipher else None,
-                        'tls_version': cipher[1] if cipher else None,
-                        'key_exchange': cipher[2] if cipher else None,
-                        'san_domains': self._extract_san_domains(cert)
-                    }
-        except Exception as e:
-            logging.debug(f"TLS analysis failed for {fqdn}: {e}")
-            return {
-                'has_tls': False,
-                'tls_grade': 'F',
-                'error': str(e)
-            }
+        
+        last_error = None
+        for attempt in range(self.tls_retries + 1):
+            try:
+                context = ssl.create_default_context()
+                context.check_hostname = False
+                context.verify_mode = ssl.CERT_NONE
+                
+                logging.debug(f"🔒 TLS attempt {attempt + 1}/{self.tls_retries + 1} for {fqdn} (timeout: {self.tls_timeout}s)")
+                
+                with socket.create_connection((fqdn, 443), timeout=self.tls_timeout) as sock:
+                    with context.wrap_socket(sock, server_hostname=fqdn) as ssock:
+                        cert = ssock.getpeercert()
+                        cipher = ssock.cipher()
+                        
+                        # Parse certificate data
+                        not_after = datetime.strptime(cert['notAfter'], '%b %d %H:%M:%S %Y %Z')
+                        not_before = datetime.strptime(cert['notBefore'], '%b %d %H:%M:%S %Y %Z')
+                        expires_in_days = (not_after - datetime.now()).days
+                        
+                        # Calculate TLS grade using enhanced algorithm
+                        tls_grade = self._calculate_enhanced_tls_grade(cert, cipher, expires_in_days)
+                        
+                        return {
+                            'has_tls': True,
+                            'tls_grade': tls_grade,
+                            'expires_in_days': expires_in_days,
+                            'not_after': cert['notAfter'],
+                            'not_before': cert['notBefore'],
+                            'issuer': dict(x[0] for x in cert.get('issuer', [])),
+                            'subject': dict(x[0] for x in cert.get('subject', [])),
+                            'serial_number': cert.get('serialNumber', ''),
+                            'version': cert.get('version', 0),
+                            'is_self_signed': cert.get('issuer') == cert.get('subject'),
+                            'cipher_suite': cipher[0] if cipher else None,
+                            'tls_version': cipher[1] if cipher else None,
+                            'key_exchange': cipher[2] if cipher else None,
+                            'san_domains': self._extract_san_domains(cert)
+                        }
+                        
+            except Exception as e:
+                last_error = e
+                logging.debug(f"🔒 TLS attempt {attempt + 1} failed for {fqdn}: {e}")
+                if attempt < self.tls_retries:
+                    time.sleep(1)  # Wait 1 second before retry
+                continue
+        
+        # All retries failed
+        logging.warning(f"⚠️ TLS analysis failed for {fqdn} after {self.tls_retries + 1} attempts: {last_error}")
+        return {
+            'has_tls': False,
+            'tls_grade': 'F',
+            'error': str(last_error)
+        }
     
     def _calculate_enhanced_tls_grade(self, cert: Dict, cipher: tuple, expires_in_days: int) -> str:
         """Calculate TLS grade with enhanced scoring algorithm."""
@@ -1123,18 +1137,30 @@ class EnhancedSubdomainGraphIngester:
             logging.info(f"🧪 Analysis complete for {fqdn}: {analysis_results}")
             
         else:
-            logging.info(f"📝 Creating DOMAIN node for: {fqdn}")
-            # Create domain node
-            tx.run("""
-                MERGE (d:Domain {fqdn: $fqdn})
-                SET d.tld = $tld,
-                    d.created_at = $created_at,
-                    d.last_updated = $current_time
-            """,
-            fqdn=fqdn,
-            tld=domain_info.tld,
-            created_at=current_time,
-            current_time=current_time)
+            # Check if this FQDN already exists as a Subdomain before creating Domain node
+            existing_subdomain = tx.run("""
+                MATCH (s:Subdomain {fqdn: $fqdn})
+                RETURN s.fqdn as fqdn
+                LIMIT 1
+            """, fqdn=fqdn).single()
+            
+            if existing_subdomain:
+                logging.info(f"⚠️ FQDN {fqdn} already exists as Subdomain node - skipping Domain creation")
+                # Don't create Domain node, it should remain as Subdomain
+                return results
+            else:
+                logging.info(f"📝 Creating DOMAIN node for: {fqdn}")
+                # Create domain node
+                tx.run("""
+                    MERGE (d:Domain {fqdn: $fqdn})
+                    SET d.tld = $tld,
+                        d.created_at = $created_at,
+                        d.last_updated = $current_time
+                """,
+                fqdn=fqdn,
+                tld=domain_info.tld,
+                created_at=current_time,
+                current_time=current_time)
         
         return results
     
@@ -1150,6 +1176,10 @@ class EnhancedSubdomainGraphIngester:
             dns_info = self.analyze_subdomain_dns(fqdn)
             ip_addresses = dns_info.get('a_records', [])
             logging.info(f"🔍 DNS results for {fqdn}: {len(ip_addresses)} A records found: {ip_addresses}")
+            
+            # Store DNS info in the node for future reference
+            if dns_info.get('cname_records'):
+                logging.info(f"🔗 CNAME records for {fqdn}: {dns_info['cname_records']}")
         except Exception as e:
             logging.warning(f"⚠️ DNS analysis failed for {fqdn}: {e}")
         
@@ -1196,7 +1226,8 @@ class EnhancedSubdomainGraphIngester:
                     
                     # Link certificate to subdomain
                     tx.run("""
-                        MATCH (s:Subdomain {fqdn: $fqdn}), (c:Certificate {id: $cert_id})
+                        MATCH (s:Subdomain {fqdn: $fqdn})
+                        MATCH (c:Certificate {id: $cert_id})
                         MERGE (s)-[:SECURED_BY]->(c)
                     """, fqdn=fqdn, cert_id=cert_id)
                     
@@ -1237,7 +1268,8 @@ class EnhancedSubdomainGraphIngester:
                 
                 # Link service to subdomain
                 tx.run("""
-                    MATCH (s:Subdomain {fqdn: $fqdn}), (srv:Service {id: $service_id})
+                    MATCH (s:Subdomain {fqdn: $fqdn})
+                    MATCH (srv:Service {id: $service_id})
                     MERGE (s)-[:RUNS]->(srv)
                 """, fqdn=fqdn, service_id=service_id)
                 
@@ -1280,7 +1312,8 @@ class EnhancedSubdomainGraphIngester:
                 
                 # Link provider to subdomain
                 tx.run("""
-                    MATCH (s:Subdomain {fqdn: $fqdn}), (p:Provider {id: $provider_id})
+                    MATCH (s:Subdomain {fqdn: $fqdn})
+                    MATCH (p:Provider {id: $provider_id})
                     MERGE (s)-[:USES_SERVICE]->(p)
                 """, fqdn=fqdn, provider_id=provider_id)
                 
@@ -1318,7 +1351,8 @@ class EnhancedSubdomainGraphIngester:
                     
                     # Link industry to subdomain
                     tx.run("""
-                        MATCH (s:Subdomain {fqdn: $fqdn}), (i:Industry {name: $industry_name})
+                        MATCH (s:Subdomain {fqdn: $fqdn})
+                        MATCH (i:Industry {name: $industry_name})
                         MERGE (s)-[:BELONGS_TO_INDUSTRY]->(i)
                         SET s.primary_industry = $primary_industry,
                             s.industry_confidence = $confidence
@@ -1371,8 +1405,10 @@ class EnhancedSubdomainGraphIngester:
                 for rel in relationships:
                     try:
                         tx.run("""
-                            MATCH (n1 {fqdn: $source_fqdn}), (n2 {fqdn: $target_fqdn})
-                            WHERE (n1:Domain OR n1:Subdomain) AND (n2:Domain OR n2:Subdomain)
+                            MATCH (n1 {fqdn: $source_fqdn})
+                            WHERE n1:Domain OR n1:Subdomain
+                            MATCH (n2 {fqdn: $target_fqdn})
+                            WHERE n2:Domain OR n2:Subdomain
                             MERGE (n1)-[r:RELATED_TO]->(n2)
                             SET r.relationship_type = $rel_type,
                                 r.confidence = $confidence,
@@ -1416,7 +1452,8 @@ class EnhancedSubdomainGraphIngester:
 # Integration with v2.0 discovery system
 def run_amass_discovery_with_relationships(domain: str, timeout: int = 60, mock_mode: bool = False, 
                                          sample_mode: bool = False, amass_timeout: int = None, 
-                                         amass_passive: bool = None, cache_ttl_hours: int = 168) -> List[str]:
+                                         amass_passive: bool = None, cache_ttl_hours: int = 168,
+                                         discovery_depth: int = 2) -> List[str]:
     """Run Amass for subdomain discovery with enhanced relationship detection."""
     
     # Mock mode for testing
@@ -1443,15 +1480,28 @@ def run_amass_discovery_with_relationships(domain: str, timeout: int = 60, mock_
         results = run_enhanced_amass_multilevel(domain, sample_mode=sample_mode, 
                                                amass_timeout=amass_timeout, 
                                                amass_passive=amass_passive,
-                                               cache_ttl_hours=cache_ttl_hours)
+                                               cache_ttl_hours=cache_ttl_hours,
+                                               discovery_depth=discovery_depth)
         
-        # Extract subdomain names, excluding the base domain
+        # Extract subdomain names, filtering correctly for the input domain
         subdomains = []
+        related_domains = []
+        
         for result in results:
             subdomain = result.get('name') if isinstance(result, dict) else result
-            # Don't add the base domain as a subdomain
+            
             if subdomain and subdomain != domain:
-                subdomains.append(subdomain)
+                # Check if this is actually a subdomain of the input domain
+                if subdomain.endswith('.' + domain):
+                    # This is a valid subdomain
+                    subdomains.append(subdomain)
+                else:
+                    # This is a related domain found during discovery but not a subdomain
+                    related_domains.append(subdomain)
+                    
+        print(f"[DISCOVERY] Found {len(subdomains)} valid subdomains and {len(related_domains)} related domains for {domain}")
+        if len(related_domains) > 0:
+            print(f"[DISCOVERY] Related domains (not subdomains): {related_domains[:5]}{'...' if len(related_domains) > 5 else ''}")
         
         print(f"[DISCOVERY] Found {len(subdomains)} subdomains for {domain} (excluding base domain)")
         if len(subdomains) == 0:
@@ -1468,7 +1518,8 @@ def run_amass_discovery_with_relationships(domain: str, timeout: int = 60, mock_
 
 
 def run_enhanced_amass_multilevel(domain: str, sample_mode: bool = False, amass_timeout: int = None, 
-                                  amass_passive: bool = None, cache_ttl_hours: int = 168) -> List[dict]:
+                                  amass_passive: bool = None, cache_ttl_hours: int = 168,
+                                  discovery_depth: int = 2) -> List[dict]:
     """Enhanced Amass discovery with multi-level subdomain support."""
     try:
         from risk_loader_advanced3 import run_amass_with_fallback
@@ -1488,30 +1539,42 @@ def run_enhanced_amass_multilevel(domain: str, sample_mode: bool = False, amass_
         
         print(f"[DISCOVERY] First pass: Found {len(all_subdomains)} first-level subdomains")
         
-        # Second pass: Discover subdomains of subdomains (if not in sample mode)
-        if not sample_mode and all_subdomains:
-            second_level_count = 0
-            subdomain_list = list(all_subdomains)[:10]  # Limit to first 10 to avoid overwhelming
+        # Multi-level discovery: Discover subdomains of subdomains (if not in sample mode)
+        if not sample_mode and all_subdomains and discovery_depth > 1:
+            total_additional = 0
             
-            print(f"[DISCOVERY] Second pass: Analyzing {len(subdomain_list)} subdomains for second-level discovery")
+            for level in range(2, discovery_depth + 1):
+                level_count = 0
+                # Get ALL subdomains to analyze at this level (no limit)
+                current_level_subdomains = list(all_subdomains)
+                
+                print(f"[DISCOVERY] Level {level} pass: Analyzing ALL {len(current_level_subdomains)} subdomains for level-{level} discovery")
+                
+                for subdomain in current_level_subdomains:
+                    try:
+                        # Quick discovery for each subdomain with configurable parameters and fallbacks
+                        sub_results = run_amass_with_fallback(subdomain, sample_mode=True, amass_timeout=amass_timeout, 
+                                                             amass_passive=amass_passive, cache_ttl_hours=cache_ttl_hours)
+                        
+                        for sub_result in sub_results:
+                            sub_subdomain = sub_result.get('name') if isinstance(sub_result, dict) else sub_result
+                            if sub_subdomain and sub_subdomain not in all_subdomains and sub_subdomain != subdomain:
+                                all_subdomains.add(sub_subdomain)
+                                level_count += 1
+                                
+                    except Exception as e:
+                        print(f"[DISCOVERY] Error in level-{level} discovery for {subdomain}: {e}")
+                        continue
+                
+                print(f"[DISCOVERY] Level {level} pass: Found {level_count} additional subdomains")
+                total_additional += level_count
+                
+                # If no new subdomains found at this level, stop going deeper
+                if level_count == 0:
+                    print(f"[DISCOVERY] No new subdomains found at level {level}, stopping discovery")
+                    break
             
-            for subdomain in subdomain_list:
-                try:
-                    # Quick discovery for each subdomain with configurable parameters and fallbacks
-                    sub_results = run_amass_with_fallback(subdomain, sample_mode=True, amass_timeout=amass_timeout, 
-                                                         amass_passive=amass_passive, cache_ttl_hours=cache_ttl_hours)
-                    
-                    for sub_result in sub_results:
-                        sub_subdomain = sub_result.get('name') if isinstance(sub_result, dict) else sub_result
-                        if sub_subdomain and sub_subdomain not in all_subdomains and sub_subdomain != subdomain:
-                            all_subdomains.add(sub_subdomain)
-                            second_level_count += 1
-                            
-                except Exception as e:
-                    print(f"[DISCOVERY] Error in second-level discovery for {subdomain}: {e}")
-                    continue
-            
-            print(f"[DISCOVERY] Second pass: Found {second_level_count} additional second-level subdomains")
+            print(f"[DISCOVERY] Multi-level discovery: Found {total_additional} additional subdomains across {discovery_depth - 1} levels")
         
         # Convert back to dict format for compatibility
         final_results = [{'name': subdomain} for subdomain in all_subdomains]
@@ -1533,7 +1596,8 @@ class EnhancedSubdomainProcessor:
     def __init__(self, ingester: EnhancedSubdomainGraphIngester, neo4j_uri: str, neo4j_user: str, 
                  neo4j_pass: str, discovery_workers: int = 6, processing_workers: int = 4,
                  mock_mode: bool = False, sample_mode: bool = False, amass_timeout: int = None,
-                 amass_passive: bool = None, cache_ttl_hours: int = 168, no_cache: bool = False):
+                 amass_passive: bool = None, cache_ttl_hours: int = 168, no_cache: bool = False,
+                 discovery_depth: int = 2):
         
         self.ingester = ingester
         self.neo4j_uri = neo4j_uri
@@ -1547,6 +1611,7 @@ class EnhancedSubdomainProcessor:
         self.amass_passive = amass_passive
         self.cache_ttl_hours = cache_ttl_hours
         self.no_cache = no_cache
+        self.discovery_depth = discovery_depth
         
         logging.info(f"Enhanced Subdomain Processor v4.0 initialized with {discovery_workers} discovery workers and {processing_workers} processing workers")
     
@@ -1571,7 +1636,8 @@ class EnhancedSubdomainProcessor:
                     sample_mode=self.sample_mode,
                     amass_timeout=self.amass_timeout,
                     amass_passive=self.amass_passive,
-                    cache_ttl_hours=self.cache_ttl_hours
+                    cache_ttl_hours=self.cache_ttl_hours,
+                    discovery_depth=self.discovery_depth
                 ): domain for domain in domains
             }
             
@@ -1623,31 +1689,72 @@ class EnhancedSubdomainProcessor:
                 """, domain=domain, current_time=current_time)
                 
                 # Create subdomain nodes and relationships
+                valid_subdomains = 0
+                related_domains = 0
+                
                 for subdomain in subdomains:
                     if is_valid_domain_name(subdomain):
                         domain_info = EnhancedDomainInfo.from_fqdn(subdomain, self.ingester.input_domains)
                         
-                        tx.run("""
-                            MERGE (s:Subdomain {fqdn: $subdomain})
-                            SET s.base_domain = $base_domain,
-                                s.subdomain_parts = $subdomain_parts,
-                                s.tld = $tld,
-                                s.created_at = COALESCE(s.created_at, $current_time),
-                                s.last_updated = $current_time,
-                                s.discovered_by = 'amass',
-                                s.processing_phase = false
-                        """,
-                        subdomain=subdomain,
-                        base_domain=domain_info.base_domain,
-                        subdomain_parts=domain_info.subdomain_parts,
-                        tld=domain_info.tld,
-                        current_time=current_time)
-                        
-                        # Create relationship to base domain
-                        tx.run("""
-                            MATCH (d:Domain {fqdn: $domain}), (s:Subdomain {fqdn: $subdomain})
-                            MERGE (d)-[:HAS_SUBDOMAIN]->(s)
-                        """, domain=domain, subdomain=subdomain)
+                        # Check if this subdomain actually belongs to the input domain
+                        if subdomain == domain:
+                            # This is the base domain itself, skip creating subdomain relationship
+                            continue
+                        elif subdomain.endswith('.' + domain):
+                            # This is a valid subdomain of the input domain
+                            tx.run("""
+                                MERGE (s:Subdomain {fqdn: $subdomain})
+                                SET s.base_domain = $domain,
+                                    s.subdomain_parts = $subdomain_parts,
+                                    s.tld = $tld,
+                                    s.created_at = COALESCE(s.created_at, $current_time),
+                                    s.last_updated = $current_time,
+                                    s.discovered_by = 'amass',
+                                    s.processing_phase = false
+                            """,
+                            subdomain=subdomain,
+                            domain=domain,
+                            subdomain_parts=domain_info.subdomain_parts,
+                            tld=domain_info.tld,
+                            current_time=current_time)
+                            
+                            # Create relationship to correct base domain (optimized to avoid Cartesian product)
+                            tx.run("""
+                                MATCH (d:Domain {fqdn: $domain})
+                                MATCH (s:Subdomain {fqdn: $subdomain})
+                                MERGE (d)-[:HAS_SUBDOMAIN]->(s)
+                            """, domain=domain, subdomain=subdomain)
+                            
+                            valid_subdomains += 1
+                        else:
+                            # This is a related domain but not a subdomain of the input domain
+                            # Store it separately to avoid incorrect relationships
+                            tx.run("""
+                                MERGE (rd:RelatedDomain {fqdn: $subdomain})
+                                SET rd.base_domain = $actual_base_domain,
+                                    rd.tld = $tld,
+                                    rd.created_at = COALESCE(rd.created_at, $current_time),
+                                    rd.last_updated = $current_time,
+                                    rd.discovered_during_scan_of = $domain,
+                                    rd.relationship_type = 'discovered_related'
+                            """,
+                            subdomain=subdomain,
+                            actual_base_domain=domain_info.base_domain,
+                            tld=domain_info.tld,
+                            domain=domain,
+                            current_time=current_time)
+                            
+                            # Create a "discovered during scan" relationship instead of subdomain relationship
+                            tx.run("""
+                                MATCH (d:Domain {fqdn: $domain})
+                                MATCH (rd:RelatedDomain {fqdn: $subdomain})
+                                MERGE (d)-[:DISCOVERED_RELATED]->(rd)
+                            """, domain=domain, subdomain=subdomain)
+                            
+                            related_domains += 1
+                
+                # Log the results for debugging
+                logging.info(f"Domain {domain}: {valid_subdomains} valid subdomains, {related_domains} related domains")
                 
                 tx.commit()
     
@@ -1799,6 +1906,13 @@ def main():
     parser.add_argument("--enable-industry", action="store_true", default=True, help="Enable industry classification")
     parser.add_argument("--disable-industry", action="store_true", help="Disable industry classification")
     
+    # TLS configuration
+    parser.add_argument("--tls-timeout", type=int, default=30, help="TLS connection timeout in seconds (default: 30)")
+    parser.add_argument("--tls-retries", type=int, default=2, help="Number of TLS connection retries (default: 2)")
+    
+    # Discovery configuration
+    parser.add_argument("--discovery-depth", type=int, default=2, help="Discovery depth levels (default: 2)")
+    
     # v4.0: Version information
     parser.add_argument("-v", "--version", action="version", version="%(prog)s v4.0")
     
@@ -1823,7 +1937,9 @@ def main():
         enable_service_detection=args.enable_services,
         enable_provider_detection=args.enable_providers,
         enable_industry_classification=enable_industry,
-        max_analysis_workers=args.processing_workers
+        max_analysis_workers=args.processing_workers,
+        tls_timeout=args.tls_timeout,
+        tls_retries=args.tls_retries
     )
     
     try:
@@ -1849,7 +1965,8 @@ def main():
             args.amass_timeout,
             args.amass_passive,
             args.cache_ttl,
-            args.no_cache
+            args.no_cache,
+            args.discovery_depth
         )
         
         # Run appropriate phase(s)

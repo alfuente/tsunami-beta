@@ -1,10 +1,10 @@
 {
   "domain": "agea1rt001-1-routers.dn.apigee.net",
-  "timestamp": "2025-07-14T00:23:02.677105",
+  "timestamp": "2025-07-29T18:09:20.545430",
   "mode": "passive",
   "timeout": 60,
   "amass_version": "4.2.0",
   "config_hash": "1ec28f3f",
-  "subdomain_count": 0,
+  "subdomain_count": 3,
   "cache_version": "1.0"
 }

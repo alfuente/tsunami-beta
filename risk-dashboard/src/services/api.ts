@@ -207,6 +207,68 @@ export const dependencyApi = {
       params: { includeRisk, includePaths }
     });
     return response.data;
+  },
+
+  getDomainRelatedDomains: async (fqdn: string, includeRisk: boolean = true, limit: number = 50): Promise<{
+    domain: string;
+    related_domains: Array<{
+      fqdn: string;
+      base_domain: string;
+      tld: string;
+      discovered_during_scan_of: string;
+      relationship_type: string;
+      risk_score?: number;
+      risk_tier?: string;
+      created_at: string;
+      last_updated: string;
+    }>;
+    total_count: number;
+    include_risk: boolean;
+    limit: number;
+  }> => {
+    const response = await api.get(`/api/v1/dependencies/domain/${fqdn}/related-domains`, {
+      params: { includeRisk, limit }
+    });
+    return response.data;
+  },
+
+  getDomainGraphWithRelated: async (fqdn: string, includeRelated: boolean = true, includeRisk: boolean = true, depth: number = 2): Promise<{
+    domain: string;
+    graph: {
+      nodes: Array<{
+        id: string;
+        label: string;
+        type: 'domain' | 'subdomain' | 'related_domain' | 'provider' | 'service';
+        risk_score?: number;
+        risk_tier?: string;
+        is_base_domain?: boolean;
+        is_related?: boolean;
+        base_domain?: string;
+        tld?: string;
+        relationship_type?: string;
+        discovered_during_scan_of?: string;
+        subdomain_parts?: string[];
+      }>;
+      edges: Array<{
+        id: string;
+        source: string;
+        target: string;
+        type: 'HAS_SUBDOMAIN' | 'DISCOVERED_RELATED' | 'USES_SERVICE' | 'RUNS';
+        relationship_type: 'subdomain' | 'related' | 'service' | 'provider';
+      }>;
+    };
+    metadata: {
+      include_related: boolean;
+      include_risk: boolean;
+      depth: number;
+      node_count: number;
+      edge_count: number;
+    };
+  }> => {
+    const response = await api.get(`/api/v1/dependencies/domain/${fqdn}/graph-with-related`, {
+      params: { includeRelated, includeRisk, depth }
+    });
+    return response.data;
   }
 };
 

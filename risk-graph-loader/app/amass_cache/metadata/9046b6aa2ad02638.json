@@ -1,10 +1,10 @@
 {
   "domain": "authns1.centurylink.net",
-  "timestamp": "2025-07-13T20:52:57.802455",
+  "timestamp": "2025-07-29T13:52:47.717126",
   "mode": "passive",
   "timeout": 60,
   "amass_version": "4.2.0",
   "config_hash": "1ec28f3f",
-  "subdomain_count": 0,
+  "subdomain_count": 42,
   "cache_version": "1.0"
 }

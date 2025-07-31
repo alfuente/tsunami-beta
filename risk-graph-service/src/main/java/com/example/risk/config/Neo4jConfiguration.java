@@ -26,7 +26,14 @@ public class Neo4jConfiguration {
     @ApplicationScoped
     public Driver neo4jDriver() {
         if (driver == null) {
-            driver = GraphDatabase.driver(uri, AuthTokens.basic(username, password));
+            // Handle authentication disabled case
+            if (username == null || username.trim().isEmpty() || 
+                password == null || password.trim().isEmpty() || 
+                "dummy".equals(password)) {
+                driver = GraphDatabase.driver(uri);
+            } else {
+                driver = GraphDatabase.driver(uri, AuthTokens.basic(username, password));
+            }
         }
         return driver;
     }

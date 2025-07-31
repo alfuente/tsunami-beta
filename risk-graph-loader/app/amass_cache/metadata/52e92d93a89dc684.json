@@ -1,10 +1,10 @@
 {
   "domain": "login.bancofalabella.cl",
-  "timestamp": "2025-07-16T00:59:19.791955",
+  "timestamp": "2025-07-30T12:08:17.006429",
   "mode": "passive",
   "timeout": 180,
   "amass_version": "4.2.0",
   "config_hash": "1ec28f3f",
-  "subdomain_count": 0,
+  "subdomain_count": 1,
   "cache_version": "1.0"
 }

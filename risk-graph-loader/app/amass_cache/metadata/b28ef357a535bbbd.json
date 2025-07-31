@@ -1,10 +1,10 @@
 {
   "domain": "www.itau.cl",
-  "timestamp": "2025-07-13T13:28:49.660797",
+  "timestamp": "2025-07-30T11:15:57.756939",
   "mode": "passive",
   "timeout": 180,
   "amass_version": "4.2.0",
   "config_hash": "1ec28f3f",
-  "subdomain_count": 0,
+  "subdomain_count": 5,
   "cache_version": "1.0"
 }

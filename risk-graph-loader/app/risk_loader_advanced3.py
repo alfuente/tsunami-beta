@@ -407,8 +407,13 @@ def debug_log(message: str) -> None:
     print(f"[DEBUG-T-{thread_id}:{thread_name}] {message}")
 
 
-def parse_amass_output(output_path: Path) -> List[dict]:
-    """Parsea la salida de texto de amass y devuelve lista de diccionarios completa."""
+def parse_amass_output(output_path: Path, input_domain: str = None) -> List[dict]:
+    """Parsea la salida de texto de amass y devuelve lista de diccionarios completa.
+    
+    Args:
+        output_path: Path to amass output file
+        input_domain: The original domain being scanned (for correct parent-child relationships)
+    """
     entries = []
     domains = set()
     dns_records = []
@@ -418,6 +423,7 @@ def parse_amass_output(output_path: Path) -> List[dict]:
     
     total_lines = 0
     processed_lines = 0
+    related_domains = set()  # Track domains not directly related to input_domain
     
     with output_path.open() as fh:
         for line in fh:
@@ -435,16 +441,30 @@ def parse_amass_output(output_path: Path) -> List[dict]:
                     domains.add(line)
                     # Si no está ya en entries, agregarlo
                     if not any(e.get("name") == line for e in entries):
-                        # Intentar determinar el dominio padre
-                        domain_parts = line.split(".")
-                        if len(domain_parts) > 2:
-                            # Es un subdominio, el padre sería sin el primer componente
-                            parent = ".".join(domain_parts[1:])
-                            entries.append({"name": line, "parent": parent})
-                            domains.add(parent)
+                        # Verificar relación correcta con el dominio de entrada
+                        if input_domain:
+                            if line == input_domain:
+                                # Es el dominio base de entrada
+                                entries.append({"name": line, "is_base_domain": True})
+                            elif line.endswith('.' + input_domain):
+                                # Es un subdominio válido del dominio de entrada
+                                entries.append({"name": line, "parent": input_domain})
+                            else:
+                                # Es un dominio relacionado pero no es subdominio directo
+                                # (puede venir de CNAME, certificados SSL compartidos, etc.)
+                                entries.append({"name": line, "related_to": input_domain, "unrelated": True})
+                                related_domains.add(line)
                         else:
-                            # Es un dominio raíz
-                            entries.append({"name": line})
+                            # Lógica de fallback para compatibilidad (menos precisa)
+                            domain_parts = line.split(".")
+                            if len(domain_parts) > 2:
+                                # Es un subdominio, el padre sería sin el primer componente
+                                parent = ".".join(domain_parts[1:])
+                                entries.append({"name": line, "parent": parent})
+                                domains.add(parent)
+                            else:
+                                # Es un dominio raíz
+                                entries.append({"name": line})
                 continue
                 
             # Parsear diferentes tipos de relaciones (formato complejo)
@@ -679,12 +699,12 @@ def run_amass_local(domain: str, sample_mode: bool = False, amass_timeout: int =
                     text=True
                 )
                 
-                return parse_amass_output(out)
+                return parse_amass_output(out, domain)
                 
             except subprocess.TimeoutExpired:
                 print(f"[AMASS] Timeout for {domain} - checking partial results")
                 if out.exists():
-                    return parse_amass_output(out)
+                    return parse_amass_output(out, domain)
                 return []
                 
             except subprocess.CalledProcessError as e:
@@ -699,7 +719,7 @@ def run_amass_local(domain: str, sample_mode: bool = False, amass_timeout: int =
                 
                 # Still try to parse partial results
                 if out.exists():
-                    return parse_amass_output(out)
+                    return parse_amass_output(out, domain)
                 return []
     
     # Usar caché para la ejecución
