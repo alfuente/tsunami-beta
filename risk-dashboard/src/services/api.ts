@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { DomainResponse, DomainsListResponse, RiskScoreResponse, SecuritySummary, CalculationResponse, BaseDomainsListResponse, BaseDomainDetailsResponse } from '../types/api';
 
-//const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8081';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://tsunami-api.annymo.tech';
 
 const api = axios.create({
@@ -269,6 +268,110 @@ export const dependencyApi = {
     const response = await api.get(`/api/v1/dependencies/domain/${fqdn}/graph-with-related`, {
       params: { includeRelated, includeRisk, depth }
     });
+    return response.data;
+  }
+};
+
+export const providerApi = {
+  listProviders: async (params: {
+    name?: string;
+    tld?: string;
+    country?: string;
+    providerType?: string;
+    riskTier?: string;
+    limit?: number;
+    offset?: number;
+  } = {}): Promise<{
+    providers: Array<{
+      id: string;
+      name: string;
+      tld?: string;
+      country?: string;
+      provider_type?: string;
+      confidence: number;
+      source: string;
+      asn?: string;
+      org?: string;
+      risk_score?: number;
+      risk_tier?: string;
+      domain_count: number;
+      subdomain_count: number;
+      created_at: string;
+      is_unknown: boolean;
+    }>;
+    total_count: number;
+  }> => {
+    const response = await api.get('/api/v1/providers', { params });
+    return response.data;
+  },
+
+  getProviderDetails: async (providerId: string): Promise<{
+    provider: {
+      id: string;
+      name: string;
+      tld?: string;
+      country?: string;
+      provider_type?: string;
+      confidence: number;
+      source: string;
+      asn?: string;
+      org?: string;
+      risk_score?: number;
+      risk_tier?: string;
+      metadata?: any;
+      created_at: string;
+      is_unknown: boolean;
+    };
+    associated_domains: Array<{
+      fqdn: string;
+      tld: string;
+      tld_country_name?: string;
+      subdomain_count: number;
+      last_seen: string;
+    }>;
+    associated_subdomains: Array<{
+      fqdn: string;
+      base_domain: string;
+      tld: string;
+      risk_score?: number;
+      risk_tier?: string;
+      confidence: number;
+      created_at: string;
+    }>;
+    statistics: {
+      total_domains: number;
+      total_subdomains: number;
+      countries: Array<{
+        country: string;
+        domain_count: number;
+      }>;
+      risk_distribution: {
+        low_risk: number;
+        medium_risk: number;
+        high_risk: number;
+      };
+    };
+  }> => {
+    const response = await api.get(`/api/v1/providers/${providerId}/details`);
+    return response.data;
+  },
+
+  getProvidersByTLD: async (tld: string): Promise<{
+    tld: string;
+    tld_info: {
+      country_code?: string;
+      country_name?: string;
+      tld_type: string;
+    };
+    providers: Array<{
+      name: string;
+      domain_count: number;
+      subdomain_count: number;
+      confidence: number;
+    }>;
+    total_count: number;
+  }> => {
+    const response = await api.get(`/api/v1/providers/by-tld/${tld}`);
     return response.data;
   }
 };

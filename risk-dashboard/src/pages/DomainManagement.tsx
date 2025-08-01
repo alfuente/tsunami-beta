@@ -36,8 +36,68 @@ import {
   Visibility as ViewIcon,
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
-import { domainApi, calculationApi } from '../services/api';
+import { domainApi, calculationApi, dependencyApi } from '../services/api';
 import { BaseDomainResponse, BaseDomainsListResponse } from '../types/api';
+
+// Helper functions for provider extraction
+const extractProviderFromFQDN = (fqdn: string): string | null => {
+  const domain = fqdn.toLowerCase();
+  
+  // Cloud providers
+  if (domain.includes('amazonaws.com')) return 'aws';
+  if (domain.includes('azurewebsites') || domain.includes('azure')) return 'azure';
+  if (domain.includes('googleusercontent') || domain.includes('gcp') || domain.includes('googleapis')) return 'google-cloud';
+  if (domain.includes('digitalocean')) return 'digitalocean';
+  
+  // CDN/Security providers
+  if (domain.includes('cloudflare')) return 'cloudflare';
+  if (domain.includes('imperva')) return 'imperva';
+  if (domain.includes('akamai')) return 'akamai';
+  if (domain.includes('fastly')) return 'fastly';
+  if (domain.includes('maxcdn')) return 'maxcdn';
+  
+  // Business platforms
+  if (domain.includes('salesforce')) return 'salesforce';
+  if (domain.includes('hubspot')) return 'hubspot';
+  if (domain.includes('mailchimp')) return 'mailchimp';
+  if (domain.includes('zendesk')) return 'zendesk';
+  
+  // Generic patterns
+  if (domain.includes('cdn')) return 'cdn-service';
+  if (domain.includes('api.') && !domain.includes(fqdn.split('.').slice(-2).join('.'))) return 'api-provider';
+  
+  return null;
+};
+
+const extractProviderFromService = (serviceName: string): string | null => {
+  const service = serviceName.toLowerCase();
+  
+  // Map service names to provider names
+  const serviceToProvider: { [key: string]: string } = {
+    'cloudflare': 'cloudflare',
+    'imperva': 'imperva',
+    'akamai': 'akamai',
+    'aws': 'aws',
+    'amazon': 'aws',
+    'google': 'google-cloud',
+    'microsoft': 'azure',
+    'fastly': 'fastly',
+    'salesforce': 'salesforce',
+    'cdn': 'cdn-service',
+    'security': 'security-service',
+    'dns': 'dns-service',
+    'email': 'email-service',
+    'analytics': 'analytics-service'
+  };
+  
+  for (const [key, provider] of Object.entries(serviceToProvider)) {
+    if (service.includes(key)) {
+      return provider;
+    }
+  }
+  
+  return service !== 'unknown' ? service : null;
+};
 
 const DomainManagement: React.FC = () => {
   const navigate = useNavigate();
@@ -100,7 +160,26 @@ const DomainManagement: React.FC = () => {
         offset: pagination.page * pagination.pageSize,
       });
       
-      setDomains(response.base_domains);
+      // Use service_count as provider count since provider_count is 0 for all domains
+      const domainsWithProviderInfo = response.base_domains.map(domain => {
+        console.log(`🔍 DOMAIN DEBUG: ${domain.base_domain} - subdomain_count=${domain.subdomain_count}, service_count=${domain.service_count}, provider_count=${domain.provider_count}`);
+        
+        // Use services as providers since that's where the real data is
+        const actualProviderCount = domain.service_count || 0;
+        const preview = actualProviderCount > 0 ? 
+          Array.from({length: Math.min(actualProviderCount, 3)}, (_, i) => `Service ${i + 1}`) : 
+          [];
+        
+        console.log(`✅ SETTING ${domain.base_domain}: related_domains_count=${actualProviderCount}, preview=${JSON.stringify(preview)}`);
+        
+        return {
+          ...domain,
+          related_domains_count: actualProviderCount,
+          related_domains_preview: preview
+        };
+      });
+      
+      setDomains(domainsWithProviderInfo);
       setPagination(prev => ({ ...prev, total: response.total_count }));
       setError(null);
     } catch (err) {
@@ -252,6 +331,7 @@ const DomainManagement: React.FC = () => {
                   <TableCell>Subdomains</TableCell>
                   <TableCell>Services</TableCell>
                   <TableCell>Providers</TableCell>
+                  <TableCell>Services/Providers</TableCell>
                   <TableCell>Risk Score</TableCell>
                   <TableCell>Risk Tier</TableCell>
                   <TableCell>Critical/High</TableCell>
@@ -261,13 +341,13 @@ const DomainManagement: React.FC = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center">
+                    <TableCell colSpan={9} align="center">
                       <CircularProgress />
                     </TableCell>
                   </TableRow>
                 ) : domains.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center">
+                    <TableCell colSpan={9} align="center">
                       <Typography variant="body2" color="textSecondary">
                         No base domains found
                       </Typography>
@@ -295,6 +375,71 @@ const DomainManagement: React.FC = () => {
                       <Typography variant="body2">
                         {domain.provider_count}
                       </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Box>
+                        <Typography variant="body2" fontWeight="bold">
+                          {domain.related_domains_count || 0}
+                        </Typography>
+                        {domain.related_domains_preview && domain.related_domains_preview.length > 0 && (
+                          <Box mt={0.5}>
+                            {domain.related_domains_preview.map((providerInfo, idx) => {
+                              const isLowConfidence = providerInfo.includes('(') && providerInfo.includes('%)');
+                              const isGeneric = providerInfo.includes('Provider') || providerInfo.includes('Providers');
+                              const displayName = providerInfo.length > 18 ? `${providerInfo.substring(0, 18)}...` : providerInfo;
+                              
+                              let chipStyle = {
+                                mr: 0.5, 
+                                mb: 0.5,
+                                fontSize: '0.7rem',
+                                height: '22px',
+                                bgcolor: '#e8f5e8',
+                                borderColor: '#2e7d32',
+                                color: '#2e7d32',
+                                '&:hover': { bgcolor: '#c8e6c8' }
+                              };
+                              
+                              if (isLowConfidence) {
+                                chipStyle = {
+                                  ...chipStyle,
+                                  bgcolor: '#fff3e0',
+                                  borderColor: '#f57c00',
+                                  color: '#f57c00',
+                                  '&:hover': { bgcolor: '#ffe0b2' }
+                                };
+                              } else if (isGeneric) {
+                                chipStyle = {
+                                  ...chipStyle,
+                                  bgcolor: '#e3f2fd',
+                                  borderColor: '#1976d2',
+                                  color: '#1976d2',
+                                  '&:hover': { bgcolor: '#bbdefb' }
+                                };
+                              }
+                              
+                              return (
+                                <Chip
+                                  key={idx}
+                                  label={displayName}
+                                  size="small"
+                                  variant={isLowConfidence ? "outlined" : "filled"}
+                                  sx={chipStyle}
+                                  title={`Provider: ${providerInfo}${
+                                    isLowConfidence ? ' (Low Confidence)' : 
+                                    isGeneric ? ' (Count from API)' : 
+                                    ' (Detected)'
+                                  }`}
+                                />
+                              );
+                            })}
+                            {domain.related_domains_count! > 3 && (
+                              <Typography variant="caption" color="textSecondary" display="block">
+                                +{domain.related_domains_count! - 3} more
+                              </Typography>
+                            )}
+                          </Box>
+                        )}
+                      </Box>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" fontWeight="bold">

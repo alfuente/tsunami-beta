@@ -10,6 +10,8 @@ import DomainManagement from './pages/DomainManagement';
 import RiskAnalysis from './pages/RiskAnalysis';
 import DomainDetail from './pages/DomainDetail';
 import BaseDomainDetail from './pages/BaseDomainDetail';
+import ProviderManagement from './pages/ProviderManagement';
+import ProviderDetail from './pages/ProviderDetail';
 import Queries from './pages/Queries';
 
 const theme = createTheme({
@@ -56,6 +58,8 @@ function App() {
               <Route path="/domains/:fqdn" element={<DomainDetail />} />
               <Route path="/domains/base-domains/:baseDomain" element={<BaseDomainDetail />} />
               <Route path="/base-domains/:baseDomain" element={<BaseDomainDetail />} />
+              <Route path="/providers" element={<ProviderManagement />} />
+              <Route path="/providers/:providerId" element={<ProviderDetail />} />
               <Route path="/risk-analysis" element={<RiskAnalysis />} />
               <Route path="/queries" element={<Queries />} />
             </Routes>

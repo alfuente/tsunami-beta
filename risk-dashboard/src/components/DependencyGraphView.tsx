@@ -163,38 +163,80 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
       // Convert to graph format
       const nodes: Node[] = [];
       const edges: Edge[] = [];
+      const providerMap = new Map<string, Node>(); // Map to group related domains by base_domain
       
       // Process nodes from the graph API
       result.graph.nodes.forEach((node: any, index: number) => {
+        let processedNode = { ...node };
+        
+        // Transform related domains into providers based on base_domain
+        if (node.type === 'related_domain' && node.base_domain) {
+          const baseDomain = node.base_domain.toLowerCase();
+          
+          // Check if we already have a provider for this base domain
+          if (providerMap.has(baseDomain)) {
+            // Update existing provider node with additional info
+            const existingProvider = providerMap.get(baseDomain)!;
+            if (!existingProvider.metadata.related_domains) {
+              existingProvider.metadata.related_domains = [];
+            }
+            existingProvider.metadata.related_domains.push(node);
+            return; // Skip creating individual node for this related domain
+          } else {
+            // Create a new provider node for this base domain
+            processedNode = {
+              ...node,
+              id: `provider_${baseDomain}`,
+              label: baseDomain,
+              type: 'provider',
+              metadata: {
+                ...node,
+                related_domains: [node],
+                provider_type: 'related_domain_provider',
+                base_domain: baseDomain
+              }
+            };
+            providerMap.set(baseDomain, processedNode);
+          }
+        }
+        
         let x, y;
         
         // Position nodes in a circular layout based on type
-        if (node.type === 'domain') {
+        if (processedNode.type === 'domain') {
           x = 400;
           y = 300;
-        } else if (node.type === 'subdomain') {
-          const angle = (index / result.graph.nodes.filter((n: any) => n.type === 'subdomain').length) * 2 * Math.PI;
+        } else if (processedNode.type === 'subdomain') {
+          const subdomainNodes = result.graph.nodes.filter((n: any) => n.type === 'subdomain');
+          const subdomainIndex = subdomainNodes.findIndex((n: any) => n.id === node.id);
+          const angle = (subdomainIndex / subdomainNodes.length) * 2 * Math.PI;
           const radius = 120;
           x = 400 + Math.cos(angle) * radius;
           y = 300 + Math.sin(angle) * radius;
-        } else if (node.type === 'related_domain') {
+        } else if (processedNode.type === 'related_domain') {
           const relatedNodes = result.graph.nodes.filter((n: any) => n.type === 'related_domain');
           const relatedIndex = relatedNodes.findIndex((n: any) => n.id === node.id);
           const angle = (relatedIndex / relatedNodes.length) * 2 * Math.PI + Math.PI / 4;
           const radius = 180;
           x = 400 + Math.cos(angle) * radius;
           y = 300 + Math.sin(angle) * radius;
-        } else if (node.type === 'provider') {
-          const providerNodes = result.graph.nodes.filter((n: any) => n.type === 'provider');
-          const providerIndex = providerNodes.findIndex((n: any) => n.id === node.id);
-          const angle = (providerIndex / providerNodes.length) * 2 * Math.PI;
+        } else if (processedNode.type === 'provider') {
+          // Count all providers (original + transformed)
+          const allProviders = [
+            ...result.graph.nodes.filter((n: any) => n.type === 'provider'),
+            ...Array.from(providerMap.values())
+          ];
+          const providerIndex = Math.max(0, allProviders.findIndex((n: any) => 
+            n.id === processedNode.id || n.id === node.id
+          ));
+          const angle = (providerIndex / Math.max(1, allProviders.length)) * 2 * Math.PI;
           const radius = 250;
           x = 400 + Math.cos(angle) * radius;
           y = 300 + Math.sin(angle) * radius;
-        } else if (node.type === 'service') {
+        } else if (processedNode.type === 'service') {
           const serviceNodes = result.graph.nodes.filter((n: any) => n.type === 'service');
           const serviceIndex = serviceNodes.findIndex((n: any) => n.id === node.id);
-          const angle = (serviceIndex / serviceNodes.length) * 2 * Math.PI + Math.PI;
+          const angle = (serviceIndex / Math.max(1, serviceNodes.length)) * 2 * Math.PI + Math.PI;
           const radius = 200;
           x = 400 + Math.cos(angle) * radius;
           y = 300 + Math.sin(angle) * radius;
@@ -204,26 +246,40 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
         }
         
         nodes.push({
-          id: node.id,
-          label: node.label,
-          type: node.type,
+          id: processedNode.id,
+          label: processedNode.label,
+          type: processedNode.type,
           x,
           y,
-          risk_score: node.risk_score,
-          risk_tier: node.risk_tier,
-          is_related: node.is_related,
-          relationship_type: node.relationship_type,
-          discovered_during_scan_of: node.discovered_during_scan_of,
-          metadata: node
+          risk_score: processedNode.risk_score,
+          risk_tier: processedNode.risk_tier,
+          is_related: processedNode.is_related,
+          relationship_type: processedNode.relationship_type,
+          discovered_during_scan_of: processedNode.discovered_during_scan_of,
+          metadata: processedNode.metadata || processedNode
         });
       });
       
       // Process edges from the graph API
       result.graph.edges.forEach((edge: any) => {
+        let sourceId = edge.source;
+        let targetId = edge.target;
+        
+        // Update edge references for transformed provider nodes
+        const sourceNode = result.graph.nodes.find((n: any) => n.id === edge.source);
+        const targetNode = result.graph.nodes.find((n: any) => n.id === edge.target);
+        
+        if (sourceNode?.type === 'related_domain' && sourceNode.base_domain) {
+          sourceId = `provider_${sourceNode.base_domain.toLowerCase()}`;
+        }
+        if (targetNode?.type === 'related_domain' && targetNode.base_domain) {
+          targetId = `provider_${targetNode.base_domain.toLowerCase()}`;
+        }
+        
         edges.push({
           id: edge.id,
-          source: edge.source,
-          target: edge.target,
+          source: sourceId,
+          target: targetId,
           type: edge.type,
           label: edge.relationship_type
         });
@@ -370,9 +426,13 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
               x={-Math.max(60, node.label.length * 3.5)}
               y={25}
               width={Math.max(120, node.label.length * 7)}
-              height={18}
-              fill={isRelatedDomain ? "rgba(156, 39, 176, 0.1)" : "rgba(255, 255, 255, 0.9)"}
-              stroke={isRelatedDomain ? "#9c27b0" : "#ccc"}
+              height={node.metadata?.provider_type === 'related_domain_provider' ? 30 : 18}
+              fill={isRelatedDomain ? "rgba(156, 39, 176, 0.1)" : 
+                    node.metadata?.provider_type === 'related_domain_provider' ? "rgba(245, 124, 0, 0.1)" : 
+                    "rgba(255, 255, 255, 0.9)"}
+              stroke={isRelatedDomain ? "#9c27b0" : 
+                     node.metadata?.provider_type === 'related_domain_provider' ? "#f57c00" : 
+                     "#ccc"}
               strokeWidth={0.5}
               strokeDasharray={isRelatedDomain ? '2,2' : 'none'}
               rx={3}
@@ -381,12 +441,26 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
               y={37}
               textAnchor="middle"
               fontSize="11"
-              fill={isRelatedDomain ? "#9c27b0" : "#333"}
+              fill={isRelatedDomain ? "#9c27b0" : 
+                   node.metadata?.provider_type === 'related_domain_provider' ? "#f57c00" : 
+                   "#333"}
               fontWeight={isSelected ? 'bold' : 'normal'}
               fontFamily="Arial, sans-serif"
             >
               {node.label.length > 25 ? `${node.label.substring(0, 25)}...` : node.label}
             </text>
+            {node.metadata?.provider_type === 'related_domain_provider' && (
+              <text
+                y={49}
+                textAnchor="middle"
+                fontSize="9"
+                fill="#f57c00"
+                fontFamily="Arial, sans-serif"
+                opacity={0.8}
+              >
+                ({node.metadata.related_domains?.length || 0} domains)
+              </text>
+            )}
           </g>
         )}
         {node.risk_score !== undefined && (
@@ -612,7 +686,8 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
               bgcolor="background.paper"
               boxShadow={3}
               borderRadius={1}
-              minWidth={200}
+              minWidth={250}
+              maxWidth={400}
             >
               <Typography variant="subtitle1" fontWeight="bold">
                 {selectedNode.label}
@@ -620,6 +695,35 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
               <Typography variant="body2" color="textSecondary">
                 Type: {selectedNode.type.replace('_', ' ')}
               </Typography>
+              
+              {/* Provider created from related domains */}
+              {selectedNode.metadata?.provider_type === 'related_domain_provider' && (
+                <Box mt={1}>
+                  <Chip
+                    label="Provider (from related domains)"
+                    size="small"
+                    sx={{
+                      backgroundColor: '#f57c00',
+                      color: 'white'
+                    }}
+                  />
+                  <Typography variant="caption" display="block" sx={{ mt: 1, fontWeight: 'bold' }}>
+                    Related Domains ({selectedNode.metadata.related_domains?.length || 0}):
+                  </Typography>
+                  {selectedNode.metadata.related_domains?.slice(0, 5).map((relDomain: any, idx: number) => (
+                    <Typography key={idx} variant="caption" display="block" sx={{ ml: 1, color: 'text.secondary' }}>
+                      • {relDomain.label} ({relDomain.relationship_type})
+                    </Typography>
+                  ))}
+                  {selectedNode.metadata.related_domains?.length > 5 && (
+                    <Typography variant="caption" display="block" sx={{ ml: 1, color: 'text.secondary', fontStyle: 'italic' }}>
+                      ... and {selectedNode.metadata.related_domains.length - 5} more
+                    </Typography>
+                  )}
+                </Box>
+              )}
+              
+              {/* Regular related domain */}
               {selectedNode.type === 'related_domain' && (
                 <Box mt={1}>
                   <Chip
@@ -640,8 +744,14 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
                       Discovered during scan of: {selectedNode.discovered_during_scan_of}
                     </Typography>
                   )}
+                  {selectedNode.metadata?.base_domain && (
+                    <Typography variant="caption" display="block">
+                      Base Domain: {selectedNode.metadata.base_domain}
+                    </Typography>
+                  )}
                 </Box>
               )}
+              
               {selectedNode.risk_score !== undefined && (
                 <Box mt={1}>
                   <Chip
@@ -664,11 +774,13 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
                   />
                 </Box>
               )}
-              {selectedNode.metadata && (
+              {selectedNode.metadata && !selectedNode.metadata?.provider_type && (
                 <Box mt={1}>
-                  <Typography variant="caption" display="block">
-                    Source: {selectedNode.metadata.source?.replace(/_/g, ' ')}
-                  </Typography>
+                  {selectedNode.metadata.source && (
+                    <Typography variant="caption" display="block">
+                      Source: {selectedNode.metadata.source?.replace(/_/g, ' ')}
+                    </Typography>
+                  )}
                   {selectedNode.metadata.confidence && (
                     <Typography variant="caption" display="block">
                       Confidence: {(selectedNode.metadata.confidence * 100).toFixed(0)}%
@@ -813,9 +925,19 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
                             {node.relationship_type}
                           </Typography>
                         )}
-                        {node.type === 'provider' && node.metadata?.confidence && (
+                        {node.type === 'provider' && node.metadata?.provider_type === 'related_domain_provider' && (
+                          <Typography variant="caption" display="block" color="textSecondary">
+                            From {node.metadata.related_domains?.length || 0} related domains
+                          </Typography>
+                        )}
+                        {node.type === 'provider' && node.metadata?.confidence && !node.metadata?.provider_type && (
                           <Typography variant="caption" display="block" color="textSecondary">
                             Conf: {(node.metadata.confidence * 100).toFixed(0)}%
+                          </Typography>
+                        )}
+                        {node.metadata?.base_domain && node.type === 'related_domain' && (
+                          <Typography variant="caption" display="block" color="textSecondary">
+                            Base: {node.metadata.base_domain}
                           </Typography>
                         )}
                       </Box>

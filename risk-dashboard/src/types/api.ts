@@ -102,6 +102,8 @@ export interface BaseDomainResponse {
   high_risk_subdomains: number;
   business_criticality: string;
   monitoring_enabled: boolean;
+  related_domains_count?: number;
+  related_domains_preview?: string[];
 }
 
 export interface BaseDomainsListResponse {
@@ -150,4 +152,91 @@ export interface BaseDomainDetailsResponse {
     providers?: string[];
   };
   total_count?: number;
+}
+
+// Provider-related types
+export interface ProviderResponse {
+  id: string;
+  name: string;
+  tld?: string;
+  country?: string;
+  provider_type?: string;
+  confidence: number;
+  source: string;
+  asn?: string;
+  org?: string;
+  risk_score?: number;
+  risk_tier?: string;
+  domain_count: number;
+  subdomain_count: number;
+  created_at: string;
+  is_unknown: boolean;
+}
+
+export interface ProvidersListResponse {
+  providers: ProviderResponse[];
+  total_count: number;
+  filters: {
+    name?: string;
+    tld?: string;
+    country?: string;
+    provider_type?: string;
+    risk_tier?: string;
+  };
+  pagination: {
+    limit: number;
+    offset: number;
+  };
+}
+
+export interface AssociatedDomain {
+  fqdn: string;
+  tld: string;
+  tld_country_name?: string;
+  subdomain_count: number;
+  last_seen: string;
+}
+
+export interface AssociatedSubdomain {
+  fqdn: string;
+  base_domain: string;
+  tld: string;
+  risk_score?: number;
+  risk_tier?: string;
+  confidence: number;
+  created_at: string;
+}
+
+export interface ProviderDetailsResponse {
+  provider: {
+    id: string;
+    name: string;
+    tld?: string;
+    country?: string;
+    provider_type?: string;
+    confidence: number;
+    source: string;
+    asn?: string;
+    org?: string;
+    risk_score?: number;
+    risk_tier?: string;
+    metadata?: any;
+    created_at: string;
+    is_unknown: boolean;
+  };
+  associated_domains: AssociatedDomain[];
+  associated_subdomains: AssociatedSubdomain[];
+  statistics: {
+    total_domains: number;
+    total_subdomains: number;
+    countries: Array<{
+      country: string;
+      domain_count: number;
+    }>;
+    risk_distribution: {
+      low_risk: number;
+      medium_risk: number;
+      high_risk: number;
+    };
+  };
 }
