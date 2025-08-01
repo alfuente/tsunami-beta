@@ -14,7 +14,14 @@ import {
   Paper,
   Menu,
   MenuItem,
-  Button
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Badge
 } from '@mui/material';
 import {
   Fullscreen as FullscreenIcon,
@@ -551,20 +558,23 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
           </Box>
         </Box>
         
-        <Paper 
-          elevation={1} 
-          sx={{ 
-            height: graphHeight,
-            overflow: 'hidden',
-            position: 'relative',
-            cursor: isDragging ? 'grabbing' : 'grab'
-          }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onContextMenu={handleContextMenu}
-        >
+        <Box display="flex" gap={2} sx={{ height: graphHeight }}>
+          {/* Graph Panel */}
+          <Paper 
+            elevation={1} 
+            sx={{ 
+              flex: 2,
+              height: '100%',
+              overflow: 'hidden',
+              position: 'relative',
+              cursor: isDragging ? 'grabbing' : 'grab'
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onContextMenu={handleContextMenu}
+          >
           <svg
             width="100%"
             height="100%"
@@ -713,6 +723,110 @@ const DependencyGraphView: React.FC<DependencyGraphViewProps> = ({
             </Box>
           )}
         </Paper>
+
+        {/* Data Table Panel */}
+        <Paper elevation={1} sx={{ flex: 1, height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <Box p={2} pb={1}>
+            <Typography variant="h6" fontSize="1rem">Graph Data</Typography>
+          </Box>
+          <TableContainer sx={{ flex: 1, overflow: 'auto' }}>
+            <Table size="small" stickyHeader>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Type</TableCell>
+                  <TableCell>Risk</TableCell>
+                  <TableCell>Info</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {graphData.nodes.map((node) => (
+                  <TableRow 
+                    key={node.id}
+                    hover
+                    onClick={() => setSelectedNode(node)}
+                    sx={{ 
+                      cursor: 'pointer',
+                      bgcolor: selectedNode?.id === node.id ? 'action.selected' : 'inherit'
+                    }}
+                  >
+                    <TableCell>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <NodeIcon type={node.type} />
+                        <Typography variant="body2" noWrap sx={{ maxWidth: 120 }}>
+                          {node.label}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Chip 
+                        size="small" 
+                        label={node.type.replace('_', ' ')}
+                        sx={{
+                          fontSize: '0.7rem',
+                          height: '20px',
+                          bgcolor: node.type === 'related_domain' ? '#f3e5f5' : 
+                                   node.type === 'provider' ? '#e8f5e8' :
+                                   node.type === 'service' ? '#e3f2fd' : '#f5f5f5',
+                          color: node.type === 'related_domain' ? '#9c27b0' : 
+                                 node.type === 'provider' ? '#2e7d32' :
+                                 node.type === 'service' ? '#1976d2' : '#666'
+                        }}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {node.risk_score !== undefined ? (
+                        <Badge
+                          badgeContent={node.risk_tier || 'N/A'}
+                          color={
+                            node.risk_tier === 'High' ? 'error' :
+                            node.risk_tier === 'Medium' ? 'warning' :
+                            node.risk_tier === 'Low' ? 'success' : 'default'
+                          }
+                          sx={{ 
+                            '& .MuiBadge-badge': { 
+                              fontSize: '0.6rem', 
+                              height: '16px',
+                              minWidth: '16px'
+                            } 
+                          }}
+                        >
+                          <Typography variant="body2" color="textSecondary">
+                            {node.risk_score.toFixed(1)}
+                          </Typography>
+                        </Badge>
+                      ) : (
+                        <Typography variant="body2" color="textSecondary">
+                          -
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Box>
+                        {node.industry && (
+                          <Typography variant="caption" display="block" color="textSecondary">
+                            {node.industry.replace(/_/g, ' ')}
+                          </Typography>
+                        )}
+                        {node.type === 'related_domain' && node.relationship_type && (
+                          <Typography variant="caption" display="block" color="textSecondary">
+                            {node.relationship_type}
+                          </Typography>
+                        )}
+                        {node.type === 'provider' && node.metadata?.confidence && (
+                          <Typography variant="caption" display="block" color="textSecondary">
+                            Conf: {(node.metadata.confidence * 100).toFixed(0)}%
+                          </Typography>
+                        )}
+                      </Box>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+        </Box>
 
         <Menu
           open={contextMenu !== null}

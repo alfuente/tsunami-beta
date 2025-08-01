@@ -270,7 +270,9 @@ start_risk_query_dev() {
         pip install -r requirements.txt
         touch venv/installed.flag
     fi
-    
+   
+    export MISTRAL_API_KEY=$(cat ./test/api2.txt)  
+
     print_status "Starting Risk Query service in background..."
     nohup python app/main.py > ../risk-query-dev.log 2>&1 &
     QUERY_PID=$!

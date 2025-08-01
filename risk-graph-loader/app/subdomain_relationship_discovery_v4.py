@@ -62,6 +62,13 @@ import hashlib
 
 import dns.resolver, dns.exception, requests, logging
 import csv
+
+# Import domain risk calculator
+try:
+    from domain_risk_calculator import DomainRiskCalculator
+    HAS_RISK_CALCULATOR = True
+except ImportError:
+    HAS_RISK_CALCULATOR = False
 import ipaddress
 
 # Try to import optional modules
@@ -108,7 +115,7 @@ RESOLVER = dns.resolver.Resolver(configure=True)
 IPINFO_MMDB_PATH = "ipinfo_data/ipinfo.mmdb"
 IPINFO_CSV_PATH = "ipinfo_data/ipinfo.csv"
 
-# Configure logging
+# Global logging configuration - will be reconfigured in setup_debug_logging if debug mode is enabled
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -117,6 +124,44 @@ logging.basicConfig(
         logging.FileHandler('subdomain_relationship_discovery_v4.log')
     ]
 )
+
+def setup_debug_logging(log_file, debug_mode=False):
+    """Setup comprehensive debug logging configuration"""
+    logger = logging.getLogger()
+    
+    # Clear existing handlers
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+    
+    # Set logging level based on debug mode
+    logger.setLevel(logging.DEBUG if debug_mode else logging.INFO)
+    
+    # Create formatters
+    detailed_formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s - [%(name)s:%(funcName)s:%(lineno)d] - %(message)s'
+    )
+    
+    simple_formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    # File handler for debug/info log
+    file_handler = logging.FileHandler(log_file, mode='w', encoding='utf-8')
+    file_handler.setLevel(logging.DEBUG if debug_mode else logging.INFO)
+    file_handler.setFormatter(detailed_formatter if debug_mode else simple_formatter)
+    logger.addHandler(file_handler)
+    
+    # Console handler - always INFO level for readability
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(simple_formatter)
+    logger.addHandler(console_handler)
+    
+    if debug_mode:
+        logger.info(f"🐛 DEBUG MODE ENABLED - Comprehensive logging to: {log_file}")
+        logger.debug(f"🔍 Debug logging initialized with detailed formatting")
+    
+    return logger
 
 def is_valid_domain_name(domain: str) -> bool:
     """Validate if a string is a valid domain name."""
@@ -518,9 +563,10 @@ class EnhancedSubdomainGraphIngester:
     """Enhanced subdomain graph ingester with comprehensive analysis capabilities."""
     
     def __init__(self, neo4j_uri: str, neo4j_user: str, neo4j_pass: str, ipinfo_token: str = None,
-                 enable_tls_analysis: bool = True, enable_service_detection: bool = True, 
+                 enable_tls_analysis: bool = False, enable_service_detection: bool = True, 
                  enable_provider_detection: bool = True, enable_industry_classification: bool = True,
-                 max_analysis_workers: int = 4, tls_timeout: int = 30, tls_retries: int = 2):
+                 enable_risk_calculation: bool = True, max_analysis_workers: int = 4, 
+                 tls_timeout: int = 30, tls_retries: int = 2):
         
         self.drv = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_pass))
         self.ipinfo_token = ipinfo_token
@@ -530,6 +576,7 @@ class EnhancedSubdomainGraphIngester:
         self.enable_service_detection = enable_service_detection
         self.enable_provider_detection = enable_provider_detection
         self.enable_industry_classification = enable_industry_classification
+        self.enable_risk_calculation = enable_risk_calculation
         self.max_analysis_workers = max_analysis_workers
         
         # Initialize enhanced provider resolver
@@ -545,9 +592,20 @@ class EnhancedSubdomainGraphIngester:
                 logging.warning(f"Failed to initialize industry classifier: {e}")
                 self.enable_industry_classification = False
         
+        # Initialize risk calculator if enabled
+        self.risk_calculator = None
+        if self.enable_risk_calculation and HAS_RISK_CALCULATOR:
+            try:
+                self.risk_calculator = DomainRiskCalculator(neo4j_uri, neo4j_user, neo4j_pass, ipinfo_token)
+                logging.info("Domain risk calculator initialized")
+            except Exception as e:
+                logging.warning(f"Failed to initialize risk calculator: {e}")
+                self.enable_risk_calculation = False
+        
         self.input_domains = set()
         
-        logging.info("Enhanced Subdomain Graph Ingester v4.0 initialized with comprehensive analysis")
+        tls_status = "with TLS analysis" if self.enable_tls_analysis else "without TLS analysis (use --enable-tls to activate)"
+        logging.info(f"Enhanced Subdomain Graph Ingester v4.0 initialized with comprehensive analysis {tls_status}")
         
         # Verify dependencies
         self._check_dependencies()
@@ -599,7 +657,10 @@ class EnhancedSubdomainGraphIngester:
     def analyze_subdomain_tls(self, fqdn: str) -> Optional[Dict[str, Any]]:
         """Analyze TLS certificate for a subdomain with enhanced grading and retry logic."""
         if not self.enable_tls_analysis:
+            logging.debug(f"🔒 TLS analysis disabled for {fqdn} (use --enable-tls to activate)")
             return None
+        
+        logging.debug(f"Starting TLS analysis for {fqdn} (timeout: {self.tls_timeout}s, retries: {self.tls_retries})")
         
         last_error = None
         for attempt in range(self.tls_retries + 1):
@@ -1078,6 +1139,75 @@ class EnhancedSubdomainGraphIngester:
         logging.info(f"Enhanced domain hierarchy creation completed: {results}")
         return results
     
+    def analyze_existing_subdomains_batch(self, subdomains: List[str]) -> Dict[str, Any]:
+        """Analyze existing subdomain nodes with comprehensive analysis."""
+        total_processed = 0
+        total_services = 0
+        total_providers = 0
+        total_certificates = 0
+        total_industries = 0
+        
+        start_time = time.time()
+        
+        logging.info(f"🔍 Starting comprehensive analysis for {len(subdomains)} existing subdomains")
+        
+        # Process each subdomain individually for detailed analysis
+        for i, fqdn in enumerate(subdomains):
+            subdomain_start_time = time.time()
+            try:
+                with self.drv.session() as session:
+                    with session.begin_transaction() as tx:
+                        logging.info(f"🔍 Analyzing subdomain {i+1}/{len(subdomains)}: {fqdn}")
+                        
+                        # Verify subdomain exists
+                        exists = tx.run("""
+                            MATCH (s:Subdomain {fqdn: $fqdn})
+                            RETURN s.fqdn as fqdn
+                        """, fqdn=fqdn).single()
+                        
+                        if not exists:
+                            logging.warning(f"⚠️ Subdomain {fqdn} not found in database, skipping")
+                            continue
+                        
+                        # Perform comprehensive analysis
+                        analysis_results = self._perform_enhanced_subdomain_analysis(fqdn, tx)
+                        
+                        # Update totals
+                        total_services += analysis_results.get('services', 0)
+                        total_providers += analysis_results.get('providers', 0)
+                        total_certificates += analysis_results.get('certificates', 0)
+                        total_industries += analysis_results.get('industries', 0)
+                        total_processed += 1
+                        
+                        tx.commit()
+                        
+                        subdomain_duration = time.time() - subdomain_start_time
+                        logging.info(f"✅ {fqdn} analysis completed in {subdomain_duration:.2f}s: "
+                                   f"{analysis_results.get('services', 0)} services, "
+                                   f"{analysis_results.get('providers', 0)} providers, "
+                                   f"{analysis_results.get('certificates', 0)} certificates")
+                        
+            except Exception as e:
+                logging.error(f"❌ Failed to analyze {fqdn}: {e}")
+                logging.debug(f"🔍 Analysis exception for {fqdn}: {type(e).__name__}: {e}")
+                continue
+        
+        end_time = time.time()
+        duration = end_time - start_time
+        
+        results = {
+            'total_processed': total_processed,
+            'total_services': total_services,
+            'total_providers': total_providers,
+            'total_certificates': total_certificates,
+            'total_industries': total_industries,
+            'processing_time': duration,
+            'subdomains_per_second': total_processed / duration if duration > 0 else 0
+        }
+        
+        logging.info(f"🔍 Subdomain analysis completed: {results}")
+        return results
+    
     def _create_enhanced_domain_hierarchy_single(self, fqdn: str, tx) -> Dict[str, int]:
         """Create enhanced domain hierarchy for a single domain with comprehensive analysis."""
         results = {'subdomains': 0, 'services': 0, 'providers': 0, 'certificates': 0, 'industries': 0}
@@ -1180,6 +1310,26 @@ class EnhancedSubdomainGraphIngester:
             # Store DNS info in the node for future reference
             if dns_info.get('cname_records'):
                 logging.info(f"🔗 CNAME records for {fqdn}: {dns_info['cname_records']}")
+            
+            # Update subdomain node with DNS information
+            tx.run("""
+                MATCH (s:Subdomain {fqdn: $fqdn})
+                SET s.dns_a_records = $a_records,
+                    s.dns_aaaa_records = $aaaa_records,
+                    s.dns_cname_records = $cname_records,
+                    s.dns_mx_records = $mx_records,
+                    s.dns_txt_records = $txt_records,
+                    s.dns_ns_records = $ns_records,
+                    s.dns_analyzed_at = $current_time
+            """,
+            fqdn=fqdn,
+            a_records=dns_info.get('a_records', []),
+            aaaa_records=dns_info.get('aaaa_records', []),
+            cname_records=dns_info.get('cname_records', []),
+            mx_records=dns_info.get('mx_records', []),
+            txt_records=dns_info.get('txt_records', []),
+            ns_records=dns_info.get('ns_records', []),
+            current_time=current_time)
         except Exception as e:
             logging.warning(f"⚠️ DNS analysis failed for {fqdn}: {e}")
         
@@ -1293,7 +1443,9 @@ class EnhancedSubdomainGraphIngester:
                         p.ip = $ip,
                         p.fqdn = $fqdn,
                         p.created_at = $current_time,
-                        p.is_unknown = $is_unknown
+                        p.is_unknown = $is_unknown,
+                        p.risk_tier = $risk_tier,
+                        p.risk_score = $risk_score
                 """,
                 provider_id=provider_id,
                 name=provider['name'],
@@ -1308,7 +1460,9 @@ class EnhancedSubdomainGraphIngester:
                 ip=provider.get('ip'),
                 fqdn=fqdn,
                 current_time=current_time,
-                is_unknown=provider['name'] == 'unknown')
+                is_unknown=provider['name'] == 'unknown',
+                risk_tier=self._calculate_provider_risk_tier(provider),
+                risk_score=self._calculate_provider_risk_score(provider))
                 
                 # Link provider to subdomain
                 tx.run("""
@@ -1366,6 +1520,21 @@ class EnhancedSubdomainGraphIngester:
             except Exception as e:
                 logging.debug(f"Industry analysis failed for {fqdn}: {e}")
         
+        # Risk Analysis
+        if self.enable_risk_calculation and self.risk_calculator:
+            try:
+                logging.info(f"🔍 Starting risk analysis for {fqdn}")
+                risks = self.risk_calculator.calculate_domain_risks(fqdn)
+                if risks:
+                    saved_risks = self.risk_calculator.save_risks_to_graph(risks)
+                    logging.info(f"📊 Risk analysis for {fqdn}: {len(risks)} risks found, {saved_risks} saved")
+                    results['risks'] = saved_risks
+                else:
+                    results['risks'] = 0
+            except Exception as e:
+                logging.debug(f"Risk analysis failed for {fqdn}: {e}")
+                results['risks'] = 0
+        
         return results
     
     def discover_cross_domain_relationships(self, batch_size: int = 100) -> Dict[str, Any]:
@@ -1379,56 +1548,77 @@ class EnhancedSubdomainGraphIngester:
             # Get all domains and subdomains with their CNAME records
             result = session.run("""
                 MATCH (n) WHERE n:Domain OR n:Subdomain
-                RETURN n.fqdn as fqdn, n.dns_cname_records as cnames
+                RETURN n.fqdn as fqdn, 
+                       COALESCE(n.dns_cname_records, []) as cnames
             """)
             
             relationships = []
             
             for record in result:
                 fqdn = record["fqdn"]
-                cnames = record["cnames"] or []
+                cnames = record["cnames"] if record["cnames"] else []
                 
                 # Analyze CNAME relationships
                 for cname in cnames:
-                    if cname != fqdn:
+                    if cname and cname != fqdn:
+                        # Clean CNAME record (remove trailing dots)
+                        clean_cname = cname.rstrip('.')
                         relationships.append({
                             'source_fqdn': fqdn,
-                            'target_fqdn': cname,
+                            'target_fqdn': clean_cname,
                             'relationship_type': 'CNAME',
                             'confidence': 0.95,
                             'discovery_method': 'dns_analysis',
-                            'metadata': {'record_type': 'CNAME'}
+                            'metadata': {'record_type': 'CNAME', 'original_record': cname}
                         })
             
+            logging.info(f"Found {len(relationships)} potential CNAME relationships to create")
+            
             # Create relationships in batches
-            with session.begin_transaction() as tx:
-                for rel in relationships:
-                    try:
-                        tx.run("""
-                            MATCH (n1 {fqdn: $source_fqdn})
-                            WHERE n1:Domain OR n1:Subdomain
-                            MATCH (n2 {fqdn: $target_fqdn})
-                            WHERE n2:Domain OR n2:Subdomain
-                            MERGE (n1)-[r:RELATED_TO]->(n2)
-                            SET r.relationship_type = $rel_type,
-                                r.confidence = $confidence,
-                                r.discovery_method = $discovery_method,
-                                r.metadata = $metadata,
-                                r.created_at = $created_at
-                        """, 
-                        source_fqdn=rel['source_fqdn'],
-                        target_fqdn=rel['target_fqdn'],
-                        rel_type=rel['relationship_type'],
-                        confidence=rel['confidence'],
-                        discovery_method=rel['discovery_method'],
-                        metadata=json.dumps(rel['metadata']),
-                        created_at=datetime.now().isoformat())
-                        
-                        total_relationships += 1
-                    except Exception as e:
-                        logging.debug(f"Error creating relationship {rel['source_fqdn']} -> {rel['target_fqdn']}: {e}")
-                
-                tx.commit()
+            if relationships:
+                with session.begin_transaction() as tx:
+                    for rel in relationships:
+                        try:
+                            # Try to create relationship if both nodes exist
+                            result = tx.run("""
+                                MATCH (n1 {fqdn: $source_fqdn})
+                                WHERE n1:Domain OR n1:Subdomain
+                                OPTIONAL MATCH (n2 {fqdn: $target_fqdn})
+                                WHERE n2:Domain OR n2:Subdomain OR n2:RelatedDomain
+                                WITH n1, n2, 
+                                     CASE WHEN n2 IS NULL THEN 'target_not_found' ELSE 'both_found' END as status
+                                FOREACH (ignored IN CASE WHEN status = 'both_found' THEN [1] ELSE [] END |
+                                    MERGE (n1)-[r:RELATED_TO]->(n2)
+                                    SET r.relationship_type = $rel_type,
+                                        r.confidence = $confidence,
+                                        r.discovery_method = $discovery_method,
+                                        r.metadata = $metadata,
+                                        r.created_at = $created_at
+                                )
+                                RETURN status
+                            """, 
+                            source_fqdn=rel['source_fqdn'],
+                            target_fqdn=rel['target_fqdn'],
+                            rel_type=rel['relationship_type'],
+                            confidence=rel['confidence'],
+                            discovery_method=rel['discovery_method'],
+                            metadata=json.dumps(rel['metadata']),
+                            created_at=datetime.now().isoformat())
+                            
+                            # Check if relationship was created
+                            status_record = result.single()
+                            if status_record and status_record['status'] == 'both_found':
+                                total_relationships += 1
+                                logging.debug(f"Created CNAME relationship: {rel['source_fqdn']} -> {rel['target_fqdn']}")
+                            else:
+                                logging.debug(f"CNAME target not in graph: {rel['source_fqdn']} -> {rel['target_fqdn']}")
+                                
+                        except Exception as e:
+                            logging.debug(f"Error creating relationship {rel['source_fqdn']} -> {rel['target_fqdn']}: {e}")
+                    
+                    tx.commit()
+            else:
+                logging.info("No CNAME relationships found to create")
         
         end_time = time.time()
         duration = end_time - start_time
@@ -1438,9 +1628,64 @@ class EnhancedSubdomainGraphIngester:
             'processing_time': duration
         }
         
-        logging.info(f"Cross-domain relationship discovery completed: {results}")
+        if total_relationships > 0:
+            logging.info(f"Cross-domain relationship discovery completed: {results}")
+        else:
+            logging.info(f"Cross-domain relationship discovery completed: No relationships created (this is normal if no CNAME records point to known domains)")
+            logging.debug(f"Full results: {results}")
         return results
     
+    def _calculate_provider_risk_tier(self, provider: Dict[str, Any]) -> str:
+        """Calculate risk tier for a provider based on its characteristics."""
+        name = provider.get('name', '').lower()
+        confidence = provider.get('confidence', 0.0)
+        is_unknown = provider.get('name') == 'unknown'
+        
+        # Unknown providers are high risk
+        if is_unknown or name == 'unknown':
+            return 'High'
+        
+        # Well-known cloud providers with high confidence are low risk
+        major_providers = ['amazon', 'google', 'microsoft', 'azure', 'aws', 'cloudflare', 'akamai']
+        if any(major in name for major in major_providers) and confidence > 0.8:
+            return 'Low'
+        
+        # Regional or smaller providers with good confidence are medium risk
+        if confidence > 0.7:
+            return 'Medium'
+        
+        # Low confidence providers are high risk
+        if confidence < 0.5:
+            return 'High'
+        
+        return 'Medium'
+    
+    def _calculate_provider_risk_score(self, provider: Dict[str, Any]) -> float:
+        """Calculate numerical risk score for a provider (0.0 = lowest risk, 10.0 = highest risk)."""
+        name = provider.get('name', '').lower()
+        confidence = provider.get('confidence', 0.0)
+        is_unknown = provider.get('name') == 'unknown'
+        
+        # Start with base score
+        base_score = 5.0
+        
+        # Unknown providers get high score
+        if is_unknown or name == 'unknown':
+            return 8.5
+        
+        # Adjust based on provider reputation
+        major_providers = ['amazon', 'google', 'microsoft', 'azure', 'aws', 'cloudflare', 'akamai']
+        if any(major in name for major in major_providers):
+            base_score = 2.0  # Major providers are low risk
+        
+        # Adjust based on confidence (invert - low confidence = high risk)
+        confidence_penalty = (1.0 - confidence) * 4.0
+        
+        final_score = base_score + confidence_penalty
+        
+        # Clamp between 0.0 and 10.0
+        return max(0.0, min(10.0, final_score))
+
     def close(self):
         """Close database connection and cleanup resources."""
         if self.drv:
@@ -1453,8 +1698,14 @@ class EnhancedSubdomainGraphIngester:
 def run_amass_discovery_with_relationships(domain: str, timeout: int = 60, mock_mode: bool = False, 
                                          sample_mode: bool = False, amass_timeout: int = None, 
                                          amass_passive: bool = None, cache_ttl_hours: int = 168,
-                                         discovery_depth: int = 2) -> List[str]:
+                                         discovery_depth: int = 2, logger=None) -> List[str]:
     """Run Amass for subdomain discovery with enhanced relationship detection."""
+    
+    if logger:
+        logger.info(f"🔍 Starting Amass discovery for domain: {domain}")
+        logger.debug(f"📋 Discovery parameters: mock_mode={mock_mode}, sample_mode={sample_mode}, ")
+        logger.debug(f"   amass_timeout={amass_timeout}, amass_passive={amass_passive}")
+        logger.debug(f"   cache_ttl_hours={cache_ttl_hours}, discovery_depth={discovery_depth}")
     
     # Mock mode for testing
     if mock_mode:
@@ -1472,16 +1723,23 @@ def run_amass_discovery_with_relationships(domain: str, timeout: int = 60, mock_
             f"auth.{domain}",
             f"monitor.{domain}"
         ]
-        print(f"[DISCOVERY] MOCK MODE: Found {len(mock_subdomains)} subdomains for {domain}")
+        msg = f"[DISCOVERY] MOCK MODE: Found {len(mock_subdomains)} subdomains for {domain}"
+        print(msg)
+        if logger:
+            logger.info(msg)
+            logger.debug(f"🎭 Mock subdomains: {mock_subdomains}")
         return mock_subdomains
     
     try:
+        if logger:
+            logger.debug(f"🚀 Starting enhanced multi-level Amass discovery for {domain}")
         # Use enhanced multi-level discovery with configurable parameters
         results = run_enhanced_amass_multilevel(domain, sample_mode=sample_mode, 
                                                amass_timeout=amass_timeout, 
                                                amass_passive=amass_passive,
                                                cache_ttl_hours=cache_ttl_hours,
-                                               discovery_depth=discovery_depth)
+                                               discovery_depth=discovery_depth,
+                                               logger=logger)
         
         # Extract subdomain names, filtering correctly for the input domain
         subdomains = []
@@ -1497,38 +1755,84 @@ def run_amass_discovery_with_relationships(domain: str, timeout: int = 60, mock_
                     subdomains.append(subdomain)
                 else:
                     # This is a related domain found during discovery but not a subdomain
+                    # Log the source of this relationship for debugging
+                    if logger:
+                        # Determine likely source of relationship
+                        source_hint = "unknown"
+                        if "dns" in subdomain.lower() or "ns" in subdomain.lower():
+                            source_hint = "dns_server"
+                        elif "cdn" in subdomain.lower() or "cloudflare" in subdomain.lower():
+                            source_hint = "cdn_service"
+                        elif "imperva" in subdomain.lower() or "security" in subdomain.lower():
+                            source_hint = "security_service"
+                        elif ".amazonaws.com" in subdomain or ".azurewebsites.net" in subdomain:
+                            source_hint = "cloud_service"
+                        
+                        logger.debug(f"🔍 Related domain found: {subdomain} (likely source: {source_hint}) for domain {domain}")
                     related_domains.append(subdomain)
                     
-        print(f"[DISCOVERY] Found {len(subdomains)} valid subdomains and {len(related_domains)} related domains for {domain}")
+        msg1 = f"[DISCOVERY] Found {len(subdomains)} valid subdomains and {len(related_domains)} related domains for {domain}"
+        print(msg1)
+        if logger:
+            logger.info(msg1)
+            
         if len(related_domains) > 0:
-            print(f"[DISCOVERY] Related domains (not subdomains): {related_domains[:5]}{'...' if len(related_domains) > 5 else ''}")
+            msg2 = f"[DISCOVERY] Related domains (not subdomains): {related_domains[:5]}{'...' if len(related_domains) > 5 else ''}"
+            print(msg2)
+            if logger:
+                logger.debug(f"📋 All related domains: {related_domains}")
         
-        print(f"[DISCOVERY] Found {len(subdomains)} subdomains for {domain} (excluding base domain)")
+        msg3 = f"[DISCOVERY] Found {len(subdomains)} subdomains for {domain} (excluding base domain)"
+        print(msg3)
+        if logger:
+            logger.info(msg3)
+            logger.debug(f"📋 Valid subdomains found: {subdomains[:10]}{'...' if len(subdomains) > 10 else ''}")
+            
         if len(subdomains) == 0:
-            print(f"[DISCOVERY] WARNING: No subdomains found for {domain}")
+            warning_msg = f"[DISCOVERY] WARNING: No subdomains found for {domain}"
+            print(warning_msg)
+            if logger:
+                logger.warning(warning_msg)
         
         return subdomains
         
-    except ImportError:
-        print(f"[DISCOVERY] Cannot import Amass functions, skipping {domain}")
+    except ImportError as e:
+        error_msg = f"[DISCOVERY] Cannot import Amass functions, skipping {domain}"
+        print(error_msg)
+        if logger:
+            logger.error(f"{error_msg}: {e}")
         return []
     except Exception as e:
-        print(f"[DISCOVERY] Error discovering subdomains for {domain}: {e}")
+        error_msg = f"[DISCOVERY] Error discovering subdomains for {domain}: {e}"
+        print(error_msg)
+        if logger:
+            logger.error(error_msg)
+            logger.debug(f"🔍 Discovery exception details: {type(e).__name__}: {e}")
         return []
 
 
 def run_enhanced_amass_multilevel(domain: str, sample_mode: bool = False, amass_timeout: int = None, 
                                   amass_passive: bool = None, cache_ttl_hours: int = 168,
-                                  discovery_depth: int = 2) -> List[dict]:
+                                  discovery_depth: int = 2, logger=None) -> List[dict]:
     """Enhanced Amass discovery with multi-level subdomain support."""
+    if logger:
+        logger.debug(f"🎯 Enhanced multi-level Amass starting for {domain}")
+        logger.debug(f"📊 Parameters: sample_mode={sample_mode}, discovery_depth={discovery_depth}")
     try:
         from risk_loader_advanced3 import run_amass_with_fallback
         
-        print(f"[DISCOVERY] Starting enhanced multi-level Amass for {domain} (sample_mode={sample_mode})")
+        msg = f"[DISCOVERY] Starting enhanced multi-level Amass for {domain} (sample_mode={sample_mode})"
+        print(msg)
+        if logger:
+            logger.info(msg)
         
         # First pass: Standard discovery with configurable parameters and fallbacks
+        if logger:
+            logger.debug(f"🔍 First pass: Standard discovery starting for {domain}")
         results = run_amass_with_fallback(domain, sample_mode=sample_mode, amass_timeout=amass_timeout, 
                                          amass_passive=amass_passive, cache_ttl_hours=cache_ttl_hours)
+        if logger:
+            logger.debug(f"📊 First pass raw results count: {len(results) if results else 0}")
         all_subdomains = set()
         
         # Extract first-level subdomains
@@ -1537,10 +1841,16 @@ def run_enhanced_amass_multilevel(domain: str, sample_mode: bool = False, amass_
             if subdomain and subdomain != domain:
                 all_subdomains.add(subdomain)
         
-        print(f"[DISCOVERY] First pass: Found {len(all_subdomains)} first-level subdomains")
+        msg = f"[DISCOVERY] First pass: Found {len(all_subdomains)} first-level subdomains"
+        print(msg)
+        if logger:
+            logger.info(msg)
+            logger.debug(f"📋 First-level subdomains: {list(all_subdomains)[:10]}{'...' if len(all_subdomains) > 10 else ''}")
         
         # Multi-level discovery: Discover subdomains of subdomains (if not in sample mode)
         if not sample_mode and all_subdomains and discovery_depth > 1:
+            if logger:
+                logger.info(f"🔄 Starting multi-level discovery (depth={discovery_depth})")
             total_additional = 0
             
             for level in range(2, discovery_depth + 1):
@@ -1548,13 +1858,20 @@ def run_enhanced_amass_multilevel(domain: str, sample_mode: bool = False, amass_
                 # Get ALL subdomains to analyze at this level (no limit)
                 current_level_subdomains = list(all_subdomains)
                 
-                print(f"[DISCOVERY] Level {level} pass: Analyzing ALL {len(current_level_subdomains)} subdomains for level-{level} discovery")
+                msg = f"[DISCOVERY] Level {level} pass: Analyzing ALL {len(current_level_subdomains)} subdomains for level-{level} discovery"
+                print(msg)
+                if logger:
+                    logger.info(msg)
                 
                 for subdomain in current_level_subdomains:
                     try:
+                        if logger:
+                            logger.debug(f"🔍 Level {level}: Analyzing subdomain {subdomain}")
                         # Quick discovery for each subdomain with configurable parameters and fallbacks
                         sub_results = run_amass_with_fallback(subdomain, sample_mode=True, amass_timeout=amass_timeout, 
                                                              amass_passive=amass_passive, cache_ttl_hours=cache_ttl_hours)
+                        if logger:
+                            logger.debug(f"📊 Level {level}: {subdomain} returned {len(sub_results) if sub_results else 0} results")
                         
                         for sub_result in sub_results:
                             sub_subdomain = sub_result.get('name') if isinstance(sub_result, dict) else sub_result
@@ -1563,30 +1880,53 @@ def run_enhanced_amass_multilevel(domain: str, sample_mode: bool = False, amass_
                                 level_count += 1
                                 
                     except Exception as e:
-                        print(f"[DISCOVERY] Error in level-{level} discovery for {subdomain}: {e}")
+                        error_msg = f"[DISCOVERY] Error in level-{level} discovery for {subdomain}: {e}"
+                        print(error_msg)
+                        if logger:
+                            logger.debug(error_msg)
                         continue
                 
-                print(f"[DISCOVERY] Level {level} pass: Found {level_count} additional subdomains")
+                msg = f"[DISCOVERY] Level {level} pass: Found {level_count} additional subdomains"
+                print(msg)
+                if logger:
+                    logger.info(msg)
                 total_additional += level_count
                 
                 # If no new subdomains found at this level, stop going deeper
                 if level_count == 0:
-                    print(f"[DISCOVERY] No new subdomains found at level {level}, stopping discovery")
+                    stop_msg = f"[DISCOVERY] No new subdomains found at level {level}, stopping discovery"
+                    print(stop_msg)
+                    if logger:
+                        logger.info(stop_msg)
                     break
             
-            print(f"[DISCOVERY] Multi-level discovery: Found {total_additional} additional subdomains across {discovery_depth - 1} levels")
+            msg = f"[DISCOVERY] Multi-level discovery: Found {total_additional} additional subdomains across {discovery_depth - 1} levels"
+            print(msg)
+            if logger:
+                logger.info(msg)
         
         # Convert back to dict format for compatibility
         final_results = [{'name': subdomain} for subdomain in all_subdomains]
-        print(f"[DISCOVERY] Enhanced discovery completed: {len(final_results)} total subdomains")
+        msg = f"[DISCOVERY] Enhanced discovery completed: {len(final_results)} total subdomains"
+        print(msg)
+        if logger:
+            logger.info(msg)
+            logger.debug(f"📋 Final subdomain list: {[r['name'] for r in final_results[:10]]}{'...' if len(final_results) > 10 else ''}")
         
         return final_results
         
-    except ImportError:
-        print(f"[DISCOVERY] Cannot import run_amass_with_fallback, falling back to basic discovery")
+    except ImportError as e:
+        error_msg = f"[DISCOVERY] Cannot import run_amass_with_fallback, falling back to basic discovery"
+        print(error_msg)
+        if logger:
+            logger.error(f"{error_msg}: {e}")
         return []
     except Exception as e:
-        print(f"[DISCOVERY] Error in enhanced multi-level discovery: {e}")
+        error_msg = f"[DISCOVERY] Error in enhanced multi-level discovery: {e}"
+        print(error_msg)
+        if logger:
+            logger.error(error_msg)
+            logger.debug(f"🔍 Multi-level discovery exception: {type(e).__name__}: {e}")
         return []
 
 
@@ -1597,7 +1937,7 @@ class EnhancedSubdomainProcessor:
                  neo4j_pass: str, discovery_workers: int = 6, processing_workers: int = 4,
                  mock_mode: bool = False, sample_mode: bool = False, amass_timeout: int = None,
                  amass_passive: bool = None, cache_ttl_hours: int = 168, no_cache: bool = False,
-                 discovery_depth: int = 2):
+                 discovery_depth: int = 2, logger=None, store_related_domains: bool = True):
         
         self.ingester = ingester
         self.neo4j_uri = neo4j_uri
@@ -1612,8 +1952,14 @@ class EnhancedSubdomainProcessor:
         self.cache_ttl_hours = cache_ttl_hours
         self.no_cache = no_cache
         self.discovery_depth = discovery_depth
+        self.logger = logger
+        self.store_related_domains = store_related_domains
         
-        logging.info(f"Enhanced Subdomain Processor v4.0 initialized with {discovery_workers} discovery workers and {processing_workers} processing workers")
+        msg = f"Enhanced Subdomain Processor v4.0 initialized with {discovery_workers} discovery workers and {processing_workers} processing workers"
+        logging.info(msg)
+        if self.logger:
+            self.logger.info(f"🚀 {msg}")
+            self.logger.info(f"📋 Related domains storage: {'ENABLED' if self.store_related_domains else 'DISABLED'}")
     
     def enhanced_phase1_discovery(self, domains: List[str]) -> Dict[str, Any]:
         """Phase 1: Enhanced subdomain discovery using Amass."""
@@ -1621,7 +1967,10 @@ class EnhancedSubdomainProcessor:
         total_subdomains_discovered = 0
         failed_domains = []
         
-        logging.info(f"Starting Phase 1: Enhanced subdomain discovery for {len(domains)} domains")
+        msg = f"Starting Phase 1: Enhanced subdomain discovery for {len(domains)} domains"
+        logging.info(msg)
+        if self.logger:
+            self.logger.info(f"🔍 {msg}")
         
         # Setup input domains for the ingester
         self.ingester.set_input_domains(domains)
@@ -1637,7 +1986,8 @@ class EnhancedSubdomainProcessor:
                     amass_timeout=self.amass_timeout,
                     amass_passive=self.amass_passive,
                     cache_ttl_hours=self.cache_ttl_hours,
-                    discovery_depth=self.discovery_depth
+                    discovery_depth=self.discovery_depth,
+                    logger=self.logger
                 ): domain for domain in domains
             }
             
@@ -1650,13 +2000,23 @@ class EnhancedSubdomainProcessor:
                         # Store discovered subdomains in Neo4j
                         self._store_discovered_subdomains(domain, subdomains)
                         total_subdomains_discovered += len(subdomains)
-                        logging.info(f"Discovered {len(subdomains)} subdomains for {domain}")
+                        msg = f"Discovered {len(subdomains)} subdomains for {domain}"
+                        logging.info(msg)
+                        if self.logger:
+                            self.logger.info(f"🔍 {msg}")
                     else:
-                        logging.warning(f"No subdomains discovered for {domain}")
+                        msg = f"No subdomains discovered for {domain}"
+                        logging.warning(msg)
+                        if self.logger:
+                            self.logger.warning(f"⚠️ {msg}")
                         failed_domains.append(domain)
                         
                 except Exception as e:
-                    logging.error(f"Discovery failed for {domain}: {e}")
+                    msg = f"Discovery failed for {domain}: {e}"
+                    logging.error(msg)
+                    if self.logger:
+                        self.logger.error(f"❌ {msg}")
+                        self.logger.debug(f"🔍 Discovery exception for {domain}: {type(e).__name__}: {e}")
                     failed_domains.append(domain)
         
         end_time = time.time()
@@ -1671,7 +2031,10 @@ class EnhancedSubdomainProcessor:
             'domains_per_second': len(domains) / duration if duration > 0 else 0
         }
         
-        logging.info(f"Phase 1 completed: {results}")
+        msg = f"Phase 1 completed: {results}"
+        logging.info(msg)
+        if self.logger:
+            self.logger.info(f"✅ {msg}")
         return results
     
     def _store_discovered_subdomains(self, domain: str, subdomains: List[str]):
@@ -1728,33 +2091,47 @@ class EnhancedSubdomainProcessor:
                             valid_subdomains += 1
                         else:
                             # This is a related domain but not a subdomain of the input domain
-                            # Store it separately to avoid incorrect relationships
-                            tx.run("""
-                                MERGE (rd:RelatedDomain {fqdn: $subdomain})
-                                SET rd.base_domain = $actual_base_domain,
-                                    rd.tld = $tld,
-                                    rd.created_at = COALESCE(rd.created_at, $current_time),
-                                    rd.last_updated = $current_time,
-                                    rd.discovered_during_scan_of = $domain,
-                                    rd.relationship_type = 'discovered_related'
-                            """,
-                            subdomain=subdomain,
-                            actual_base_domain=domain_info.base_domain,
-                            tld=domain_info.tld,
-                            domain=domain,
-                            current_time=current_time)
-                            
-                            # Create a "discovered during scan" relationship instead of subdomain relationship
-                            tx.run("""
-                                MATCH (d:Domain {fqdn: $domain})
-                                MATCH (rd:RelatedDomain {fqdn: $subdomain})
-                                MERGE (d)-[:DISCOVERED_RELATED]->(rd)
-                            """, domain=domain, subdomain=subdomain)
-                            
-                            related_domains += 1
+                            if self.store_related_domains:
+                                # Store it separately to avoid incorrect relationships
+                                tx.run("""
+                                    MERGE (rd:RelatedDomain {fqdn: $subdomain})
+                                    SET rd.base_domain = $actual_base_domain,
+                                        rd.tld = $tld,
+                                        rd.created_at = COALESCE(rd.created_at, $current_time),
+                                        rd.last_updated = $current_time,
+                                        rd.discovered_during_scan_of = $domain,
+                                        rd.relationship_type = 'discovered_related',
+                                        rd.discovery_source = 'amass_scan',
+                                        rd.discovery_method = 'subdomain_enumeration',
+                                        rd.original_domain_scan = $domain,
+                                        rd.discovery_context = 'Found during Amass enumeration but not a direct subdomain'
+                                """,
+                                subdomain=subdomain,
+                                actual_base_domain=domain_info.base_domain,
+                                tld=domain_info.tld,
+                                domain=domain,
+                                current_time=current_time)
+                                
+                                # Create a "discovered during scan" relationship instead of subdomain relationship
+                                tx.run("""
+                                    MATCH (d:Domain {fqdn: $domain})
+                                    MATCH (rd:RelatedDomain {fqdn: $subdomain})
+                                    MERGE (d)-[:DISCOVERED_RELATED {source: 'amass', method: 'enumeration', timestamp: $timestamp}]->(rd)
+                                """, domain=domain, subdomain=subdomain, timestamp=current_time)
+                                
+                                related_domains += 1
+                            else:
+                                # Skip storing related domains - log for debugging
+                                if self.logger:
+                                    self.logger.debug(f"🚫 Skipping related domain (not stored): {subdomain} -> actual base: {domain_info.base_domain}")
                 
                 # Log the results for debugging
-                logging.info(f"Domain {domain}: {valid_subdomains} valid subdomains, {related_domains} related domains")
+                if self.store_related_domains:
+                    logging.info(f"Domain {domain}: {valid_subdomains} valid subdomains, {related_domains} related domains")
+                else:
+                    logging.info(f"Domain {domain}: {valid_subdomains} valid subdomains, {related_domains} related domains (not stored)")
+                    if self.logger:
+                        self.logger.info(f"📋 Domain {domain}: Only storing valid subdomains (related domains disabled)")
                 
                 tx.commit()
     
@@ -1764,11 +2141,17 @@ class EnhancedSubdomainProcessor:
         total_processed = 0
         failed_subdomains = []
         
-        logging.info("Starting Phase 2: Enhanced subdomain analysis")
+        msg = "Starting Phase 2: Enhanced subdomain analysis"
+        logging.info(msg)
+        if self.logger:
+            self.logger.info(f"⚙️ {msg}")
         
         # Get unprocessed subdomains
         unprocessed_subdomains = self._get_unprocessed_subdomains()
-        logging.info(f"Found {len(unprocessed_subdomains)} unprocessed subdomains")
+        msg = f"Found {len(unprocessed_subdomains)} unprocessed subdomains"
+        logging.info(msg)
+        if self.logger:
+            self.logger.info(f"📋 {msg}")
         
         if not unprocessed_subdomains:
             return {
@@ -1778,22 +2161,29 @@ class EnhancedSubdomainProcessor:
                 'processing_time': 0
             }
         
-        # Process in batches
+        # Process in batches - using specialized subdomain analysis instead of domain hierarchy
         for i in range(0, len(unprocessed_subdomains), batch_size):
             batch = unprocessed_subdomains[i:i + batch_size]
             
             try:
-                batch_results = self.ingester.create_enhanced_domain_hierarchy_batch(batch, batch_size)
+                batch_results = self.ingester.analyze_existing_subdomains_batch(batch)
                 total_processed += batch_results['total_processed']
                 
                 # Mark subdomains as processed
                 for subdomain in batch:
                     self._mark_subdomain_as_processed(subdomain)
                     
-                logging.info(f"Processed batch {i//batch_size + 1}: {len(batch)} subdomains")
+                msg = f"Processed batch {i//batch_size + 1}: {len(batch)} subdomains"
+                logging.info(msg)
+                if self.logger:
+                    self.logger.info(f"✅ {msg}")
                 
             except Exception as e:
-                logging.error(f"Batch processing failed for batch {i//batch_size + 1}: {e}")
+                msg = f"Batch processing failed for batch {i//batch_size + 1}: {e}"
+                logging.error(msg)
+                if self.logger:
+                    self.logger.error(f"❌ {msg}")
+                    self.logger.debug(f"🔍 Batch processing exception: {type(e).__name__}: {e}")
                 failed_subdomains.extend(batch)
         
         end_time = time.time()
@@ -1807,7 +2197,10 @@ class EnhancedSubdomainProcessor:
             'subdomains_per_second': total_processed / duration if duration > 0 else 0
         }
         
-        logging.info(f"Phase 2 completed: {results}")
+        msg = f"Phase 2 completed: {results}"
+        logging.info(msg)
+        if self.logger:
+            self.logger.info(f"✅ {msg}")
         return results
     
     def _get_unprocessed_subdomains(self) -> List[str]:
@@ -1835,7 +2228,10 @@ class EnhancedSubdomainProcessor:
     
     def run_enhanced_two_phase_processing(self, domains: List[str], batch_size: int = 50) -> Dict[str, Any]:
         """Run complete two-phase enhanced processing."""
-        logging.info("Starting enhanced two-phase subdomain processing v4.0")
+        msg = "Starting enhanced two-phase subdomain processing v4.0"
+        logging.info(msg)
+        if self.logger:
+            self.logger.info(f"🎯 {msg}")
         
         # Phase 1: Discovery
         phase1_results = self.enhanced_phase1_discovery(domains)
@@ -1866,7 +2262,10 @@ class EnhancedSubdomainProcessor:
             }
         }
         
-        logging.info("Enhanced two-phase processing v4.0 completed successfully!")
+        msg = "Enhanced two-phase processing v4.0 completed successfully!"
+        logging.info(msg)
+        if self.logger:
+            self.logger.info(f"✅ {msg}")
         return total_results
 
 
@@ -1899,11 +2298,12 @@ def main():
     parser.add_argument("--cache-ttl", type=int, default=168, help="Cache TTL in hours (default: 168 = 1 week)")
     parser.add_argument("--no-cache", action="store_true", help="Disable cache (force fresh Amass execution)")
     
-    # Analysis feature toggles
-    parser.add_argument("--enable-tls", action="store_true", default=True, help="Enable TLS analysis")
+    # Analysis feature toggles  
+    parser.add_argument("--enable-tls", action="store_true", default=False, help="Enable TLS analysis (disabled by default)")
     parser.add_argument("--enable-services", action="store_true", default=True, help="Enable service detection")
     parser.add_argument("--enable-providers", action="store_true", default=True, help="Enable provider detection")
     parser.add_argument("--enable-industry", action="store_true", default=True, help="Enable industry classification")
+    parser.add_argument("--enable-risks", action="store_true", default=True, help="Enable risk calculation and analysis")
     parser.add_argument("--disable-industry", action="store_true", help="Disable industry classification")
     
     # TLS configuration
@@ -1912,20 +2312,45 @@ def main():
     
     # Discovery configuration
     parser.add_argument("--discovery-depth", type=int, default=2, help="Discovery depth levels (default: 2)")
+    parser.add_argument("--no-related-domains", action="store_true", help="Disable storage of DISCOVERED_RELATED domains (only store direct subdomains)")
+    
+    # Debug mode
+    parser.add_argument("--debug", action="store_true", help="Enable debug mode with comprehensive logging")
     
     # v4.0: Version information
     parser.add_argument("-v", "--version", action="version", version="%(prog)s v4.0")
     
     args = parser.parse_args()
     
+    # Setup debug logging if enabled
+    logger = None
+    if args.debug:
+        log_filename = f"subdomain_relationship_discovery_v4_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        logger = setup_debug_logging(log_filename, debug_mode=True)
+        logger.info(f"🐛 DEBUG MODE ENABLED - Comprehensive logging to: {log_filename}")
+        logger.info(f"📋 Command line arguments: {vars(args)}")
+        print(f"🐛 DEBUG MODE ENABLED - Detailed logging to: {log_filename}")
+    
     # Validation
     if not args.domains and not args.phase2_only and not args.relationships_only:
-        parser.error("--domains is required for normal operation")
+        error_msg = "--domains is required for normal operation"
+        if logger:
+            logger.error(error_msg)
+        parser.error(error_msg)
     if not args.password:
-        parser.error("--password is required for normal operation")
+        error_msg = "--password is required for normal operation"
+        if logger:
+            logger.error(error_msg)
+        parser.error(error_msg)
     
     # Determine industry classification setting
     enable_industry = args.enable_industry and not args.disable_industry
+    
+    if logger:
+        logger.info(f"🔧 Initializing Enhanced Subdomain Graph Ingester v4.0")
+        logger.debug(f"📊 Configuration: TLS={args.enable_tls}, Services={args.enable_services}")
+        logger.debug(f"   Providers={args.enable_providers}, Industry={enable_industry}")
+        logger.debug(f"   Workers={args.processing_workers}, TLS timeout={args.tls_timeout}s")
     
     # Initialize enhanced ingester
     ingester = EnhancedSubdomainGraphIngester(
@@ -1937,6 +2362,7 @@ def main():
         enable_service_detection=args.enable_services,
         enable_provider_detection=args.enable_providers,
         enable_industry_classification=enable_industry,
+        enable_risk_calculation=args.enable_risks,
         max_analysis_workers=args.processing_workers,
         tls_timeout=args.tls_timeout,
         tls_retries=args.tls_retries
@@ -1944,15 +2370,28 @@ def main():
     
     try:
         # Setup constraints
+        if logger:
+            logger.debug(f"🔧 Setting up Neo4j constraints")
         ingester.setup_constraints()
         
         # Read domains from file
         domains = []
         if args.domains:
+            if logger:
+                logger.debug(f"📂 Reading domains from file: {args.domains}")
             with open(args.domains, 'r') as f:
                 domains = [line.strip() for line in f if line.strip()]
+            if logger:
+                logger.info(f"📋 Successfully read {len(domains)} domains")
+                logger.debug(f"📋 Domains: {domains[:10]}{'...' if len(domains) > 10 else ''}")
         
         # Initialize enhanced processor
+        if logger:
+            logger.info(f"🚀 Initializing Enhanced Subdomain Processor")
+            logger.debug(f"⚙️ Processor config: discovery_workers={args.discovery_workers}, processing_workers={args.processing_workers}")
+            logger.debug(f"   mock_mode={args.mock_mode}, sample_mode={args.sample_mode}")
+            logger.debug(f"   discovery_depth={args.discovery_depth}")
+        
         processor = EnhancedSubdomainProcessor(
             ingester, 
             args.bolt,
@@ -1966,21 +2405,36 @@ def main():
             args.amass_passive,
             args.cache_ttl,
             args.no_cache,
-            args.discovery_depth
+            args.discovery_depth,
+            logger=logger,
+            store_related_domains=not args.no_related_domains
         )
         
         # Run appropriate phase(s)
         if args.phase1_only:
+            if logger:
+                logger.info(f"🔍 Running Phase 1 only (discovery) for {len(domains)} domains")
             stats = processor.enhanced_phase1_discovery(domains)
         elif args.phase2_only:
+            if logger:
+                logger.info(f"⚙️ Running Phase 2 only (processing) with batch_size={args.batch_size}")
             stats = processor.enhanced_phase2_processing(args.batch_size)
         elif args.relationships_only:
+            if logger:
+                logger.info(f"🔗 Running relationships discovery only")
             stats = ingester.discover_cross_domain_relationships()
         else:
+            if logger:
+                logger.info(f"🎯 Running complete two-phase processing for {len(domains)} domains")
             stats = processor.run_enhanced_two_phase_processing(domains, args.batch_size)
         
         print(f"\n📊 Final Enhanced Statistics v4.0:")
-        print(json.dumps(stats, indent=2, default=str))
+        stats_json = json.dumps(stats, indent=2, default=str)
+        print(stats_json)
+        
+        if logger:
+            logger.info(f"📊 FINAL ENHANCED STATISTICS v4.0:")
+            logger.info(stats_json)
         
         # Summary of enhanced provider resolution
         if 'summary' in stats:
@@ -1993,7 +2447,11 @@ def main():
             print(f"   • Unknown providers will have comprehensive metadata for resolution")
         
     except Exception as e:
-        logging.error(f"Failed to run enhanced subdomain relationship discovery v4.0: {e}")
+        error_msg = f"Failed to run enhanced subdomain relationship discovery v4.0: {e}"
+        logging.error(error_msg)
+        if logger:
+            logger.error(error_msg)
+            logger.debug(f"🔍 Main exception details: {type(e).__name__}: {e}")
         return 1
     finally:
         if 'ingester' in locals():

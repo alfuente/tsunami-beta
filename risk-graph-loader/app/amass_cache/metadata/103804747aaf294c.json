@@ -1,10 +1,10 @@
 {
   "domain": "bci.cl",
-  "timestamp": "2025-07-23T21:56:44.124566",
+  "timestamp": "2025-07-31T15:35:06.318592",
   "mode": "brute+passive",
   "timeout": 300,
   "amass_version": "4.2.0",
   "config_hash": "1ec28f3f",
-  "subdomain_count": 346,
+  "subdomain_count": 294,
   "cache_version": "1.0"
 }
