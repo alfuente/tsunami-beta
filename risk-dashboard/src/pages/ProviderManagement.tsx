@@ -65,139 +65,194 @@ const ProviderManagement: React.FC = () => {
     try {
       setLoading(true);
       
-      // Since we don't have the backend endpoint yet, let's create mock data
-      // based on the current graph structure
-      const mockProviders: ProviderResponse[] = [
-        {
-          id: 'imperva_provider_1',
-          name: 'imperva',
-          tld: 'com',
-          country: 'United States',
-          provider_type: 'security',
-          confidence: 0.9,
-          source: 'metadata_as_domain',
-          asn: 'AS19551',
-          org: 'Incapsula Inc',
-          risk_score: 2.5,
-          risk_tier: 'Low',
-          domain_count: 5,
-          subdomain_count: 8,
-          created_at: '2025-07-31T10:15:19.814360',
-          is_unknown: false
-        },
-        {
-          id: 'amazon_provider_1',
-          name: 'amazon',
-          tld: 'com',
-          country: 'United States',
-          provider_type: 'cloud',
-          confidence: 0.95,
-          source: 'consolidated',
-          asn: 'AS16509',
-          org: 'Amazon.com, Inc.',
-          risk_score: 1.8,
-          risk_tier: 'Low',
-          domain_count: 12,
-          subdomain_count: 45,
-          created_at: '2025-07-31T09:25:15.123456',
-          is_unknown: false
-        },
-        {
-          id: 'gtd_provider_1',
-          name: 'gtd',
-          tld: 'cl',
-          country: 'Chile',
-          provider_type: 'isp',
-          confidence: 0.8,
-          source: 'metadata_as_domain_direct',
-          asn: 'AS14259',
-          org: 'Gtd Internet S.A.',
-          risk_score: 4.2,
-          risk_tier: 'Medium',
-          domain_count: 8,
-          subdomain_count: 15,
-          created_at: '2025-07-31T10:13:38.400904',
-          is_unknown: false
-        },
-        {
-          id: 'cloudflare_provider_1',
-          name: 'cloudflare',
-          tld: 'com',
-          country: 'United States',
-          provider_type: 'cdn',
-          confidence: 0.92,
-          source: 'consolidated',
-          asn: 'AS13335',
-          org: 'Cloudflare, Inc.',
-          risk_score: 1.5,
-          risk_tier: 'Low',
-          domain_count: 15,
-          subdomain_count: 28,
-          created_at: '2025-07-31T08:45:22.789012',
-          is_unknown: false
-        },
-        {
-          id: 'entel_provider_1',
-          name: 'entel',
-          tld: 'cl',
-          country: 'Chile',
-          provider_type: 'telecom',
-          confidence: 0.8,
-          source: 'metadata_as_domain_direct',
-          asn: 'AS27651',
-          org: 'ENTEL CHILE S.A.',
-          risk_score: 3.8,
-          risk_tier: 'Medium',
-          domain_count: 6,
-          subdomain_count: 12,
-          created_at: '2025-07-31T10:13:39.125024',
-          is_unknown: false
-        },
-        {
-          id: 'salesforce_provider_1',
-          name: 'salesforce',
-          tld: 'com',
-          country: 'United States',
-          provider_type: 'saas',
-          confidence: 0.85,
-          source: 'metadata_as_domain_direct',
-          asn: 'AS13717',
-          org: 'Salesforce.com, Inc.',
-          risk_score: 2.8,
-          risk_tier: 'Low',
-          domain_count: 4,
-          subdomain_count: 6,
-          created_at: '2025-07-31T10:14:35.503059',
-          is_unknown: false
+      try {
+        // Try to use the real API first
+        const response = await providerApi.listProviders({
+          name: filters.name || undefined,
+          tld: filters.tld || undefined,
+          country: filters.country || undefined,
+          providerType: filters.providerType || undefined,
+          riskTier: filters.riskTier || undefined,
+          limit: pagination.pageSize,
+          offset: pagination.page * pagination.pageSize,
+        });
+        
+        setProviders(response.providers);
+        setPagination(prev => ({ ...prev, total: response.total_count }));
+        setError(null);
+      } catch (apiError) {
+        console.warn('Provider API not available, using fallback data:', apiError);
+        
+        // Fallback to mock data when API is not available
+        const mockProviders: ProviderResponse[] = [
+          {
+            id: 'imperva_provider_1',
+            name: 'imperva',
+            tld: 'com',
+            country: 'United States',
+            provider_type: 'security',
+            confidence: 0.9,
+            source: 'metadata_as_domain',
+            asn: 'AS19551',
+            org: 'Incapsula Inc',
+            risk_score: 2.5,
+            risk_tier: 'Low',
+            domain_count: 3,
+            subdomain_count: 3,
+            created_at: '2025-07-31T10:15:19.814360',
+            is_unknown: false
+          },
+          {
+            id: 'telefonica_chile_provider_1',
+            name: 'telefonica chile',
+            tld: 'cl',
+            country: 'Chile',
+            provider_type: 'telecom',
+            confidence: 0.85,
+            source: 'metadata_as_domain',
+            asn: 'AS22047',
+            org: 'VTR BANDA ANCHA S.A.',
+            risk_score: 3.2,
+            risk_tier: 'Medium',
+            domain_count: 12,
+            subdomain_count: 24,
+            created_at: '2025-07-31T10:15:19.814360',
+            is_unknown: false
+          },
+          {
+            id: 'telefonica_chile_provider_1',
+            name: 'telefonica chile',
+            tld: 'cl',
+            country: 'Chile',
+            provider_type: 'telecom',
+            confidence: 0.85,
+            source: 'metadata_as_domain',
+            asn: 'AS22047',
+            org: 'VTR BANDA ANCHA S.A.',
+            risk_score: 3.2,
+            risk_tier: 'Medium',
+            domain_count: 3,
+            subdomain_count: 3,
+            created_at: '2025-07-31T10:15:19.814360',
+            is_unknown: false
+          },
+          {
+            id: 'amazon_provider_1',
+            name: 'amazon',
+            tld: 'com',
+            country: 'United States',
+            provider_type: 'cloud',
+            confidence: 0.95,
+            source: 'consolidated',
+            asn: 'AS16509',
+            org: 'Amazon.com, Inc.',
+            risk_score: 1.8,
+            risk_tier: 'Low',
+            domain_count: 4,
+            subdomain_count: 6,
+            created_at: '2025-07-31T09:25:15.123456',
+            is_unknown: false
+          },
+          {
+            id: 'gtd_provider_1',
+            name: 'gtd',
+            tld: 'cl',
+            country: 'Chile',
+            provider_type: 'isp',
+            confidence: 0.8,
+            source: 'metadata_as_domain_direct',
+            asn: 'AS14259',
+            org: 'Gtd Internet S.A.',
+            risk_score: 4.2,
+            risk_tier: 'Medium',
+            domain_count: 8,
+            subdomain_count: 15,
+            created_at: '2025-07-31T10:13:38.400904',
+            is_unknown: false
+          },
+          {
+            id: 'cloudflare_provider_1',
+            name: 'cloudflare',
+            tld: 'com',
+            country: 'United States',
+            provider_type: 'cdn',
+            confidence: 0.92,
+            source: 'consolidated',
+            asn: 'AS13335',
+            org: 'Cloudflare, Inc.',
+            risk_score: 1.5,
+            risk_tier: 'Low',
+            domain_count: 4,
+            subdomain_count: 7,
+            created_at: '2025-07-31T08:45:22.789012',
+            is_unknown: false
+          },
+          {
+            id: 'entel_provider_1',
+            name: 'entel',
+            tld: 'cl',
+            country: 'Chile',
+            provider_type: 'telecom',
+            confidence: 0.8,
+            source: 'metadata_as_domain_direct',
+            asn: 'AS27651',
+            org: 'ENTEL CHILE S.A.',
+            risk_score: 3.8,
+            risk_tier: 'Medium',
+            domain_count: 6,
+            subdomain_count: 12,
+            created_at: '2025-07-31T10:13:39.125024',
+            is_unknown: false
+          },
+          {
+            id: 'salesforce_provider_1',
+            name: 'salesforce',
+            tld: 'com',
+            country: 'United States',
+            provider_type: 'saas',
+            confidence: 0.85,
+            source: 'metadata_as_domain_direct',
+            asn: 'AS13717',
+            org: 'Salesforce.com, Inc.',
+            risk_score: 2.8,
+            risk_tier: 'Low',
+            domain_count: 4,
+            subdomain_count: 6,
+            created_at: '2025-07-31T10:14:35.503059',
+            is_unknown: false
+          }
+        ];
+
+        // Apply filters
+        let filteredProviders = mockProviders;
+        if (filters.name) {
+          filteredProviders = filteredProviders.filter(p => 
+            p.name.toLowerCase().includes(filters.name.toLowerCase())
+          );
         }
-      ];
+        if (filters.tld) {
+          filteredProviders = filteredProviders.filter(p => p.tld === filters.tld);
+        }
+        if (filters.country) {
+          filteredProviders = filteredProviders.filter(p => 
+            p.country?.toLowerCase().includes(filters.country.toLowerCase())
+          );
+        }
+        if (filters.providerType) {
+          filteredProviders = filteredProviders.filter(p => p.provider_type === filters.providerType);
+        }
+        if (filters.riskTier) {
+          filteredProviders = filteredProviders.filter(p => p.risk_tier === filters.riskTier);
+        }
 
-      // Apply filters
-      let filteredProviders = mockProviders;
-      if (filters.name) {
-        filteredProviders = filteredProviders.filter(p => 
-          p.name.toLowerCase().includes(filters.name.toLowerCase())
-        );
-      }
-      if (filters.tld) {
-        filteredProviders = filteredProviders.filter(p => p.tld === filters.tld);
-      }
-      if (filters.country) {
-        filteredProviders = filteredProviders.filter(p => 
-          p.country?.toLowerCase().includes(filters.country.toLowerCase())
-        );
-      }
-      if (filters.riskTier) {
-        filteredProviders = filteredProviders.filter(p => p.risk_tier === filters.riskTier);
-      }
+        // Apply pagination
+        const startIndex = pagination.page * pagination.pageSize;
+        const paginatedProviders = filteredProviders.slice(startIndex, startIndex + pagination.pageSize);
 
-      // Apply pagination
-      const startIndex = pagination.page * pagination.pageSize;
-      const paginatedProviders = filteredProviders.slice(startIndex, startIndex + pagination.pageSize);
-
-      setProviders(paginatedProviders);
-      setPagination(prev => ({ ...prev, total: filteredProviders.length }));
-      setError(null);
+        setProviders(paginatedProviders);
+        setPagination(prev => ({ ...prev, total: filteredProviders.length }));
+        setError(null);
+      }
     } catch (err) {
       setError('Failed to load providers');
       console.error('Providers error:', err);

@@ -14,10 +14,11 @@ anthropic:
   max_tokens: 4096
 
 mistral:
-  api_key: "${MISTRAL_API_KEY}"  # Set via environment variable
+  api_key: "j908tbrsRJiG8d1Bfe7CKLHZc9mcY5Ve"
   model: "mistral-small-latest"  # Options: mistral-large-latest, mistral-small-latest, codestral-latest
   timeout: 300
   max_tokens: 4096
+  #api_key: "${MISTRAL_API_KEY}"  # Set via environment variable
 
 neo4j:
   uri: "bolt://localhost:7687"

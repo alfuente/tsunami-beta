@@ -6,6 +6,7 @@
 RISK_GRAPH_DIR="risk-graph-service"
 RISK_DASHBOARD_DIR="risk-dashboard"
 RISK_QUERY_DIR="risk-query"
+DOMAIN_BACKEND_DIR="domain-backend"
 
 # Colors for output
 RED='\033[0;31m'
@@ -162,6 +163,79 @@ stop_npm() {
     fi
 }
 
+# Function to stop subdomain discovery API processes
+stop_discovery_api() {
+    print_header "Stopping Subdomain Discovery API processes"
+    
+    # Method 1: Find processes by port 8000
+    PORT_PIDS=$(lsof -ti:8000 2>/dev/null)
+    
+    # Method 2: Find Python processes related to subdomain API
+    API_PIDS=$(ps aux | grep -E "python.*subdomain_discovery_api|uvicorn.*subdomain_discovery_api" | grep -v grep | awk '{print $2}')
+    
+    # Method 3: Find processes by PID file and validate they exist
+    PID_FILE_PIDS=""
+    if [ -f "discovery-api-dev.pid" ]; then
+        POTENTIAL_PID=$(cat discovery-api-dev.pid 2>/dev/null)
+        # Only include PID if the process actually exists
+        if [ -n "$POTENTIAL_PID" ] && kill -0 $POTENTIAL_PID 2>/dev/null; then
+            PID_FILE_PIDS=$POTENTIAL_PID
+        else
+            print_status "Removing stale PID file (process $POTENTIAL_PID no longer exists)"
+            rm -f discovery-api-dev.pid
+        fi
+    fi
+    
+    # Combine all PIDs
+    ALL_PIDS="$PORT_PIDS $API_PIDS $PID_FILE_PIDS"
+    
+    # Remove duplicates and empty values
+    UNIQUE_PIDS=$(echo $ALL_PIDS | tr ' ' '\n' | sort -u | grep -v '^$')
+    
+    if [ -z "$UNIQUE_PIDS" ]; then
+        print_status "No Subdomain Discovery API processes found running"
+        # Clean up stale PID file if it exists
+        if [ -f "discovery-api-dev.pid" ]; then
+            print_status "Cleaning up stale PID file"
+            rm -f discovery-api-dev.pid
+        fi
+    else
+        print_status "Found Subdomain Discovery API processes: $(echo $UNIQUE_PIDS | tr '\n' ' ')"
+        for PID in $UNIQUE_PIDS; do
+            if kill -0 $PID 2>/dev/null; then
+                print_status "Killing Subdomain Discovery API process $PID"
+                kill -15 $PID 2>/dev/null
+                sleep 1
+                # Force kill if still running
+                if kill -0 $PID 2>/dev/null; then
+                    print_status "Force killing process $PID"
+                    kill -9 $PID 2>/dev/null
+                fi
+            else
+                print_status "Process $PID already terminated"
+            fi
+        done
+        sleep 2
+        
+        # Verify processes are stopped
+        REMAINING_PORT=$(lsof -ti:8000 2>/dev/null)
+        if [ -z "$REMAINING_PORT" ]; then
+            print_status "All Subdomain Discovery API processes stopped successfully"
+            # Clean up PID file
+            rm -f discovery-api-dev.pid
+        else
+            print_warning "Some processes may still be running on port 8000: $REMAINING_PORT"
+            # Try to kill remaining processes on port 8000
+            for PID in $REMAINING_PORT; do
+                print_status "Force killing remaining process $PID on port 8000"
+                kill -9 $PID 2>/dev/null
+            done
+            sleep 1
+            rm -f discovery-api-dev.pid
+        fi
+    fi
+}
+
 # Function to stop risk-query Python processes
 stop_risk_query() {
     print_header "Stopping Risk Query processes"
@@ -238,6 +312,57 @@ stop_risk_query() {
     fi
 }
 
+# Function to start subdomain discovery API service in development mode
+start_discovery_api_dev() {
+    print_header "Starting Subdomain Discovery API service in development mode"
+    
+    if [ ! -d "$DOMAIN_BACKEND_DIR" ]; then
+        print_error "Directory $DOMAIN_BACKEND_DIR not found"
+        return 1
+    fi
+    
+    cd "$DOMAIN_BACKEND_DIR"
+    
+    # Check if already running
+    if ps aux | grep -E "python.*subdomain_discovery_api|uvicorn.*subdomain_discovery_api" | grep -v grep > /dev/null; then
+        print_warning "Subdomain Discovery API process already running. Stopping first..."
+        stop_discovery_api
+        sleep 2
+    fi
+    
+    # Check if virtual environment exists, create if not
+    if [ ! -d "venv" ]; then
+        print_status "Creating Python virtual environment..."
+        python3 -m venv venv
+    fi
+    
+    # Activate virtual environment and install dependencies
+    source venv/bin/activate
+    
+    if [ ! -f "venv/api_installed.flag" ]; then
+        print_status "Installing API dependencies..."
+        pip install -r requirements_api.txt
+        touch venv/api_installed.flag
+    fi
+    
+    # Set environment variables
+    export NEO4J_URI=${NEO4J_URI:-"bolt://localhost:7687"}
+    export NEO4J_USER=${NEO4J_USER:-"neo4j"}
+    export NEO4J_PASS=${NEO4J_PASS:-"test.password"}
+    
+    print_status "Starting Subdomain Discovery API service in background..."
+    nohup python subdomain_discovery_api.py > ../discovery-api-dev.log 2>&1 &
+    API_PID=$!
+    
+    echo $API_PID > ../discovery-api-dev.pid
+    print_status "Subdomain Discovery API started with PID: $API_PID"
+    print_status "API available at: http://localhost:8000"
+    print_status "Swagger docs at: http://localhost:8000/docs"
+    print_status "Logs: tail -f discovery-api-dev.log"
+    
+    cd ..
+}
+
 # Function to start risk-query service in development mode
 start_risk_query_dev() {
     print_header "Starting Risk Query service in development mode"
@@ -273,6 +398,7 @@ start_risk_query_dev() {
    
     export MISTRAL_API_KEY=$(cat ./test/api2.txt)  
 
+    echo $MISTRAL_API_KEY
     print_status "Starting Risk Query service in background..."
     nohup python app/main.py > ../risk-query-dev.log 2>&1 &
     QUERY_PID=$!
@@ -310,6 +436,53 @@ start_quarkus_dev() {
     print_status "Quarkus started with PID: $QUARKUS_PID"
     print_status "Logs: tail -f quarkus-dev.log"
     
+    cd ..
+}
+
+# Function to clear React cache
+clear_react_cache() {
+    print_header "Clearing React cache"
+    
+    if [ ! -d "$RISK_DASHBOARD_DIR" ]; then
+        print_error "Directory $RISK_DASHBOARD_DIR not found"
+        return 1
+    fi
+    
+    cd "$RISK_DASHBOARD_DIR"
+    
+    print_status "Clearing React development cache..."
+    
+    # Clear npm cache
+    if command -v npm &> /dev/null; then
+        print_status "Clearing npm cache..."
+        npm cache clean --force
+    fi
+    
+    # Remove node_modules cache directories
+    if [ -d "node_modules/.cache" ]; then
+        print_status "Removing node_modules/.cache..."
+        rm -rf node_modules/.cache
+    fi
+    
+    # Remove React build cache
+    if [ -d "build" ]; then
+        print_status "Removing build directory..."
+        rm -rf build
+    fi
+    
+    # Remove webpack cache (if exists)
+    if [ -d ".cache" ]; then
+        print_status "Removing .cache directory..."
+        rm -rf .cache
+    fi
+    
+    # Clear environment variable cache by touching .env file
+    if [ -f ".env" ]; then
+        print_status "Refreshing .env file timestamp..."
+        touch .env
+    fi
+    
+    print_status "React cache cleared successfully"
     cd ..
 }
 
@@ -438,6 +611,17 @@ show_status() {
     else
         print_warning "Risk Query: STOPPED"
     fi
+    
+    # Check Subdomain Discovery API
+    API_PORT_PID=$(lsof -ti:8000 2>/dev/null | head -1)
+    API_PROCESS_PID=$(ps aux | grep -E "python.*subdomain_discovery_api" | grep -v grep | awk '{print $2}' | head -1)
+    
+    if [ -n "$API_PORT_PID" ] || [ -n "$API_PROCESS_PID" ]; then
+        ACTIVE_PID=${API_PORT_PID:-$API_PROCESS_PID}
+        print_status "Discovery API: RUNNING (PID: $ACTIVE_PID, Port: 8000)"
+    else
+        print_warning "Discovery API: STOPPED"
+    fi
 }
 
 # Function to show logs
@@ -468,6 +652,13 @@ show_logs() {
                 print_error "No Risk Query log files found"
             fi
             ;;
+        "discovery"|"api"|"da")
+            if [ -f "discovery-api-dev.log" ]; then
+                tail -f discovery-api-dev.log
+            else
+                print_error "No Discovery API log files found"
+            fi
+            ;;
         "ollama"|"o")
             if [ -f "ollama.log" ]; then
                 tail -f ollama.log
@@ -476,7 +667,7 @@ show_logs() {
             fi
             ;;
         *)
-            print_error "Usage: $0 logs [quarkus|react|query|ollama]"
+            print_error "Usage: $0 logs [quarkus|react|query|discovery|ollama]"
             ;;
     esac
 }
@@ -488,12 +679,14 @@ case $1 in
         stop_quarkus
         stop_npm
         stop_risk_query
+        stop_discovery_api
         ;;
     "start-dev")
         start_ollama
         start_quarkus_dev
         start_npm_dev
         start_risk_query_dev
+        start_discovery_api_dev
         ;;
     "start-test")
         start_ollama
@@ -505,17 +698,20 @@ case $1 in
         stop_quarkus
         stop_npm
         stop_risk_query
+        stop_discovery_api
         sleep 2
         start_ollama
         start_quarkus_dev
         start_npm_dev
         start_risk_query_dev
+        start_discovery_api_dev
         ;;
     "restart-test")
         stop_ollama
         stop_quarkus
         stop_npm
         stop_risk_query
+        stop_discovery_api
         sleep 2
         start_ollama
         start_quarkus_test
@@ -533,6 +729,20 @@ case $1 in
     "stop-query")
         stop_risk_query
         ;;
+    "start-discovery")
+        start_discovery_api_dev
+        ;;
+    "stop-discovery")
+        stop_discovery_api
+        ;;
+    "clear-cache")
+        clear_react_cache
+        ;;
+    "restart-react")
+        stop_npm
+        clear_react_cache
+        start_npm_dev
+        ;;
     "status")
         show_status
         ;;
@@ -542,7 +752,7 @@ case $1 in
     *)
         echo "Tsunami Beta Services Management Script"
         echo ""
-        echo "Usage: $0 {stop|start-dev|start-test|restart-dev|restart-test|start-ollama|stop-ollama|start-query|stop-query|status|logs}"
+        echo "Usage: $0 {stop|start-dev|start-test|restart-dev|restart-test|start-ollama|stop-ollama|start-query|stop-query|start-discovery|stop-discovery|clear-cache|restart-react|status|logs}"
         echo ""
         echo "Commands:"
         echo "  stop        - Stop all running services"
@@ -554,15 +764,23 @@ case $1 in
         echo "  stop-ollama - Stop Ollama service only"
         echo "  start-query - Start Risk Query service only"
         echo "  stop-query  - Stop Risk Query service only"
+        echo "  start-discovery - Start Subdomain Discovery API service only"
+        echo "  stop-discovery  - Stop Subdomain Discovery API service only"
+        echo "  clear-cache - Clear React development cache"
+        echo "  restart-react- Stop React, clear cache, and restart React"
         echo "  status      - Show status of all services"
-        echo "  logs [quarkus|react|query|ollama] - Show logs for specific service"
+        echo "  logs [quarkus|react|query|discovery|ollama] - Show logs for specific service"
         echo ""
         echo "Examples:"
         echo "  $0 start-dev      # Start all services in development mode"
         echo "  $0 stop           # Stop all services"
         echo "  $0 status         # Check if services are running"
         echo "  $0 logs query     # View Risk Query logs"
+        echo "  $0 logs discovery # View Discovery API logs"
         echo "  $0 start-ollama   # Start only Ollama service"
+        echo "  $0 start-discovery # Start only Discovery API service"
+        echo "  $0 clear-cache    # Clear React cache (useful when env vars don't update)"
+        echo "  $0 restart-react  # Restart React with cache clearing"
         exit 1
         ;;
 esac

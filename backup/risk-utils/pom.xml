@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" …>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example</groupId><artifactId>risk-utils</artifactId><version>1.0.0</version>
+  <properties>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <neo4j.driver.version>5.19.0</neo4j.driver.version>
+    <iceberg.version>1.5.0</iceberg.version>
+    <spark.version>3.5.1</spark.version>
+  </properties>
+  <dependencies>
+    <!-- Neo4j Bolt driver -->
+    <dependency>
+      <groupId>org.neo4j.driver</groupId><artifactId>neo4j-java-driver</artifactId>
+      <version>${neo4j.driver.version}</version>
+    </dependency>
+
+    <!-- Apache Iceberg core + REST -->
+    <dependency>
+      <groupId>org.apache.iceberg</groupId><artifactId>iceberg-core</artifactId>
+      <version>${iceberg.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.iceberg</groupId><artifactId>iceberg-rest-catalog</artifactId>
+      <version>${iceberg.version}</version>
+    </dependency>
+
+    <!-- Spark SQL (para el ETL) -->
+    <dependency>
+      <groupId>org.apache.spark</groupId><artifactId>spark-sql_2.13</artifactId>
+      <version>${spark.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Neo4j Spark Connector (lectura directa) -->
+    <dependency>
+      <groupId>org.neo4j</groupId><artifactId>neo4j-connector-apache-spark_2.13</artifactId>
+      <version>5.2.0_for_spark_${spark.version}</version>
+    </dependency>
+  </dependencies>
+</project>

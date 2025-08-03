@@ -1,0 +1,20 @@
+# Requirements for Subdomain Discovery API
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+python-multipart==0.0.6
+
+# Core dependencies (already in project)
+neo4j==5.13.0
+dnspython==2.4.2
+requests==2.31.0
+ipaddress
+
+# Optional dependencies for enhanced features
+ipinfo==4.4.2
+tldextract==5.1.1
+maxminddb==2.2.0
+python-whois==0.8.0
+
+# For the unified discovery engine
+dataclasses-json==0.6.3

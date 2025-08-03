@@ -1,0 +1,3 @@
+outlook.office365.com
+login.salesforce.com
+workspace.google.com

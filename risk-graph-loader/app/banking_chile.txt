@@ -1,0 +1,10 @@
+bancochile.cl
+santander.cl
+bci.cl
+itau.cl
+scotiabank.cl
+bancoestado.cl
+bancointernacional.cl
+security.cl
+bancoconsorcio.cl
+bancofalabella.cl

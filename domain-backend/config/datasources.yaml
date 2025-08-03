@@ -1,0 +1,24 @@
+datasources:
+  - name: AlienVault
+    creds:
+      account: 
+        apikey: b3e1749b53bc4916f36247c6963f1588c34801f08a342fea815f3589d18c4a99
+  - name: Shodan
+    ttl: 10080
+    creds:
+      account: 
+        apikey: xwGnANztoOVfECntTZxyL2CemzbHWIjg
+  - name: VirusTotal
+    ttl: 10080
+    creds:
+      account: 
+        apikey: 34226ba9cbb815c341102bbefebadc60536a2bec726819c85a466903fa0d50ac
+  - name: WhoisXMLAPI
+    creds:
+      account: 
+        apikey: at_axSdVa1qdNAkgi7kyP1fYt76cnK84
+
+# this is the global options that will be considered. For example, minimum_ttl would be a global option used to compare
+# the minimum_ttl to the other datasources ttl.
+global_options: 
+  minimum_ttl: 1440
