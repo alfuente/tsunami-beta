@@ -44,6 +44,24 @@ public class DomainResponse {
         @JsonProperty("name_servers")
         private List<Map<String, Object>> nameServers;
         
+        @JsonProperty("dns_records")
+        private String dnsRecords;
+        
+        @JsonProperty("mx_records")
+        private String mxRecords;
+        
+        @JsonProperty("spf_record")
+        private String spfRecord;
+        
+        @JsonProperty("dmarc_record")
+        private String dmarcRecord;
+        
+        @JsonProperty("has_spf")
+        private Boolean hasSpf;
+        
+        @JsonProperty("has_dmarc")
+        private Boolean hasDmarc;
+        
         public DnsInfo() {}
 
         public DnsInfo(Boolean dnsSecEnabled, List<Map<String, Object>> nameServers) {
@@ -56,6 +74,24 @@ public class DomainResponse {
         
         public List<Map<String, Object>> getNameServers() { return nameServers; }
         public void setNameServers(List<Map<String, Object>> nameServers) { this.nameServers = nameServers; }
+        
+        public String getDnsRecords() { return dnsRecords; }
+        public void setDnsRecords(String dnsRecords) { this.dnsRecords = dnsRecords; }
+        
+        public String getMxRecords() { return mxRecords; }
+        public void setMxRecords(String mxRecords) { this.mxRecords = mxRecords; }
+        
+        public String getSpfRecord() { return spfRecord; }
+        public void setSpfRecord(String spfRecord) { this.spfRecord = spfRecord; }
+        
+        public String getDmarcRecord() { return dmarcRecord; }
+        public void setDmarcRecord(String dmarcRecord) { this.dmarcRecord = dmarcRecord; }
+        
+        public Boolean getHasSpf() { return hasSpf; }
+        public void setHasSpf(Boolean hasSpf) { this.hasSpf = hasSpf; }
+        
+        public Boolean getHasDmarc() { return hasDmarc; }
+        public void setHasDmarc(Boolean hasDmarc) { this.hasDmarc = hasDmarc; }
     }
     
     public static class SecurityInfo {

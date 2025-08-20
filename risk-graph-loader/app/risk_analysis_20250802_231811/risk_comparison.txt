@@ -1,0 +1,6 @@
+Risk Score Comparison:
+=====================
+bice.cl: Score=null, Tier=null
+example.com: Score=null, Tier=null
+google.com: Score=null, Tier=null
+microsoft.com: Score=null, Tier=null

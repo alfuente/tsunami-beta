@@ -1,0 +1,66 @@
+{
+  "subdomain_fqdn": "pluginonbdev.bancoripley.cl",
+  "calculation_timestamp": "20250804_000801",
+  "final_score": 17.5,
+  "risk_tier": "Minimal",
+  "version": "subdomain-v1.0",
+  "components": {
+    "base_tech": {
+      "score": 50.0,
+      "weight": 0.35,
+      "weighted_contribution": 17.5,
+      "details": {
+        "dns_penalty": -15.0,
+        "tls": {
+          "grade": "UNKNOWN",
+          "penalty": 25.0
+        },
+        "infrastructure": {
+          "multi_az": false,
+          "multi_region": false,
+          "penalty": 10.0
+        },
+        "cves": {
+          "critical": 0,
+          "high": 0,
+          "penalty": 0.0
+        }
+      }
+    },
+    "third_party": {
+      "score": 0.0,
+      "weight": 0.3,
+      "weighted_contribution": 0.0,
+      "details": {
+        "dependencies": [],
+        "score": 0.0
+      }
+    },
+    "incident_impact": {
+      "score": 0.0,
+      "weight": 0.25,
+      "weighted_contribution": 0.0,
+      "details": {
+        "direct_impact": 0.0,
+        "direct_details": {
+          "incidents": [],
+          "total_impact": 0.0
+        },
+        "indirect_impact": 0.0,
+        "indirect_details": {
+          "incidents": [],
+          "total_impact": 0.0
+        },
+        "total_impact": 0.0
+      }
+    },
+    "context_boost": {
+      "score": 0.0,
+      "weight": 0.1,
+      "weighted_contribution": -0.0,
+      "details": {
+        "error": "No organization found"
+      }
+    }
+  }
+}

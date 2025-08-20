@@ -193,15 +193,26 @@ public class DomainResource {
         
         try {
             String query = """
-                MATCH (root:Domain {fqdn: $rootFqdn})-[:HAS_SUBDOMAIN*0..]->(d:Domain)
+                MATCH (root:Domain {fqdn: $rootFqdn})
+                OPTIONAL MATCH (root)-[:HAS_SUBDOMAIN]->(s:Subdomain)
+                WITH root, collect(s) as subdomains
                 RETURN 
-                    d.fqdn as fqdn,
-                    d.risk_score as risk_score,
-                    d.risk_tier as risk_tier,
-                    d.last_calculated as last_calculated,
-                    d.business_criticality as business_criticality,
-                    d.monitoring_enabled as monitoring_enabled
-                ORDER BY d.fqdn
+                    root.fqdn as fqdn,
+                    root.risk_score as risk_score,
+                    root.risk_tier as risk_tier,
+                    root.last_calculated as last_calculated,
+                    root.business_criticality as business_criticality,
+                    root.monitoring_enabled as monitoring_enabled
+                UNION
+                MATCH (root:Domain {fqdn: $rootFqdn})-[:HAS_SUBDOMAIN]->(s:Subdomain)
+                RETURN 
+                    s.fqdn as fqdn,
+                    s.risk_score as risk_score,
+                    s.risk_tier as risk_tier,
+                    s.last_calculated as last_calculated,
+                    s.business_criticality as business_criticality,
+                    s.monitoring_enabled as monitoring_enabled
+                ORDER BY fqdn
                 """;
             
             try (Session session = driver.session()) {
@@ -372,6 +383,12 @@ public class DomainResource {
                 d.high_cves as high_cves,
                 d.last_assessment as last_assessment,
                 c.tls_grade as tls_grade,
+                d.dns_records as dns_records,
+                d.mx_records as mx_records,
+                d.spf_record as spf_record,
+                d.dmarc_record as dmarc_record,
+                d.has_spf as has_spf,
+                d.has_dmarc as has_dmarc,
                 collect(DISTINCT {asn: asn.asn, country: asn.country}) as name_servers
             """;
         
@@ -410,6 +427,12 @@ public class DomainResource {
                     coalesce(s.high_cves, 0) as high_cves,
                     s.last_assessment as last_assessment,
                     coalesce(c.tls_grade, s.tls_grade, 'Unknown') as tls_grade,
+                    s.dns_records as dns_records,
+                    s.mx_records as mx_records,
+                    s.spf_record as spf_record,
+                    s.dmarc_record as dmarc_record,
+                    coalesce(s.has_spf, false) as has_spf,
+                    coalesce(s.has_dmarc, false) as has_dmarc,
                     collect(DISTINCT {asn: asn.asn, country: asn.country}) as name_servers
                 """;
             
@@ -445,6 +468,12 @@ public class DomainResource {
         dnsInfo.setNameServers(record.get("name_servers").asList().stream()
             .map(obj -> (Map<String, Object>) obj)
             .collect(Collectors.toList()));
+        dnsInfo.setDnsRecords(record.get("dns_records").isNull() ? null : record.get("dns_records").asString());
+        dnsInfo.setMxRecords(record.get("mx_records").isNull() ? null : record.get("mx_records").asString());
+        dnsInfo.setSpfRecord(record.get("spf_record").isNull() ? null : record.get("spf_record").asString());
+        dnsInfo.setDmarcRecord(record.get("dmarc_record").isNull() ? null : record.get("dmarc_record").asString());
+        dnsInfo.setHasSpf(record.get("has_spf").asBoolean(false));
+        dnsInfo.setHasDmarc(record.get("has_dmarc").asBoolean(false));
         response.setDnsInfo(dnsInfo);
         
         // Security Info

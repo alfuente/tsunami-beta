@@ -163,41 +163,59 @@ stop_npm() {
     fi
 }
 
-# Function to stop subdomain discovery API processes
+# Function to stop subdomain discovery API processes (legacy and async)
 stop_discovery_api() {
     print_header "Stopping Subdomain Discovery API processes"
     
-    # Method 1: Find processes by port 8000
-    PORT_PIDS=$(lsof -ti:8000 2>/dev/null)
+    # Method 1: Find processes by port 8000 (legacy API)
+    PORT_8000_PIDS=$(lsof -ti:8000 2>/dev/null)
     
-    # Method 2: Find Python processes related to subdomain API
-    API_PIDS=$(ps aux | grep -E "python.*subdomain_discovery_api|uvicorn.*subdomain_discovery_api" | grep -v grep | awk '{print $2}')
+    # Method 2: Find processes by port 8001 (async API) 
+    PORT_8001_PIDS=$(lsof -ti:8001 2>/dev/null)
     
-    # Method 3: Find processes by PID file and validate they exist
+    # Method 3: Find Python processes related to subdomain APIs
+    API_PIDS=$(ps aux | grep -E "python.*subdomain_discovery_api|python.*async_domain_discovery_api|uvicorn.*subdomain_discovery_api|uvicorn.*async_domain_discovery_api" | grep -v grep | awk '{print $2}')
+    
+    # Method 4: Find processes by PID files and validate they exist
     PID_FILE_PIDS=""
     if [ -f "discovery-api-dev.pid" ]; then
         POTENTIAL_PID=$(cat discovery-api-dev.pid 2>/dev/null)
         # Only include PID if the process actually exists
         if [ -n "$POTENTIAL_PID" ] && kill -0 $POTENTIAL_PID 2>/dev/null; then
-            PID_FILE_PIDS=$POTENTIAL_PID
+            PID_FILE_PIDS="$PID_FILE_PIDS $POTENTIAL_PID"
         else
-            print_status "Removing stale PID file (process $POTENTIAL_PID no longer exists)"
+            print_status "Removing stale PID file discovery-api-dev.pid (process $POTENTIAL_PID no longer exists)"
             rm -f discovery-api-dev.pid
         fi
     fi
     
+    if [ -f "async-api-dev.pid" ]; then
+        POTENTIAL_PID=$(cat async-api-dev.pid 2>/dev/null)
+        # Only include PID if the process actually exists
+        if [ -n "$POTENTIAL_PID" ] && kill -0 $POTENTIAL_PID 2>/dev/null; then
+            PID_FILE_PIDS="$PID_FILE_PIDS $POTENTIAL_PID"
+        else
+            print_status "Removing stale PID file async-api-dev.pid (process $POTENTIAL_PID no longer exists)"
+            rm -f async-api-dev.pid
+        fi
+    fi
+    
     # Combine all PIDs
-    ALL_PIDS="$PORT_PIDS $API_PIDS $PID_FILE_PIDS"
+    ALL_PIDS="$PORT_8000_PIDS $PORT_8001_PIDS $API_PIDS $PID_FILE_PIDS"
     
     # Remove duplicates and empty values
     UNIQUE_PIDS=$(echo $ALL_PIDS | tr ' ' '\n' | sort -u | grep -v '^$')
     
     if [ -z "$UNIQUE_PIDS" ]; then
         print_status "No Subdomain Discovery API processes found running"
-        # Clean up stale PID file if it exists
+        # Clean up stale PID files if they exist
         if [ -f "discovery-api-dev.pid" ]; then
-            print_status "Cleaning up stale PID file"
+            print_status "Cleaning up stale PID file discovery-api-dev.pid"
             rm -f discovery-api-dev.pid
+        fi
+        if [ -f "async-api-dev.pid" ]; then
+            print_status "Cleaning up stale PID file async-api-dev.pid"
+            rm -f async-api-dev.pid
         fi
     else
         print_status "Found Subdomain Discovery API processes: $(echo $UNIQUE_PIDS | tr '\n' ' ')"
@@ -218,20 +236,32 @@ stop_discovery_api() {
         sleep 2
         
         # Verify processes are stopped
-        REMAINING_PORT=$(lsof -ti:8000 2>/dev/null)
-        if [ -z "$REMAINING_PORT" ]; then
+        REMAINING_8000=$(lsof -ti:8000 2>/dev/null)
+        REMAINING_8001=$(lsof -ti:8001 2>/dev/null)
+        
+        if [ -z "$REMAINING_8000" ] && [ -z "$REMAINING_8001" ]; then
             print_status "All Subdomain Discovery API processes stopped successfully"
-            # Clean up PID file
-            rm -f discovery-api-dev.pid
+            # Clean up PID files
+            rm -f discovery-api-dev.pid async-api-dev.pid
         else
-            print_warning "Some processes may still be running on port 8000: $REMAINING_PORT"
-            # Try to kill remaining processes on port 8000
-            for PID in $REMAINING_PORT; do
-                print_status "Force killing remaining process $PID on port 8000"
-                kill -9 $PID 2>/dev/null
-            done
+            if [ -n "$REMAINING_8000" ]; then
+                print_warning "Some processes may still be running on port 8000: $REMAINING_8000"
+                # Try to kill remaining processes on port 8000
+                for PID in $REMAINING_8000; do
+                    print_status "Force killing remaining process $PID on port 8000"
+                    kill -9 $PID 2>/dev/null
+                done
+            fi
+            if [ -n "$REMAINING_8001" ]; then
+                print_warning "Some processes may still be running on port 8001: $REMAINING_8001"
+                # Try to kill remaining processes on port 8001
+                for PID in $REMAINING_8001; do
+                    print_status "Force killing remaining process $PID on port 8001"
+                    kill -9 $PID 2>/dev/null
+                done
+            fi
             sleep 1
-            rm -f discovery-api-dev.pid
+            rm -f discovery-api-dev.pid async-api-dev.pid
         fi
     fi
 }
@@ -312,7 +342,7 @@ stop_risk_query() {
     fi
 }
 
-# Function to start subdomain discovery API service in development mode
+# Function to start subdomain discovery API service in development mode (legacy)
 start_discovery_api_dev() {
     print_header "Starting Subdomain Discovery API service in development mode"
     
@@ -350,15 +380,69 @@ start_discovery_api_dev() {
     export NEO4J_USER=${NEO4J_USER:-"neo4j"}
     export NEO4J_PASS=${NEO4J_PASS:-"test.password"}
     
-    print_status "Starting Subdomain Discovery API service in background..."
+    print_status "Starting Legacy Discovery API service in background..."
     nohup python subdomain_discovery_api.py > ../discovery-api-dev.log 2>&1 &
     API_PID=$!
     
     echo $API_PID > ../discovery-api-dev.pid
-    print_status "Subdomain Discovery API started with PID: $API_PID"
+    print_status "Legacy Discovery API started with PID: $API_PID"
     print_status "API available at: http://localhost:8000"
     print_status "Swagger docs at: http://localhost:8000/docs"
     print_status "Logs: tail -f discovery-api-dev.log"
+    
+    cd ..
+}
+
+# Function to start async domain discovery API service in development mode
+start_async_api_dev() {
+    print_header "Starting Async Domain Discovery API service in development mode"
+    
+    if [ ! -d "$DOMAIN_BACKEND_DIR" ]; then
+        print_error "Directory $DOMAIN_BACKEND_DIR not found"
+        return 1
+    fi
+    
+    cd "$DOMAIN_BACKEND_DIR"
+    
+    # Check if already running on port 8001
+    if ps aux | grep -E "python.*async_domain_discovery_api|uvicorn.*async_domain_discovery_api" | grep -v grep > /dev/null; then
+        print_warning "Async Domain Discovery API process already running. Stopping first..."
+        stop_discovery_api
+        sleep 2
+    fi
+    
+    # Check if virtual environment exists, create if not
+    if [ ! -d "venv" ]; then
+        print_status "Creating Python virtual environment..."
+        python3 -m venv venv
+    fi
+    
+    # Activate virtual environment and install dependencies
+    source venv/bin/activate
+    
+    if [ ! -f "venv/async_api_installed.flag" ]; then
+        print_status "Installing Async API dependencies..."
+        pip install fastapi uvicorn redis neo4j requests dnspython
+        touch venv/async_api_installed.flag
+    fi
+    
+    # Set environment variables
+    export NEO4J_URI=${NEO4J_URI:-"bolt://localhost:7687"}
+    export NEO4J_USER=${NEO4J_USER:-"neo4j"}
+    export NEO4J_PASS=${NEO4J_PASS:-"tsunami123"}
+    export REDIS_HOST=${REDIS_HOST:-"localhost"}
+    export REDIS_PORT=${REDIS_PORT:-"6379"}
+    
+    print_status "Starting Async Domain Discovery API service in background..."
+    nohup python async_domain_discovery_api.py > ../async-api-dev.log 2>&1 &
+    ASYNC_API_PID=$!
+    
+    echo $ASYNC_API_PID > ../async-api-dev.pid
+    print_status "Async Domain Discovery API started with PID: $ASYNC_API_PID"
+    print_status "API available at: http://localhost:8001"
+    print_status "Swagger docs at: http://localhost:8001/docs"
+    print_status "Health check at: http://localhost:8001/health"
+    print_status "Logs: tail -f async-api-dev.log"
     
     cd ..
 }
@@ -612,15 +696,26 @@ show_status() {
         print_warning "Risk Query: STOPPED"
     fi
     
-    # Check Subdomain Discovery API
+    # Check Legacy Subdomain Discovery API (Port 8000)
     API_PORT_PID=$(lsof -ti:8000 2>/dev/null | head -1)
     API_PROCESS_PID=$(ps aux | grep -E "python.*subdomain_discovery_api" | grep -v grep | awk '{print $2}' | head -1)
     
     if [ -n "$API_PORT_PID" ] || [ -n "$API_PROCESS_PID" ]; then
         ACTIVE_PID=${API_PORT_PID:-$API_PROCESS_PID}
-        print_status "Discovery API: RUNNING (PID: $ACTIVE_PID, Port: 8000)"
+        print_status "Legacy Discovery API: RUNNING (PID: $ACTIVE_PID, Port: 8000)"
     else
-        print_warning "Discovery API: STOPPED"
+        print_warning "Legacy Discovery API: STOPPED"
+    fi
+    
+    # Check Async Domain Discovery API (Port 8001)
+    ASYNC_PORT_PID=$(lsof -ti:8001 2>/dev/null | head -1)
+    ASYNC_PROCESS_PID=$(ps aux | grep -E "python.*async_domain_discovery_api" | grep -v grep | awk '{print $2}' | head -1)
+    
+    if [ -n "$ASYNC_PORT_PID" ] || [ -n "$ASYNC_PROCESS_PID" ]; then
+        ACTIVE_PID=${ASYNC_PORT_PID:-$ASYNC_PROCESS_PID}
+        print_status "Async Discovery API: RUNNING (PID: $ACTIVE_PID, Port: 8001)"
+    else
+        print_warning "Async Discovery API: STOPPED"
     fi
 }
 
@@ -656,7 +751,14 @@ show_logs() {
             if [ -f "discovery-api-dev.log" ]; then
                 tail -f discovery-api-dev.log
             else
-                print_error "No Discovery API log files found"
+                print_error "No Legacy Discovery API log files found"
+            fi
+            ;;
+        "async"|"async-api"|"aa")
+            if [ -f "async-api-dev.log" ]; then
+                tail -f async-api-dev.log
+            else
+                print_error "No Async Discovery API log files found"
             fi
             ;;
         "ollama"|"o")
@@ -667,7 +769,14 @@ show_logs() {
             fi
             ;;
         *)
-            print_error "Usage: $0 logs [quarkus|react|query|discovery|ollama]"
+            print_error "Usage: $0 logs [quarkus|react|query|discovery|async|ollama]"
+            print_error "Available log types:"
+            print_error "  quarkus|q    - Risk Graph Service logs"
+            print_error "  react|r      - Risk Dashboard logs"
+            print_error "  query|rq     - Risk Query Service logs" 
+            print_error "  discovery|api|da - Legacy Discovery API logs (port 8000)"
+            print_error "  async|async-api|aa - Async Discovery API logs (port 8001)"
+            print_error "  ollama|o     - Ollama Service logs"
             ;;
     esac
 }
@@ -686,7 +795,7 @@ case $1 in
         start_quarkus_dev
         start_npm_dev
         start_risk_query_dev
-        start_discovery_api_dev
+        start_async_api_dev
         ;;
     "start-test")
         start_ollama
@@ -704,7 +813,7 @@ case $1 in
         start_quarkus_dev
         start_npm_dev
         start_risk_query_dev
-        start_discovery_api_dev
+        start_async_api_dev
         ;;
     "restart-test")
         stop_ollama
@@ -732,7 +841,16 @@ case $1 in
     "start-discovery")
         start_discovery_api_dev
         ;;
+    "start-async")
+        start_async_api_dev
+        ;;
+    "start-discovery-legacy")
+        start_discovery_api_dev
+        ;;
     "stop-discovery")
+        stop_discovery_api
+        ;;
+    "stop-async")
         stop_discovery_api
         ;;
     "clear-cache")
@@ -752,35 +870,46 @@ case $1 in
     *)
         echo "Tsunami Beta Services Management Script"
         echo ""
-        echo "Usage: $0 {stop|start-dev|start-test|restart-dev|restart-test|start-ollama|stop-ollama|start-query|stop-query|start-discovery|stop-discovery|clear-cache|restart-react|status|logs}"
+        echo "Usage: $0 {stop|start-dev|start-test|restart-dev|restart-test|start-ollama|stop-ollama|start-query|stop-query|start-discovery|start-async|start-discovery-legacy|stop-discovery|stop-async|clear-cache|restart-react|status|logs}"
         echo ""
         echo "Commands:"
         echo "  stop        - Stop all running services"
-        echo "  start-dev   - Start all services in development mode (detached)"
+        echo "  start-dev   - Start all services in development mode (detached) - uses async API"
         echo "  start-test  - Start services in test mode (detached)"  
-        echo "  restart-dev - Restart all services in development mode"
+        echo "  restart-dev - Restart all services in development mode - uses async API"
         echo "  restart-test- Restart services in test mode"
         echo "  start-ollama- Start Ollama service only"
         echo "  stop-ollama - Stop Ollama service only"
         echo "  start-query - Start Risk Query service only"
         echo "  stop-query  - Stop Risk Query service only"
-        echo "  start-discovery - Start Subdomain Discovery API service only"
-        echo "  stop-discovery  - Stop Subdomain Discovery API service only"
+        echo "  start-async - Start NEW Async Domain Discovery API service (port 8001)"
+        echo "  start-discovery-legacy - Start Legacy Subdomain Discovery API (port 8000)"
+        echo "  start-discovery - Alias for start-discovery-legacy"
+        echo "  stop-discovery  - Stop all Discovery API services (legacy + async)"
+        echo "  stop-async  - Stop all Discovery API services (legacy + async)"
         echo "  clear-cache - Clear React development cache"
         echo "  restart-react- Stop React, clear cache, and restart React"
         echo "  status      - Show status of all services"
-        echo "  logs [quarkus|react|query|discovery|ollama] - Show logs for specific service"
+        echo "  logs [quarkus|react|query|discovery|async|ollama] - Show logs for specific service"
         echo ""
         echo "Examples:"
-        echo "  $0 start-dev      # Start all services in development mode"
+        echo "  $0 start-dev      # Start all services (uses new async API on port 8001)"
         echo "  $0 stop           # Stop all services"
         echo "  $0 status         # Check if services are running"
         echo "  $0 logs query     # View Risk Query logs"
-        echo "  $0 logs discovery # View Discovery API logs"
+        echo "  $0 logs async     # View Async Discovery API logs"
+        echo "  $0 logs discovery # View Legacy Discovery API logs"
         echo "  $0 start-ollama   # Start only Ollama service"
-        echo "  $0 start-discovery # Start only Discovery API service"
+        echo "  $0 start-async    # Start only NEW Async Discovery API (port 8001)"
+        echo "  $0 start-discovery-legacy # Start only Legacy Discovery API (port 8000)"
         echo "  $0 clear-cache    # Clear React cache (useful when env vars don't update)"
         echo "  $0 restart-react  # Restart React with cache clearing"
+        echo ""
+        echo "🆕 NEW: Async Domain Discovery API"
+        echo "  - Available at: http://localhost:8001"  
+        echo "  - Swagger docs: http://localhost:8001/docs"
+        echo "  - Features: Incremental analysis, Redis caching, progress tracking"
+        echo "  - Test scripts: ./scripts/test_async_api.sh"
         exit 1
         ;;
 esac

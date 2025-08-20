@@ -19,7 +19,7 @@ Examples:
 - GET /api/v1/discoveryComplete/example.com - Full analysis (all features)
 """
 
-from fastapi import FastAPI, HTTPException, Query, Path, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Query, Path, BackgroundTasks, Depends
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -42,6 +42,26 @@ try:
     HAS_DISCOVERY_ENGINE = True
 except ImportError:
     HAS_DISCOVERY_ENGINE = False
+
+ # Define dummy classes to prevent NameError
+    class ProcessingConfig:
+        def __init__(self, **kwargs):
+            for k, v in kwargs.items():
+                setattr(self, k, v)
+    
+    class DiscoveryResult:
+        def __init__(self):
+            self.domain = ""
+            self.subdomains = []
+            self.providers = []
+            self.services = []
+            self.certificates = []
+            self.risks = []
+            self.industry_classification = None
+            self.processing_time = 0.0
+            self.errors = []
+            self.metadata = {}
+
 
 # Import risk calculation functionality
 try:
@@ -501,8 +521,8 @@ async def discovery_complete(
           summary="Start async discovery job",
           description="Start an asynchronous discovery job and return job ID")
 async def start_discovery_job(
+    domain: str,
     background_tasks: BackgroundTasks,
-    domain: str = Path(..., description="Domain to analyze", example="example.com"),
     enable_providers: bool = Query(False, description="Enable provider detection"),
     enable_services: bool = Query(False, description="Enable service detection"),
     enable_tls: bool = Query(False, description="Enable TLS analysis"),

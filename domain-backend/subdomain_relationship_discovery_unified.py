@@ -930,6 +930,7 @@ class UnifiedSubdomainDiscoverer:
                 AMASS_IMAGE,
                 "enum",
                 "-d", domain,
+                "-passive",
                 "-timeout", str(self.config.amass_timeout)
             ]
             

@@ -1,0 +1,75 @@
+{
+  "domain": "hsbc.cl",
+  "timestamp": "2025-08-04T00:06:23.820891",
+  "final_score": 34.0,
+  "tier": "Low",
+  "components": {
+    "base_tech": {
+      "score": 85.0,
+      "weight": 0.4,
+      "weighted_contribution": 34.0,
+      "details": {
+        "dns": {
+          "dnssec_enabled": null,
+          "single_ns_penalty": true,
+          "raw_score": -15,
+          "final_score": -15
+        },
+        "tls": {
+          "grade": "",
+          "penalty": 0
+        },
+        "cves": {
+          "critical_count": 0,
+          "high_count": 0,
+          "raw_penalty": 0,
+          "final_penalty": 0
+        },
+        "redundancy": {
+          "multi_az": null,
+          "multi_region": null,
+          "bonus": 0
+        },
+        "final_score": 85.0
+      }
+    },
+    "third_party": {
+      "score": 0.0,
+      "weight": 0.25,
+      "weighted_contribution": 0.0,
+      "details": {
+        "depth": 0,
+        "dependencies": [],
+        "total_weighted_score": 0.0,
+        "total_weight": 0.0,
+        "final_score": 0.0
+      }
+    },
+    "incident_impact": {
+      "score": 0.0,
+      "weight": 0.3,
+      "weighted_contribution": 0.0,
+      "details": {
+        "direct_impact": 0.0,
+        "direct_details": {
+          "incidents": [],
+          "total_impact": 0.0
+        },
+        "indirect_impact": 0.0,
+        "indirect_details": {
+          "incidents": [],
+          "total_impact": 0.0
+        },
+        "total_impact": 0.0
+      }
+    },
+    "context_boost": {
+      "score": 0.0,
+      "weight": 0.05,
+      "weighted_contribution": -0.0,
+      "details": {
+        "error": "No organization found"
+      }
+    }
+  }
+}

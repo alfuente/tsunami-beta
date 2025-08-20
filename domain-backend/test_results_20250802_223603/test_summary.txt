@@ -1,0 +1,9 @@
+Test Results Summary:
+===================
+Test Date: sáb 02 ago 2025 22:36:03 EDT
+API Base URL: http://localhost:8000
+Primary Test Domain: bice.cl
+Secondary Test Domain: example.com
+
+Total API Tests: 24
+Successful Responses: 3

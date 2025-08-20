@@ -1,0 +1,75 @@
+{
+  "subdomain_fqdn": "mail.caja18.cl",
+  "calculation_timestamp": "20250804_000743",
+  "final_score": 33.85208156699784,
+  "risk_tier": "Low",
+  "version": "subdomain-v1.0",
+  "components": {
+    "base_tech": {
+      "score": 50.0,
+      "weight": 0.35,
+      "weighted_contribution": 17.5,
+      "details": {
+        "dns_penalty": -15.0,
+        "tls": {
+          "grade": "UNKNOWN",
+          "penalty": 25.0
+        },
+        "infrastructure": {
+          "multi_az": false,
+          "multi_region": false,
+          "penalty": 10.0
+        },
+        "cves": {
+          "critical": 0,
+          "high": 0,
+          "penalty": 0.0
+        }
+      }
+    },
+    "third_party": {
+      "score": 54.50693855665945,
+      "weight": 0.3,
+      "weighted_contribution": 16.352081566997835,
+      "details": {
+        "dependencies": [
+          {
+            "name": "clarochile",
+            "type": "Provider",
+            "risk_score": 54.50693855665945,
+            "weight": 0.7,
+            "contribution": 38.15485698966161
+          }
+        ],
+        "score": 54.50693855665945,
+        "total_dependencies": 1
+      }
+    },
+    "incident_impact": {
+      "score": 0.0,
+      "weight": 0.25,
+      "weighted_contribution": 0.0,
+      "details": {
+        "direct_impact": 0.0,
+        "direct_details": {
+          "incidents": [],
+          "total_impact": 0.0
+        },
+        "indirect_impact": 0.0,
+        "indirect_details": {
+          "incidents": [],
+          "total_impact": 0.0
+        },
+        "total_impact": 0.0
+      }
+    },
+    "context_boost": {
+      "score": 0.0,
+      "weight": 0.1,
+      "weighted_contribution": -0.0,
+      "details": {
+        "error": "No organization found"
+      }
+    }
+  }
+}

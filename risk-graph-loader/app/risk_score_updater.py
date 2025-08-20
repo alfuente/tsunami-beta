@@ -204,7 +204,7 @@ class RiskScoreUpdater:
             logger.info(f"   📊 DNS Score: {dns_final} pts")
             
             # 2. TLS Score
-            tls_grade = record.get('tls_grade', '').upper()
+            tls_grade = (record.get('tls_grade') or '').upper()
             tls_penalty = self.TLS_GRADES.get(tls_grade, 0)
             details['tls'] = {
                 'grade': tls_grade,
@@ -368,7 +368,7 @@ class RiskScoreUpdater:
             
             return final_score, details
     
-    def calculate_incident_impact_score(self, domain_fqdn: str) -> Tuple[float, Dict[str, Any]]:
+    def calculate_incident_impact_score(self, domain_fqdn: str, is_subdomain: bool = False) -> Tuple[float, Dict[str, Any]]:
         """
         Calcula Incident Impact Score según Risk.md:
         - Severity base: Critical=100, High=70, Medium=40, Low=10
@@ -378,8 +378,8 @@ class RiskScoreUpdater:
         """
         logger.info(f"🚨 Calculando Incident Impact Score para {domain_fqdn}")
         
-        direct_impact, direct_details = self._calculate_direct_incident_impact(domain_fqdn)
-        indirect_impact, indirect_details = self._calculate_indirect_incident_impact(domain_fqdn)
+        direct_impact, direct_details = self._calculate_direct_incident_impact(domain_fqdn, is_subdomain)
+        indirect_impact, indirect_details = self._calculate_indirect_incident_impact(domain_fqdn, is_subdomain)
         
         total_impact = min(100.0, direct_impact + indirect_impact)
         
@@ -396,11 +396,13 @@ class RiskScoreUpdater:
         
         return total_impact, details
     
-    def _calculate_direct_incident_impact(self, domain_fqdn: str) -> Tuple[float, Dict[str, Any]]:
+    def _calculate_direct_incident_impact(self, domain_fqdn: str, is_subdomain: bool = False) -> Tuple[float, Dict[str, Any]]:
         """Calcula impacto directo de incidentes"""
         with self.driver.session() as session:
-            result = session.run("""
-                MATCH (d:Domain {fqdn: $fqdn})<-[:AFFECTS]-(i:Incident)
+            # Query diferente para subdominios vs dominios
+            node_label = "Subdomain" if is_subdomain else "Domain"
+            result = session.run(f"""
+                MATCH (d:{node_label} {{fqdn: $fqdn}})<-[:AFFECTS]-(i:Incident)
                 OPTIONAL MATCH (d)-[r:DEPENDS_ON]-()
                 RETURN 
                     i.severity as severity,
@@ -451,11 +453,13 @@ class RiskScoreUpdater:
             
             return total_impact, {'incidents': incidents, 'total_impact': total_impact}
     
-    def _calculate_indirect_incident_impact(self, domain_fqdn: str) -> Tuple[float, Dict[str, Any]]:
+    def _calculate_indirect_incident_impact(self, domain_fqdn: str, is_subdomain: bool = False) -> Tuple[float, Dict[str, Any]]:
         """Calcula impacto indirecto de incidentes via dependencias"""
         with self.driver.session() as session:
-            result = session.run("""
-                MATCH (d:Domain {fqdn: $fqdn})-[r:DEPENDS_ON]->(dep)
+            # Query diferente para subdominios vs dominios
+            node_label = "Subdomain" if is_subdomain else "Domain"
+            result = session.run(f"""
+                MATCH (d:{node_label} {{fqdn: $fqdn}})-[r:DEPENDS_ON]->(dep)
                 MATCH (dep)<-[:AFFECTS]-(i:Incident)
                 RETURN 
                     i.severity as severity,
@@ -794,6 +798,395 @@ class RiskScoreUpdater:
             logger.error(f"❌ Error actualizando risk score para {domain_fqdn}: {e}")
             return False
     
+    def update_risk_score_auto(self, fqdn: str) -> bool:
+        """
+        Actualiza automáticamente el risk score detectando si es Domain o Subdomain
+        """
+        with self.driver.session() as session:
+            # Check if it's a Domain first
+            domain_result = session.run("MATCH (d:Domain {fqdn: $fqdn}) RETURN d.fqdn", fqdn=fqdn)
+            if domain_result.single():
+                logger.info(f"🌐 Detectado como Domain: {fqdn}")
+                return self.update_domain_risk_score(fqdn)
+            
+            # Check if it's a Subdomain
+            subdomain_result = session.run("MATCH (s:Subdomain {fqdn: $fqdn}) RETURN s.fqdn", fqdn=fqdn)
+            if subdomain_result.single():
+                logger.info(f"🌐 Detectado como Subdomain: {fqdn}")
+                return self.update_subdomain_risk_score(fqdn)
+            
+            logger.error(f"❌ {fqdn} no encontrado como Domain ni Subdomain")
+            return False
+    
+    def calculate_subdomain_risk_score(self, subdomain_fqdn: str) -> RiskScoreComponents:
+        """
+        Calcula el risk score para un subdominio usando lógica adaptada.
+        Los subdominios heredan algunos riesgos del dominio padre pero tienen sus propios factores.
+        """
+        logger.info(f"🔍 Calculando risk score para subdominio: {subdomain_fqdn}")
+        
+        # 1. Base Tech Score para subdomain (similar pero con menos peso en infraestructura)
+        base_tech_score, base_tech_details = self.calculate_subdomain_base_tech_score(subdomain_fqdn)
+        
+        # 2. Third-Party Score (services y providers específicos del subdominio)
+        third_party_score, third_party_details = self.calculate_subdomain_third_party_score(subdomain_fqdn)
+        
+        # 3. Incident Impact (incidentes específicos del subdominio)
+        incident_impact_score, incident_details = self.calculate_incident_impact_score(subdomain_fqdn, is_subdomain=True)
+        
+        # 4. Context Boost (incluye herencia del dominio padre)
+        context_boost_score, context_details = self.calculate_subdomain_context_boost_score(subdomain_fqdn)
+        
+        # 5. Cálculo final con pesos ajustados para subdominios
+        subdomain_weights = {
+            'base_tech': 0.35,      # Menos peso porque depende del dominio padre
+            'third_party': 0.30,    # Más peso porque son específicos del subdominio
+            'incident_impact': 0.25, # Menos peso que en dominios base
+            'context_boost': 0.10   # Más peso por herencia del padre
+        }
+        
+        final_score = (
+            base_tech_score * subdomain_weights['base_tech'] +
+            third_party_score * subdomain_weights['third_party'] +
+            incident_impact_score * subdomain_weights['incident_impact'] -
+            context_boost_score * subdomain_weights['context_boost']
+        )
+        
+        final_score = max(0.0, min(100.0, final_score))
+        tier = self.get_risk_tier(final_score)
+        
+        logger.info(f"📊 Risk score calculado para {subdomain_fqdn}: {final_score:.2f} ({tier})")
+        
+        return RiskScoreComponents(
+            base_tech_score=base_tech_score,
+            third_party_score=third_party_score,
+            incident_impact_score=incident_impact_score,
+            context_boost_score=context_boost_score,
+            final_score=final_score,
+            tier=tier,
+            base_tech_details=base_tech_details,
+            third_party_details=third_party_details,
+            incident_details=incident_details,
+            context_details=context_details
+        )
+    
+    def calculate_subdomain_base_tech_score(self, subdomain_fqdn: str) -> Tuple[float, Dict[str, Any]]:
+        """Calcula base tech score para subdominios (heredan algunos factores del padre)"""
+        with self.driver.session() as session:
+            # Query adaptada para subdominios
+            record = session.run("""
+                MATCH (s:Subdomain {fqdn: $fqdn})
+                OPTIONAL MATCH (s)-[:SUBDOMAIN_OF]->(parent:Domain)
+                OPTIONAL MATCH (s)-[:SECURED_BY]->(c:Certificate)
+                OPTIONAL MATCH (parent)-[:SECURED_BY]->(pc:Certificate)
+                OPTIONAL MATCH (s)-[:RESOLVES_TO]->(ip:IPAddress)
+                OPTIONAL MATCH (parent)-[:RESOLVES_TO]->(pip:IPAddress)
+                RETURN 
+                    coalesce(s.dns_sec_enabled, parent.dns_sec_enabled, false) as dns_sec_enabled,
+                    coalesce(s.multi_az, parent.multi_az, false) as multi_az,
+                    coalesce(s.multi_region, parent.multi_region, false) as multi_region,
+                    coalesce(c.tls_grade, pc.tls_grade, s.tls_grade, 'Unknown') as tls_grade,
+                    coalesce(s.critical_cves, 0) as critical_cves,
+                    coalesce(s.high_cves, 0) as high_cves,
+                    count(DISTINCT ip) + count(DISTINCT pip) as ip_count
+            """, fqdn=subdomain_fqdn).single()
+            
+            if not record:
+                return 0.0, {'error': 'Subdomain not found'}
+            
+            score = 100.0  # Start from perfect score
+            details = {}
+            
+            # DNS Security (heredado del padre si no está configurado)
+            if not record.get('dns_sec_enabled', False):
+                score -= 15.0
+                details['dns_penalty'] = -15.0
+                logger.info(f"   ⚠️  DNSSEC deshabilitado: -15 pts")
+            else:
+                details['dns_bonus'] = 0.0
+                logger.info(f"   ✅ DNSSEC habilitado: 0 pts")
+            
+            # TLS Score (usar certificado del subdominio o del padre)
+            tls_grade = (record.get('tls_grade') or '').upper()
+            tls_penalty = self.TLS_GRADES.get(tls_grade, 25.0)  # Default penalty for unknown
+            score -= tls_penalty
+            details['tls'] = {
+                'grade': tls_grade,
+                'penalty': tls_penalty
+            }
+            logger.info(f"   🔒 TLS Grade {tls_grade}: -{tls_penalty} pts")
+            
+            # Infrastructure resilience (menos peso que en dominios base)
+            infra_penalty = 0.0
+            if not record.get('multi_az', False):
+                infra_penalty += 5.0  # Menos penalización que dominios base
+            if not record.get('multi_region', False):
+                infra_penalty += 5.0
+            
+            score -= infra_penalty
+            details['infrastructure'] = {
+                'multi_az': record.get('multi_az', False),
+                'multi_region': record.get('multi_region', False),
+                'penalty': infra_penalty
+            }
+            logger.info(f"   🏗️  Infraestructura: -{infra_penalty} pts")
+            
+            # CVE Impact (peso reducido para subdominios)
+            cve_penalty = (
+                record.get('critical_cves', 0) * 3.0 +  # Menos que dominios base
+                record.get('high_cves', 0) * 1.0
+            )
+            score -= cve_penalty
+            details['cves'] = {
+                'critical': record.get('critical_cves', 0),
+                'high': record.get('high_cves', 0),
+                'penalty': cve_penalty
+            }
+            logger.info(f"   🐛 CVEs: -{cve_penalty} pts")
+            
+            final_score = max(0.0, min(100.0, score))
+            logger.info(f"   📊 Base Tech Score: {final_score} pts")
+            
+            return final_score, details
+    
+    def calculate_subdomain_third_party_score(self, subdomain_fqdn: str) -> Tuple[float, Dict[str, Any]]:
+        """Calcula third-party score específico para subdominios"""
+        with self.driver.session() as session:
+            # Obtener dependencies específicas del subdominio
+            result = session.run("""
+                MATCH (s:Subdomain {fqdn: $fqdn})
+                OPTIONAL MATCH (s)-[r:DEPENDS_ON|USES_SERVICE|HOSTED_BY]->(dep)
+                WHERE dep:Provider OR dep:Service
+                RETURN 
+                    dep.name as dep_name,
+                    dep.risk_score as dep_risk_score,
+                    type(r) as relationship_type,
+                    labels(dep) as dep_labels
+            """, fqdn=subdomain_fqdn)
+            
+            dependencies = []
+            for record in result:
+                if record['dep_name']:
+                    dependencies.append({
+                        'name': record['dep_name'],
+                        'risk_score': record.get('dep_risk_score', 50.0),
+                        'relationship_type': record['relationship_type'],
+                        'type': 'Provider' if 'Provider' in record['dep_labels'] else 'Service'
+                    })
+            
+            if not dependencies:
+                logger.info(f"   ℹ️  No se encontraron dependencias de terceros para {subdomain_fqdn}")
+                return 0.0, {'dependencies': [], 'score': 0.0}
+            
+            # Calculate weighted risk
+            total_weight = 0.0
+            weighted_risk = 0.0
+            details = {'dependencies': []}
+            
+            for dep in dependencies:
+                # Different weights for different dependency types
+                if dep['type'] == 'Provider':
+                    weight = 0.7  # Providers have more impact
+                else:  # Service
+                    weight = 0.3
+                
+                dep_risk = dep['risk_score']
+                contribution = dep_risk * weight
+                
+                weighted_risk += contribution
+                total_weight += weight
+                
+                details['dependencies'].append({
+                    'name': dep['name'],
+                    'type': dep['type'],
+                    'risk_score': dep_risk,
+                    'weight': weight,
+                    'contribution': contribution
+                })
+                
+                logger.info(f"   🔗 {dep['name']} ({dep['type']}): {dep_risk:.1f} × {weight} = {contribution:.1f}")
+            
+            if total_weight > 0:
+                final_score = weighted_risk / total_weight
+            else:
+                final_score = 0.0
+            
+            final_score = max(0.0, min(100.0, final_score))
+            details['score'] = final_score
+            details['total_dependencies'] = len(dependencies)
+            
+            logger.info(f"   📈 Third-Party Score: {final_score:.2f} pts ({len(dependencies)} deps)")
+            
+            return final_score, details
+    
+    def calculate_subdomain_context_boost_score(self, subdomain_fqdn: str) -> Tuple[float, Dict[str, Any]]:
+        """
+        Calcula context boost para subdominios incluyendo herencia del dominio padre
+        """
+        with self.driver.session() as session:
+            record = session.run("""
+                MATCH (s:Subdomain {fqdn: $fqdn})
+                OPTIONAL MATCH (s)-[:SUBDOMAIN_OF]->(parent:Domain)
+                OPTIONAL MATCH (parent)<-[:OWNS]-(org:Organization)
+                OPTIONAL MATCH (org)-[:HAS_CERTIFICATION]->(cert:Certification)
+                WHERE cert.valid_until IS NULL OR cert.valid_until > datetime()
+                RETURN 
+                    org.id as org_id,
+                    org.name as org_name,
+                    parent.risk_score as parent_risk_score,
+                    parent.risk_tier as parent_risk_tier,
+                    org.continuity_plan_last_tested as continuity_plan_last_tested,
+                    org.bug_bounty_active as bug_bounty_active,
+                    org.bug_bounty_last_update as bug_bounty_last_update,
+                    collect(DISTINCT cert.type) as certifications
+            """, fqdn=subdomain_fqdn).single()
+            
+            if not record or not record.get('org_id'):
+                logger.info(f"   ⚠️  No se encontró organización para {subdomain_fqdn}")
+                return 0.0, {'error': 'No organization found'}
+            
+            boost = 0.0
+            details = {
+                'organization': record['org_name'],
+                'parent_domain_risk': record.get('parent_risk_score', 0.0),
+                'parent_domain_tier': record.get('parent_risk_tier', 'Unknown'),
+                'boosts': []
+            }
+            
+            # Herencia del dominio padre (nuevo factor para subdominios)
+            parent_risk = record.get('parent_risk_score', 0.0)
+            if parent_risk > 0:
+                if parent_risk < 30:  # Padre con bajo riesgo da boost
+                    parent_boost = 5.0
+                    boost += parent_boost
+                    details['boosts'].append(f"Dominio padre seguro: +{parent_boost}")
+                elif parent_risk > 70:  # Padre con alto riesgo reduce boost
+                    parent_penalty = 3.0
+                    boost -= parent_penalty
+                    details['boosts'].append(f"Dominio padre riesgoso: -{parent_penalty}")
+            
+            # Organizational factors (igual que dominios base pero con menor peso)
+            certifications = record.get('certifications', [])
+            cert_boost = 0.0
+            for cert in certifications:
+                if cert in self.CERTIFICATION_BOOSTS:
+                    cert_boost += self.CERTIFICATION_BOOSTS[cert] * 0.5  # Medio peso para subdominios
+            
+            if cert_boost > 0:
+                boost += cert_boost
+                details['boosts'].append(f"Certificaciones: +{cert_boost}")
+            
+            # Bug bounty program
+            if record.get('bug_bounty_active'):
+                bounty_boost = 2.0  # Menor que dominios base
+                boost += bounty_boost
+                details['boosts'].append(f"Bug bounty activo: +{bounty_boost}")
+            
+            # Continuity planning
+            continuity_tested = record.get('continuity_plan_last_tested')
+            if continuity_tested:
+                continuity_boost = 1.5  # Menor que dominios base
+                boost += continuity_boost
+                details['boosts'].append(f"Plan de continuidad: +{continuity_boost}")
+            
+            final_boost = max(0.0, min(20.0, boost))  # Cap at 20 for subdomains
+            details['total_boost'] = final_boost
+            
+            logger.info(f"   🚀 Context Boost: +{final_boost} pts")
+            
+            return final_boost, details
+    
+    def update_subdomain_risk_score(self, subdomain_fqdn: str) -> bool:
+        """Actualiza el risk score de un subdominio en Neo4j"""
+        try:
+            # Calculate risk score
+            risk_components = self.calculate_subdomain_risk_score(subdomain_fqdn)
+            
+            # Update in Neo4j
+            with self.driver.session() as session:
+                result = session.run("""
+                    MATCH (s:Subdomain {fqdn: $fqdn})
+                    SET s.risk_score = $risk_score,
+                        s.risk_tier = $risk_tier,
+                        s.base_tech_score = $base_tech_score,
+                        s.third_party_score = $third_party_score,
+                        s.incident_impact_score = $incident_impact_score,
+                        s.context_boost_score = $context_boost_score,
+                        s.risk_calculated_at = datetime(),
+                        s.risk_calculation_version = 'subdomain-v1.0'
+                    RETURN s.fqdn as updated_subdomain
+                """, 
+                fqdn=subdomain_fqdn,
+                risk_score=risk_components.final_score,
+                risk_tier=risk_components.tier,
+                base_tech_score=risk_components.base_tech_score,
+                third_party_score=risk_components.third_party_score,
+                incident_impact_score=risk_components.incident_impact_score,
+                context_boost_score=risk_components.context_boost_score
+                )
+                
+                updated = result.single()
+                if updated:
+                    logger.info(f"✅ Risk score actualizado en Neo4j para subdominio {subdomain_fqdn}")
+                    
+                    # Save detailed log
+                    self.save_subdomain_calculation_log(subdomain_fqdn, risk_components)
+                    
+                    return True
+                else:
+                    logger.error(f"❌ No se pudo actualizar el subdominio {subdomain_fqdn} en Neo4j")
+                    return False
+                    
+        except Exception as e:
+            logger.error(f"❌ Error actualizando risk score para subdominio {subdomain_fqdn}: {e}")
+            return False
+    
+    def save_subdomain_calculation_log(self, subdomain_fqdn: str, risk_components: RiskScoreComponents):
+        """Guarda log detallado del cálculo de riesgo del subdominio"""
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        log_filename = f"subdomain_risk_calculation_{subdomain_fqdn}_{timestamp}.json"
+        
+        log_data = {
+            'subdomain_fqdn': subdomain_fqdn,
+            'calculation_timestamp': timestamp,
+            'final_score': risk_components.final_score,
+            'risk_tier': risk_components.tier,
+            'version': 'subdomain-v1.0',
+            'components': {
+                'base_tech': {
+                    'score': risk_components.base_tech_score,
+                    'weight': 0.35,
+                    'weighted_contribution': risk_components.base_tech_score * 0.35,
+                    'details': risk_components.base_tech_details
+                },
+                'third_party': {
+                    'score': risk_components.third_party_score,
+                    'weight': 0.30,
+                    'weighted_contribution': risk_components.third_party_score * 0.30,
+                    'details': risk_components.third_party_details
+                },
+                'incident_impact': {
+                    'score': risk_components.incident_impact_score,
+                    'weight': 0.25,
+                    'weighted_contribution': risk_components.incident_impact_score * 0.25,
+                    'details': risk_components.incident_details
+                },
+                'context_boost': {
+                    'score': risk_components.context_boost_score,
+                    'weight': 0.10,
+                    'weighted_contribution': -risk_components.context_boost_score * 0.10,
+                    'details': risk_components.context_details
+                }
+            }
+        }
+        
+        try:
+            with open(log_filename, 'w', encoding='utf-8') as f:
+                json.dump(log_data, f, indent=2, ensure_ascii=False, default=str)
+            logger.info(f"📄 Log detallado guardado en: {log_filename}")
+        except Exception as e:
+            logger.warning(f"⚠️  No se pudo guardar log detallado: {e}")
+
     def close(self):
         """Cierra la conexión a Neo4j"""
         if self.driver:
@@ -828,7 +1221,7 @@ def main():
             logger.info(f"✅ Cálculo completado. Score final: {risk_components.final_score:.2f} ({risk_components.tier})")
         else:
             # Calculate and update
-            success = updater.update_domain_risk_score(args.domain)
+            success = updater.update_risk_score_auto(args.domain)
             if success:
                 logger.info(f"✅ Risk score actualizado exitosamente para {args.domain}")
             else:

@@ -1,0 +1,6 @@
+Risk Analysis Test Summary
+=========================
+Test Date: sáb 02 ago 2025 23:18:12 EDT
+API Endpoint: http://localhost:8000
+Domains Tested: bice.cl example.com google.com microsoft.com
+

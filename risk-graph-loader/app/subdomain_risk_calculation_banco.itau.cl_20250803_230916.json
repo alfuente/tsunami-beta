@@ -1,0 +1,82 @@
+{
+  "subdomain_fqdn": "banco.itau.cl",
+  "calculation_timestamp": "20250803_230916",
+  "final_score": 32.652081566997836,
+  "risk_tier": "Low",
+  "version": "subdomain-v1.0",
+  "components": {
+    "base_tech": {
+      "score": 50.0,
+      "weight": 0.35,
+      "weighted_contribution": 17.5,
+      "details": {
+        "dns_penalty": -15.0,
+        "tls": {
+          "grade": "UNKNOWN",
+          "penalty": 25.0
+        },
+        "infrastructure": {
+          "multi_az": false,
+          "multi_region": false,
+          "penalty": 10.0
+        },
+        "cves": {
+          "critical": 0,
+          "high": 0,
+          "penalty": 0.0
+        }
+      }
+    },
+    "third_party": {
+      "score": 50.50693855665945,
+      "weight": 0.3,
+      "weighted_contribution": 15.152081566997834,
+      "details": {
+        "dependencies": [
+          {
+            "name": "itau",
+            "type": "Provider",
+            "risk_score": 50.50693855665945,
+            "weight": 0.7,
+            "contribution": 35.35485698966161
+          },
+          {
+            "name": "itau",
+            "type": "Provider",
+            "risk_score": 50.50693855665945,
+            "weight": 0.7,
+            "contribution": 35.35485698966161
+          }
+        ],
+        "score": 50.50693855665945,
+        "total_dependencies": 2
+      }
+    },
+    "incident_impact": {
+      "score": 0.0,
+      "weight": 0.25,
+      "weighted_contribution": 0.0,
+      "details": {
+        "direct_impact": 0.0,
+        "direct_details": {
+          "incidents": [],
+          "total_impact": 0.0
+        },
+        "indirect_impact": 0.0,
+        "indirect_details": {
+          "incidents": [],
+          "total_impact": 0.0
+        },
+        "total_impact": 0.0
+      }
+    },
+    "context_boost": {
+      "score": 0.0,
+      "weight": 0.1,
+      "weighted_contribution": -0.0,
+      "details": {
+        "error": "No organization found"
+      }
+    }
+  }
+}

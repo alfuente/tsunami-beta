@@ -1,0 +1,75 @@
+{
+  "subdomain_fqdn": "ir.itau.cl",
+  "calculation_timestamp": "20250803_231026",
+  "final_score": 21.252081566997834,
+  "risk_tier": "Low",
+  "version": "subdomain-v1.0",
+  "components": {
+    "base_tech": {
+      "score": 50.0,
+      "weight": 0.35,
+      "weighted_contribution": 17.5,
+      "details": {
+        "dns_penalty": -15.0,
+        "tls": {
+          "grade": "UNKNOWN",
+          "penalty": 25.0
+        },
+        "infrastructure": {
+          "multi_az": false,
+          "multi_region": false,
+          "penalty": 10.0
+        },
+        "cves": {
+          "critical": 0,
+          "high": 0,
+          "penalty": 0.0
+        }
+      }
+    },
+    "third_party": {
+      "score": 12.50693855665945,
+      "weight": 0.3,
+      "weighted_contribution": 3.752081566997835,
+      "details": {
+        "dependencies": [
+          {
+            "name": "cloudflare",
+            "type": "Provider",
+            "risk_score": 12.50693855665945,
+            "weight": 0.7,
+            "contribution": 8.754856989661615
+          }
+        ],
+        "score": 12.50693855665945,
+        "total_dependencies": 1
+      }
+    },
+    "incident_impact": {
+      "score": 0.0,
+      "weight": 0.25,
+      "weighted_contribution": 0.0,
+      "details": {
+        "direct_impact": 0.0,
+        "direct_details": {
+          "incidents": [],
+          "total_impact": 0.0
+        },
+        "indirect_impact": 0.0,
+        "indirect_details": {
+          "incidents": [],
+          "total_impact": 0.0
+        },
+        "total_impact": 0.0
+      }
+    },
+    "context_boost": {
+      "score": 0.0,
+      "weight": 0.1,
+      "weighted_contribution": -0.0,
+      "details": {
+        "error": "No organization found"
+      }
+    }
+  }
+}

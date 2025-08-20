@@ -1,0 +1,29 @@
+Risk Calculation Formula Validation (per Risk.md)
+================================================
+
+Expected Formula:
+Final Score = (Base Tech × 0.40) + (Third-Party × 0.25) + (Incident Impact × 0.30) + (Context Boost × 0.05)
+
+Base Tech Score Components:
+- DNS Analysis: DNSSEC bonus (+20), Single NS penalty (-15)
+- TLS Grades: A+/A (0), B (-5), C (-15), D/E/F (-30)
+- CVE Penalties: Critical (×5), High (×3), max penalty (-25)
+- Redundancy Bonus: (+10)
+
+Third-Party Score Components:
+- Exposure Weights: Critical (1.0), Important (0.6), Nice-to-have (0.3)
+- Max Depth: 2 levels
+- Depth Attenuation: 0.8
+
+Incident Impact Components:
+- Severity Scores with temporal decay
+- Lambda: 0.015 (half-life 46 days)
+
+Context Boost Components:
+- Certifications and compensatory controls (5% weight)
+
+Risk Tiers:
+- Low: 0-30
+- Medium: 31-60  
+- High: 61-80
+- Critical: 81-100
