@@ -1,0 +1,13 @@
+{
+    "domain": "bancochile.cl",
+    "job_id": "1",
+    "start_time": "2025-08-21 15:15:08",
+    "end_time": "2025-08-21 15:25:53",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_bancochile.cl_1.log",
+    "error_log": "logs/amass_bancochile.cl_1.error"
+}

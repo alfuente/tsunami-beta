@@ -1,0 +1,13 @@
+{
+    "domain": "bankofchina.com/cl",
+    "job_id": "23",
+    "start_time": "2025-08-21 15:48:06",
+    "end_time": "2025-08-21 15:48:49",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_bankofchina.com_cl_23.log",
+    "error_log": "logs/amass_bankofchina.com_cl_23.error"
+}

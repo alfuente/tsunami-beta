@@ -1,0 +1,1672 @@
+{
+  "extraction_info": {
+    "timestamp": "2025-08-20T16:10:05.881387",
+    "total_base_domains": 36,
+    "total_providers": 24,
+    "total_services": 193
+  },
+  "statistics": {
+    "total_domains": 36,
+    "total_base_domains": 36,
+    "total_subdomains": 1071,
+    "domains_with_risk": 36,
+    "subdomains_with_risk": 1070,
+    "tld_distribution": [
+      {
+        "tld": "cl",
+        "count": 31
+      }
+    ],
+    "industry_distribution": [],
+    "subdomain_by_base_domain": [
+      {
+        "base_domain": "bice.cl",
+        "subdomain_count": 126
+      },
+      {
+        "base_domain": "btgpactual.cl",
+        "subdomain_count": 107
+      },
+      {
+        "base_domain": "losheroes.cl",
+        "subdomain_count": 71
+      },
+      {
+        "base_domain": "bci.cl",
+        "subdomain_count": 69
+      },
+      {
+        "base_domain": "bancochile.cl",
+        "subdomain_count": 65
+      },
+      {
+        "base_domain": "itau.cl",
+        "subdomain_count": 49
+      },
+      {
+        "base_domain": "bancofalabella.cl",
+        "subdomain_count": 49
+      },
+      {
+        "base_domain": "transbank.cl",
+        "subdomain_count": 49
+      },
+      {
+        "base_domain": "bancoestado.cl",
+        "subdomain_count": 48
+      },
+      {
+        "base_domain": "santander.cl",
+        "subdomain_count": 47
+      }
+    ]
+  },
+  "base_domains": [
+    {
+      "base_domain": "13.cl",
+      "tld": null,
+      "industry_classification": null,
+      "country_code": null,
+      "subdomain_count": 2
+    },
+    {
+      "base_domain": "24horas.cl",
+      "tld": null,
+      "industry_classification": null,
+      "country_code": null,
+      "subdomain_count": 2
+    },
+    {
+      "base_domain": "abc.cl",
+      "tld": null,
+      "industry_classification": null,
+      "country_code": null,
+      "subdomain_count": 2
+    },
+    {
+      "base_domain": "adidas.cl",
+      "tld": null,
+      "industry_classification": null,
+      "country_code": null,
+      "subdomain_count": 7
+    },
+    {
+      "base_domain": "afpcuprum.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 2
+    },
+    {
+      "base_domain": "afphabitat.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 28
+    },
+    {
+      "base_domain": "bancochile.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 65
+    },
+    {
+      "base_domain": "bancoconsorcio.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 8
+    },
+    {
+      "base_domain": "bancoestado.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 48
+    },
+    {
+      "base_domain": "bancofalabella.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 49
+    },
+    {
+      "base_domain": "bancointernacional.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 11
+    },
+    {
+      "base_domain": "bancoripley.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 25
+    },
+    {
+      "base_domain": "bci.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 69
+    },
+    {
+      "base_domain": "bice.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 126
+    },
+    {
+      "base_domain": "bicevida.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 42
+    },
+    {
+      "base_domain": "btgpactual.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 107
+    },
+    {
+      "base_domain": "caja18.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 4
+    },
+    {
+      "base_domain": "cajalosandes.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 24
+    },
+    {
+      "base_domain": "consorcio.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 38
+    },
+    {
+      "base_domain": "coopeuch.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 30
+    },
+    {
+      "base_domain": "hsbc.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 1
+    },
+    {
+      "base_domain": "internacional.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 32
+    },
+    {
+      "base_domain": "itau.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 49
+    },
+    {
+      "base_domain": "laaraucana.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 30
+    },
+    {
+      "base_domain": "losheroes.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 71
+    },
+    {
+      "base_domain": "metlife.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 5
+    },
+    {
+      "base_domain": "principal.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 4
+    },
+    {
+      "base_domain": "redbanc.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 16
+    },
+    {
+      "base_domain": "ripley.cl",
+      "tld": null,
+      "industry_classification": null,
+      "country_code": null,
+      "subdomain_count": 1
+    },
+    {
+      "base_domain": "santander.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 47
+    },
+    {
+      "base_domain": "scotiabank.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 30
+    },
+    {
+      "base_domain": "scotiabankchile.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 3
+    },
+    {
+      "base_domain": "security.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 18
+    },
+    {
+      "base_domain": "sura.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 24
+    },
+    {
+      "base_domain": "transbank.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 49
+    },
+    {
+      "base_domain": "zurich.cl",
+      "tld": "cl",
+      "industry_classification": null,
+      "country_code": "CL",
+      "subdomain_count": 2
+    }
+  ],
+  "providers": [
+    {
+      "name": "Cisco Email Security",
+      "tld": null,
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.9,
+      "source": null
+    },
+    {
+      "name": "Google Workspace",
+      "tld": null,
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.9,
+      "source": null
+    },
+    {
+      "name": "Microsoft 365",
+      "tld": null,
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.9,
+      "source": null
+    },
+    {
+      "name": "ProofPoint",
+      "tld": null,
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.9,
+      "source": null
+    },
+    {
+      "name": "afphabitat",
+      "tld": "cl",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "amazon",
+      "tld": null,
+      "country": null,
+      "provider_type": "cloud",
+      "confidence": 0.95,
+      "source": "consolidated(2_sources)"
+    },
+    {
+      "name": "bci",
+      "tld": "cl",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "bice",
+      "tld": "cl",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "clarochile",
+      "tld": "cl",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "cloudflare",
+      "tld": null,
+      "country": null,
+      "provider_type": "cloud",
+      "confidence": 0.9,
+      "source": "consolidated(1_sources)"
+    },
+    {
+      "name": "entel",
+      "tld": "cl",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "falabella",
+      "tld": "cl",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "google",
+      "tld": null,
+      "country": null,
+      "provider_type": "cloud",
+      "confidence": 0.7999999999999999,
+      "source": "consolidated(1_sources)"
+    },
+    {
+      "name": "gtd",
+      "tld": "cl",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "imperva",
+      "tld": "com",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "itau",
+      "tld": "cl",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "linode",
+      "tld": null,
+      "country": null,
+      "provider_type": "cloud",
+      "confidence": 0.7999999999999999,
+      "source": "consolidated(1_sources)"
+    },
+    {
+      "name": "microsoft",
+      "tld": null,
+      "country": null,
+      "provider_type": "cloud",
+      "confidence": 0.9,
+      "source": "consolidated(1_sources)"
+    },
+    {
+      "name": "movistar",
+      "tld": "cl",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "nic",
+      "tld": null,
+      "country": null,
+      "provider_type": "cloud",
+      "confidence": 0.7,
+      "source": "consolidated(1_sources)"
+    },
+    {
+      "name": "salesforce",
+      "tld": "com",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "telefonicachile",
+      "tld": "cl",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "transbank",
+      "tld": "cl",
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    },
+    {
+      "name": "unknown",
+      "tld": null,
+      "country": null,
+      "provider_type": null,
+      "confidence": 0.0,
+      "source": "comprehensive_analysis_failed"
+    }
+  ],
+  "services": [
+    {
+      "name": "api_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "api_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "api_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "api_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "api_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "cdn_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "dns_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "dns_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "dns_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "dns_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "dns_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "dns_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "dns_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "dns_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "email_security_service",
+      "service_type": null,
+      "detection_method": "dns_analysis",
+      "confidence": 0.9
+    },
+    {
+      "name": "email_security_service",
+      "service_type": null,
+      "detection_method": "dns_analysis",
+      "confidence": 0.9
+    },
+    {
+      "name": "email_security_service",
+      "service_type": null,
+      "detection_method": "dns_analysis",
+      "confidence": 0.9
+    },
+    {
+      "name": "email_security_service",
+      "service_type": null,
+      "detection_method": "dns_analysis",
+      "confidence": 0.9
+    },
+    {
+      "name": "email_security_service",
+      "service_type": null,
+      "detection_method": "dns_analysis",
+      "confidence": 0.9
+    },
+    {
+      "name": "ftp_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "ftp_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "ftp_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "ftp_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "ftp_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "ftp_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "ftp_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "ftp_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "google_verification",
+      "service_type": null,
+      "detection_method": "dns_analysis",
+      "confidence": 0.95
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "http_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "https_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imap_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imap_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imap_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imap_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imap_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imap_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imap_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imap_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imaps_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imaps_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imaps_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imaps_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imaps_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imaps_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imaps_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "imaps_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "dns_analysis",
+      "confidence": 0.95
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "dns_analysis",
+      "confidence": 0.95
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "dns_analysis",
+      "confidence": 0.95
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "dns_analysis",
+      "confidence": 0.95
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "dns_analysis",
+      "confidence": 0.95
+    },
+    {
+      "name": "mail_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "mysql_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "mysql_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "mysql_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "mysql_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "mysql_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "mysql_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "mysql_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "mysql_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3s_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3s_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3s_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3s_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3s_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3s_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3s_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "pop3s_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "redis_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "redis_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "redis_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "redis_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "redis_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "redis_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "redis_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "redis_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "ssh_service",
+      "service_type": null,
+      "detection_method": "port_scan",
+      "confidence": 0.9
+    },
+    {
+      "name": "test_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "test_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "test_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "test_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "test_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "test_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "vpn_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "web_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "web_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "web_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "web_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "web_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": "web_service",
+      "service_type": null,
+      "detection_method": "pattern_analysis",
+      "confidence": 0.7
+    },
+    {
+      "name": null,
+      "service_type": null,
+      "detection_method": null,
+      "confidence": null
+    },
+    {
+      "name": null,
+      "service_type": null,
+      "detection_method": null,
+      "confidence": null
+    },
+    {
+      "name": null,
+      "service_type": null,
+      "detection_method": null,
+      "confidence": null
+    },
+    {
+      "name": null,
+      "service_type": null,
+      "detection_method": null,
+      "confidence": null
+    },
+    {
+      "name": null,
+      "service_type": null,
+      "detection_method": null,
+      "confidence": null
+    },
+    {
+      "name": null,
+      "service_type": null,
+      "detection_method": null,
+      "confidence": null
+    },
+    {
+      "name": null,
+      "service_type": null,
+      "detection_method": null,
+      "confidence": null
+    },
+    {
+      "name": null,
+      "service_type": null,
+      "detection_method": null,
+      "confidence": null
+    }
+  ]
+}

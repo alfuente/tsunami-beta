@@ -7,6 +7,7 @@ RISK_GRAPH_DIR="risk-graph-service"
 RISK_DASHBOARD_DIR="risk-dashboard"
 RISK_QUERY_DIR="risk-query"
 DOMAIN_BACKEND_DIR="domain-backend"
+REPORT_BACKEND_DIR="report-backend"
 
 # Colors for output
 RED='\033[0;31m'
@@ -429,7 +430,7 @@ start_async_api_dev() {
     # Set environment variables
     export NEO4J_URI=${NEO4J_URI:-"bolt://localhost:7687"}
     export NEO4J_USER=${NEO4J_USER:-"neo4j"}
-    export NEO4J_PASS=${NEO4J_PASS:-"tsunami123"}
+    export NEO4J_PASS=${NEO4J_PASS:-"test.password"}
     export REDIS_HOST=${REDIS_HOST:-"localhost"}
     export REDIS_PORT=${REDIS_PORT:-"6379"}
     
@@ -521,6 +522,76 @@ start_quarkus_dev() {
     print_status "Logs: tail -f quarkus-dev.log"
     
     cd ..
+}
+
+# Function to start Report Backend in development mode
+start_report_backend_dev() {
+    print_header "Starting Report Backend in development mode"
+    
+    if [ ! -d "$REPORT_BACKEND_DIR" ]; then
+        print_error "Directory $REPORT_BACKEND_DIR not found"
+        return 1
+    fi
+    
+    cd "$REPORT_BACKEND_DIR"
+    
+    # Check if already running
+    if ps aux | grep -E "mvn.*quarkus.*8082|report-backend" | grep -v grep > /dev/null; then
+        print_warning "Report Backend process already running. Stopping first..."
+        stop_report_backend
+        sleep 2
+    fi
+    
+    print_status "Starting Report Backend development server in background..."
+    nohup mvn quarkus:dev -Dquarkus.http.port=8082 > ../report-backend-dev.log 2>&1 &
+    REPORT_BACKEND_PID=$!
+    
+    echo $REPORT_BACKEND_PID > ../report-backend-dev.pid
+    print_status "Report Backend started with PID: $REPORT_BACKEND_PID"
+    print_status "API available at: http://localhost:8082"
+    print_status "Swagger UI at: http://localhost:8082/swagger-ui"
+    print_status "Logs: tail -f report-backend-dev.log"
+    
+    cd ..
+}
+
+# Function to stop Report Backend
+stop_report_backend() {
+    print_header "Stopping Report Backend processes"
+    
+    # Kill by PID if exists
+    if [ -f "report-backend-dev.pid" ]; then
+        PID=$(cat report-backend-dev.pid)
+        if ps -p $PID > /dev/null 2>&1; then
+            print_status "Stopping Report Backend with PID: $PID"
+            kill $PID
+            sleep 2
+            
+            if ps -p $PID > /dev/null 2>&1; then
+                print_warning "Process still running, force killing..."
+                kill -9 $PID
+            fi
+        else
+            print_status "Removing stale PID file report-backend-dev.pid (process $PID no longer exists)"
+        fi
+        rm -f report-backend-dev.pid
+    fi
+    
+    # Kill any remaining Report Backend processes
+    PIDS=$(ps aux | grep -E "mvn.*quarkus.*8082|report-backend" | grep -v grep | awk '{print $2}')
+    if [ ! -z "$PIDS" ]; then
+        print_status "Killing remaining Report Backend processes: $PIDS"
+        echo $PIDS | xargs kill
+        sleep 2
+        
+        # Force kill if still running
+        PIDS=$(ps aux | grep -E "mvn.*quarkus.*8082|report-backend" | grep -v grep | awk '{print $2}')
+        if [ ! -z "$PIDS" ]; then
+            echo $PIDS | xargs kill -9
+        fi
+    else
+        print_status "No Report Backend processes found running"
+    fi
 }
 
 # Function to clear React cache
@@ -768,8 +839,15 @@ show_logs() {
                 print_error "No Ollama log files found"
             fi
             ;;
+        "report"|"rb")
+            if [ -f "report-backend-dev.log" ]; then
+                tail -f report-backend-dev.log
+            else
+                print_error "No Report Backend log files found"
+            fi
+            ;;
         *)
-            print_error "Usage: $0 logs [quarkus|react|query|discovery|async|ollama]"
+            print_error "Usage: $0 logs [quarkus|react|query|discovery|async|ollama|report]"
             print_error "Available log types:"
             print_error "  quarkus|q    - Risk Graph Service logs"
             print_error "  react|r      - Risk Dashboard logs"
@@ -777,6 +855,7 @@ show_logs() {
             print_error "  discovery|api|da - Legacy Discovery API logs (port 8000)"
             print_error "  async|async-api|aa - Async Discovery API logs (port 8001)"
             print_error "  ollama|o     - Ollama Service logs"
+            print_error "  report|rb    - Report Backend Service logs (port 8082)"
             ;;
     esac
 }
@@ -789,13 +868,15 @@ case $1 in
         stop_npm
         stop_risk_query
         stop_discovery_api
+        stop_report_backend
         ;;
     "start-dev")
-        start_ollama
+       # start_ollama
         start_quarkus_dev
         start_npm_dev
         start_risk_query_dev
         start_async_api_dev
+        start_report_backend_dev
         ;;
     "start-test")
         start_ollama
@@ -808,12 +889,14 @@ case $1 in
         stop_npm
         stop_risk_query
         stop_discovery_api
+        stop_report_backend
         sleep 2
         start_ollama
         start_quarkus_dev
         start_npm_dev
         start_risk_query_dev
         start_async_api_dev
+        start_report_backend_dev
         ;;
     "restart-test")
         stop_ollama
@@ -821,6 +904,7 @@ case $1 in
         stop_npm
         stop_risk_query
         stop_discovery_api
+        stop_report_backend
         sleep 2
         start_ollama
         start_quarkus_test
@@ -853,6 +937,12 @@ case $1 in
     "stop-async")
         stop_discovery_api
         ;;
+    "start-report")
+        start_report_backend_dev
+        ;;
+    "stop-report")
+        stop_report_backend
+        ;;
     "clear-cache")
         clear_react_cache
         ;;
@@ -870,7 +960,7 @@ case $1 in
     *)
         echo "Tsunami Beta Services Management Script"
         echo ""
-        echo "Usage: $0 {stop|start-dev|start-test|restart-dev|restart-test|start-ollama|stop-ollama|start-query|stop-query|start-discovery|start-async|start-discovery-legacy|stop-discovery|stop-async|clear-cache|restart-react|status|logs}"
+        echo "Usage: $0 {stop|start-dev|start-test|restart-dev|restart-test|start-ollama|stop-ollama|start-query|stop-query|start-discovery|start-async|start-discovery-legacy|stop-discovery|stop-async|start-report|stop-report|clear-cache|restart-react|status|logs}"
         echo ""
         echo "Commands:"
         echo "  stop        - Stop all running services"
@@ -887,10 +977,12 @@ case $1 in
         echo "  start-discovery - Alias for start-discovery-legacy"
         echo "  stop-discovery  - Stop all Discovery API services (legacy + async)"
         echo "  stop-async  - Stop all Discovery API services (legacy + async)"
+        echo "  start-report- Start Report Backend service only (port 8082)"
+        echo "  stop-report - Stop Report Backend service only"
         echo "  clear-cache - Clear React development cache"
         echo "  restart-react- Stop React, clear cache, and restart React"
         echo "  status      - Show status of all services"
-        echo "  logs [quarkus|react|query|discovery|async|ollama] - Show logs for specific service"
+        echo "  logs [quarkus|react|query|discovery|async|ollama|report] - Show logs for specific service"
         echo ""
         echo "Examples:"
         echo "  $0 start-dev      # Start all services (uses new async API on port 8001)"
@@ -902,6 +994,8 @@ case $1 in
         echo "  $0 start-ollama   # Start only Ollama service"
         echo "  $0 start-async    # Start only NEW Async Discovery API (port 8001)"
         echo "  $0 start-discovery-legacy # Start only Legacy Discovery API (port 8000)"
+        echo "  $0 start-report   # Start only Report Backend service (port 8082)"
+        echo "  $0 logs report    # View Report Backend logs"
         echo "  $0 clear-cache    # Clear React cache (useful when env vars don't update)"
         echo "  $0 restart-react  # Restart React with cache clearing"
         echo ""
@@ -910,6 +1004,12 @@ case $1 in
         echo "  - Swagger docs: http://localhost:8001/docs"
         echo "  - Features: Incremental analysis, Redis caching, progress tracking"
         echo "  - Test scripts: ./scripts/test_async_api.sh"
+        echo ""
+        echo "📊 NEW: Report Backend Service"
+        echo "  - Available at: http://localhost:8082"
+        echo "  - Swagger UI: http://localhost:8082/swagger-ui"
+        echo "  - API Docs: http://localhost:8082/q/openapi"
+        echo "  - Features: PDF generation, client management, purchase tracking"
         exit 1
         ;;
 esac

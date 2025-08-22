@@ -1,0 +1,13 @@
+{
+    "domain": "bancoedwards.cl",
+    "job_id": "27",
+    "start_time": "2025-08-22 01:32:53",
+    "end_time": "2025-08-22 01:40:51",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_bancoedwards.cl_27.log",
+    "error_log": "output2/amass_bancoedwards.cl_27.error"
+}

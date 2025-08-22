@@ -306,53 +306,27 @@ export const providerApi = {
   },
 
   getProviderDetails: async (providerId: string): Promise<{
-    provider: {
-      id: string;
-      name: string;
-      tld?: string;
-      country?: string;
-      provider_type?: string;
-      confidence: number;
-      source: string;
-      asn?: string;
-      org?: string;
-      risk_score?: number;
-      risk_tier?: string;
-      metadata?: any;
-      created_at: string;
-      is_unknown: boolean;
-    };
-    associated_domains: Array<{
-      fqdn: string;
-      tld: string;
-      tld_country_name?: string;
-      subdomain_count: number;
-      last_seen: string;
-    }>;
-    associated_subdomains: Array<{
-      fqdn: string;
-      base_domain: string;
-      tld: string;
-      risk_score?: number;
-      risk_tier?: string;
-      confidence: number;
-      created_at: string;
-    }>;
-    statistics: {
+    id: string;
+    name: string;
+    country?: string;
+    type?: string;
+    confidence: number;
+    evidence?: string;
+    risk_score?: number;
+    risk_tier?: string;
+    created_at: string;
+    updated_at: string;
+    domains?: string[];
+    ip_ranges?: string[];
+    aliases?: string[];
+    usage?: {
+      domains: string[];
+      subdomains: string[];
       total_domains: number;
       total_subdomains: number;
-      countries: Array<{
-        country: string;
-        domain_count: number;
-      }>;
-      risk_distribution: {
-        low_risk: number;
-        medium_risk: number;
-        high_risk: number;
-      };
     };
   }> => {
-    const response = await api.get(`/api/v1/providers/${providerId}/details`);
+    const response = await api.get(`/api/v1/providers/${providerId}`);
     return response.data;
   },
 
@@ -373,6 +347,175 @@ export const providerApi = {
   }> => {
     const response = await api.get(`/api/v1/providers/by-tld/${tld}`);
     return response.data;
+  }
+};
+
+// Domain Backend Statistics API (from domain-backend service)
+const DOMAIN_BACKEND_URL = process.env.REACT_APP_DOMAIN_BACKEND_URL || 'http://localhost:8000';
+// Async Discovery API (for tasks monitoring)
+const ASYNC_API_URL = process.env.REACT_APP_ASYNC_API_URL || 'http://localhost:8001';
+
+const domainBackendApi = axios.create({
+  baseURL: DOMAIN_BACKEND_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+const asyncApi = axios.create({
+  baseURL: ASYNC_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export const statisticsApi = {
+  getStatisticsSummary: async (): Promise<{
+    available: boolean;
+    total_domains?: number;
+    total_executions?: number;
+    avg_processing_time?: number;
+    success_rate?: number;
+    most_analyzed_tlds?: Array<{
+      tld: string;
+      executions: number;
+      unique_domains: number;
+    }>;
+    recent_activity?: Array<{
+      domain: string;
+      task_type: string;
+      last_execution: string;
+      success_rate: number;
+    }>;
+    message?: string;
+    error?: string;
+    timestamp: string;
+  }> => {
+    try {
+      const response = await domainBackendApi.get('/api/v1/statistics/summary');
+      return response.data;
+    } catch (error) {
+      return {
+        available: false,
+        message: 'Statistics service not available',
+        timestamp: new Date().toISOString()
+      };
+    }
+  },
+
+  getDomainPerformance: async (domain: string): Promise<{
+    available: boolean;
+    domain: string;
+    has_data?: boolean;
+    summary?: {
+      total_executions: number;
+      successful_executions: number;
+      failed_executions: number;
+      timeout_executions: number;
+      success_rate: number;
+    };
+    task_breakdown?: Array<{
+      task_type: string;
+      total_executions: number;
+      success_rate: number;
+      avg_duration: number;
+      median_duration: number;
+      p95_duration: number;
+      avg_subdomains_found: number;
+      avg_providers_found: number;
+      last_execution: string;
+    }>;
+    time_estimations?: Record<string, {
+      estimated_seconds: number;
+      confidence_level: number;
+      based_on_executions: number;
+      similar_domains_used: boolean;
+    }>;
+    message?: string;
+    error?: string;
+    timestamp: string;
+  }> => {
+    try {
+      const response = await domainBackendApi.get(`/api/v1/domains/${domain}/performance`);
+      return response.data;
+    } catch (error) {
+      return {
+        available: false,
+        domain,
+        message: 'Performance data not available',
+        timestamp: new Date().toISOString()
+      };
+    }
+  },
+
+  estimateTaskDuration: async (domain: string, taskType: string = 'complete_discovery', confidenceLevel: number = 0.9): Promise<{
+    domain: string;
+    task_type: string;
+    estimation: {
+      estimated_seconds: number;
+      confidence_level: number;
+      based_on_executions: number;
+      similar_domains_used: boolean;
+    };
+    timestamp: string;
+  } | null> => {
+    try {
+      const response = await domainBackendApi.get(`/api/v1/estimate/${domain}`, {
+        params: { task_type: taskType, confidence_level: confidenceLevel }
+      });
+      return response.data;
+    } catch (error) {
+      return null;
+    }
+  }
+};
+
+// Tasks API (from async discovery API)
+export const tasksApi = {
+  getAllTasks: async (): Promise<{
+    tasks: Array<{
+      task_id: string;
+      task_type: string;
+      domain: string;
+      subdomain?: string;
+      status: 'pending' | 'running' | 'completed' | 'failed';
+      progress: number;
+      started_at: string;
+      completed_at?: string;
+      result?: any;
+      error?: string;
+      metadata?: any;
+    }>;
+  }> => {
+    try {
+      const response = await asyncApi.get('/api/v1/tasks');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      return { tasks: [] };
+    }
+  },
+
+  getTaskById: async (taskId: string): Promise<{
+    task_id: string;
+    task_type: string;
+    domain: string;
+    subdomain?: string;
+    status: 'pending' | 'running' | 'completed' | 'failed';
+    progress: number;
+    started_at: string;
+    completed_at?: string;
+    result?: any;
+    error?: string;
+    metadata?: any;
+  } | null> => {
+    try {
+      const response = await asyncApi.get(`/api/v1/tasks/${taskId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching task:', error);
+      return null;
+    }
   }
 };
 

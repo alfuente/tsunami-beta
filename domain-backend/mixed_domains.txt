@@ -1,0 +1,3 @@
+example.com
+invalid-domain-that-does-not-exist.fakeTLD
+google.com

@@ -1,0 +1,13 @@
+{
+    "domain": "scotiabankchile.cl",
+    "job_id": "3",
+    "start_time": "2025-08-21 15:15:08",
+    "end_time": "2025-08-21 15:20:15",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_scotiabankchile.cl_3.log",
+    "error_log": "logs/amass_scotiabankchile.cl_3.error"
+}

@@ -1,0 +1,13 @@
+{
+    "domain": "redbanc.cl",
+    "job_id": "46",
+    "start_time": "2025-08-22 02:19:15",
+    "end_time": "2025-08-22 02:27:46",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_redbanc.cl_46.log",
+    "error_log": "output2/amass_redbanc.cl_46.error"
+}

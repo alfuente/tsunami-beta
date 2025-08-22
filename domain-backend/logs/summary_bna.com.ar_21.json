@@ -1,0 +1,13 @@
+{
+    "domain": "bna.com.ar",
+    "job_id": "21",
+    "start_time": "2025-08-21 15:44:35",
+    "end_time": "2025-08-21 15:55:35",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 1,
+    "log_file": "logs/amass_bna.com.ar_21.log",
+    "error_log": "logs/amass_bna.com.ar_21.error"
+}

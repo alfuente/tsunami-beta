@@ -1,0 +1,33 @@
+{
+  "summary": {
+    "total_domains": 2,
+    "successful": 0,
+    "failed": 2,
+    "success_rate": 0.0,
+    "total_time_minutes": 1.085905929406484,
+    "timestamp": "2025-08-20T18:36:25.169352"
+  },
+  "results": {
+    "success": [],
+    "failed": [
+      {
+        "domain": "santander.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-20T18:36:20.164249",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      },
+      {
+        "domain": "itau.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-20T18:36:20.164417",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      }
+    ],
+    "skipped": [],
+    "in_progress": []
+  }
+}

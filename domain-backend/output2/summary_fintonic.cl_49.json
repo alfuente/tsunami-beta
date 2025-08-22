@@ -1,0 +1,13 @@
+{
+    "domain": "fintonic.cl",
+    "job_id": "49",
+    "start_time": "2025-08-22 02:28:25",
+    "end_time": "2025-08-22 02:36:56",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_fintonic.cl_49.log",
+    "error_log": "output2/amass_fintonic.cl_49.error"
+}

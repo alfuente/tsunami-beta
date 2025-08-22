@@ -1,0 +1,13 @@
+{
+    "domain": "bancoripley.cl",
+    "job_id": "11",
+    "start_time": "2025-08-21 15:31:53",
+    "end_time": "2025-08-21 15:33:22",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_bancoripley.cl_11.log",
+    "error_log": "logs/amass_bancoripley.cl_11.error"
+}

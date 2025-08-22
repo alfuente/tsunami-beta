@@ -1,0 +1,13 @@
+{
+    "domain": "larrainvial.com",
+    "job_id": "31",
+    "start_time": "2025-08-22 01:44:48",
+    "end_time": "2025-08-22 01:53:22",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_larrainvial.com_31.log",
+    "error_log": "output2/amass_larrainvial.com_31.error"
+}

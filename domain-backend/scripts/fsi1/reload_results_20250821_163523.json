@@ -1,0 +1,128 @@
+{
+  "summary": {
+    "total_domains": 10,
+    "successful": 3,
+    "failed": 7,
+    "success_rate": 30.0,
+    "total_time_minutes": 51.30819286505381,
+    "timestamp": "2025-08-21T16:35:23.540454"
+  },
+  "results": {
+    "success": [
+      {
+        "domain": "internacional.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-21T15:47:05.309110",
+        "duration_seconds": 180.26,
+        "estimated_duration": 300,
+        "accuracy": 0.39914853890736895,
+        "subdomains_found": 0,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 180.2554383277893,
+        "task_id": "64a0d903-cf63-4887-90f5-b43a369e7ec6",
+        "errors": [],
+        "attempt": 1
+      },
+      {
+        "domain": "scotiabankchile.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-21T15:57:46.207457",
+        "duration_seconds": 160.24,
+        "estimated_duration": 300,
+        "accuracy": 0.4658702540397644,
+        "subdomains_found": 0,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 160.23892378807068,
+        "task_id": "6f115a0e-f36e-460b-a4f2-5dba851bd187",
+        "errors": [],
+        "attempt": 3
+      },
+      {
+        "domain": "hsbc.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-21T16:05:06.751762",
+        "duration_seconds": 295.42,
+        "estimated_duration": 300,
+        "accuracy": 0.015275038878122966,
+        "subdomains_found": 0,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 295.4174883365631,
+        "task_id": "c21d7664-f75c-4115-87a9-72aece39f70f",
+        "errors": [],
+        "attempt": 1
+      }
+    ],
+    "failed": [
+      {
+        "domain": "bancochile.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T16:00:06.290869",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      },
+      {
+        "domain": "bci.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T16:03:11.457274",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      },
+      {
+        "domain": "bice.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T16:13:52.363285",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      },
+      {
+        "domain": "santander.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T16:19:17.614275",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      },
+      {
+        "domain": "itau.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T16:21:12.834248",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      },
+      {
+        "domain": "bancosecurity.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T16:29:58.423971",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      },
+      {
+        "domain": "bancofalabella.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T16:35:23.540252",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      }
+    ],
+    "skipped": [],
+    "in_progress": []
+  }
+}

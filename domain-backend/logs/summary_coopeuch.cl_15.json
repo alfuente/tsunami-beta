@@ -1,0 +1,13 @@
+{
+    "domain": "coopeuch.cl",
+    "job_id": "15",
+    "start_time": "2025-08-21 15:34:26",
+    "end_time": "2025-08-21 15:44:35",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_coopeuch.cl_15.log",
+    "error_log": "logs/amass_coopeuch.cl_15.error"
+}

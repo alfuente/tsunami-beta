@@ -1,0 +1,13 @@
+{
+    "domain": "transbank.cl",
+    "job_id": "28",
+    "start_time": "2025-08-22 01:37:50",
+    "end_time": "2025-08-22 01:46:35",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_transbank.cl_28.log",
+    "error_log": "output2/amass_transbank.cl_28.error"
+}

@@ -1,0 +1,13 @@
+{
+    "domain": "metlife.cl",
+    "job_id": "42",
+    "start_time": "2025-08-22 02:10:39",
+    "end_time": "2025-08-22 02:19:15",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_metlife.cl_42.log",
+    "error_log": "output2/amass_metlife.cl_42.error"
+}

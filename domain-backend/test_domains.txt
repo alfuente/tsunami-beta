@@ -1,0 +1,8 @@
+# Lista de dominios para prueba de procesamiento en paralelo
+example.com
+google.com  
+github.com
+
+# Comentarios son ignorados
+microsoft.com
+amazon.com

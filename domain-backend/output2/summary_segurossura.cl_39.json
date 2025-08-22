@@ -1,0 +1,13 @@
+{
+    "domain": "segurossura.cl",
+    "job_id": "39",
+    "start_time": "2025-08-22 02:02:01",
+    "end_time": "2025-08-22 02:10:38",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_segurossura.cl_39.log",
+    "error_log": "output2/amass_segurossura.cl_39.error"
+}

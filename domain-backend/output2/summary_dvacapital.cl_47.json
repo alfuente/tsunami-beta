@@ -1,0 +1,13 @@
+{
+    "domain": "dvacapital.cl",
+    "job_id": "47",
+    "start_time": "2025-08-22 02:26:17",
+    "end_time": "2025-08-22 02:34:47",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_dvacapital.cl_47.log",
+    "error_log": "output2/amass_dvacapital.cl_47.error"
+}

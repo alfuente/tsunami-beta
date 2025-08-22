@@ -21,11 +21,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
-  IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -36,243 +31,50 @@ import {
   Flag as CountryIcon,
   Assessment as RiskIcon,
   Timeline as ConfidenceIcon,
-  AccountTree as GraphIcon,
-  Close as CloseIcon,
+  Storage as IPIcon,
+  Public as NetworkIcon,
+  Verified as EvidenceIcon,
 } from '@mui/icons-material';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { providerApi } from '../services/api';
-import { ProviderDetailsResponse, AssociatedDomain, AssociatedSubdomain } from '../types/api';
-import DependencyGraphView from '../components/DependencyGraphView';
+
+interface ProviderDetails {
+  id: string;
+  name: string;
+  country?: string;
+  type?: string;
+  confidence: number;
+  evidence?: string;
+  risk_score?: number;
+  risk_tier?: string;
+  created_at: string;
+  updated_at: string;
+  domains?: string[];
+  ip_ranges?: string[];
+  aliases?: string[];
+  usage?: {
+    domains: string[];
+    subdomains: string[];
+    total_domains: number;
+    total_subdomains: number;
+  };
+}
 
 const ProviderDetail: React.FC = () => {
   const { providerId } = useParams<{ providerId: string }>();
   const navigate = useNavigate();
-  const [providerDetails, setProviderDetails] = useState<ProviderDetailsResponse | null>(null);
+  const [providerDetails, setProviderDetails] = useState<ProviderDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [graphDialogOpen, setGraphDialogOpen] = useState(false);
 
   const fetchProviderDetails = async () => {
     if (!providerId) return;
     
     try {
       setLoading(true);
-      
-      try {
-        // Try to use the real API first
-        const data = await providerApi.getProviderDetails(providerId);
-        setProviderDetails(data);
-        setError(null);
-      } catch (apiError: any) {
-        console.warn('Provider details API not available, using fallback data:', apiError);
-        
-        // Generate fallback data based on the provider ID
-        const mockDetailsByProvider: {[key: string]: ProviderDetailsResponse} = {
-          'imperva_provider_1': {
-            provider: {
-              id: 'imperva_provider_1',
-              name: 'imperva',
-              tld: 'com',
-              country: 'United States',
-              provider_type: 'security',
-              confidence: 0.9,
-              source: 'metadata_as_domain',
-              asn: 'AS19551',
-              org: 'Incapsula Inc',
-              risk_score: 2.5,
-              risk_tier: 'Low',
-              metadata: {
-                migration_confidence: 0.9,
-                migration_source: 'metadata_as_domain',
-                resolution_attempts: {
-                  as_domain: 'incapsula.com',
-                  country_code: 'US'
-                }
-              },
-              created_at: '2025-07-31T10:15:19.814360',
-              is_unknown: false
-            },
-            associated_domains: [
-              { fqdn: 'bancochile.cl', tld: 'cl', tld_country_name: 'Chile', subdomain_count: 2, last_seen: '2025-07-31T10:25:47.413436' },
-              { fqdn: 'bice.cl', tld: 'cl', tld_country_name: 'Chile', subdomain_count: 3, last_seen: '2025-07-31T11:15:22.789012' },
-              { fqdn: 'itau.cl', tld: 'cl', tld_country_name: 'Chile', subdomain_count: 2, last_seen: '2025-07-31T09:30:15.123456' }
-            ],
-            associated_subdomains: [
-              { fqdn: 'www.bancochile.cl', base_domain: 'bancochile.cl', tld: 'cl', risk_score: 2.1, risk_tier: 'Low', confidence: 0.9, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'secure.bancochile.cl', base_domain: 'bancochile.cl', tld: 'cl', risk_score: 1.8, risk_tier: 'Low', confidence: 0.9, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'api.bice.cl', base_domain: 'bice.cl', tld: 'cl', risk_score: 2.5, risk_tier: 'Low', confidence: 0.9, created_at: '2025-07-31T10:15:19.814360' }
-            ],
-            statistics: {
-              total_domains: 3,
-              total_subdomains: 3,
-              countries: [{ country: 'Chile', domain_count: 3 }],
-              risk_distribution: { low_risk: 3, medium_risk: 0, high_risk: 0 }
-            }
-          },
-          'telefonica_chile_provider_1': {
-            provider: {
-              id: 'telefonica_chile_provider_1',
-              name: 'telefonica chile',
-              tld: 'cl',
-              country: 'Chile',
-              provider_type: 'telecom',
-              confidence: 0.85,
-              source: 'metadata_as_domain',
-              asn: 'AS22047',
-              org: 'VTR BANDA ANCHA S.A.',
-              risk_score: 3.2,
-              risk_tier: 'Medium',
-              metadata: {
-                migration_confidence: 0.85,
-                migration_source: 'metadata_as_domain',
-                resolution_attempts: {
-                  as_domain: 'vtr.cl',
-                  country_code: 'CL'
-                }
-              },
-              created_at: '2025-07-31T10:15:19.814360',
-              is_unknown: false
-            },
-            associated_domains: [
-              { fqdn: 'itau.cl', tld: 'cl', tld_country_name: 'Chile', subdomain_count: 8, last_seen: '2025-07-31T10:25:47.413436' },
-              { fqdn: 'santander.cl', tld: 'cl', tld_country_name: 'Chile', subdomain_count: 12, last_seen: '2025-07-31T11:15:22.789012' },
-              { fqdn: 'bancoestado.cl', tld: 'cl', tld_country_name: 'Chile', subdomain_count: 6, last_seen: '2025-07-31T09:30:15.123456' }
-            ],
-            associated_subdomains: [
-              { fqdn: 'www.itau.cl', base_domain: 'itau.cl', tld: 'cl', risk_score: 3.1, risk_tier: 'Medium', confidence: 0.85, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'portal.itau.cl', base_domain: 'itau.cl', tld: 'cl', risk_score: 3.3, risk_tier: 'Medium', confidence: 0.85, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'www.santander.cl', base_domain: 'santander.cl', tld: 'cl', risk_score: 2.9, risk_tier: 'Low', confidence: 0.85, created_at: '2025-07-31T10:15:19.814360' }
-            ],
-            statistics: {
-              total_domains: 3,
-              total_subdomains: 3,
-              countries: [{ country: 'Chile', domain_count: 3 }],
-              risk_distribution: { low_risk: 1, medium_risk: 2, high_risk: 0 }
-            }
-          },
-          'amazon_provider_1': {
-            provider: {
-              id: 'amazon_provider_1',
-              name: 'amazon',
-              tld: 'com',
-              country: 'United States',
-              provider_type: 'cloud',
-              confidence: 0.95,
-              source: 'consolidated',
-              asn: 'AS16509',
-              org: 'Amazon.com, Inc.',
-              risk_score: 1.8,
-              risk_tier: 'Low',
-              metadata: {
-                migration_confidence: 0.95,
-                migration_source: 'consolidated',
-                resolution_attempts: {
-                  as_domain: 'amazon.com',
-                  country_code: 'US'
-                }
-              },
-              created_at: '2025-07-31T09:25:15.123456',
-              is_unknown: false
-            },
-            associated_domains: [
-              { fqdn: 'falabella.com', tld: 'com', tld_country_name: 'Chile', subdomain_count: 12, last_seen: '2025-07-31T08:45:22.789012' },
-              { fqdn: 'ripley.cl', tld: 'cl', tld_country_name: 'Chile', subdomain_count: 18, last_seen: '2025-07-31T07:20:15.456789' },
-              { fqdn: 'lider.cl', tld: 'cl', tld_country_name: 'Chile', subdomain_count: 8, last_seen: '2025-07-31T09:15:33.123456' },
-              { fqdn: 'paris.cl', tld: 'cl', tld_country_name: 'Chile', subdomain_count: 7, last_seen: '2025-07-31T10:30:44.987654' }
-            ],
-            associated_subdomains: [
-              { fqdn: 'api.falabella.com', base_domain: 'falabella.com', tld: 'com', risk_score: 1.5, risk_tier: 'Low', confidence: 0.95, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'cdn.falabella.com', base_domain: 'falabella.com', tld: 'com', risk_score: 1.2, risk_tier: 'Low', confidence: 0.95, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'static.falabella.com', base_domain: 'falabella.com', tld: 'com', risk_score: 1.0, risk_tier: 'Low', confidence: 0.95, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'www.ripley.cl', base_domain: 'ripley.cl', tld: 'cl', risk_score: 1.8, risk_tier: 'Low', confidence: 0.93, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'app.ripley.cl', base_domain: 'ripley.cl', tld: 'cl', risk_score: 2.1, risk_tier: 'Low', confidence: 0.93, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'admin.lider.cl', base_domain: 'lider.cl', tld: 'cl', risk_score: 1.6, risk_tier: 'Low', confidence: 0.91, created_at: '2025-07-31T10:15:19.814360' }
-            ],
-            statistics: {
-              total_domains: 4,
-              total_subdomains: 6,
-              countries: [
-                { country: 'Chile', domain_count: 3 },
-                { country: 'United States', domain_count: 1 }
-              ],
-              risk_distribution: { low_risk: 6, medium_risk: 0, high_risk: 0 }
-            }
-          },
-          'cloudflare_provider_1': {
-            provider: {
-              id: 'cloudflare_provider_1',
-              name: 'cloudflare',
-              tld: 'com',
-              country: 'United States',
-              provider_type: 'cdn',
-              confidence: 0.92,
-              source: 'consolidated',
-              asn: 'AS13335',
-              org: 'Cloudflare, Inc.',
-              risk_score: 1.5,
-              risk_tier: 'Low',
-              metadata: {
-                migration_confidence: 0.92,
-                migration_source: 'consolidated',
-                resolution_attempts: {
-                  as_domain: 'cloudflare.com',
-                  country_code: 'US'
-                }
-              },
-              created_at: '2025-07-31T08:45:22.789012',
-              is_unknown: false
-            },
-            associated_domains: [
-              { fqdn: 'bice.cl', tld: 'cl', tld_country_name: 'Chile', subdomain_count: 8, last_seen: '2025-07-31T08:45:22.789012' },
-              { fqdn: 'santander.cl', tld: 'cl', tld_country_name: 'Chile', subdomain_count: 6, last_seen: '2025-07-31T07:30:15.456789' },
-              { fqdn: 'security.cl', tld: 'cl', tld_country_name: 'Chile', subdomain_count: 4, last_seen: '2025-07-31T09:15:33.123456' },
-              { fqdn: 'example5.com', tld: 'com', tld_country_name: 'United States', subdomain_count: 10, last_seen: '2025-07-31T10:00:44.987654' }
-            ],
-            associated_subdomains: [
-              { fqdn: 'cdn.bice.cl', base_domain: 'bice.cl', tld: 'cl', risk_score: 1.3, risk_tier: 'Low', confidence: 0.92, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'static.bice.cl', base_domain: 'bice.cl', tld: 'cl', risk_score: 1.1, risk_tier: 'Low', confidence: 0.92, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'assets.bice.cl', base_domain: 'bice.cl', tld: 'cl', risk_score: 1.2, risk_tier: 'Low', confidence: 0.92, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'www.santander.cl', base_domain: 'santander.cl', tld: 'cl', risk_score: 1.4, risk_tier: 'Low', confidence: 0.92, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'cdn.santander.cl', base_domain: 'santander.cl', tld: 'cl', risk_score: 1.0, risk_tier: 'Low', confidence: 0.92, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'www.security.cl', base_domain: 'security.cl', tld: 'cl', risk_score: 1.6, risk_tier: 'Low', confidence: 0.92, created_at: '2025-07-31T10:15:19.814360' },
-              { fqdn: 'portal.security.cl', base_domain: 'security.cl', tld: 'cl', risk_score: 1.8, risk_tier: 'Low', confidence: 0.92, created_at: '2025-07-31T10:15:19.814360' }
-            ],
-            statistics: {
-              total_domains: 4,
-              total_subdomains: 7,
-              countries: [
-                { country: 'Chile', domain_count: 3 },
-                { country: 'United States', domain_count: 1 }
-              ],
-              risk_distribution: { low_risk: 7, medium_risk: 0, high_risk: 0 }
-            }
-          }
-        };
-
-        // Get fallback data or create basic fallback
-        const fallbackData = mockDetailsByProvider[providerId] || {
-          provider: {
-            id: providerId,
-            name: providerId.replace(/_provider_\d+$/, '').replace(/_/g, ' '),
-            confidence: 0.7,
-            source: 'fallback',
-            risk_score: 3.0,
-            risk_tier: 'Medium',
-            created_at: new Date().toISOString(),
-            is_unknown: true
-          },
-          associated_domains: [],
-          associated_subdomains: [],
-          statistics: {
-            total_domains: 0,
-            total_subdomains: 0,
-            countries: [],
-            risk_distribution: { low_risk: 0, medium_risk: 0, high_risk: 0 }
-          }
-        };
-
-        setProviderDetails(fallbackData as ProviderDetailsResponse);
-        setError(null);
-      }
+      const data = await providerApi.getProviderDetails(providerId);
+      setProviderDetails(data);
+      setError(null);
     } catch (err: any) {
       setError('Failed to load provider details');
       console.error('Provider details error:', err);
@@ -315,9 +117,49 @@ const ProviderDetail: React.FC = () => {
       'Brazil': '🇧🇷',
       'Argentina': '🇦🇷',
       'Colombia': '🇨🇴',
-      'Peru': '🇵🇪'
+      'Peru': '🇵🇪',
+      'Global': '🌍'
     };
     return flags[country] || '🌍';
+  };
+
+  const getRiskDistributionData = () => {
+    if (!providerDetails?.usage) return [];
+    
+    const total = providerDetails.usage.total_domains + providerDetails.usage.total_subdomains;
+    const riskScore = providerDetails.risk_score || 0;
+    
+    // Simulate risk distribution based on risk score
+    let lowRisk = 0, mediumRisk = 0, highRisk = 0;
+    
+    if (riskScore < 30) {
+      lowRisk = Math.floor(total * 0.8);
+      mediumRisk = Math.floor(total * 0.2);
+      highRisk = 0;
+    } else if (riskScore < 60) {
+      lowRisk = Math.floor(total * 0.5);
+      mediumRisk = Math.floor(total * 0.4);
+      highRisk = Math.floor(total * 0.1);
+    } else {
+      lowRisk = Math.floor(total * 0.3);
+      mediumRisk = Math.floor(total * 0.4);
+      highRisk = Math.floor(total * 0.3);
+    }
+    
+    return [
+      { name: 'Low Risk', value: lowRisk, color: '#4caf50' },
+      { name: 'Medium Risk', value: mediumRisk, color: '#ff9800' },
+      { name: 'High Risk', value: highRisk, color: '#f44336' }
+    ].filter(item => item.value > 0);
+  };
+
+  const getUsageData = () => {
+    if (!providerDetails?.usage) return [];
+    
+    return [
+      { name: 'Domains', value: providerDetails.usage.total_domains, color: '#1976d2' },
+      { name: 'Subdomains', value: providerDetails.usage.total_subdomains, color: '#2e7d32' }
+    ];
   };
 
   if (loading) {
@@ -339,8 +181,6 @@ const ProviderDetail: React.FC = () => {
     );
   }
 
-  const { provider, associated_domains, associated_subdomains, statistics } = providerDetails;
-
   return (
     <Box>
       {/* Header */}
@@ -350,23 +190,22 @@ const ProviderDetail: React.FC = () => {
             Back to Providers
           </Button>
           <Box display="flex" alignItems="center" gap={1}>
-            <ProviderIcon sx={{ color: getProviderTypeColor(provider.provider_type), fontSize: 32 }} />
-            <Typography variant="h4">{provider.name}</Typography>
-            {provider.is_unknown && (
-              <Chip label="Unknown" color="warning" />
-            )}
+            <ProviderIcon sx={{ color: getProviderTypeColor(providerDetails.type), fontSize: 32 }} />
+            <Typography variant="h4">{providerDetails.name}</Typography>
+            <Chip 
+              label={providerDetails.type || 'Unknown'} 
+              size="small"
+              sx={{ 
+                bgcolor: getProviderTypeColor(providerDetails.type), 
+                color: 'white' 
+              }}
+            />
           </Box>
         </Box>
         <Box display="flex" alignItems="center" gap={2}>
-          <IconButton 
-            onClick={() => setGraphDialogOpen(true)}
-            title="View Dependencies Graph"
-          >
-            <GraphIcon />
-          </IconButton>
           <Box display="flex" alignItems="center" gap={1}>
-            <span style={{ fontSize: '24px' }}>{getCountryFlag(provider.country)}</span>
-            <Typography variant="h6">{provider.country}</Typography>
+            <span style={{ fontSize: '24px' }}>{getCountryFlag(providerDetails.country)}</span>
+            <Typography variant="h6">{providerDetails.country || 'Unknown'}</Typography>
           </Box>
         </Box>
       </Box>
@@ -384,13 +223,13 @@ const ProviderDetail: React.FC = () => {
                   <ListItemIcon><BusinessIcon /></ListItemIcon>
                   <ListItemText 
                     primary="Type" 
-                    secondary={provider.provider_type || 'unknown'}
+                    secondary={providerDetails.type || 'unknown'}
                   />
                   <Chip 
-                    label={provider.provider_type || 'unknown'} 
+                    label={providerDetails.type || 'unknown'} 
                     size="small" 
                     sx={{ 
-                      bgcolor: getProviderTypeColor(provider.provider_type), 
+                      bgcolor: getProviderTypeColor(providerDetails.type), 
                       color: 'white' 
                     }}
                   />
@@ -398,20 +237,20 @@ const ProviderDetail: React.FC = () => {
                 <ListItem>
                   <ListItemIcon><CountryIcon /></ListItemIcon>
                   <ListItemText 
-                    primary="Country & TLD" 
-                    secondary={`${provider.country} (.${provider.tld})`} 
+                    primary="Country" 
+                    secondary={providerDetails.country || 'Global'} 
                   />
                 </ListItem>
                 <ListItem>
                   <ListItemIcon><RiskIcon /></ListItemIcon>
                   <ListItemText 
                     primary="Risk Assessment" 
-                    secondary={`${provider.risk_tier || 'N/A'} - Score: ${provider.risk_score?.toFixed(1) || 'N/A'}`}
+                    secondary={`${providerDetails.risk_tier || 'N/A'} - Score: ${providerDetails.risk_score?.toFixed(1) || 'N/A'}`}
                   />
                   <Box display="flex" alignItems="center" gap={1}>
                     <Chip 
-                      label={provider.risk_tier || 'N/A'} 
-                      color={getRiskTierColor(provider.risk_tier) as any}
+                      label={providerDetails.risk_tier || 'N/A'} 
+                      color={getRiskTierColor(providerDetails.risk_tier) as any}
                       size="small"
                     />
                   </Box>
@@ -420,9 +259,18 @@ const ProviderDetail: React.FC = () => {
                   <ListItemIcon><ConfidenceIcon /></ListItemIcon>
                   <ListItemText 
                     primary="Confidence" 
-                    secondary={`${(provider.confidence * 100).toFixed(0)}% (${provider.source})`} 
+                    secondary={`${(providerDetails.confidence * 100).toFixed(0)}%`} 
                   />
                 </ListItem>
+                {providerDetails.evidence && (
+                  <ListItem>
+                    <ListItemIcon><EvidenceIcon /></ListItemIcon>
+                    <ListItemText 
+                      primary="Evidence" 
+                      secondary={providerDetails.evidence} 
+                    />
+                  </ListItem>
+                )}
               </List>
               
               <Divider sx={{ my: 2 }} />
@@ -432,13 +280,27 @@ const ProviderDetail: React.FC = () => {
               </Typography>
               <List dense>
                 <ListItem>
-                  <ListItemText primary="ASN" secondary={provider.asn || 'N/A'} />
+                  <ListItemText primary="Provider ID" secondary={providerDetails.id} />
+                </ListItem>
+                {providerDetails.aliases && providerDetails.aliases.length > 0 && (
+                  <ListItem>
+                    <ListItemText 
+                      primary="Aliases" 
+                      secondary={providerDetails.aliases.join(', ')} 
+                    />
+                  </ListItem>
+                )}
+                <ListItem>
+                  <ListItemText 
+                    primary="Created" 
+                    secondary={new Date(providerDetails.created_at).toLocaleDateString()} 
+                  />
                 </ListItem>
                 <ListItem>
-                  <ListItemText primary="Organization" secondary={provider.org || 'N/A'} />
-                </ListItem>
-                <ListItem>
-                  <ListItemText primary="Created" secondary={new Date(provider.created_at).toLocaleDateString()} />
+                  <ListItemText 
+                    primary="Last Updated" 
+                    secondary={new Date(providerDetails.updated_at).toLocaleDateString()} 
+                  />
                 </ListItem>
               </List>
             </CardContent>
@@ -456,189 +318,260 @@ const ProviderDetail: React.FC = () => {
                 <Grid item xs={6} sm={3}>
                   <Box textAlign="center">
                     <DomainIcon sx={{ fontSize: 40, color: '#1976d2', mb: 1 }} />
-                    <Typography variant="h4">{statistics.total_domains}</Typography>
+                    <Typography variant="h4">{providerDetails.usage?.total_domains || 0}</Typography>
                     <Typography variant="body2" color="textSecondary">Domains</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={6} sm={3}>
                   <Box textAlign="center">
                     <SubdomainIcon sx={{ fontSize: 40, color: '#2e7d32', mb: 1 }} />
-                    <Typography variant="h4">{statistics.total_subdomains}</Typography>
+                    <Typography variant="h4">{providerDetails.usage?.total_subdomains || 0}</Typography>
                     <Typography variant="body2" color="textSecondary">Subdomains</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={6} sm={3}>
                   <Box textAlign="center">
-                    <RiskIcon sx={{ fontSize: 40, color: '#f57c00', mb: 1 }} />
-                    <Typography variant="h4">{statistics.risk_distribution.low_risk}</Typography>
-                    <Typography variant="body2" color="textSecondary">Low Risk</Typography>
+                    <NetworkIcon sx={{ fontSize: 40, color: '#f57c00', mb: 1 }} />
+                    <Typography variant="h4">{providerDetails.domains?.length || 0}</Typography>
+                    <Typography variant="body2" color="textSecondary">Own Domains</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={6} sm={3}>
                   <Box textAlign="center">
-                    <RiskIcon sx={{ fontSize: 40, color: '#d32f2f', mb: 1 }} />
-                    <Typography variant="h4">{statistics.risk_distribution.high_risk}</Typography>
-                    <Typography variant="body2" color="textSecondary">High Risk</Typography>
+                    <IPIcon sx={{ fontSize: 40, color: '#7b1fa2', mb: 1 }} />
+                    <Typography variant="h4">{providerDetails.ip_ranges?.length || 0}</Typography>
+                    <Typography variant="body2" color="textSecondary">IP Ranges</Typography>
                   </Box>
                 </Grid>
               </Grid>
 
-              <Divider sx={{ my: 3 }} />
-
-              <Typography variant="subtitle1" gutterBottom>
-                Geographic Distribution
-              </Typography>
-              <List dense>
-                {statistics.countries.map((country, idx) => (
-                  <ListItem key={idx}>
-                    <ListItemIcon>
-                      <span style={{ fontSize: '20px' }}>{getCountryFlag(country.country)}</span>
-                    </ListItemIcon>
-                    <ListItemText 
-                      primary={country.country} 
-                      secondary={`${country.domain_count} domains`} 
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Associated Domains */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Associated Domains ({associated_domains.length})
-              </Typography>
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Domain</TableCell>
-                      <TableCell>Country</TableCell>
-                      <TableCell>Subdomains</TableCell>
-                      <TableCell>Last Seen</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {associated_domains.map((domain, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell>
-                          <Box display="flex" alignItems="center" gap={1}>
-                            <DomainIcon sx={{ fontSize: 16 }} />
-                            <Typography variant="body2">{domain.fqdn}</Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Box display="flex" alignItems="center" gap={0.5}>
-                            <span>{getCountryFlag(domain.tld_country_name)}</span>
-                            <Typography variant="caption">.{domain.tld}</Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell>{domain.subdomain_count}</TableCell>
-                        <TableCell>
-                          <Typography variant="caption">
-                            {new Date(domain.last_seen).toLocaleDateString()}
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </CardContent>
-          </Card>
-        </Grid>
-
-        {/* Associated Subdomains */}
-        <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Associated Subdomains ({associated_subdomains.length})
-              </Typography>
-              <TableContainer>
-                <Table size="small">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Subdomain</TableCell>
-                      <TableCell>Risk</TableCell>
-                      <TableCell>Confidence</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {associated_subdomains.slice(0, 10).map((subdomain, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell>
-                          <Box>
-                            <Box display="flex" alignItems="center" gap={1}>
-                              <SubdomainIcon sx={{ fontSize: 16 }} />
-                              <Typography variant="body2">{subdomain.fqdn}</Typography>
-                            </Box>
-                            <Typography variant="caption" color="textSecondary">
-                              {subdomain.base_domain}
-                            </Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Box>
-                            <Chip 
-                              label={subdomain.risk_tier || 'N/A'} 
-                              size="small" 
-                              color={getRiskTierColor(subdomain.risk_tier) as any}
-                            />
-                            <Typography variant="caption" display="block">
-                              {subdomain.risk_score?.toFixed(1) || 'N/A'}
-                            </Typography>
-                          </Box>
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2">
-                            {(subdomain.confidence * 100).toFixed(0)}%
-                          </Typography>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-              {associated_subdomains.length > 10 && (
-                <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
-                  Showing 10 of {associated_subdomains.length} subdomains
-                </Typography>
+              {/* Charts */}
+              {providerDetails.usage && (providerDetails.usage.total_domains > 0 || providerDetails.usage.total_subdomains > 0) && (
+                <>
+                  <Divider sx={{ my: 3 }} />
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="subtitle1" gutterBottom textAlign="center">
+                        Usage Distribution
+                      </Typography>
+                      <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={getUsageData()}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="name" />
+                          <YAxis />
+                          <Tooltip />
+                          <Bar dataKey="value" fill="#8884d8">
+                            {getUsageData().map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                      <Typography variant="subtitle1" gutterBottom textAlign="center">
+                        Estimated Risk Distribution
+                      </Typography>
+                      <ResponsiveContainer width="100%" height={200}>
+                        <PieChart>
+                          <Pie
+                            data={getRiskDistributionData()}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
+                            outerRadius={70}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {getRiskDistributionData().map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </Grid>
+                  </Grid>
+                </>
               )}
             </CardContent>
           </Card>
         </Grid>
-      </Grid>
 
-      {/* Graph Dialog */}
-      <Dialog
-        open={graphDialogOpen}
-        onClose={() => setGraphDialogOpen(false)}
-        maxWidth="lg"
-        fullWidth
-        sx={{ '& .MuiDialog-paper': { height: '80vh' } }}
-      >
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          Provider Dependencies Graph - {provider.name}
-          <IconButton 
-            onClick={() => setGraphDialogOpen(false)}
-            sx={{ ml: 2 }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent sx={{ p: 0, height: 'calc(100% - 64px)' }}>
-          <DependencyGraphView 
-            domain={associated_domains?.[0]?.fqdn || provider.name || providerId || ''} 
-            height={600}
-            showFullscreen={true}
-          />
-        </DialogContent>
-      </Dialog>
+        {/* Provider Domains */}
+        {providerDetails.domains && providerDetails.domains.length > 0 && (
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Provider Domains ({providerDetails.domains.length})
+                </Typography>
+                <Typography variant="body2" color="textSecondary" gutterBottom>
+                  Domains owned by this provider
+                </Typography>
+                <List dense>
+                  {providerDetails.domains.map((domain, idx) => (
+                    <ListItem key={idx}>
+                      <ListItemIcon>
+                        <NetworkIcon sx={{ fontSize: 16 }} />
+                      </ListItemIcon>
+                      <ListItemText primary={domain} />
+                    </ListItem>
+                  ))}
+                </List>
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
+
+        {/* IP Ranges */}
+        {providerDetails.ip_ranges && providerDetails.ip_ranges.length > 0 && (
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  IP Ranges ({providerDetails.ip_ranges.length})
+                </Typography>
+                <Typography variant="body2" color="textSecondary" gutterBottom>
+                  Network ranges managed by this provider
+                </Typography>
+                <List dense>
+                  {providerDetails.ip_ranges.map((range, idx) => (
+                    <ListItem key={idx}>
+                      <ListItemIcon>
+                        <IPIcon sx={{ fontSize: 16 }} />
+                      </ListItemIcon>
+                      <ListItemText 
+                        primary={range}
+                        secondary="Network range"
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
+
+        {/* Associated Domains */}
+        {providerDetails.usage && providerDetails.usage.domains.length > 0 && (
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Associated Domains ({providerDetails.usage.total_domains})
+                </Typography>
+                <Typography variant="body2" color="textSecondary" gutterBottom>
+                  Domains using this provider's services
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Domain</TableCell>
+                        <TableCell>TLD</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {providerDetails.usage.domains.slice(0, 10).map((domain, idx) => (
+                        <TableRow key={idx} hover>
+                          <TableCell>
+                            <Box display="flex" alignItems="center" gap={1}>
+                              <DomainIcon sx={{ fontSize: 16 }} />
+                              <Typography 
+                                variant="body2" 
+                                sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                                onClick={() => navigate(`/domains/${domain}`)}
+                              >
+                                {domain}
+                              </Typography>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="caption">
+                              .{domain.split('.').pop()}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                {providerDetails.usage.domains.length > 10 && (
+                  <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+                    Showing 10 of {providerDetails.usage.domains.length} domains
+                  </Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
+
+        {/* Associated Subdomains */}
+        {providerDetails.usage && providerDetails.usage.subdomains.length > 0 && (
+          <Grid item xs={12} md={6}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Associated Subdomains ({providerDetails.usage.total_subdomains})
+                </Typography>
+                <Typography variant="body2" color="textSecondary" gutterBottom>
+                  Subdomains using this provider's services
+                </Typography>
+                <TableContainer>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Subdomain</TableCell>
+                        <TableCell>Base Domain</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {providerDetails.usage.subdomains.slice(0, 15).map((subdomain, idx) => (
+                        <TableRow key={idx} hover>
+                          <TableCell>
+                            <Box>
+                              <Box display="flex" alignItems="center" gap={1}>
+                                <SubdomainIcon sx={{ fontSize: 16 }} />
+                                <Typography 
+                                  variant="body2"
+                                  sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                                  onClick={() => navigate(`/domains/${subdomain}`)}
+                                >
+                                  {subdomain}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Typography 
+                              variant="caption" 
+                              color="textSecondary"
+                              sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
+                              onClick={() => {
+                                const baseDomain = subdomain.split('.').slice(-2).join('.');
+                                navigate(`/domains/${baseDomain}`);
+                              }}
+                            >
+                              {subdomain.split('.').slice(-2).join('.')}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                {providerDetails.usage.subdomains.length > 15 && (
+                  <Typography variant="caption" color="textSecondary" sx={{ mt: 1, display: 'block' }}>
+                    Showing 15 of {providerDetails.usage.subdomains.length} subdomains
+                  </Typography>
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
+      </Grid>
     </Box>
   );
 };

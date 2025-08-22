@@ -1,0 +1,13 @@
+{
+    "domain": "principal.cl",
+    "job_id": "38",
+    "start_time": "2025-08-22 02:01:44",
+    "end_time": "2025-08-22 02:10:26",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_principal.cl_38.log",
+    "error_log": "output2/amass_principal.cl_38.error"
+}

@@ -32,7 +32,7 @@ New in v6.0 (Unified):
 """
 
 from __future__ import annotations
-import argparse, json, subprocess, tempfile, sys, socket, ssl, re
+import argparse, json, subprocess, tempfile, sys, socket, ssl, re, os
 from typing import Tuple
 from collections import deque, defaultdict
 from pathlib import Path
@@ -140,6 +140,11 @@ class ProcessingConfig:
     max_workers: int = 10
     batch_size: int = 50
     timeout_per_subdomain: int = 30
+    
+    # Cache options
+    amass_cache_duration_hours: int = 168  # 1 week default
+    amass_cache_dir: str = "./amass_cache"
+    enable_cache_check: bool = True
     
     # Output options
     save_to_neo4j: bool = True
@@ -726,13 +731,78 @@ class EnhancedProviderResolver:
         return "unknown"
     
     def _extract_provider_from_hostname(self, hostname: str) -> str:
-        """Extract provider from hostname (from v4)"""
+        """Extract provider from hostname using Neo4j providers"""
         if not hostname:
             return "unknown"
         
         hostname_lower = hostname.lower()
         
-        # Check cloud provider patterns
+        # Use Neo4j provider detection patterns
+        # AWS patterns
+        if any(pattern in hostname_lower for pattern in ['amazonaws.com', 'aws.amazon.com', 'ec2', 's3']):
+            return 'amazon'
+        
+        # Google patterns  
+        if any(pattern in hostname_lower for pattern in ['googleapis.com', 'googleusercontent.com', 'gstatic.com', 'google.com']):
+            return 'google'
+        
+        # Microsoft patterns
+        if any(pattern in hostname_lower for pattern in ['azure.com', 'azurewebsites.net', 'outlook.com', 'office.com']):
+            return 'microsoft'
+        
+        # Cloudflare patterns
+        if any(pattern in hostname_lower for pattern in ['cloudflare.com', 'cloudflaressl.com']):
+            return 'cloudflare'
+        
+        # GitHub patterns
+        if any(pattern in hostname_lower for pattern in ['github.com', 'githubusercontent.com', 'github.io']):
+            return 'github'
+        
+        # Heroku patterns
+        if any(pattern in hostname_lower for pattern in ['heroku.com', 'herokuapp.com']):
+            return 'heroku'
+        
+        # Salesforce patterns
+        if any(pattern in hostname_lower for pattern in ['salesforce.com', 'force.com']):
+            return 'salesforce'
+        
+        # Fastly patterns
+        if any(pattern in hostname_lower for pattern in ['fastly.com', 'fastlylb.net']):
+            return 'fastly'
+        
+        # DigitalOcean patterns
+        if any(pattern in hostname_lower for pattern in ['digitalocean.com', 'digitaloceanspaces.com']):
+            return 'digitalocean'
+        
+        # Akamai patterns
+        if any(pattern in hostname_lower for pattern in ['akamai.com', 'akamaitechnologies.com', 'akamaiedge.net']):
+            return 'akamai'
+        
+        # Linode patterns
+        if any(pattern in hostname_lower for pattern in ['linode.com', 'linodeobjects.com']):
+            return 'linode'
+        
+        # Vultr patterns  
+        if 'vultr.com' in hostname_lower:
+            return 'vultr'
+        
+        # OVH patterns
+        if any(pattern in hostname_lower for pattern in ['ovh.com', 'ovhcloud.com', 'ovh.net']):
+            return 'ovh'
+        
+        # Hetzner patterns
+        if any(pattern in hostname_lower for pattern in ['hetzner.com', 'hetzner.de']):
+            return 'hetzner'
+        
+        # GoDaddy patterns
+        if any(pattern in hostname_lower for pattern in ['godaddy.com', 'secureserver.net']):
+            return 'godaddy'
+        
+        # Namecheap patterns
+        if any(pattern in hostname_lower for pattern in ['namecheap.com', 'registrar-servers.com']):
+            return 'namecheap'
+        
+        # Fallback to old patterns for compatibility
         for pattern, provider in self.cloud_provider_patterns.items():
             if pattern in hostname_lower:
                 return provider
@@ -838,6 +908,65 @@ class UnifiedSubdomainDiscoverer:
             except Exception as e:
                 logger.warning(f"Failed to initialize risk calculator: {e}")
     
+    def _generate_cache_hash(self, domain: str) -> str:
+        """Generate hash for domain (used for cache keys)"""
+        return hashlib.sha256(domain.encode()).hexdigest()[:16]
+    
+    def _check_amass_cache(self, domain: str) -> Optional[List[str]]:
+        """Check if valid cached amass results exist for domain"""
+        if not self.config.enable_cache_check:
+            return None
+            
+        cache_dir = Path(self.config.amass_cache_dir)
+        metadata_dir = cache_dir / "metadata"
+        data_dir = cache_dir / "data"
+        
+        if not metadata_dir.exists() or not data_dir.exists():
+            return None
+            
+        hash_key = self._generate_cache_hash(domain)
+        metadata_file = metadata_dir / f"{hash_key}.json"
+        data_file = data_dir / f"{hash_key}.json.gz"
+        
+        if not metadata_file.exists() or not data_file.exists():
+            return None
+            
+        try:
+            # Check if cache is expired
+            with open(metadata_file, 'r') as f:
+                metadata = json.load(f)
+            
+            timestamp_str = metadata.get('timestamp', '')
+            if not timestamp_str:
+                return None
+                
+            # Parse timestamp and check expiration
+            try:
+                cache_time = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+            except:
+                # Try different timestamp formats
+                cache_time = datetime.fromisoformat(timestamp_str)
+            
+            now = datetime.now(cache_time.tzinfo) if cache_time.tzinfo else datetime.now()
+            cache_age = now - cache_time
+            max_age = timedelta(hours=self.config.amass_cache_duration_hours)
+            
+            if cache_age > max_age:
+                logger.info(f"Cache expired for {domain} (age: {cache_age}, max: {max_age})")
+                return None
+            
+            # Read cached data
+            import gzip
+            with gzip.open(data_file, 'rt') as f:
+                subdomains_json = json.load(f)
+            
+            logger.info(f"Using cached amass results for {domain} (age: {cache_age})")
+            return subdomains_json
+            
+        except Exception as e:
+            logger.debug(f"Failed to read cache for {domain}: {e}")
+            return None
+    
     def discover_and_analyze(self, domain: str) -> DiscoveryResult:
         """Main entry point for domain discovery and analysis"""
         start_time = time.time()
@@ -922,16 +1051,57 @@ class UnifiedSubdomainDiscoverer:
         return subdomain_list
     
     def _run_amass(self, domain: str) -> List[str]:
-        """Run Amass for subdomain discovery"""
+        """Run Amass for subdomain discovery with cache support"""
+        
+        # First check cache
+        cached_results = self._check_amass_cache(domain)
+        if cached_results is not None:
+            return cached_results
+        
+        # No valid cache found, run amass
+        logger.info(f"No valid cache found for {domain}, running amass")
+        
         try:
+            # Use standalone amass executor if available
+            standalone_script = Path(self.config.amass_cache_dir).parent / "standalone_amass_executor.sh"
+            
+            if standalone_script.exists():
+                logger.info(f"Using standalone amass executor for {domain}")
+                try:
+                    # Set environment variables for the script
+                    env = {
+                        **dict(os.environ),
+                        'AMASS_CACHE_DIR': self.config.amass_cache_dir,
+                        'CACHE_DURATION_HOURS': str(self.config.amass_cache_duration_hours)
+                    }
+                    
+                    result = subprocess.run(
+                        [str(standalone_script), "-t", str(self.config.amass_timeout), domain],
+                        capture_output=True,
+                        text=True,
+                        timeout=self.config.amass_timeout + 60,
+                        env=env
+                    )
+                    
+                    if result.returncode == 0:
+                        subdomains_json = json.loads(result.stdout)
+                        logger.info(f"Standalone executor returned {len(subdomains_json)} subdomains")
+                        return subdomains_json
+                    else:
+                        logger.warning(f"Standalone executor failed: {result.stderr}")
+                        # Fall back to direct amass execution
+                        
+                except Exception as e:
+                    logger.warning(f"Standalone executor error: {e}, falling back to direct amass")
+            
+            # Direct amass execution fallback
             cmd = [
-                "docker", "run", "--rm",
-                "-v", "/tmp:/tmp",
-                AMASS_IMAGE,
+                "amass",
                 "enum",
                 "-d", domain,
-                "-passive",
-                "-timeout", str(self.config.amass_timeout)
+                "-timeout", str(self.config.amass_timeout // 60),  # Convert to minutes
+                "-dns-qps", "50",  # Limit DNS queries per second
+                "-silent"  # Reduce output noise
             ]
             
             result = subprocess.run(
@@ -942,8 +1112,20 @@ class UnifiedSubdomainDiscoverer:
             )
             
             if result.returncode == 0:
-                subdomains = [line.strip() for line in result.stdout.splitlines() if line.strip()]
-                return subdomains
+                subdomains = []
+                for line in result.stdout.splitlines():
+                    if line.strip() and ' --> node --> ' in line:
+                        # Extract subdomain from "domain (FQDN) --> node --> subdomain (FQDN)" format
+                        parts = line.split(' --> node --> ')
+                        if len(parts) == 2:
+                            subdomain = parts[1].split(' (FQDN)')[0].strip()
+                            if subdomain and domain in subdomain and subdomain != domain:
+                                subdomains.append(subdomain)
+                
+                # Remove duplicates and sort
+                unique_subdomains = sorted(list(set(subdomains)))
+                logger.info(f"Parsed {len(unique_subdomains)} subdomains from amass output")
+                return unique_subdomains
             else:
                 logger.error(f"Amass failed: {result.stderr}")
                 return []
@@ -1282,6 +1464,11 @@ def main():
     parser.add_argument("--timeout", type=int, default=300, help="Amass timeout")
     parser.add_argument("--workers", type=int, default=10, help="Max worker threads")
     
+    # Cache options
+    parser.add_argument("--cache-dir", default="./amass_cache", help="Amass cache directory")
+    parser.add_argument("--cache-duration", type=int, default=168, help="Cache duration in hours (default: 168 = 1 week)")
+    parser.add_argument("--no-cache", action="store_true", help="Disable cache checking")
+    
     args = parser.parse_args()
     
     # Create configuration
@@ -1296,7 +1483,10 @@ def main():
         save_to_neo4j=not args.no_neo4j,
         max_subdomains=args.max_subdomains,
         amass_timeout=args.timeout,
-        max_workers=args.workers
+        max_workers=args.workers,
+        amass_cache_dir=args.cache_dir,
+        amass_cache_duration_hours=args.cache_duration,
+        enable_cache_check=not args.no_cache
     )
     
     # Initialize discoverer

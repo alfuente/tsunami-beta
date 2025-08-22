@@ -1,0 +1,13 @@
+{
+    "domain": "bci.cl",
+    "job_id": "4",
+    "start_time": "2025-08-22 00:41:53",
+    "end_time": "2025-08-22 00:50:42",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_bci.cl_4.log",
+    "error_log": "output2/amass_bci.cl_4.error"
+}

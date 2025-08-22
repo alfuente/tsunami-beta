@@ -331,7 +331,6 @@ const DomainManagement: React.FC = () => {
                   <TableCell>Subdomains</TableCell>
                   <TableCell>Services</TableCell>
                   <TableCell>Providers</TableCell>
-                  <TableCell>Services/Providers</TableCell>
                   <TableCell>Risk Score</TableCell>
                   <TableCell>Risk Tier</TableCell>
                   <TableCell>Critical/High</TableCell>
@@ -341,13 +340,13 @@ const DomainManagement: React.FC = () => {
               <TableBody>
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={9} align="center">
+                    <TableCell colSpan={8} align="center">
                       <CircularProgress />
                     </TableCell>
                   </TableRow>
                 ) : domains.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} align="center">
+                    <TableCell colSpan={8} align="center">
                       <Typography variant="body2" color="textSecondary">
                         No base domains found
                       </Typography>
@@ -375,71 +374,6 @@ const DomainManagement: React.FC = () => {
                       <Typography variant="body2">
                         {domain.provider_count}
                       </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Box>
-                        <Typography variant="body2" fontWeight="bold">
-                          {domain.related_domains_count || 0}
-                        </Typography>
-                        {domain.related_domains_preview && domain.related_domains_preview.length > 0 && (
-                          <Box mt={0.5}>
-                            {domain.related_domains_preview.map((providerInfo, idx) => {
-                              const isLowConfidence = providerInfo.includes('(') && providerInfo.includes('%)');
-                              const isGeneric = providerInfo.includes('Provider') || providerInfo.includes('Providers');
-                              const displayName = providerInfo.length > 18 ? `${providerInfo.substring(0, 18)}...` : providerInfo;
-                              
-                              let chipStyle = {
-                                mr: 0.5, 
-                                mb: 0.5,
-                                fontSize: '0.7rem',
-                                height: '22px',
-                                bgcolor: '#e8f5e8',
-                                borderColor: '#2e7d32',
-                                color: '#2e7d32',
-                                '&:hover': { bgcolor: '#c8e6c8' }
-                              };
-                              
-                              if (isLowConfidence) {
-                                chipStyle = {
-                                  ...chipStyle,
-                                  bgcolor: '#fff3e0',
-                                  borderColor: '#f57c00',
-                                  color: '#f57c00',
-                                  '&:hover': { bgcolor: '#ffe0b2' }
-                                };
-                              } else if (isGeneric) {
-                                chipStyle = {
-                                  ...chipStyle,
-                                  bgcolor: '#e3f2fd',
-                                  borderColor: '#1976d2',
-                                  color: '#1976d2',
-                                  '&:hover': { bgcolor: '#bbdefb' }
-                                };
-                              }
-                              
-                              return (
-                                <Chip
-                                  key={idx}
-                                  label={displayName}
-                                  size="small"
-                                  variant={isLowConfidence ? "outlined" : "filled"}
-                                  sx={chipStyle}
-                                  title={`Provider: ${providerInfo}${
-                                    isLowConfidence ? ' (Low Confidence)' : 
-                                    isGeneric ? ' (Count from API)' : 
-                                    ' (Detected)'
-                                  }`}
-                                />
-                              );
-                            })}
-                            {domain.related_domains_count! > 3 && (
-                              <Typography variant="caption" color="textSecondary" display="block">
-                                +{domain.related_domains_count! - 3} more
-                              </Typography>
-                            )}
-                          </Box>
-                        )}
-                      </Box>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" fontWeight="bold">

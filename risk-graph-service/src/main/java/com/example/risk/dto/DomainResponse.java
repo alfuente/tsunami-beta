@@ -37,6 +37,12 @@ public class DomainResponse {
     @JsonProperty("incidents")
     private List<IncidentInfo> incidents;
     
+    @JsonProperty("providers")
+    private List<Map<String, Object>> providers;
+    
+    @JsonProperty("technology_info")
+    private TechnologyInfo technologyInfo;
+    
     public static class DnsInfo {
         @JsonProperty("dns_sec_enabled")
         private Boolean dnsSecEnabled;
@@ -235,4 +241,49 @@ public class DomainResponse {
     
     public List<IncidentInfo> getIncidents() { return incidents; }
     public void setIncidents(List<IncidentInfo> incidents) { this.incidents = incidents; }
+    
+    public List<Map<String, Object>> getProviders() { return providers; }
+    public void setProviders(List<Map<String, Object>> providers) { this.providers = providers; }
+    
+    public TechnologyInfo getTechnologyInfo() { return technologyInfo; }
+    public void setTechnologyInfo(TechnologyInfo technologyInfo) { this.technologyInfo = technologyInfo; }
+    
+    public static class TechnologyInfo {
+        @JsonProperty("web_server")
+        private String webServer;
+        
+        @JsonProperty("cms")
+        private String cms;
+        
+        @JsonProperty("technologies")
+        private String technologies;
+        
+        @JsonProperty("tech_analyzed_at")
+        private LocalDateTime techAnalyzedAt;
+        
+        @JsonProperty("technology_nodes")
+        private List<Map<String, Object>> technologyNodes;
+        
+        @JsonProperty("tls_grade")
+        private String tlsGrade;
+        
+        // Getters and setters
+        public String getWebServer() { return webServer; }
+        public void setWebServer(String webServer) { this.webServer = webServer; }
+        
+        public String getCms() { return cms; }
+        public void setCms(String cms) { this.cms = cms; }
+        
+        public String getTechnologies() { return technologies; }
+        public void setTechnologies(String technologies) { this.technologies = technologies; }
+        
+        public LocalDateTime getTechAnalyzedAt() { return techAnalyzedAt; }
+        public void setTechAnalyzedAt(LocalDateTime techAnalyzedAt) { this.techAnalyzedAt = techAnalyzedAt; }
+        
+        public List<Map<String, Object>> getTechnologyNodes() { return technologyNodes; }
+        public void setTechnologyNodes(List<Map<String, Object>> technologyNodes) { this.technologyNodes = technologyNodes; }
+        
+        public String getTlsGrade() { return tlsGrade; }
+        public void setTlsGrade(String tlsGrade) { this.tlsGrade = tlsGrade; }
+    }
 }

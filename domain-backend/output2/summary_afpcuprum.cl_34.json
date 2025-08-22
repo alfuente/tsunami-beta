@@ -1,0 +1,13 @@
+{
+    "domain": "afpcuprum.cl",
+    "job_id": "34",
+    "start_time": "2025-08-22 01:50:11",
+    "end_time": "2025-08-22 01:53:09",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_afpcuprum.cl_34.log",
+    "error_log": "output2/amass_afpcuprum.cl_34.error"
+}

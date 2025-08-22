@@ -1,0 +1,157 @@
+{
+  "summary": {
+    "total_domains": 10,
+    "successful": 0,
+    "failed": 10,
+    "success_rate": 0.0,
+    "total_time_minutes": 6.379327913125356,
+    "timestamp": "2025-08-22T01:33:59.685632"
+  },
+  "results": {
+    "success": [],
+    "failed": [
+      {
+        "domain": "bancochile.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-22T01:27:36.926239",
+        "duration_seconds": 0,
+        "error": "No valid cache available and cache-only mode enabled",
+        "source": "cache_only_mode",
+        "cached": false,
+        "errors": [
+          "No valid cache in cache-only mode"
+        ],
+        "attempt": 1
+      },
+      {
+        "domain": "internacional.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-22T01:27:36.926415",
+        "duration_seconds": 0,
+        "error": "No valid cache available and cache-only mode enabled",
+        "source": "cache_only_mode",
+        "cached": false,
+        "errors": [
+          "No valid cache in cache-only mode"
+        ],
+        "attempt": 1
+      },
+      {
+        "domain": "scotiabankchile.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-22T01:27:36.926576",
+        "duration_seconds": 0,
+        "error": "No valid cache available and cache-only mode enabled",
+        "source": "cache_only_mode",
+        "cached": false,
+        "errors": [
+          "No valid cache in cache-only mode"
+        ],
+        "attempt": 1
+      },
+      {
+        "domain": "bci.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-22T01:27:41.926823",
+        "duration_seconds": 0,
+        "error": "No valid cache available and cache-only mode enabled",
+        "source": "cache_only_mode",
+        "cached": false,
+        "errors": [
+          "No valid cache in cache-only mode"
+        ],
+        "attempt": 1
+      },
+      {
+        "domain": "bice.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-22T01:27:41.927000",
+        "duration_seconds": 0,
+        "error": "No valid cache available and cache-only mode enabled",
+        "source": "cache_only_mode",
+        "cached": false,
+        "errors": [
+          "No valid cache in cache-only mode"
+        ],
+        "attempt": 1
+      },
+      {
+        "domain": "hsbc.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-22T01:27:41.927165",
+        "duration_seconds": 0,
+        "error": "No valid cache available and cache-only mode enabled",
+        "source": "cache_only_mode",
+        "cached": false,
+        "errors": [
+          "No valid cache in cache-only mode"
+        ],
+        "attempt": 1
+      },
+      {
+        "domain": "santander.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-22T01:27:46.932314",
+        "duration_seconds": 0,
+        "error": "No valid cache available and cache-only mode enabled",
+        "source": "cache_only_mode",
+        "cached": false,
+        "errors": [
+          "No valid cache in cache-only mode"
+        ],
+        "attempt": 1
+      },
+      {
+        "domain": "itau.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-22T01:27:46.932460",
+        "duration_seconds": 0,
+        "error": "No valid cache available and cache-only mode enabled",
+        "source": "cache_only_mode",
+        "cached": false,
+        "errors": [
+          "No valid cache in cache-only mode"
+        ],
+        "attempt": 1
+      },
+      {
+        "domain": "bancosecurity.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-22T01:27:46.932582",
+        "duration_seconds": 0,
+        "error": "No valid cache available and cache-only mode enabled",
+        "source": "cache_only_mode",
+        "cached": false,
+        "errors": [
+          "No valid cache in cache-only mode"
+        ],
+        "attempt": 1
+      },
+      {
+        "domain": "bancofalabella.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-22T01:27:51.937514",
+        "duration_seconds": 0,
+        "error": "No valid cache available and cache-only mode enabled",
+        "source": "cache_only_mode",
+        "cached": false,
+        "errors": [
+          "No valid cache in cache-only mode"
+        ],
+        "attempt": 1
+      }
+    ],
+    "skipped": [],
+    "in_progress": []
+  }
+}

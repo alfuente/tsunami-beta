@@ -1,0 +1,13 @@
+{
+    "domain": "detacoop.cl",
+    "job_id": "18",
+    "start_time": "2025-08-21 15:40:20",
+    "end_time": "2025-08-21 15:43:39",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_detacoop.cl_18.log",
+    "error_log": "logs/amass_detacoop.cl_18.error"
+}

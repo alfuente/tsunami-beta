@@ -60,6 +60,23 @@ services:
     volumes:
       - minio-data:/data
 
+  postgres:
+    image: postgres:15
+    container_name: postgres-stats
+    environment:
+      - POSTGRES_DB=domain_stats
+      - POSTGRES_USER=stats_user
+      - POSTGRES_PASSWORD=stats_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./domain-backend/sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stats_user -d domain_stats"]
+      interval: 10s
+      retries: 5
+
 networks: {default: {driver: bridge}}
 
 volumes:
@@ -68,3 +85,4 @@ volumes:
   neo4j-import:
   neo4j-backups:
   minio-data:
+  postgres-data:

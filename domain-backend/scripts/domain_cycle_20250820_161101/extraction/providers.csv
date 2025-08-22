@@ -1,0 +1,25 @@
+name,tld,country,provider_type,confidence,source
+Cisco Email Security,,,,0.9,
+Google Workspace,,,,0.9,
+Microsoft 365,,,,0.9,
+ProofPoint,,,,0.9,
+afphabitat,cl,,,0.0,comprehensive_analysis_failed
+amazon,,,cloud,0.95,consolidated(2_sources)
+bci,cl,,,0.0,comprehensive_analysis_failed
+bice,cl,,,0.0,comprehensive_analysis_failed
+clarochile,cl,,,0.0,comprehensive_analysis_failed
+cloudflare,,,cloud,0.9,consolidated(1_sources)
+entel,cl,,,0.0,comprehensive_analysis_failed
+falabella,cl,,,0.0,comprehensive_analysis_failed
+google,,,cloud,0.7999999999999999,consolidated(1_sources)
+gtd,cl,,,0.0,comprehensive_analysis_failed
+imperva,com,,,0.0,comprehensive_analysis_failed
+itau,cl,,,0.0,comprehensive_analysis_failed
+linode,,,cloud,0.7999999999999999,consolidated(1_sources)
+microsoft,,,cloud,0.9,consolidated(1_sources)
+movistar,cl,,,0.0,comprehensive_analysis_failed
+nic,,,cloud,0.7,consolidated(1_sources)
+salesforce,com,,,0.0,comprehensive_analysis_failed
+telefonicachile,cl,,,0.0,comprehensive_analysis_failed
+transbank,cl,,,0.0,comprehensive_analysis_failed
+unknown,,,,0.0,comprehensive_analysis_failed

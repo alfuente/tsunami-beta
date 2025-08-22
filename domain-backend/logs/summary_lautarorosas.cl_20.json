@@ -1,0 +1,13 @@
+{
+    "domain": "lautarorosas.cl",
+    "job_id": "20",
+    "start_time": "2025-08-21 15:43:39",
+    "end_time": "2025-08-21 15:48:05",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_lautarorosas.cl_20.log",
+    "error_log": "logs/amass_lautarorosas.cl_20.error"
+}

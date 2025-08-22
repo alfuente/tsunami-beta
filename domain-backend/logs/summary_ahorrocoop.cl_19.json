@@ -1,0 +1,13 @@
+{
+    "domain": "ahorrocoop.cl",
+    "job_id": "19",
+    "start_time": "2025-08-21 15:43:08",
+    "end_time": "2025-08-21 15:46:41",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_ahorrocoop.cl_19.log",
+    "error_log": "logs/amass_ahorrocoop.cl_19.error"
+}

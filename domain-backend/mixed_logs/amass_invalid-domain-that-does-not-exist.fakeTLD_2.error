@@ -1,0 +1,2 @@
+[0;34m[INFO][0m [2] Starting processing for domain: invalid-domain-that-does-not-exist.fakeTLD at 2025-08-21 13:16:10
+[0;32m[SUCCESS][0m [2] Completed amass for invalid-domain-that-does-not-exist.fakeTLD (0 subdomains)

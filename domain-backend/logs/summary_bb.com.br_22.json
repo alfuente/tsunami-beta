@@ -1,0 +1,13 @@
+{
+    "domain": "bb.com.br",
+    "job_id": "22",
+    "start_time": "2025-08-21 15:46:42",
+    "end_time": "2025-08-21 15:57:42",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 1,
+    "log_file": "logs/amass_bb.com.br_22.log",
+    "error_log": "logs/amass_bb.com.br_22.error"
+}

@@ -1,0 +1,18 @@
+{
+    "batch_file": "fsi2.txt",
+    "start_time": "2025-08-22 00:38:14",
+    "end_time": "2025-08-22 02:45:02",
+    "total_domains": 51,
+    "max_parallel_jobs": 3,
+    "results": {
+        "completed": 47,
+        "failed": 4,
+        "cached": 0
+    },
+    "settings": {
+        "timeout": 500,
+        "mode": "active",
+        "force": false,
+        "log_dir": "output2"
+    }
+}

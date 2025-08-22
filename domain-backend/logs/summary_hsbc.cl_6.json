@@ -1,0 +1,13 @@
+{
+    "domain": "hsbc.cl",
+    "job_id": "6",
+    "start_time": "2025-08-21 15:24:19",
+    "end_time": "2025-08-21 15:26:18",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_hsbc.cl_6.log",
+    "error_log": "logs/amass_hsbc.cl_6.error"
+}

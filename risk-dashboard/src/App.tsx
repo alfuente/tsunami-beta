@@ -12,6 +12,7 @@ import DomainDetail from './pages/DomainDetail';
 import BaseDomainDetail from './pages/BaseDomainDetail';
 import ProviderManagement from './pages/ProviderManagement';
 import ProviderDetail from './pages/ProviderDetail';
+import TasksMonitor from './pages/TasksMonitor';
 import Queries from './pages/Queries';
 
 const theme = createTheme({
@@ -61,6 +62,7 @@ function App() {
               <Route path="/providers" element={<ProviderManagement />} />
               <Route path="/providers/:providerId" element={<ProviderDetail />} />
               <Route path="/risk-analysis" element={<RiskAnalysis />} />
+              <Route path="/tasks" element={<TasksMonitor />} />
               <Route path="/queries" element={<Queries />} />
             </Routes>
           </Box>

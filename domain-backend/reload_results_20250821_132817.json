@@ -1,0 +1,34 @@
+{
+  "summary": {
+    "total_domains": 1,
+    "successful": 1,
+    "failed": 0,
+    "success_rate": 100.0,
+    "total_time_minutes": 0.017397634188334146,
+    "timestamp": "2025-08-21T13:28:17.169366"
+  },
+  "results": {
+    "success": [
+      {
+        "domain": "example.com",
+        "analysis_type": "basic",
+        "status": "success",
+        "timestamp": "2025-08-21T13:28:16.168271",
+        "duration_seconds": 0.04,
+        "estimated_duration": 300,
+        "accuracy": 0.9998576227823893,
+        "subdomains_found": 0,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 0,
+        "errors": [],
+        "attempt": 1
+      }
+    ],
+    "failed": [],
+    "skipped": [],
+    "in_progress": []
+  }
+}

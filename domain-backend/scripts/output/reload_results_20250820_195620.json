@@ -1,0 +1,51 @@
+{
+  "summary": {
+    "total_domains": 2,
+    "successful": 2,
+    "failed": 0,
+    "success_rate": 100.0,
+    "total_time_minutes": 11.381178637345633,
+    "timestamp": "2025-08-20T19:56:20.228135"
+  },
+  "results": {
+    "success": [
+      {
+        "domain": "santander.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-20T19:54:15.167245",
+        "duration_seconds": 557.8,
+        "estimated_duration": 300,
+        "accuracy": 0.8593408719698588,
+        "subdomains_found": 0,
+        "providers_found": 1,
+        "services_found": 1,
+        "certificates_found": 0,
+        "risks_found": 2,
+        "processing_time": 301.3218569755554,
+        "errors": [],
+        "attempt": 1
+      },
+      {
+        "domain": "itau.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-20T19:56:15.227319",
+        "duration_seconds": 677.82,
+        "estimated_duration": 300,
+        "accuracy": 1.259401904741923,
+        "subdomains_found": 0,
+        "providers_found": 6,
+        "services_found": 17,
+        "certificates_found": 1,
+        "risks_found": 1,
+        "processing_time": 599.9442241191864,
+        "errors": [],
+        "attempt": 1
+      }
+    ],
+    "failed": [],
+    "skipped": [],
+    "in_progress": []
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "summary": {
+    "total_domains": 1,
+    "successful": 1,
+    "failed": 0,
+    "success_rate": 100.0,
+    "total_time_minutes": 5.837394634882609,
+    "timestamp": "2025-08-22T14:08:43.210511"
+  },
+  "results": {
+    "success": [
+      {
+        "domain": "bice.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-22T14:08:38.208655",
+        "duration_seconds": 345.2,
+        "estimated_duration": 900,
+        "accuracy": 0.6164441890186734,
+        "subdomains_found": 132,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 345.20022988319397,
+        "task_id": "5919e9aa-d020-44d2-bdad-d1a07f5046a6",
+        "errors": [],
+        "attempt": 1
+      }
+    ],
+    "failed": [],
+    "skipped": [],
+    "in_progress": []
+  }
+}

@@ -1,0 +1,13 @@
+{
+    "domain": "itau.cl",
+    "job_id": "8",
+    "start_time": "2025-08-21 15:25:54",
+    "end_time": "2025-08-21 15:34:25",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_itau.cl_8.log",
+    "error_log": "logs/amass_itau.cl_8.error"
+}

@@ -1,0 +1,71 @@
+{
+  "summary": {
+    "total_domains": 3,
+    "successful": 3,
+    "failed": 0,
+    "success_rate": 100.0,
+    "total_time_minutes": 33.85218809843063,
+    "timestamp": "2025-08-22T19:40:02.385687"
+  },
+  "results": {
+    "success": [
+      {
+        "domain": "itau.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-22T19:12:11.542440",
+        "duration_seconds": 360.28,
+        "estimated_duration": 900,
+        "accuracy": 0.5996840386920506,
+        "subdomains_found": 75,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 360.28436517715454,
+        "task_id": "20a2fc47-8c3f-45d1-abdf-42b22745e8fa",
+        "errors": [],
+        "attempt": 1
+      },
+      {
+        "domain": "santander.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-22T19:12:16.544604",
+        "duration_seconds": 365.29,
+        "estimated_duration": 900,
+        "accuracy": 0.5941255707210965,
+        "subdomains_found": 134,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 365.2869863510132,
+        "task_id": "752e6fcb-d424-4b9a-b219-6ac7fd8d11f3",
+        "errors": [],
+        "attempt": 1
+      },
+      {
+        "domain": "bancochile.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-22T19:39:57.384673",
+        "duration_seconds": 345.18,
+        "estimated_duration": 300,
+        "accuracy": 0.15060361385345458,
+        "subdomains_found": 238,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 345.1810841560364,
+        "task_id": "30b1b3c2-e2de-4848-ae06-16b7ff6d4bcd",
+        "errors": [],
+        "attempt": 3
+      }
+    ],
+    "failed": [],
+    "skipped": [],
+    "in_progress": []
+  }
+}

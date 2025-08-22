@@ -27,7 +27,7 @@ import {
   Storage as StorageIcon,
   AccountTree as GraphIcon,
 } from '@mui/icons-material';
-import { domainApi, riskApi, calculationApi } from '../services/api';
+import { domainApi, riskApi, calculationApi, statisticsApi } from '../services/api';
 import { DomainResponse, RiskScoreResponse } from '../types/api';
 import DomainDependencies from '../components/DomainDependencies';
 import DependencyGraphView from '../components/DependencyGraphView';
@@ -37,6 +37,7 @@ const DomainDetail: React.FC = () => {
   const navigate = useNavigate();
   const [domain, setDomain] = useState<DomainResponse | null>(null);
   const [riskScore, setRiskScore] = useState<RiskScoreResponse | null>(null);
+  const [domainPerformance, setDomainPerformance] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [calculating, setCalculating] = useState(false);
@@ -48,13 +49,15 @@ const DomainDetail: React.FC = () => {
     
     try {
       setLoading(true);
-      const [domainData, riskData] = await Promise.all([
+      const [domainData, riskData, performanceData] = await Promise.all([
         domainApi.getDomain(fqdn, true),
-        riskApi.getRiskScore('domain', fqdn, true)
+        riskApi.getRiskScore('domain', fqdn, true),
+        statisticsApi.getDomainPerformance(fqdn)
       ]);
       
       setDomain(domainData);
       setRiskScore(riskData);
+      setDomainPerformance(performanceData);
       setError(null);
     } catch (err) {
       setError('Failed to load domain data');
@@ -409,6 +412,153 @@ const DomainDetail: React.FC = () => {
                     </ListItem>
                   ))}
                 </List>
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
+        
+        {/* Performance Statistics Section */}
+        {domainPerformance?.available && domainPerformance?.has_data && (
+          <Grid item xs={12} sx={{ mt: 3 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  🏃 Performance Statistics
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card variant="outlined">
+                      <CardContent>
+                        <Typography color="textSecondary" gutterBottom>
+                          Total Executions
+                        </Typography>
+                        <Typography variant="h6">
+                          {domainPerformance.summary?.total_executions || 0}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card variant="outlined">
+                      <CardContent>
+                        <Typography color="textSecondary" gutterBottom>
+                          Success Rate
+                        </Typography>
+                        <Typography variant="h6" color="success.main">
+                          {domainPerformance.summary?.success_rate?.toFixed(1) || 0}%
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card variant="outlined">
+                      <CardContent>
+                        <Typography color="textSecondary" gutterBottom>
+                          Failed Executions
+                        </Typography>
+                        <Typography variant="h6" color="error.main">
+                          {domainPerformance.summary?.failed_executions || 0}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Card variant="outlined">
+                      <CardContent>
+                        <Typography color="textSecondary" gutterBottom>
+                          Timeouts
+                        </Typography>
+                        <Typography variant="h6" color="warning.main">
+                          {domainPerformance.summary?.timeout_executions || 0}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                </Grid>
+
+                {/* Task Breakdown */}
+                {domainPerformance.task_breakdown && domainPerformance.task_breakdown.length > 0 && (
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Task Performance Breakdown
+                    </Typography>
+                    <Grid container spacing={2}>
+                      {domainPerformance.task_breakdown.map((task: any, index: number) => (
+                        <Grid item xs={12} md={6} key={index}>
+                          <Card variant="outlined">
+                            <CardContent>
+                              <Typography variant="subtitle1" gutterBottom>
+                                {task.task_type.replace('_', ' ').toUpperCase()}
+                              </Typography>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                <Typography variant="body2">Executions:</Typography>
+                                <Typography variant="body2">{task.total_executions}</Typography>
+                              </Box>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                <Typography variant="body2">Success Rate:</Typography>
+                                <Typography variant="body2" color="success.main">
+                                  {task.success_rate?.toFixed(1)}%
+                                </Typography>
+                              </Box>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                <Typography variant="body2">Avg Duration:</Typography>
+                                <Typography variant="body2">
+                                  {task.avg_duration ? `${Math.round(task.avg_duration / 60)}m` : 'N/A'}
+                                </Typography>
+                              </Box>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                <Typography variant="body2">Avg Subdomains:</Typography>
+                                <Typography variant="body2">
+                                  {task.avg_subdomains_found?.toFixed(1) || '0'}
+                                </Typography>
+                              </Box>
+                              {task.last_execution && (
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                  <Typography variant="body2">Last Run:</Typography>
+                                  <Typography variant="body2">
+                                    {new Date(task.last_execution).toLocaleDateString()}
+                                  </Typography>
+                                </Box>
+                              )}
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
+                )}
+
+                {/* Time Estimations */}
+                {domainPerformance.time_estimations && Object.keys(domainPerformance.time_estimations).length > 0 && (
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="h6" gutterBottom>
+                      Time Estimations for New Analysis
+                    </Typography>
+                    <Grid container spacing={2}>
+                      {Object.entries(domainPerformance.time_estimations).map(([taskType, estimation]: [string, any]) => (
+                        <Grid item xs={12} sm={6} md={3} key={taskType}>
+                          <Card variant="outlined">
+                            <CardContent>
+                              <Typography variant="subtitle2" gutterBottom>
+                                {taskType.replace('_', ' ').toUpperCase()}
+                              </Typography>
+                              <Typography variant="h6" color="primary.main">
+                                {Math.round(estimation.estimated_seconds / 60)}m
+                              </Typography>
+                              <Typography variant="caption" color="textSecondary">
+                                {estimation.confidence_level * 100}% confidence
+                              </Typography>
+                              <br />
+                              <Typography variant="caption" color="textSecondary">
+                                Based on {estimation.based_on_executions} runs
+                              </Typography>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
+                )}
               </CardContent>
             </Card>
           </Grid>

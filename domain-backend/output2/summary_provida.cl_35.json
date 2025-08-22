@@ -1,0 +1,13 @@
+{
+    "domain": "provida.cl",
+    "job_id": "35",
+    "start_time": "2025-08-22 01:53:10",
+    "end_time": "2025-08-22 02:01:43",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_provida.cl_35.log",
+    "error_log": "output2/amass_provida.cl_35.error"
+}

@@ -1,0 +1,87 @@
+{
+  "backup_timestamp": "2025-08-20T16:11:03.289970",
+  "neo4j_uri": "bolt://localhost:7687",
+  "statistics": {
+    "total_nodes": 1327,
+    "total_relationships": 1444,
+    "domains_count": 36,
+    "providers_count": 24,
+    "services_count": 193,
+    "certificates_count": 0,
+    "base_domains_count": 0,
+    "domains_with_risk": 36,
+    "relationship_types": [
+      {
+        "relationship_type": "HAS_SUBDOMAIN",
+        "count": 1071
+      },
+      {
+        "relationship_type": "RUNS",
+        "count": 185
+      },
+      {
+        "relationship_type": "HAS_PROVIDER",
+        "count": 77
+      },
+      {
+        "relationship_type": "BELONGS_TO_INDUSTRY",
+        "count": 55
+      },
+      {
+        "relationship_type": "DEPENDS_ON",
+        "count": 28
+      },
+      {
+        "relationship_type": "USES_SERVICE",
+        "count": 20
+      },
+      {
+        "relationship_type": "RUNS_SERVICE",
+        "count": 6
+      },
+      {
+        "relationship_type": "RELATED_TO",
+        "count": 2
+      }
+    ],
+    "node_labels": [
+      {
+        "labels": [
+          "Subdomain"
+        ],
+        "count": 1071
+      },
+      {
+        "labels": [
+          "Service"
+        ],
+        "count": 193
+      },
+      {
+        "labels": [
+          "Domain"
+        ],
+        "count": 36
+      },
+      {
+        "labels": [
+          "Provider"
+        ],
+        "count": 24
+      },
+      {
+        "labels": [
+          "Industry"
+        ],
+        "count": 3
+      }
+    ]
+  },
+  "export_summary": {
+    "domains": 36,
+    "providers": 24,
+    "services": 193,
+    "certificates": 0,
+    "relationships": 1444
+  }
+}

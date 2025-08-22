@@ -1,0 +1,36 @@
+{
+  "summary": {
+    "total_domains": 1,
+    "successful": 1,
+    "failed": 0,
+    "success_rate": 100.0,
+    "total_time_minutes": 0.08472392161687216,
+    "timestamp": "2025-08-21T20:10:33.720172"
+  },
+  "results": {
+    "success": [
+      {
+        "domain": "bancoripley.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-21T20:10:28.719220",
+        "duration_seconds": 0.04092240333557129,
+        "estimated_duration": 60,
+        "accuracy": 1.0,
+        "subdomains_found": 5,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 0.04092240333557129,
+        "source": "local_cache",
+        "cached": true,
+        "errors": [],
+        "attempt": 1
+      }
+    ],
+    "failed": [],
+    "skipped": [],
+    "in_progress": []
+  }
+}

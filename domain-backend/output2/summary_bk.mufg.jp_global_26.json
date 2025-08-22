@@ -1,0 +1,13 @@
+{
+    "domain": "bk.mufg.jp/global",
+    "job_id": "26",
+    "start_time": "2025-08-22 01:30:47",
+    "end_time": "2025-08-22 01:32:52",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_bk.mufg.jp_global_26.log",
+    "error_log": "output2/amass_bk.mufg.jp_global_26.error"
+}

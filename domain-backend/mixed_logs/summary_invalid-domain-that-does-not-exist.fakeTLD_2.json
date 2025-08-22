@@ -1,0 +1,13 @@
+{
+    "domain": "invalid-domain-that-does-not-exist.fakeTLD",
+    "job_id": "2",
+    "start_time": "2025-08-21 13:16:10",
+    "end_time": "2025-08-21 13:17:08",
+    "timeout": 60,
+    "mode": "passive",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "./mixed_logs/amass_invalid-domain-that-does-not-exist.fakeTLD_2.log",
+    "error_log": "./mixed_logs/amass_invalid-domain-that-does-not-exist.fakeTLD_2.error"
+}

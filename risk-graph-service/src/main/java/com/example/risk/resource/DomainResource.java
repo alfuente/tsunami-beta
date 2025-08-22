@@ -368,6 +368,8 @@ public class DomainResource {
             MATCH (d:Domain {fqdn: $fqdn})
             OPTIONAL MATCH (d)-[:SECURED_BY]->(c:Certificate)
             OPTIONAL MATCH (d)-[:RESOLVES_TO]->(ip:IP)-[:BELONGS_TO]->(asn:ASN)
+            OPTIONAL MATCH (d)-[:USES_PROVIDER]->(p:Provider)
+            OPTIONAL MATCH (d)-[:USES_TECHNOLOGY]->(t:Technology)
             RETURN 
                 d.fqdn as fqdn,
                 d.risk_score as risk_score,
@@ -389,7 +391,12 @@ public class DomainResource {
                 d.dmarc_record as dmarc_record,
                 d.has_spf as has_spf,
                 d.has_dmarc as has_dmarc,
-                collect(DISTINCT {asn: asn.asn, country: asn.country}) as name_servers
+                d.technologies as technologies,
+                d.web_server as web_server,
+                d.tech_analyzed_at as tech_analyzed_at,
+                collect(DISTINCT {asn: asn.asn, country: asn.country}) as name_servers,
+                collect(DISTINCT {id: p.id, name: p.name, type: p.type, country: p.country}) as providers,
+                collect(DISTINCT {name: t.name, category: t.category, confidence: t.confidence, version: t.version}) as technology_nodes
             """;
         
         try (Session session = driver.session()) {
@@ -412,6 +419,8 @@ public class DomainResource {
                 MATCH (s:Subdomain {fqdn: $fqdn})
                 OPTIONAL MATCH (s)-[:SECURED_BY]->(c:Certificate)
                 OPTIONAL MATCH (s)-[:RESOLVES_TO]->(ip:IP)-[:BELONGS_TO]->(asn:ASN)
+                OPTIONAL MATCH (s)-[:USES_PROVIDER]->(p:Provider)
+                OPTIONAL MATCH (s)-[:USES_TECHNOLOGY]->(t:Technology)
                 RETURN 
                     s.fqdn as fqdn,
                     coalesce(s.risk_score, 0.0) as risk_score,
@@ -433,7 +442,12 @@ public class DomainResource {
                     s.dmarc_record as dmarc_record,
                     coalesce(s.has_spf, false) as has_spf,
                     coalesce(s.has_dmarc, false) as has_dmarc,
-                    collect(DISTINCT {asn: asn.asn, country: asn.country}) as name_servers
+                    s.technologies as technologies,
+                    s.web_server as web_server,
+                    s.tech_analyzed_at as tech_analyzed_at,
+                    collect(DISTINCT {asn: asn.asn, country: asn.country}) as name_servers,
+                    collect(DISTINCT {id: p.id, name: p.name, type: p.type, country: p.country}) as providers,
+                    collect(DISTINCT {name: t.name, category: t.category, confidence: t.confidence, version: t.version}) as technology_nodes
                 """;
             
             Result subdomainResult = session.run(subdomainQuery, Map.of("fqdn", fqdn));
@@ -476,9 +490,14 @@ public class DomainResource {
         dnsInfo.setHasDmarc(record.get("has_dmarc").asBoolean(false));
         response.setDnsInfo(dnsInfo);
         
+        // Extract TLS grade once for both sections
+        String technologiesJson = record.get("technologies").asString(null);
+        String tlsGradeFromTech = extractTlsGradeFromTechnologies(technologiesJson);
+        String finalTlsGrade = tlsGradeFromTech != null ? tlsGradeFromTech : record.get("tls_grade").asString("Unknown");
+        
         // Security Info
         DomainResponse.SecurityInfo securityInfo = new DomainResponse.SecurityInfo();
-        securityInfo.setTlsGrade(record.get("tls_grade").asString("Unknown"));
+        securityInfo.setTlsGrade(finalTlsGrade);
         securityInfo.setCriticalCves(record.get("critical_cves").asInt(0));
         securityInfo.setHighCves(record.get("high_cves").asInt(0));
         securityInfo.setLastAssessment(safeAsLocalDateTime(record.get("last_assessment")));
@@ -491,9 +510,60 @@ public class DomainResource {
         infrastructureInfo.setHasFailover(record.get("has_failover").asBoolean(false));
         response.setInfrastructureInfo(infrastructureInfo);
         
+        // Technology Info
+        DomainResponse.TechnologyInfo technologyInfo = new DomainResponse.TechnologyInfo();
+        technologyInfo.setWebServer(record.get("web_server").asString(null));
+        technologyInfo.setTechnologies(technologiesJson);
+        technologyInfo.setTechAnalyzedAt(safeAsLocalDateTime(record.get("tech_analyzed_at")));
+        technologyInfo.setTlsGrade(finalTlsGrade);
+        
+        // Map technology nodes
+        List<Map<String, Object>> technologyNodes = record.get("technology_nodes").asList().stream()
+            .map(obj -> (Map<String, Object>) obj)
+            .filter(tech -> tech.get("name") != null)
+            .collect(Collectors.toList());
+        technologyInfo.setTechnologyNodes(technologyNodes);
+        response.setTechnologyInfo(technologyInfo);
+        
+        // Provider Info
+        List<Map<String, Object>> providers = record.get("providers").asList().stream()
+            .map(obj -> (Map<String, Object>) obj)
+            .filter(provider -> provider.get("id") != null) // Filter out null providers
+            .collect(Collectors.toList());
+        response.setProviders(providers);
+        
         return response;
     }
 
+    private String extractTlsGradeFromTechnologies(String technologiesJson) {
+        if (technologiesJson == null || technologiesJson.trim().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            // Simple pattern matching for TLS grade - look for TLS analysis results
+            if (technologiesJson.contains("\"category\": \"tls_configuration\"")) {
+                // Extract TLS version from the technologies JSON
+                if (technologiesJson.contains("TLSv1.3")) {
+                    return "A";
+                } else if (technologiesJson.contains("TLSv1.2")) {
+                    return "B";
+                } else if (technologiesJson.contains("TLSv1.1")) {
+                    return "C";
+                } else if (technologiesJson.contains("TLSv1.0")) {
+                    return "D";
+                } else {
+                    return "F";
+                }
+            }
+        } catch (Exception e) {
+            // If JSON parsing fails, return null to use fallback
+            return null;
+        }
+        
+        return null;
+    }
+    
     private List<DomainResponse.IncidentInfo> getIncidentsForDomain(String fqdn) {
         String query = """
             MATCH (d:Domain {fqdn: $fqdn})<-[:AFFECTS]-(i:Incident)
@@ -526,7 +596,7 @@ public class DomainResource {
 
     private String buildDomainListQuery(String riskTier, String businessCriticality, 
                                       Boolean monitoringEnabled, String search, int limit, int offset) {
-        StringBuilder query = new StringBuilder("MATCH (d:Domain) WHERE 1=1");
+        StringBuilder query = new StringBuilder("MATCH (d:Domain) OPTIONAL MATCH (d)-[:USES_PROVIDER]->(p:Provider) WHERE 1=1");
         
         if (riskTier != null && !riskTier.isEmpty()) {
             query.append(" AND d.risk_tier = '").append(riskTier).append("'");
@@ -560,7 +630,8 @@ public class DomainResource {
                 d.high_cves as high_cves,
                 d.last_assessment as last_assessment,
                 '' as tls_grade,
-                [] as name_servers
+                [] as name_servers,
+                collect(DISTINCT {id: p.id, name: p.name, type: p.type, country: p.country}) as providers
             ORDER BY d.risk_score DESC
             """).append("SKIP ").append(offset).append(" LIMIT ").append(limit);
         
@@ -637,8 +708,8 @@ public class DomainResource {
             // Get all services and providers from both domains and subdomains
             OPTIONAL MATCH (d)-[:RUNS]->(ds:Service)
             OPTIONAL MATCH (sub)-[:RUNS]->(ss:Service)
-            OPTIONAL MATCH (d)-[:RESOLVES_TO]->(dip:IPAddress)-[:HOSTED_BY]->(dp:Provider)  
-            OPTIONAL MATCH (sub)-[:RESOLVES_TO]->(sip:IPAddress)-[:HOSTED_BY]->(sp:Provider)
+            OPTIONAL MATCH (d)-[:USES_PROVIDER]->(dp:Provider)  
+            OPTIONAL MATCH (sub)-[:USES_PROVIDER]->(sp:Provider)
             
             WITH base_domain, d, 
                  collect(DISTINCT sub) as subdomains,
@@ -721,8 +792,8 @@ public class DomainResource {
                 WHERE n IS NOT NULL
                 
                 // Get services, providers, incidents, and risk breakdown for each node
-                OPTIONAL MATCH (n)-[:RUNS]->(s:Service)
-                OPTIONAL MATCH (n)-[:USES_SERVICE]->(p:Provider)
+                OPTIONAL MATCH (n)-[:RUNS_SERVICE]->(s:Service)
+                OPTIONAL MATCH (n)-[:USES_PROVIDER]->(p:Provider)
                 OPTIONAL MATCH (n)-[:RESOLVES_TO]->(ip:IPAddress)-[:HOSTED_BY]->(ph:Provider)
                 OPTIONAL MATCH (n)<-[:AFFECTS]-(i:Incident)
                 WHERE i.resolved IS NULL
@@ -737,7 +808,7 @@ public class DomainResource {
                        coalesce(n.business_criticality, 'Unknown') as business_criticality,
                        coalesce(n.monitoring_enabled, false) as monitoring_enabled,
                        n.last_calculated as last_calculated,
-                       collect(DISTINCT s.name) as services,
+                       collect(DISTINCT s.service_name) as services,
                        collect(DISTINCT p.name) + collect(DISTINCT ph.name) as providers,
                        count(DISTINCT i) as active_incidents,
                        // Risk breakdown information

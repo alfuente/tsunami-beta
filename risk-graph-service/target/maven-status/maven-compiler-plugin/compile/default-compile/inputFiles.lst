@@ -19,3 +19,4 @@
 /home/alf/dev/tsunami-beta/risk-graph-service/src/main/java/com/example/risk/service/ContextBoostCalculator.java
 /home/alf/dev/tsunami-beta/risk-graph-service/src/main/java/com/example/risk/resource/RiskCalculationResource.java
 /home/alf/dev/tsunami-beta/risk-graph-service/src/main/java/com/example/risk/dto/BaseDomainResponse.java
+/home/alf/dev/tsunami-beta/risk-graph-service/src/main/java/com/example/risk/resource/ProviderResource.java

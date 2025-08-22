@@ -1,0 +1,13 @@
+{
+    "domain": "cumplo.cl",
+    "job_id": "50",
+    "start_time": "2025-08-22 02:34:47",
+    "end_time": "2025-08-22 02:44:14",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 1,
+    "log_file": "output2/amass_cumplo.cl_50.log",
+    "error_log": "output2/amass_cumplo.cl_50.error"
+}

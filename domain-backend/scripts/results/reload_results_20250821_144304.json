@@ -1,0 +1,85 @@
+{
+  "summary": {
+    "total_domains": 4,
+    "successful": 4,
+    "failed": 0,
+    "success_rate": 100.0,
+    "total_time_minutes": 6.044148496786753,
+    "timestamp": "2025-08-21T14:43:04.858743"
+  },
+  "results": {
+    "success": [
+      {
+        "domain": "cooperativa.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-21T14:42:30.248039",
+        "duration_seconds": 328.04,
+        "estimated_duration": 300,
+        "accuracy": 0.09346033652623495,
+        "subdomains_found": 0,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 0,
+        "errors": [],
+        "attempt": 1
+      },
+      {
+        "domain": "bci.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-21T14:42:58.628400",
+        "duration_seconds": 356.42,
+        "estimated_duration": 300,
+        "accuracy": 0.1880608828862508,
+        "subdomains_found": 0,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 0,
+        "errors": [],
+        "attempt": 1
+      },
+      {
+        "domain": "bancoestado.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-21T14:42:59.252284",
+        "duration_seconds": 357.04,
+        "estimated_duration": 300,
+        "accuracy": 0.1901398229598999,
+        "subdomains_found": 0,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 0,
+        "errors": [],
+        "attempt": 1
+      },
+      {
+        "domain": "bice.cl",
+        "analysis_type": "complete",
+        "status": "success",
+        "timestamp": "2025-08-21T14:42:59.857945",
+        "duration_seconds": 24.6,
+        "estimated_duration": 300,
+        "accuracy": 0.91798406124115,
+        "subdomains_found": 0,
+        "providers_found": 0,
+        "services_found": 0,
+        "certificates_found": 0,
+        "risks_found": 0,
+        "processing_time": 0,
+        "errors": [],
+        "attempt": 1
+      }
+    ],
+    "failed": [],
+    "skipped": [],
+    "in_progress": []
+  }
+}

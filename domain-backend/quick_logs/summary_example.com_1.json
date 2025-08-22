@@ -1,0 +1,13 @@
+{
+    "domain": "example.com",
+    "job_id": "1",
+    "start_time": "2025-08-21 13:14:16",
+    "end_time": "2025-08-21 13:15:46",
+    "timeout": 90,
+    "mode": "passive",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "./quick_logs/amass_example.com_1.log",
+    "error_log": "./quick_logs/amass_example.com_1.error"
+}

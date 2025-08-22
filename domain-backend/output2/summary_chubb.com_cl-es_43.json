@@ -1,0 +1,13 @@
+{
+    "domain": "chubb.com/cl-es",
+    "job_id": "43",
+    "start_time": "2025-08-22 02:14:19",
+    "end_time": "2025-08-22 02:16:53",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_chubb.com_cl-es_43.log",
+    "error_log": "output2/amass_chubb.com_cl-es_43.error"
+}

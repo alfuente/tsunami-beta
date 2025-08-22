@@ -1,0 +1,25 @@
+{
+  "summary": {
+    "total_domains": 1,
+    "successful": 0,
+    "failed": 1,
+    "success_rate": 0.0,
+    "total_time_minutes": 28.40506683588028,
+    "timestamp": "2025-08-21T19:58:53.647725"
+  },
+  "results": {
+    "success": [],
+    "failed": [
+      {
+        "domain": "bancoripley.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T19:58:53.647524",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      }
+    ],
+    "skipped": [],
+    "in_progress": []
+  }
+}

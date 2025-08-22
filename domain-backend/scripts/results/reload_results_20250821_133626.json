@@ -1,0 +1,49 @@
+{
+  "summary": {
+    "total_domains": 4,
+    "successful": 0,
+    "failed": 4,
+    "success_rate": 0.0,
+    "total_time_minutes": 3.1701146761576333,
+    "timestamp": "2025-08-21T13:36:26.012106"
+  },
+  "results": {
+    "success": [],
+    "failed": [
+      {
+        "domain": "cooperativa.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T13:34:45.938281",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      },
+      {
+        "domain": "bci.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T13:34:45.940251",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      },
+      {
+        "domain": "bancoestado.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T13:34:45.942151",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      },
+      {
+        "domain": "bice.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T13:36:21.011580",
+        "attempts": 3,
+        "error": "Max retries exceeded"
+      }
+    ],
+    "skipped": [],
+    "in_progress": []
+  }
+}

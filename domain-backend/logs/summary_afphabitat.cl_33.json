@@ -1,0 +1,13 @@
+{
+    "domain": "afphabitat.cl",
+    "job_id": "33",
+    "start_time": "2025-08-21 16:11:33",
+    "end_time": "2025-08-21 16:20:09",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_afphabitat.cl_33.log",
+    "error_log": "logs/amass_afphabitat.cl_33.error"
+}

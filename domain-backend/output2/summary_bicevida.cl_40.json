@@ -1,0 +1,13 @@
+{
+    "domain": "bicevida.cl",
+    "job_id": "40",
+    "start_time": "2025-08-22 02:05:43",
+    "end_time": "2025-08-22 02:14:18",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_bicevida.cl_40.log",
+    "error_log": "output2/amass_bicevida.cl_40.error"
+}

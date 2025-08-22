@@ -1,0 +1,13 @@
+{
+    "domain": "gruposecurity.cl",
+    "job_id": "30",
+    "start_time": "2025-08-22 01:40:51",
+    "end_time": "2025-08-22 01:44:48",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_gruposecurity.cl_30.log",
+    "error_log": "output2/amass_gruposecurity.cl_30.error"
+}

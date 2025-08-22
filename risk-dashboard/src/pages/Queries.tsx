@@ -32,7 +32,7 @@ const Queries: React.FC = () => {
 
     try {
       // TODO: Implement actual API call to risk-query service
-      const res = await fetch('http://localhost:8003/api/query', {
+      const res = await fetch(`${process.env.REACT_APP_API_BASE_URL}/api/query`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

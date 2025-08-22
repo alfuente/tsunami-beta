@@ -1,0 +1,13 @@
+{
+    "domain": "fintual.cl",
+    "job_id": "32",
+    "start_time": "2025-08-21 16:11:13",
+    "end_time": "2025-08-21 16:16:07",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_fintual.cl_32.log",
+    "error_log": "logs/amass_fintual.cl_32.error"
+}

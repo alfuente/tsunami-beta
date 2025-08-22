@@ -17,6 +17,7 @@ import {
   Security as SecurityIcon,
   Search as SearchIcon,
   Business as ProviderIcon,
+  Assignment as TaskIcon,
 } from '@mui/icons-material';
 
 interface SidebarProps {
@@ -28,6 +29,7 @@ const menuItems = [
   { text: 'Domain Management', path: '/domains', icon: <DomainIcon /> },
   { text: 'Provider Management', path: '/providers', icon: <ProviderIcon /> },
   { text: 'Risk Analysis', path: '/risk-analysis', icon: <AnalyticsIcon /> },
+  { text: 'Tasks Monitor', path: '/tasks', icon: <TaskIcon /> },
   { text: 'Queries', path: '/queries', icon: <SearchIcon /> },
 ];
 

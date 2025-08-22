@@ -1,0 +1,13 @@
+{
+    "domain": "bancoestado.cl",
+    "job_id": "13",
+    "start_time": "2025-08-21 15:33:22",
+    "end_time": "2025-08-21 15:40:19",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_bancoestado.cl_13.log",
+    "error_log": "logs/amass_bancoestado.cl_13.error"
+}

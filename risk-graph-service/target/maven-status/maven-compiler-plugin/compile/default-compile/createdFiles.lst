@@ -12,6 +12,7 @@ com/example/risk/service/DomainProvisioningService.class
 com/example/risk/dto/DomainResponse$InfrastructureInfo.class
 com/example/risk/dto/DependencyResponse$Dependency.class
 com/example/risk/dto/RiskScoreResponse$ScoreBreakdown.class
+com/example/risk/resource/ProviderResource.class
 com/example/risk/validation/RiskValidationService.class
 com/example/risk/RiskGraphApplication.class
 com/example/risk/dto/BaseDomainResponse.class
@@ -23,6 +24,7 @@ com/example/risk/dto/DependencyResponse$DependencySummary.class
 com/example/risk/dto/DomainResponse$IncidentInfo.class
 com/example/risk/dto/RiskScoreResponse.class
 com/example/risk/dto/DependencyResponse.class
+com/example/risk/dto/DomainResponse$TechnologyInfo.class
 com/example/risk/service/ContextBoostCalculator.class
 com/example/risk/validation/RiskValidationService$ValidationResult$Severity.class
 com/example/risk/config/Neo4jConfiguration.class

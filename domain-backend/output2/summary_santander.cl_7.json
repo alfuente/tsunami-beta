@@ -1,0 +1,13 @@
+{
+    "domain": "santander.cl",
+    "job_id": "7",
+    "start_time": "2025-08-22 00:50:42",
+    "end_time": "2025-08-22 00:59:19",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "output2/amass_santander.cl_7.log",
+    "error_log": "output2/amass_santander.cl_7.error"
+}

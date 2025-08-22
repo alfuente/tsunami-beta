@@ -28,8 +28,11 @@ import asyncio
 import uvicorn
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import json
+import subprocess
+import os
+from pathlib import Path
 
 # Import our unified discovery engine
 try:
@@ -65,10 +68,23 @@ except ImportError:
 
 # Import risk calculation functionality
 try:
-    from risk_score_updater import RiskScoreUpdater, RiskScoreComponents
+    from domain_risk_calculator import DomainRiskCalculator
     HAS_RISK_CALCULATOR = True
 except ImportError:
     HAS_RISK_CALCULATOR = False
+
+# Import statistics tracking functionality
+try:
+    from domain_statistics import (
+        DomainStatisticsService, 
+        TaskType, 
+        TaskStatus, 
+        track_task,
+        DomainBase
+    )
+    HAS_STATISTICS = True
+except ImportError:
+    HAS_STATISTICS = False
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -142,9 +158,16 @@ class APIConfig(BaseModel):
     default_amass_timeout: int = 300
     default_max_subdomains: int = 1000
     default_workers: int = 10
+    amass_cache_dir: str = "./amass_cache"
+    amass_cache_duration_hours: int = 168  # 1 week default
 
 # Global configuration
 api_config = APIConfig()
+
+# Statistics service instance
+stats_service = None
+if HAS_STATISTICS:
+    stats_service = DomainStatisticsService()
 
 # Job tracking for async operations
 active_jobs: Dict[str, DiscoveryStatus] = {}
@@ -166,6 +189,27 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# App lifecycle events
+@app.on_event("startup")
+async def startup_event():
+    """Initialize services on startup"""
+    if stats_service:
+        try:
+            await stats_service.initialize()
+            logger.info("Statistics service initialized")
+        except Exception as e:
+            logger.error(f"Failed to initialize statistics service: {e}")
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown"""
+    if stats_service:
+        try:
+            await stats_service.close()
+            logger.info("Statistics service closed")
+        except Exception as e:
+            logger.error(f"Error closing statistics service: {e}")
 
 # Utility functions
 def create_processing_config(
@@ -199,14 +243,82 @@ def create_processing_config(
         max_workers=max_workers or api_config.default_workers,
         timeout_per_subdomain=timeout_per_subdomain,
         save_to_neo4j=save_to_neo4j,
-        generate_report=generate_report
+        generate_report=generate_report,
+        amass_cache_dir=api_config.amass_cache_dir,
+        amass_cache_duration_hours=api_config.amass_cache_duration_hours,
+        enable_cache_check=True
     )
 
-async def run_discovery_async(domain: str, config: ProcessingConfig) -> DiscoveryResult:
-    """Run discovery in a separate thread"""
+async def run_discovery_async(domain: str, config: ProcessingConfig, task_type: TaskType = TaskType.COMPLETE_DISCOVERY) -> DiscoveryResult:
+    """Run discovery in a separate thread with statistics tracking"""
     if not HAS_DISCOVERY_ENGINE:
         raise HTTPException(status_code=500, detail="Discovery engine not available")
     
+    # Determine domain properties for statistics
+    tld = domain.split('.')[-1].lower()
+    is_financial = False  # Will be updated after industry classification
+    
+    # Start statistics tracking if available
+    if stats_service:
+        try:
+            async with track_task(
+                stats_service=stats_service,
+                domain_name=domain,
+                task_type=task_type,
+                timeout_configured=getattr(config, 'amass_timeout', None),
+                max_subdomains_limit=getattr(config, 'max_subdomains', None),
+                include_providers=getattr(config, 'enable_provider_detection', False),
+                include_services=getattr(config, 'enable_service_detection', False),
+                include_tls=getattr(config, 'enable_tls_analysis', False),
+                include_risk=getattr(config, 'enable_risk_calculation', False),
+                is_financial=is_financial,
+                tld=tld
+            ) as task_tracker:
+                
+                loop = asyncio.get_event_loop()
+                
+                def run_discovery():
+                    discoverer = UnifiedSubdomainDiscoverer(
+                        config=config,
+                        neo4j_uri=api_config.neo4j_uri,
+                        neo4j_user=api_config.neo4j_user,
+                        neo4j_pass=api_config.neo4j_pass,
+                        ipinfo_token=api_config.ipinfo_token
+                    )
+                    try:
+                        result = discoverer.discover_and_analyze(domain)
+                        return result
+                    finally:
+                        discoverer.close()
+                
+                result = await loop.run_in_executor(None, run_discovery)
+                
+                # Update statistics with results
+                task_tracker.update_results(
+                    subdomains_found=len(result.subdomains),
+                    providers_found=len(result.providers),
+                    services_found=len(result.services),
+                    certificates_found=len(result.certificates),
+                    risks_found=len(result.risks)
+                )
+                
+                # Update performance metrics if available
+                if hasattr(result, 'metadata') and result.metadata:
+                    task_tracker.update_performance_metrics(
+                        amass_timeout_occurred=result.metadata.get('amass_timeout_occurred', False),
+                        dns_queries_count=result.metadata.get('dns_queries_count', 0),
+                        network_requests_count=result.metadata.get('network_requests_count', 0),
+                        neo4j_writes_count=result.metadata.get('neo4j_writes_count', 0)
+                    )
+                
+                return result
+                
+        except Exception as e:
+            logger.error(f"Statistics tracking failed for {domain}: {e}")
+            # Continue without statistics if tracking fails
+            pass
+    
+    # Fallback to original discovery without statistics
     loop = asyncio.get_event_loop()
     
     def run_discovery():
@@ -246,7 +358,7 @@ def discovery_result_to_response(result: DiscoveryResult) -> DiscoveryResponse:
         services=result.services,
         certificates=result.certificates,
         risks=result.risks,
-        industry_classification=result.industry_classification,
+        industry_classification=result.industry_classification.__dict__ if result.industry_classification else None,
         processing_time=result.processing_time,
         errors=result.errors,
         metadata=result.metadata
@@ -269,6 +381,7 @@ async def api_status():
     return {
         "version": "6.0.0",
         "discovery_engine": HAS_DISCOVERY_ENGINE,
+        "statistics_service": HAS_STATISTICS,
         "active_jobs": len(active_jobs),
         "max_concurrent_jobs": api_config.max_concurrent_jobs,
         "default_config": {
@@ -305,7 +418,7 @@ async def basic_discovery(
     )
     
     try:
-        result = await run_discovery_async(domain, config)
+        result = await run_discovery_async(domain, config, TaskType.AMASS)
         return discovery_result_to_response(result)
     except Exception as e:
         logger.error(f"Discovery failed for {domain}: {e}")
@@ -507,7 +620,7 @@ async def discovery_complete(
     )
     
     try:
-        result = await run_discovery_async(domain, config)
+        result = await run_discovery_async(domain, config, TaskType.COMPLETE_DISCOVERY)
         return discovery_result_to_response(result)
     except Exception as e:
         logger.error(f"Complete discovery failed for {domain}: {e}")
@@ -745,7 +858,7 @@ async def analyze_risk_only(
     
     try:
         # Initialize risk calculator
-        risk_calculator = RiskScoreUpdater(
+        risk_calculator = DomainRiskCalculator(
             neo4j_uri=api_config.neo4j_uri,
             neo4j_user=api_config.neo4j_user,
             neo4j_pass=api_config.neo4j_pass
@@ -792,7 +905,9 @@ async def update_config(
     ipinfo_token: Optional[str] = None,
     max_concurrent_jobs: Optional[int] = None,
     default_amass_timeout: Optional[int] = None,
-    default_max_subdomains: Optional[int] = None
+    default_max_subdomains: Optional[int] = None,
+    amass_cache_dir: Optional[str] = None,
+    amass_cache_duration_hours: Optional[int] = None
 ):
     """Update API configuration"""
     global api_config
@@ -811,6 +926,10 @@ async def update_config(
         api_config.default_amass_timeout = default_amass_timeout
     if default_max_subdomains:
         api_config.default_max_subdomains = default_max_subdomains
+    if amass_cache_dir:
+        api_config.amass_cache_dir = amass_cache_dir
+    if amass_cache_duration_hours:
+        api_config.amass_cache_duration_hours = amass_cache_duration_hours
     
     return {"message": "Configuration updated successfully"}
 
@@ -824,8 +943,169 @@ async def get_config():
         "default_amass_timeout": api_config.default_amass_timeout,
         "default_max_subdomains": api_config.default_max_subdomains,
         "default_workers": api_config.default_workers,
+        "amass_cache_dir": api_config.amass_cache_dir,
+        "amass_cache_duration_hours": api_config.amass_cache_duration_hours,
         "ipinfo_configured": bool(api_config.ipinfo_token)
     }
+
+# Cache management endpoints
+
+@app.get("/api/v1/cache/stats", tags=["Cache Management"])
+async def get_cache_stats():
+    """Get cache statistics"""
+    try:
+        cache_stats_file = Path(api_config.amass_cache_dir) / "cache_stats.json"
+        if cache_stats_file.exists():
+            with open(cache_stats_file, 'r') as f:
+                stats = json.load(f)
+            return stats
+        else:
+            return {
+                "hits": 0,
+                "misses": 0,
+                "evictions": 0,
+                "total_domains_cached": 0,
+                "message": "Cache stats file not found"
+            }
+    except Exception as e:
+        logger.error(f"Failed to get cache stats: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/v1/cache/clear", tags=["Cache Management"])
+async def clear_cache():
+    """Clear all cache entries"""
+    try:
+        cache_dir = Path(api_config.amass_cache_dir)
+        metadata_dir = cache_dir / "metadata"
+        data_dir = cache_dir / "data"
+        
+        cleared_count = 0
+        
+        # Clear metadata files
+        if metadata_dir.exists():
+            for file in metadata_dir.glob("*.json"):
+                file.unlink()
+                cleared_count += 1
+        
+        # Clear data files
+        if data_dir.exists():
+            for file in data_dir.glob("*.json.gz"):
+                file.unlink()
+        
+        # Reset cache stats
+        cache_stats_file = cache_dir / "cache_stats.json"
+        with open(cache_stats_file, 'w') as f:
+            json.dump({
+                "hits": 0,
+                "misses": 0,
+                "evictions": 0,
+                "total_domains_cached": 0
+            }, f)
+        
+        return {
+            "message": f"Cache cleared successfully",
+            "entries_removed": cleared_count
+        }
+    except Exception as e:
+        logger.error(f"Failed to clear cache: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete("/api/v1/cache/{domain}", tags=["Cache Management"])
+async def clear_domain_cache(domain: str = Path(..., description="Domain to clear from cache")):
+    """Clear cache for a specific domain"""
+    try:
+        from subdomain_relationship_discovery_unified import UnifiedSubdomainDiscoverer
+        import hashlib
+        
+        # Generate hash for domain
+        hash_key = hashlib.sha256(domain.encode()).hexdigest()[:16]
+        
+        cache_dir = Path(api_config.amass_cache_dir)
+        metadata_file = cache_dir / "metadata" / f"{hash_key}.json"
+        data_file = cache_dir / "data" / f"{hash_key}.json.gz"
+        
+        removed_files = []
+        if metadata_file.exists():
+            metadata_file.unlink()
+            removed_files.append("metadata")
+        if data_file.exists():
+            data_file.unlink()
+            removed_files.append("data")
+        
+        if removed_files:
+            return {
+                "message": f"Cache cleared for domain {domain}",
+                "files_removed": removed_files
+            }
+        else:
+            return {
+                "message": f"No cache found for domain {domain}"
+            }
+    except Exception as e:
+        logger.error(f"Failed to clear cache for {domain}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/v1/cache/cleanup", tags=["Cache Management"])
+async def cleanup_expired_cache():
+    """Clean up expired cache entries"""
+    try:
+        # Use the standalone script's cleanup functionality
+        standalone_script = Path(api_config.amass_cache_dir).parent / "standalone_amass_executor.sh"
+        
+        if standalone_script.exists():
+            env = {
+                **dict(os.environ),
+                'AMASS_CACHE_DIR': api_config.amass_cache_dir,
+                'CACHE_DURATION_HOURS': str(api_config.amass_cache_duration_hours)
+            }
+            
+            # Run the script with a dummy domain just to trigger cleanup
+            result = subprocess.run(
+                [str(standalone_script), "--help"],
+                capture_output=True,
+                text=True,
+                env=env
+            )
+        
+        # Manual cleanup implementation
+        cache_dir = Path(api_config.amass_cache_dir)
+        metadata_dir = cache_dir / "metadata"
+        data_dir = cache_dir / "data"
+        
+        cleaned_count = 0
+        current_time = datetime.now()
+        max_age = timedelta(hours=api_config.amass_cache_duration_hours)
+        
+        if metadata_dir.exists():
+            for metadata_file in metadata_dir.glob("*.json"):
+                try:
+                    with open(metadata_file, 'r') as f:
+                        metadata = json.load(f)
+                    
+                    timestamp_str = metadata.get('timestamp', '')
+                    if timestamp_str:
+                        cache_time = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
+                        cache_age = current_time - cache_time
+                        
+                        if cache_age > max_age:
+                            # Remove both metadata and data files
+                            hash_key = metadata_file.stem
+                            data_file = data_dir / f"{hash_key}.json.gz"
+                            
+                            metadata_file.unlink()
+                            if data_file.exists():
+                                data_file.unlink()
+                            cleaned_count += 1
+                except Exception as e:
+                    logger.debug(f"Failed to process cache file {metadata_file}: {e}")
+        
+        return {
+            "message": f"Cache cleanup completed",
+            "expired_entries_removed": cleaned_count
+        }
+    except Exception as e:
+        logger.error(f"Failed to cleanup cache: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Error handlers
 @app.exception_handler(HTTPException)
@@ -850,6 +1130,279 @@ async def general_exception_handler(request, exc):
             "path": str(request.url)
         }
     )
+
+# Statistics and Time Estimation Endpoints
+
+@app.get("/api/v1/estimate/{domain}",
+         tags=["Statistics"],
+         summary="Estimate task duration",
+         description="Get time estimation for domain analysis based on historical data")
+async def estimate_task_duration(
+    domain: str = Path(..., description="Domain to estimate", example="example.com"),
+    task_type: str = Query("complete_discovery", description="Task type to estimate"),
+    confidence_level: float = Query(0.9, description="Confidence level (0.0-1.0)", ge=0.0, le=1.0)
+):
+    """Estimate how long a domain analysis task will take"""
+    if not stats_service:
+        raise HTTPException(status_code=503, detail="Statistics service not available")
+    
+    try:
+        # Map string task type to enum
+        task_type_map = {
+            "amass": TaskType.AMASS,
+            "dns_analysis": TaskType.DNS_ANALYSIS,
+            "tls_scan": TaskType.TLS_SCAN,
+            "provider_detection": TaskType.PROVIDER_DETECTION,
+            "risk_calculation": TaskType.RISK_CALCULATION,
+            "complete_discovery": TaskType.COMPLETE_DISCOVERY
+        }
+        
+        if task_type not in task_type_map:
+            raise HTTPException(status_code=400, detail=f"Invalid task type: {task_type}")
+        
+        estimation = await stats_service.estimate_task_duration(
+            domain_name=domain,
+            task_type=task_type_map[task_type],
+            confidence_level=confidence_level
+        )
+        
+        return {
+            "domain": domain,
+            "task_type": task_type,
+            "estimation": estimation,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Time estimation failed for {domain}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/statistics/{domain}",
+         tags=["Statistics"],
+         summary="Get domain execution statistics",
+         description="Get historical execution statistics for a domain")
+async def get_domain_statistics(
+    domain: str = Path(..., description="Domain to get statistics for", example="example.com")
+):
+    """Get execution statistics for a specific domain"""
+    if not stats_service:
+        raise HTTPException(status_code=503, detail="Statistics service not available")
+    
+    try:
+        stats = await stats_service.get_domain_execution_stats(domain_name=domain)
+        
+        return {
+            "domain": domain,
+            "statistics": stats,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to get statistics for {domain}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/statistics",
+         tags=["Statistics"],
+         summary="Get all execution statistics",
+         description="Get historical execution statistics for all domains")
+async def get_all_statistics():
+    """Get execution statistics for all domains"""
+    if not stats_service:
+        raise HTTPException(status_code=503, detail="Statistics service not available")
+    
+    try:
+        stats = await stats_service.get_domain_execution_stats()
+        
+        return {
+            "statistics": stats,
+            "total_domains": len(set(stat["domain_name"] for stat in stats)),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to get all statistics: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/v1/statistics/summary",
+         tags=["Statistics"],
+         summary="Get statistics summary",
+         description="Get aggregated statistics summary for dashboard")
+async def get_statistics_summary():
+    """Get aggregated statistics summary"""
+    if not stats_service:
+        return {
+            "available": False,
+            "message": "Statistics service not available"
+        }
+    
+    try:
+        # Get all statistics
+        stats = await stats_service.get_domain_execution_stats()
+        
+        if not stats:
+            return {
+                "available": True,
+                "total_domains": 0,
+                "total_executions": 0,
+                "avg_processing_time": 0,
+                "success_rate": 0,
+                "most_analyzed_tlds": [],
+                "recent_activity": [],
+                "timestamp": datetime.now().isoformat()
+            }
+        
+        # Calculate summary statistics
+        total_domains = len(set(stat["domain_name"] for stat in stats))
+        total_executions = sum(stat["total_executions"] for stat in stats)
+        successful_executions = sum(stat["successful_executions"] for stat in stats)
+        
+        # Calculate average processing time (weighted by executions)
+        total_time = sum(stat["avg_duration_seconds"] * stat["total_executions"] 
+                        for stat in stats if stat["avg_duration_seconds"])
+        avg_processing_time = total_time / total_executions if total_executions > 0 else 0
+        
+        # Calculate success rate
+        success_rate = (successful_executions / total_executions * 100) if total_executions > 0 else 0
+        
+        # Get TLD distribution
+        tld_stats = {}
+        for stat in stats:
+            tld = stat["tld"]
+            if tld not in tld_stats:
+                tld_stats[tld] = {"count": 0, "domains": set()}
+            tld_stats[tld]["count"] += stat["total_executions"]
+            tld_stats[tld]["domains"].add(stat["domain_name"])
+        
+        most_analyzed_tlds = sorted(
+            [{"tld": tld, "executions": data["count"], "unique_domains": len(data["domains"])} 
+             for tld, data in tld_stats.items()],
+            key=lambda x: x["executions"],
+            reverse=True
+        )[:5]
+        
+        # Get recent activity (last executions)
+        recent_activity = sorted(
+            [{"domain": stat["domain_name"], 
+              "task_type": stat["task_type"],
+              "last_execution": stat["last_execution"],
+              "success_rate": stat["successful_executions"] / stat["total_executions"] * 100 if stat["total_executions"] > 0 else 0}
+             for stat in stats if stat["last_execution"]],
+            key=lambda x: x["last_execution"],
+            reverse=True
+        )[:10]
+        
+        return {
+            "available": True,
+            "total_domains": total_domains,
+            "total_executions": total_executions,
+            "avg_processing_time": round(avg_processing_time, 2),
+            "success_rate": round(success_rate, 2),
+            "most_analyzed_tlds": most_analyzed_tlds,
+            "recent_activity": recent_activity,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to get statistics summary: {e}")
+        return {
+            "available": False,
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
+
+@app.get("/api/v1/domains/{domain}/performance",
+         tags=["Statistics"],
+         summary="Get domain performance metrics",
+         description="Get detailed performance metrics for a specific domain")
+async def get_domain_performance(
+    domain: str = Path(..., description="Domain to get performance for", example="example.com")
+):
+    """Get detailed performance metrics for a domain"""
+    if not stats_service:
+        return {
+            "available": False,
+            "message": "Statistics service not available"
+        }
+    
+    try:
+        # Get domain statistics
+        stats = await stats_service.get_domain_execution_stats(domain_name=domain)
+        
+        if not stats:
+            return {
+                "available": True,
+                "domain": domain,
+                "has_data": False,
+                "message": "No performance data available for this domain"
+            }
+        
+        # Calculate performance metrics
+        total_executions = sum(stat["total_executions"] for stat in stats)
+        successful_executions = sum(stat["successful_executions"] for stat in stats)
+        failed_executions = sum(stat["failed_executions"] for stat in stats)
+        timeout_executions = sum(stat["timeout_executions"] for stat in stats)
+        
+        # Get task type breakdown
+        task_breakdown = []
+        for stat in stats:
+            task_breakdown.append({
+                "task_type": stat["task_type"],
+                "total_executions": stat["total_executions"],
+                "success_rate": stat["successful_executions"] / stat["total_executions"] * 100 if stat["total_executions"] > 0 else 0,
+                "avg_duration": stat["avg_duration_seconds"],
+                "median_duration": stat["median_duration_seconds"],
+                "p95_duration": stat["p95_duration_seconds"],
+                "avg_subdomains_found": stat["avg_subdomains_found"],
+                "avg_providers_found": stat["avg_providers_found"],
+                "last_execution": stat["last_execution"]
+            })
+        
+        # Get time estimations for different task types
+        estimations = {}
+        task_types = ["amass", "complete_discovery", "provider_detection", "tls_scan"]
+        
+        for task_type in task_types:
+            try:
+                task_type_enum = {
+                    "amass": TaskType.AMASS,
+                    "complete_discovery": TaskType.COMPLETE_DISCOVERY,
+                    "provider_detection": TaskType.PROVIDER_DETECTION,
+                    "tls_scan": TaskType.TLS_SCAN
+                }.get(task_type)
+                
+                if task_type_enum:
+                    estimation = await stats_service.estimate_task_duration(
+                        domain_name=domain,
+                        task_type=task_type_enum,
+                        confidence_level=0.9
+                    )
+                    estimations[task_type] = estimation
+            except Exception as e:
+                logger.warning(f"Failed to get estimation for {task_type}: {e}")
+        
+        return {
+            "available": True,
+            "domain": domain,
+            "has_data": True,
+            "summary": {
+                "total_executions": total_executions,
+                "successful_executions": successful_executions,
+                "failed_executions": failed_executions,
+                "timeout_executions": timeout_executions,
+                "success_rate": successful_executions / total_executions * 100 if total_executions > 0 else 0
+            },
+            "task_breakdown": task_breakdown,
+            "time_estimations": estimations,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to get domain performance for {domain}: {e}")
+        return {
+            "available": False,
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }
 
 # Startup and shutdown events
 @app.on_event("startup")

@@ -1,0 +1,13 @@
+{
+    "domain": "mutual.cl",
+    "job_id": "44",
+    "start_time": "2025-08-22 02:16:54",
+    "end_time": "2025-08-22 02:26:16",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 1,
+    "log_file": "output2/amass_mutual.cl_44.log",
+    "error_log": "output2/amass_mutual.cl_44.error"
+}

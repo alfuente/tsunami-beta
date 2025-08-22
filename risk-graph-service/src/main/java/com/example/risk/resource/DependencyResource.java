@@ -328,22 +328,22 @@ public class DependencyResource {
             
             WHERE baseNode IS NOT NULL
             
-            // Get providers through USES_SERVICE relationship (works for both Domain and Subdomain)
-            OPTIONAL MATCH (baseNode)-[:USES_SERVICE]->(p:Provider)
+            // Get providers through USES_PROVIDER relationship (works for both Domain and Subdomain)
+            OPTIONAL MATCH (baseNode)-[:USES_PROVIDER]->(p:Provider)
             
             // Get providers through RUNS relationship (works for both Domain and Subdomain) 
             OPTIONAL MATCH (baseNode)-[:RUNS]->(rp:Provider)
             
-            // Get services through RUNS relationship (works for both Domain and Subdomain)
-            OPTIONAL MATCH (baseNode)-[:RUNS]->(s:Service)
+            // Get services through RUNS_SERVICE relationship (works for both Domain and Subdomain)
+            OPTIONAL MATCH (baseNode)-[:RUNS_SERVICE]->(s:Service)
             
             // If it's a Domain, get providers through subdomains
-            OPTIONAL MATCH (baseNode)-[:HAS_SUBDOMAIN]->(childSub:Subdomain)-[:USES_SERVICE]->(subProv:Provider)
+            OPTIONAL MATCH (baseNode)-[:HAS_SUBDOMAIN]->(childSub:Subdomain)-[:USES_PROVIDER]->(subProv:Provider)
             OPTIONAL MATCH (baseNode)-[:HAS_SUBDOMAIN]->(childSub2:Subdomain)-[:RUNS]->(subProv2:Provider)
             WHERE nodeType = 'Domain'
             
             // If it's a Domain, get services through subdomains
-            OPTIONAL MATCH (baseNode)-[:HAS_SUBDOMAIN]->(childSub3:Subdomain)-[:RUNS]->(subSvc:Service)
+            OPTIONAL MATCH (baseNode)-[:HAS_SUBDOMAIN]->(childSub3:Subdomain)-[:RUNS_SERVICE]->(subSvc:Service)
             WHERE nodeType = 'Domain'
             
             RETURN 
@@ -356,7 +356,7 @@ public class DependencyResource {
                     type: 'provider',
                     risk_score: CASE WHEN $includeRisk THEN coalesce(p.risk_score, 0.0) ELSE null END,
                     risk_tier: CASE WHEN $includeRisk THEN coalesce(p.risk_tier, 'Unknown') ELSE null END,
-                    source: 'uses_service',
+                    source: 'uses_provider',
                     service_type: coalesce(p.type, 'unknown'),
                     confidence: coalesce(p.confidence, 0.8),
                     subdomain: CASE WHEN nodeType = 'Subdomain' THEN baseNode.fqdn ELSE null END
@@ -397,24 +397,30 @@ public class DependencyResource {
                 
                 collect(DISTINCT {
                     id: s.id,
-                    name: s.name,
+                    name: coalesce(s.service_name, 'unknown'),
                     type: 'service',
                     risk_score: CASE WHEN $includeRisk THEN coalesce(s.risk_score, 0.0) ELSE null END,
                     risk_tier: CASE WHEN $includeRisk THEN coalesce(s.risk_tier, 'Unknown') ELSE null END,
                     source: 'runs_service',
-                    service_type: coalesce(s.type, 'unknown'),
+                    service_type: coalesce(s.service_name, 'unknown'),
                     confidence: coalesce(s.confidence, 0.8),
+                    port: s.port,
+                    protocol: s.protocol,
+                    state: s.state,
                     subdomain: CASE WHEN nodeType = 'Subdomain' THEN baseNode.fqdn ELSE null END
                 }) +
                 collect(DISTINCT {
                     id: subSvc.id,
-                    name: subSvc.name,
+                    name: coalesce(subSvc.service_name, 'unknown'),
                     type: 'service',
                     risk_score: CASE WHEN $includeRisk THEN coalesce(subSvc.risk_score, 0.0) ELSE null END,
                     risk_tier: CASE WHEN $includeRisk THEN coalesce(subSvc.risk_tier, 'Unknown') ELSE null END,
                     source: 'subdomain_service',
-                    service_type: coalesce(subSvc.type, 'unknown'),
+                    service_type: coalesce(subSvc.service_name, 'unknown'),
                     confidence: coalesce(subSvc.confidence, 0.8),
+                    port: subSvc.port,
+                    protocol: subSvc.protocol,
+                    state: subSvc.state,
                     subdomain: childSub3.fqdn
                 }) as allServices
             """;
@@ -685,9 +691,9 @@ public class DependencyResource {
                 WHERE $includeRelated = true
                 
                 // Get providers and services for the domain and subdomains  
-                OPTIONAL MATCH (d)-[:USES_SERVICE]->(dp:Provider)
+                OPTIONAL MATCH (d)-[:USES_PROVIDER]->(dp:Provider)
                 OPTIONAL MATCH (d)-[:RUNS]->(ds:Service)
-                OPTIONAL MATCH (s)-[:USES_SERVICE]->(sp:Provider)
+                OPTIONAL MATCH (s)-[:USES_PROVIDER]->(sp:Provider)
                 OPTIONAL MATCH (s)-[:RUNS]->(ss:Service)
                 
                 RETURN 

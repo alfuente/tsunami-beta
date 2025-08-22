@@ -1,0 +1,31 @@
+{
+  "summary": {
+    "total_domains": 1,
+    "successful": 0,
+    "failed": 1,
+    "success_rate": 0.0,
+    "total_time_minutes": 0.08336138327916463,
+    "timestamp": "2025-08-21T19:20:59.987827"
+  },
+  "results": {
+    "success": [],
+    "failed": [
+      {
+        "domain": "bancoripley.cl",
+        "analysis_type": "complete",
+        "status": "failed",
+        "timestamp": "2025-08-21T19:20:54.986615",
+        "duration_seconds": 0,
+        "error": "No valid cache available and cache-only mode enabled",
+        "source": "cache_only_mode",
+        "cached": false,
+        "errors": [
+          "No valid cache in cache-only mode"
+        ],
+        "attempt": 1
+      }
+    ],
+    "skipped": [],
+    "in_progress": []
+  }
+}

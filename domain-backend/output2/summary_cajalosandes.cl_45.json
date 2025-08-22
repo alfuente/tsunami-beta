@@ -1,0 +1,13 @@
+{
+    "domain": "cajalosandes.cl",
+    "job_id": "45",
+    "start_time": "2025-08-22 02:18:59",
+    "end_time": "2025-08-22 02:28:24",
+    "timeout": 500,
+    "mode": "active",
+    "forced": false,
+    "result_count": 0,
+    "exit_code": 1,
+    "log_file": "output2/amass_cajalosandes.cl_45.log",
+    "error_log": "output2/amass_cajalosandes.cl_45.error"
+}

@@ -1,0 +1,13 @@
+{
+    "domain": "internacional.cl",
+    "job_id": "2",
+    "start_time": "2025-08-21 15:15:08",
+    "end_time": "2025-08-21 15:18:50",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_internacional.cl_2.log",
+    "error_log": "logs/amass_internacional.cl_2.error"
+}

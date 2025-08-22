@@ -1,0 +1,13 @@
+{
+    "domain": "consorcio.cl",
+    "job_id": "29",
+    "start_time": "2025-08-21 16:00:33",
+    "end_time": "2025-08-21 16:11:33",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 1,
+    "log_file": "logs/amass_consorcio.cl_29.log",
+    "error_log": "logs/amass_consorcio.cl_29.error"
+}

@@ -1,0 +1,13 @@
+{
+    "domain": "bice.cl",
+    "job_id": "5",
+    "start_time": "2025-08-21 15:20:15",
+    "end_time": "2025-08-21 15:24:19",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_bice.cl_5.log",
+    "error_log": "logs/amass_bice.cl_5.error"
+}

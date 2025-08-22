@@ -1,0 +1,13 @@
+{
+    "domain": "bancosecurity.cl",
+    "job_id": "9",
+    "start_time": "2025-08-21 15:26:19",
+    "end_time": "2025-08-21 15:32:14",
+    "timeout": 600,
+    "mode": "passive",
+    "forced": true,
+    "result_count": 0,
+    "exit_code": 0,
+    "log_file": "logs/amass_bancosecurity.cl_9.log",
+    "error_log": "logs/amass_bancosecurity.cl_9.error"
+}

@@ -1,0 +1,1739 @@
+[
+  {
+    "name": "web_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"www\", \"subdomain_part\": \"www\", \"fqdn\": \"www.bice.cl\"}",
+    "created_at": "2025-07-31T10:02:55.953848"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.169.55.22\", \"port\": 80, \"fqdn\": \"www.bice.cl\"}",
+    "created_at": "2025-07-31T10:02:55.953848"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.169.55.22\", \"port\": 443, \"fqdn\": \"www.bice.cl\"}",
+    "created_at": "2025-07-31T10:02:55.953848"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.169.54.22\", \"port\": 80, \"fqdn\": \"www.bice.cl\"}",
+    "created_at": "2025-07-31T10:02:55.953848"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.169.54.22\", \"port\": 443, \"fqdn\": \"www.bice.cl\"}",
+    "created_at": "2025-07-31T10:02:55.953848"
+  },
+  {
+    "name": "vpn_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"vpn\", \"subdomain_part\": \"vpn\", \"fqdn\": \"vpn.itau.cl\"}",
+    "created_at": "2025-07-31T10:00:09.623720"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"200.0.161.30\", \"port\": 80, \"fqdn\": \"banco.itau.cl\"}",
+    "created_at": "2025-07-31T10:13:42.014946"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"200.0.161.30\", \"port\": 443, \"fqdn\": \"banco.itau.cl\"}",
+    "created_at": "2025-07-31T10:13:42.014946"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"200.0.160.30\", \"port\": 80, \"fqdn\": \"banco.itau.cl\"}",
+    "created_at": "2025-07-31T10:13:42.014946"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"200.0.160.30\", \"port\": 443, \"fqdn\": \"banco.itau.cl\"}",
+    "created_at": "2025-07-31T10:13:42.014946"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"13.110.194.183\", \"port\": 80, \"fqdn\": \"cloud.mensajeria.itau.cl\"}",
+    "created_at": "2025-07-31T10:14:37.412319"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"13.110.194.183\", \"port\": 443, \"fqdn\": \"cloud.mensajeria.itau.cl\"}",
+    "created_at": "2025-07-31T10:14:37.412319"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 80, \"fqdn\": \"inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:15:07.876853"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 443, \"fqdn\": \"inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:15:07.876853"
+  },
+  {
+    "name": "ftp_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 21, \"fqdn\": \"inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:15:07.876853"
+  },
+  {
+    "name": "dns_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 53, \"fqdn\": \"inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:15:07.876853"
+  },
+  {
+    "name": "pop3_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 110, \"fqdn\": \"inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:15:07.876853"
+  },
+  {
+    "name": "imap_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 143, \"fqdn\": \"inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:15:07.876853"
+  },
+  {
+    "name": "imaps_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 993, \"fqdn\": \"inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:15:07.876853"
+  },
+  {
+    "name": "pop3s_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 995, \"fqdn\": \"inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:15:07.876853"
+  },
+  {
+    "name": "mysql_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 3306, \"fqdn\": \"inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:15:07.876853"
+  },
+  {
+    "name": "redis_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 6379, \"fqdn\": \"inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:15:07.876853"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"13.110.202.154\", \"port\": 80, \"fqdn\": \"view.mensajeria.itau.cl\"}",
+    "created_at": "2025-07-31T10:15:22.420663"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"13.110.202.154\", \"port\": 443, \"fqdn\": \"view.mensajeria.itau.cl\"}",
+    "created_at": "2025-07-31T10:15:22.420663"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "dns_analysis",
+    "confidence": 0.95,
+    "domain": null,
+    "metadata": "{\"mx_records\": [\"10 reply.s12.exacttarget.com.\"]}",
+    "created_at": "2025-07-31T10:15:51.816668"
+  },
+  {
+    "name": "email_security_service",
+    "service_type": null,
+    "detection_method": "dns_analysis",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"txt_record\": \"\\\"v=spf1 include:cust-spf.exacttarget.com -all\\\"\"}",
+    "created_at": "2025-07-31T10:15:51.816668"
+  },
+  {
+    "name": "api_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"api\", \"subdomain_part\": \"apis\", \"fqdn\": \"gw.sb.apis.itau.cl\"}",
+    "created_at": "2025-07-31T10:16:21.233824"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"securemail01\", \"fqdn\": \"securemail01.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:24.787783"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"email\", \"subdomain_part\": \"securemail01\", \"fqdn\": \"securemail01.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:24.787783"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 80, \"fqdn\": \"ww2.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:35.420038"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 443, \"fqdn\": \"ww2.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:35.420038"
+  },
+  {
+    "name": "ftp_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 21, \"fqdn\": \"ww2.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:35.420038"
+  },
+  {
+    "name": "dns_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 53, \"fqdn\": \"ww2.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:35.420038"
+  },
+  {
+    "name": "pop3_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 110, \"fqdn\": \"ww2.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:35.420038"
+  },
+  {
+    "name": "imap_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 143, \"fqdn\": \"ww2.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:35.420038"
+  },
+  {
+    "name": "imaps_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 993, \"fqdn\": \"ww2.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:35.420038"
+  },
+  {
+    "name": "pop3s_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 995, \"fqdn\": \"ww2.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:35.420038"
+  },
+  {
+    "name": "mysql_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 3306, \"fqdn\": \"ww2.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:35.420038"
+  },
+  {
+    "name": "redis_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 6379, \"fqdn\": \"ww2.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:35.420038"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"13.110.198.155\", \"port\": 80, \"fqdn\": \"click.mensajeria.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:50.250034"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"13.110.198.155\", \"port\": 443, \"fqdn\": \"click.mensajeria.itau.cl\"}",
+    "created_at": "2025-07-31T10:25:50.250034"
+  },
+  {
+    "name": "cdn_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"cdn\", \"subdomain_part\": \"cdn\", \"fqdn\": \"cdn.banco.itau.cl\"}",
+    "created_at": "2025-07-31T10:30:54.687044"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mailing\", \"fqdn\": \"mailing.itau.cl\"}",
+    "created_at": "2025-07-31T10:35:30.100822"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"76.223.54.146\", \"port\": 80, \"fqdn\": \"mailing.itau.cl\"}",
+    "created_at": "2025-07-31T10:35:30.100822"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"76.223.54.146\", \"port\": 443, \"fqdn\": \"mailing.itau.cl\"}",
+    "created_at": "2025-07-31T10:35:30.100822"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"13.248.169.48\", \"port\": 80, \"fqdn\": \"mailing.itau.cl\"}",
+    "created_at": "2025-07-31T10:35:30.100822"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"13.248.169.48\", \"port\": 443, \"fqdn\": \"mailing.itau.cl\"}",
+    "created_at": "2025-07-31T10:35:30.100822"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "dns_analysis",
+    "confidence": 0.95,
+    "domain": null,
+    "metadata": "{\"mx_records\": [\"0 .\"]}",
+    "created_at": "2025-07-31T10:35:30.100822"
+  },
+  {
+    "name": "email_security_service",
+    "service_type": null,
+    "detection_method": "dns_analysis",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"txt_record\": \"\\\"v=spf1 -all\\\"\"}",
+    "created_at": "2025-07-31T10:35:30.100822"
+  },
+  {
+    "name": "test_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"qa\", \"subdomain_part\": \"botondepagoqa\", \"fqdn\": \"botondepagoqa.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:27.217053"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 80, \"fqdn\": \"botondepagoqa.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:27.217053"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 443, \"fqdn\": \"botondepagoqa.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:27.217053"
+  },
+  {
+    "name": "ftp_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 21, \"fqdn\": \"botondepagoqa.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:27.217053"
+  },
+  {
+    "name": "dns_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 53, \"fqdn\": \"botondepagoqa.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:27.217053"
+  },
+  {
+    "name": "pop3_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 110, \"fqdn\": \"botondepagoqa.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:27.217053"
+  },
+  {
+    "name": "imap_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 143, \"fqdn\": \"botondepagoqa.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:27.217053"
+  },
+  {
+    "name": "imaps_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 993, \"fqdn\": \"botondepagoqa.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:27.217053"
+  },
+  {
+    "name": "pop3s_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 995, \"fqdn\": \"botondepagoqa.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:27.217053"
+  },
+  {
+    "name": "mysql_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 3306, \"fqdn\": \"botondepagoqa.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:27.217053"
+  },
+  {
+    "name": "redis_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 6379, \"fqdn\": \"botondepagoqa.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:27.217053"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"162.159.130.11\", \"port\": 80, \"fqdn\": \"ir.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:41.379765"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"162.159.130.11\", \"port\": 443, \"fqdn\": \"ir.itau.cl\"}",
+    "created_at": "2025-07-31T10:36:41.379765"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 80, \"fqdn\": \"dashboard-inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:41:46.520729"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 443, \"fqdn\": \"dashboard-inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:41:46.520729"
+  },
+  {
+    "name": "ftp_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 21, \"fqdn\": \"dashboard-inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:41:46.520729"
+  },
+  {
+    "name": "dns_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 53, \"fqdn\": \"dashboard-inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:41:46.520729"
+  },
+  {
+    "name": "pop3_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 110, \"fqdn\": \"dashboard-inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:41:46.520729"
+  },
+  {
+    "name": "imap_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 143, \"fqdn\": \"dashboard-inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:41:46.520729"
+  },
+  {
+    "name": "imaps_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 993, \"fqdn\": \"dashboard-inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:41:46.520729"
+  },
+  {
+    "name": "pop3s_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 995, \"fqdn\": \"dashboard-inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:41:46.520729"
+  },
+  {
+    "name": "mysql_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 3306, \"fqdn\": \"dashboard-inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:41:46.520729"
+  },
+  {
+    "name": "redis_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 6379, \"fqdn\": \"dashboard-inversionesglobales.itau.cl\"}",
+    "created_at": "2025-07-31T10:41:46.520729"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"13.110.192.1\", \"port\": 80, \"fqdn\": \"pages.mensajeria.itau.cl\"}",
+    "created_at": "2025-07-31T10:42:01.432855"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"13.110.192.1\", \"port\": 443, \"fqdn\": \"pages.mensajeria.itau.cl\"}",
+    "created_at": "2025-07-31T10:42:01.432855"
+  },
+  {
+    "name": "test_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"dev\", \"subdomain_part\": \"devicefarmrtr\", \"fqdn\": \"devicefarmrtr.itau.cl\"}",
+    "created_at": "2025-07-31T10:42:31.586636"
+  },
+  {
+    "name": "test_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"qa\", \"subdomain_part\": \"workflowqa\", \"fqdn\": \"workflowqa.itau.cl\"}",
+    "created_at": "2025-07-31T10:42:37.411869"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 80, \"fqdn\": \"pmupr.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:40.782600"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 443, \"fqdn\": \"pmupr.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:40.782600"
+  },
+  {
+    "name": "ftp_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 21, \"fqdn\": \"pmupr.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:40.782600"
+  },
+  {
+    "name": "dns_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 53, \"fqdn\": \"pmupr.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:40.782600"
+  },
+  {
+    "name": "pop3_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 110, \"fqdn\": \"pmupr.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:40.782600"
+  },
+  {
+    "name": "imap_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 143, \"fqdn\": \"pmupr.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:40.782600"
+  },
+  {
+    "name": "imaps_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 993, \"fqdn\": \"pmupr.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:40.782600"
+  },
+  {
+    "name": "pop3s_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 995, \"fqdn\": \"pmupr.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:40.782600"
+  },
+  {
+    "name": "mysql_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 3306, \"fqdn\": \"pmupr.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:40.782600"
+  },
+  {
+    "name": "redis_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 6379, \"fqdn\": \"pmupr.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:40.782600"
+  },
+  {
+    "name": "web_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"portal\", \"subdomain_part\": \"portal\", \"fqdn\": \"portal.apis.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:55.032028"
+  },
+  {
+    "name": "api_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"api\", \"subdomain_part\": \"apis\", \"fqdn\": \"portal.apis.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:55.032028"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"3.217.206.153\", \"port\": 443, \"fqdn\": \"portal.apis.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:55.032028"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"54.204.95.53\", \"port\": 443, \"fqdn\": \"portal.apis.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:55.032028"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"3.226.53.192\", \"port\": 443, \"fqdn\": \"portal.apis.itau.cl\"}",
+    "created_at": "2025-07-31T10:51:55.032028"
+  },
+  {
+    "name": "api_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"api\", \"subdomain_part\": \"apigw\", \"fqdn\": \"mail.uat.apigw.btgpactual.cl\"}",
+    "created_at": "2025-07-31T10:53:20.110471"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.uat.apigw.btgpactual.cl\"}",
+    "created_at": "2025-07-31T10:53:20.110471"
+  },
+  {
+    "name": "api_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"api\", \"subdomain_part\": \"apigw\", \"fqdn\": \"mail.prod.apigw.btgpactual.cl\"}",
+    "created_at": "2025-07-31T11:03:51.080719"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.prod.apigw.btgpactual.cl\"}",
+    "created_at": "2025-07-31T11:03:51.080719"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.blog.laaraucana.cl\"}",
+    "created_at": "2025-07-31T11:17:23.214298"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "dns_analysis",
+    "confidence": 0.95,
+    "domain": null,
+    "metadata": "{\"mx_records\": [\"0 blog.laaraucana.cl.\"]}",
+    "created_at": "2025-07-31T11:17:23.214298"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.afphabitat.cl\"}",
+    "created_at": "2025-07-31T11:22:10.467050"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.bicevida.cl\"}",
+    "created_at": "2025-07-31T11:25:47.029426"
+  },
+  {
+    "name": "web_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"www\", \"subdomain_part\": \"www\", \"fqdn\": \"www.bicevida.cl\"}",
+    "created_at": "2025-07-31T11:34:51.604631"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"104.18.15.118\", \"port\": 80, \"fqdn\": \"www.bicevida.cl\"}",
+    "created_at": "2025-07-31T11:34:51.604631"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"104.18.15.118\", \"port\": 443, \"fqdn\": \"www.bicevida.cl\"}",
+    "created_at": "2025-07-31T11:34:51.604631"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"104.18.14.118\", \"port\": 80, \"fqdn\": \"www.bicevida.cl\"}",
+    "created_at": "2025-07-31T11:34:51.604631"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"104.18.14.118\", \"port\": 443, \"fqdn\": \"www.bicevida.cl\"}",
+    "created_at": "2025-07-31T11:34:51.604631"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.laaraucana.cl\"}",
+    "created_at": "2025-07-31T11:35:46.378095"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.transbank.cl\"}",
+    "created_at": "2025-07-31T11:35:59.832783"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.cajalosandes.cl\"}",
+    "created_at": "2025-07-31T11:45:04.229514"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.coopeuch.cl\"}",
+    "created_at": "2025-07-31T11:54:10.320610"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"200.54.73.34\", \"port\": 80, \"fqdn\": \"mail.coopeuch.cl\"}",
+    "created_at": "2025-07-31T11:54:10.320610"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"200.54.73.34\", \"port\": 443, \"fqdn\": \"mail.coopeuch.cl\"}",
+    "created_at": "2025-07-31T11:54:10.320610"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.caja18.cl\"}",
+    "created_at": "2025-07-31T11:58:42.317824"
+  },
+  {
+    "name": "ssh_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"200.27.102.38\", \"port\": 22, \"fqdn\": \"mail.caja18.cl\"}",
+    "created_at": "2025-07-31T11:58:42.317824"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.security.cl\"}",
+    "created_at": "2025-07-31T12:03:20.569149"
+  },
+  {
+    "name": "email_security_service",
+    "service_type": null,
+    "detection_method": "dns_analysis",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"txt_record\": \"\\\"v=spf1 mx a ip4:35.80.141.6/32 ip4:44.229.121.55/32 include:ues1.mx.csod.com include:ues2.mx.csod.com -all\\\"\"}",
+    "created_at": "2025-07-31T12:03:20.569149"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.bancoripley.cl\"}",
+    "created_at": "2025-07-31T12:08:15.872507"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.scotiabank.cl\"}",
+    "created_at": "2025-07-31T12:12:52.445819"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "dns_analysis",
+    "confidence": 0.95,
+    "domain": null,
+    "metadata": "{\"mx_records\": [\"10 smtp4.mail.scotiabank.cl.\", \"10 smtp3.mail.scotiabank.cl.\"]}",
+    "created_at": "2025-07-31T12:12:52.445819"
+  },
+  {
+    "name": "email_security_service",
+    "service_type": null,
+    "detection_method": "dns_analysis",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"txt_record\": \"\\\"v=spf1 mx ptr ip4:200.9.111.221 ip4:200.9.111.251 ~all\\\"\"}",
+    "created_at": "2025-07-31T12:12:52.445819"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.bci.cl\"}",
+    "created_at": "2025-07-31T12:21:54.124000"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.bancochile.cl\"}",
+    "created_at": "2025-07-31T12:27:24.791742"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.122.234\", \"port\": 80, \"fqdn\": \"mail.bancochile.cl\"}",
+    "created_at": "2025-07-31T12:27:24.791742"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.122.234\", \"port\": 443, \"fqdn\": \"mail.bancochile.cl\"}",
+    "created_at": "2025-07-31T12:27:24.791742"
+  },
+  {
+    "name": "ftp_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.122.234\", \"port\": 21, \"fqdn\": \"mail.bancochile.cl\"}",
+    "created_at": "2025-07-31T12:27:24.791742"
+  },
+  {
+    "name": "dns_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.122.234\", \"port\": 53, \"fqdn\": \"mail.bancochile.cl\"}",
+    "created_at": "2025-07-31T12:27:24.791742"
+  },
+  {
+    "name": "pop3_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.122.234\", \"port\": 110, \"fqdn\": \"mail.bancochile.cl\"}",
+    "created_at": "2025-07-31T12:27:24.791742"
+  },
+  {
+    "name": "imap_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.122.234\", \"port\": 143, \"fqdn\": \"mail.bancochile.cl\"}",
+    "created_at": "2025-07-31T12:27:24.791742"
+  },
+  {
+    "name": "imaps_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.122.234\", \"port\": 993, \"fqdn\": \"mail.bancochile.cl\"}",
+    "created_at": "2025-07-31T12:27:24.791742"
+  },
+  {
+    "name": "pop3s_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.122.234\", \"port\": 995, \"fqdn\": \"mail.bancochile.cl\"}",
+    "created_at": "2025-07-31T12:27:24.791742"
+  },
+  {
+    "name": "mysql_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.122.234\", \"port\": 3306, \"fqdn\": \"mail.bancochile.cl\"}",
+    "created_at": "2025-07-31T12:27:24.791742"
+  },
+  {
+    "name": "redis_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.122.234\", \"port\": 6379, \"fqdn\": \"mail.bancochile.cl\"}",
+    "created_at": "2025-07-31T12:27:24.791742"
+  },
+  {
+    "name": "web_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"portal\", \"subdomain_part\": \"miportalituber\", \"fqdn\": \"miportalituber.itau.cl\"}",
+    "created_at": "2025-07-31T12:27:39.543548"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"190.196.7.120\", \"port\": 80, \"fqdn\": \"miportalituber.itau.cl\"}",
+    "created_at": "2025-07-31T12:27:39.543548"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"190.196.7.120\", \"port\": 443, \"fqdn\": \"miportalituber.itau.cl\"}",
+    "created_at": "2025-07-31T12:27:39.543548"
+  },
+  {
+    "name": "api_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"api\", \"subdomain_part\": \"apis\", \"fqdn\": \"gw.dev.apis.itau.cl\"}",
+    "created_at": "2025-07-31T12:27:52.777965"
+  },
+  {
+    "name": "test_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"dev\", \"subdomain_part\": \"dev\", \"fqdn\": \"gw.dev.apis.itau.cl\"}",
+    "created_at": "2025-07-31T12:27:52.777965"
+  },
+  {
+    "name": "test_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"test\", \"subdomain_part\": \"test\", \"fqdn\": \"test.itau.cl\"}",
+    "created_at": "2025-07-31T12:41:49.250649"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"3.18.255.247\", \"port\": 80, \"fqdn\": \"test.itau.cl\"}",
+    "created_at": "2025-07-31T12:41:49.250649"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"3.18.255.247\", \"port\": 443, \"fqdn\": \"test.itau.cl\"}",
+    "created_at": "2025-07-31T12:41:49.250649"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"34.224.149.186\", \"port\": 80, \"fqdn\": \"test.itau.cl\"}",
+    "created_at": "2025-07-31T12:41:49.250649"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"34.224.149.186\", \"port\": 443, \"fqdn\": \"test.itau.cl\"}",
+    "created_at": "2025-07-31T12:41:49.250649"
+  },
+  {
+    "name": "google_verification",
+    "service_type": null,
+    "detection_method": "dns_analysis",
+    "confidence": 0.95,
+    "domain": null,
+    "metadata": "{\"txt_record\": \"\\\"google-site-verification=kW9t2V_S7WjOX57zq0tP8Ae_WJhRwUcZoqpdEkvuXJk\\\"\"}",
+    "created_at": "2025-07-31T12:41:49.250649"
+  },
+  {
+    "name": "test_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"dev\", \"subdomain_part\": \"devicefarmest\", \"fqdn\": \"devicefarmest.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:37.074218"
+  },
+  {
+    "name": "web_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"www\", \"subdomain_part\": \"www\", \"fqdn\": \"www.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:43.641030"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 80, \"fqdn\": \"www.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:43.641030"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 443, \"fqdn\": \"www.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:43.641030"
+  },
+  {
+    "name": "ftp_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 21, \"fqdn\": \"www.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:43.641030"
+  },
+  {
+    "name": "dns_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 53, \"fqdn\": \"www.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:43.641030"
+  },
+  {
+    "name": "pop3_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 110, \"fqdn\": \"www.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:43.641030"
+  },
+  {
+    "name": "imap_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 143, \"fqdn\": \"www.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:43.641030"
+  },
+  {
+    "name": "imaps_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 993, \"fqdn\": \"www.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:43.641030"
+  },
+  {
+    "name": "pop3s_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 995, \"fqdn\": \"www.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:43.641030"
+  },
+  {
+    "name": "mysql_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 3306, \"fqdn\": \"www.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:43.641030"
+  },
+  {
+    "name": "redis_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 6379, \"fqdn\": \"www.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:43.641030"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 80, \"fqdn\": \"leasingdigital.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:59.410689"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 443, \"fqdn\": \"leasingdigital.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:59.410689"
+  },
+  {
+    "name": "ftp_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 21, \"fqdn\": \"leasingdigital.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:59.410689"
+  },
+  {
+    "name": "dns_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 53, \"fqdn\": \"leasingdigital.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:59.410689"
+  },
+  {
+    "name": "pop3_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 110, \"fqdn\": \"leasingdigital.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:59.410689"
+  },
+  {
+    "name": "imap_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 143, \"fqdn\": \"leasingdigital.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:59.410689"
+  },
+  {
+    "name": "imaps_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 993, \"fqdn\": \"leasingdigital.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:59.410689"
+  },
+  {
+    "name": "pop3s_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 995, \"fqdn\": \"leasingdigital.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:59.410689"
+  },
+  {
+    "name": "mysql_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 3306, \"fqdn\": \"leasingdigital.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:59.410689"
+  },
+  {
+    "name": "redis_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.60.77.138\", \"port\": 6379, \"fqdn\": \"leasingdigital.itau.cl\"}",
+    "created_at": "2025-07-31T12:47:59.410689"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"23.50.112.34\", \"port\": 80, \"fqdn\": \"image.mensajeria.itau.cl\"}",
+    "created_at": "2025-07-31T12:48:20.707396"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"23.50.112.21\", \"port\": 80, \"fqdn\": \"image.mensajeria.itau.cl\"}",
+    "created_at": "2025-07-31T12:48:20.707396"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"23.50.112.21\", \"port\": 443, \"fqdn\": \"image.mensajeria.itau.cl\"}",
+    "created_at": "2025-07-31T12:48:20.707396"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.bancofalabella.cl\"}",
+    "created_at": "2025-07-31T12:49:27.181806"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"104.18.121.12\", \"port\": 80, \"fqdn\": \"lifeplan.bice.cl\"}",
+    "created_at": "2025-07-31T12:54:03.370845"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"104.18.121.12\", \"port\": 443, \"fqdn\": \"lifeplan.bice.cl\"}",
+    "created_at": "2025-07-31T12:54:03.370845"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"104.18.78.54\", \"port\": 80, \"fqdn\": \"lifeplan.bice.cl\"}",
+    "created_at": "2025-07-31T12:54:03.370845"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"104.18.78.54\", \"port\": 443, \"fqdn\": \"lifeplan.bice.cl\"}",
+    "created_at": "2025-07-31T12:54:03.370845"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "dns_analysis",
+    "confidence": 0.95,
+    "domain": null,
+    "metadata": "{\"mx_records\": [\"5 mxa-00455301.gslb.pphosted.com.\", \"5 mxb-00455301.gslb.pphosted.com.\"]}",
+    "created_at": "2025-07-31T12:54:03.370845"
+  },
+  {
+    "name": "email_security_service",
+    "service_type": null,
+    "detection_method": "dns_analysis",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"txt_record\": \"\\\"v=spf1 mx ip4:200.27.98.147 ip4:200.75.5.243 ip4:190.54.23.51 ip4:200.27.98.148 ip4:200.75.5.244 ip4:190.54.23.52 include:spf.protection.outlook.com include:spf-00455301.pphosted.com -all\\\"\"}",
+    "created_at": "2025-07-31T12:54:03.370845"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"35.196.23.22\", \"port\": 80, \"fqdn\": \"connect.bice.cl\"}",
+    "created_at": "2025-07-31T12:55:00.647826"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"35.196.23.22\", \"port\": 443, \"fqdn\": \"connect.bice.cl\"}",
+    "created_at": "2025-07-31T12:55:00.647826"
+  },
+  {
+    "name": "mail_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"mail\", \"subdomain_part\": \"mail\", \"fqdn\": \"mail.bice.cl\"}",
+    "created_at": "2025-07-31T12:55:38.186658"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"104.18.121.12\", \"port\": 80, \"fqdn\": \"mail.bice.cl\"}",
+    "created_at": "2025-07-31T12:55:38.186658"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"104.18.121.12\", \"port\": 443, \"fqdn\": \"mail.bice.cl\"}",
+    "created_at": "2025-07-31T12:55:38.186658"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"104.18.78.54\", \"port\": 80, \"fqdn\": \"mail.bice.cl\"}",
+    "created_at": "2025-07-31T12:55:38.186658"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"104.18.78.54\", \"port\": 443, \"fqdn\": \"mail.bice.cl\"}",
+    "created_at": "2025-07-31T12:55:38.186658"
+  },
+  {
+    "name": "web_service",
+    "service_type": null,
+    "detection_method": "pattern_analysis",
+    "confidence": 0.7,
+    "domain": null,
+    "metadata": "{\"matched_pattern\": \"www\", \"subdomain_part\": \"www\", \"fqdn\": \"www.bice.cl\"}",
+    "created_at": "2025-07-31T12:56:33.925214"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.169.54.22\", \"port\": 80, \"fqdn\": \"www.bice.cl\"}",
+    "created_at": "2025-07-31T12:56:33.925214"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.169.54.22\", \"port\": 443, \"fqdn\": \"www.bice.cl\"}",
+    "created_at": "2025-07-31T12:56:33.925214"
+  },
+  {
+    "name": "http_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.169.55.22\", \"port\": 80, \"fqdn\": \"www.bice.cl\"}",
+    "created_at": "2025-07-31T12:56:33.925214"
+  },
+  {
+    "name": "https_service",
+    "service_type": null,
+    "detection_method": "port_scan",
+    "confidence": 0.9,
+    "domain": null,
+    "metadata": "{\"ip\": \"45.169.55.22\", \"port\": 443, \"fqdn\": \"www.bice.cl\"}",
+    "created_at": "2025-07-31T12:56:33.925214"
+  },
+  {
+    "name": null,
+    "service_type": null,
+    "detection_method": null,
+    "confidence": null,
+    "domain": null,
+    "metadata": null,
+    "created_at": null
+  },
+  {
+    "name": null,
+    "service_type": null,
+    "detection_method": null,
+    "confidence": null,
+    "domain": null,
+    "metadata": null,
+    "created_at": null
+  },
+  {
+    "name": null,
+    "service_type": null,
+    "detection_method": null,
+    "confidence": null,
+    "domain": null,
+    "metadata": null,
+    "created_at": null
+  },
+  {
+    "name": null,
+    "service_type": null,
+    "detection_method": null,
+    "confidence": null,
+    "domain": null,
+    "metadata": null,
+    "created_at": null
+  },
+  {
+    "name": null,
+    "service_type": null,
+    "detection_method": null,
+    "confidence": null,
+    "domain": null,
+    "metadata": null,
+    "created_at": null
+  },
+  {
+    "name": null,
+    "service_type": null,
+    "detection_method": null,
+    "confidence": null,
+    "domain": null,
+    "metadata": null,
+    "created_at": null
+  },
+  {
+    "name": null,
+    "service_type": null,
+    "detection_method": null,
+    "confidence": null,
+    "domain": null,
+    "metadata": null,
+    "created_at": null
+  },
+  {
+    "name": null,
+    "service_type": null,
+    "detection_method": null,
+    "confidence": null,
+    "domain": null,
+    "metadata": null,
+    "created_at": null
+  }
+]

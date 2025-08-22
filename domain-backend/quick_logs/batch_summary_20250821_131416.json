@@ -1,0 +1,18 @@
+{
+    "batch_file": "quick_test_domains.txt",
+    "start_time": "2025-08-21 13:14:16",
+    "end_time": "2025-08-21 13:15:46",
+    "total_domains": 1,
+    "max_parallel_jobs": 2,
+    "results": {
+        "completed": 1,
+        "failed": 0,
+        "cached": 0
+    },
+    "settings": {
+        "timeout": 90,
+        "mode": "passive",
+        "force": false,
+        "log_dir": "./quick_logs"
+    }
+}
