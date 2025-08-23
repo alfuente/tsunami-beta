@@ -266,7 +266,7 @@ const ProviderManagement: React.FC = () => {
   }, [filters, pagination.page, pagination.pageSize]);
 
 
-  const getRiskTierColor = (tier: string | undefined) => {
+  const getRiskTierColor = (tier: string | undefined): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     switch (tier?.toLowerCase()) {
       case 'critical': return 'error';
       case 'high': return 'warning';
@@ -477,7 +477,7 @@ const ProviderManagement: React.FC = () => {
                         <TableCell>
                           <Chip 
                             label={provider.risk_tier || 'N/A'} 
-                            color={getRiskTierColor(provider.risk_tier) as any}
+                            color={getRiskTierColor(provider.risk_tier)}
                             size="small"
                           />
                         </TableCell>

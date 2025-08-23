@@ -87,7 +87,7 @@ const ProviderDetail: React.FC = () => {
     fetchProviderDetails();
   }, [providerId]);
 
-  const getRiskTierColor = (tier: string | undefined) => {
+  const getRiskTierColor = (tier: string | undefined): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     switch (tier?.toLowerCase()) {
       case 'critical': return 'error';
       case 'high': return 'warning';
@@ -250,7 +250,7 @@ const ProviderDetail: React.FC = () => {
                   <Box display="flex" alignItems="center" gap={1}>
                     <Chip 
                       label={providerDetails.risk_tier || 'N/A'} 
-                      color={getRiskTierColor(providerDetails.risk_tier) as any}
+                      color={getRiskTierColor(providerDetails.risk_tier)}
                       size="small"
                     />
                   </Box>

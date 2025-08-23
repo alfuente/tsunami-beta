@@ -45,6 +45,9 @@ import dns.resolver
 import dns.exception
 import requests
 import re
+import psycopg2
+import psycopg2.extras
+from contextlib import contextmanager
 
 # Neo4j integration
 try:
@@ -85,6 +88,8 @@ class TaskType(str, Enum):
     MX_ANALYSIS = "mx_analysis"
     TLS_ANALYSIS = "tls_analysis"
     TECH_ANALYSIS = "tech_analysis"
+    RISK_CALCULATION = "risk_calculation"
+    RISK_TREE_CALCULATION = "risk_tree_calculation"
     FULL_ANALYSIS = "full_analysis"
     BATCH_ANALYSIS = "batch_analysis"
 
@@ -202,8 +207,148 @@ class AsyncDomainDiscoveryService:
         self.active_tasks: Dict[str, TaskInfo] = {}
         self.executor = ThreadPoolExecutor(max_workers=10)
         
+        # Initialize PostgreSQL connection for task persistence
+        self.db_config = {
+            'host': 'localhost',
+            'port': 5432,
+            'database': 'domain_stats',
+            'user': 'stats_user',
+            'password': 'stats_password'
+        }
+        self._init_task_db()
+        
+        # Load existing tasks from SQLite on startup
+        self._load_tasks_from_db()
+        
         # Amass cache TTL (1 week = 604800 seconds)
         self.amass_cache_ttl = 7 * 24 * 3600
+
+    @contextmanager
+    def _get_db_connection(self):
+        """Get PostgreSQL database connection"""
+        conn = psycopg2.connect(**self.db_config)
+        conn.autocommit = True
+        try:
+            yield conn
+        finally:
+            conn.close()
+
+    def _init_task_db(self):
+        """Initialize PostgreSQL database for async tasks"""
+        try:
+            with self._get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS async_tasks (
+                            task_id VARCHAR(255) PRIMARY KEY,
+                            task_type VARCHAR(50) NOT NULL,
+                            domain VARCHAR(255) NOT NULL,
+                            subdomain VARCHAR(255),
+                            status VARCHAR(20) NOT NULL,
+                            progress INTEGER DEFAULT 0,
+                            started_at TIMESTAMP WITH TIME ZONE,
+                            completed_at TIMESTAMP WITH TIME ZONE,
+                            metadata JSONB DEFAULT '{}',
+                            logs TEXT DEFAULT '',
+                            error TEXT,
+                            result JSONB,
+                            created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                            updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+                        )
+                    """)
+                    
+                    # Create indexes for better performance
+                    cur.execute("CREATE INDEX IF NOT EXISTS idx_async_tasks_status ON async_tasks(status)")
+                    cur.execute("CREATE INDEX IF NOT EXISTS idx_async_tasks_domain ON async_tasks(domain)")
+                    cur.execute("CREATE INDEX IF NOT EXISTS idx_async_tasks_task_type ON async_tasks(task_type)")
+                    cur.execute("CREATE INDEX IF NOT EXISTS idx_async_tasks_created_at ON async_tasks(created_at)")
+                    
+                logger.info("Async task database initialized")
+        except Exception as e:
+            logger.error(f"Error initializing task database: {e}")
+
+    def _load_tasks_from_db(self):
+        """Load existing tasks from PostgreSQL database"""
+        try:
+            with self._get_db_connection() as conn:
+                with conn.cursor(cursor_factory=psycopg2.extras.DictCursor) as cur:
+                    cur.execute("""
+                        SELECT task_id, task_type, domain, subdomain, status, progress,
+                               started_at, completed_at, metadata, logs, error, result
+                        FROM async_tasks
+                        WHERE status IN ('pending', 'running')
+                        ORDER BY created_at DESC
+                        LIMIT 100
+                    """)
+                    
+                    loaded_count = 0
+                    for row in cur.fetchall():
+                        task_info = TaskInfo(
+                            task_id=row["task_id"],
+                            task_type=row["task_type"],
+                            domain=row["domain"],
+                            subdomain=row["subdomain"],
+                            status=row["status"],
+                            progress=row["progress"] or 0,
+                            started_at=row["started_at"],
+                            completed_at=row["completed_at"],
+                            metadata=row["metadata"] or {},
+                            logs=row["logs"] or "",
+                            error=row["error"],
+                            result=row["result"]
+                        )
+                        self.active_tasks[task_info.task_id] = task_info
+                        loaded_count += 1
+                        
+                    logger.info(f"Loaded {loaded_count} existing tasks from database")
+        except Exception as e:
+            logger.error(f"Error loading tasks from database: {e}")
+
+    def _save_task_to_db(self, task_info: TaskInfo):
+        """Save task to PostgreSQL database"""
+        try:
+            with self._get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        INSERT INTO async_tasks 
+                        (task_id, task_type, domain, subdomain, status, progress,
+                         started_at, completed_at, metadata, logs, error, result, updated_at)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())
+                        ON CONFLICT (task_id) 
+                        DO UPDATE SET
+                            status = EXCLUDED.status,
+                            progress = EXCLUDED.progress,
+                            completed_at = EXCLUDED.completed_at,
+                            metadata = EXCLUDED.metadata,
+                            logs = EXCLUDED.logs,
+                            error = EXCLUDED.error,
+                            result = EXCLUDED.result,
+                            updated_at = NOW()
+                    """, (
+                        task_info.task_id,
+                        task_info.task_type,
+                        task_info.domain,
+                        task_info.subdomain,
+                        task_info.status,
+                        task_info.progress,
+                        task_info.started_at,
+                        task_info.completed_at,
+                        json.dumps(task_info.metadata) if task_info.metadata else {},
+                        task_info.logs or "",
+                        task_info.error,
+                        json.dumps(task_info.result) if task_info.result else None
+                    ))
+        except Exception as e:
+            logger.error(f"Error saving task to database: {e}")
+
+    def _update_task_logs(self, task_id: str, log_message: str):
+        """Add log message to task"""
+        if task_id in self.active_tasks:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            new_log = f"[{timestamp}] {log_message}\n"
+            self.active_tasks[task_id].logs += new_log
+            # Save to database
+            self._save_task_to_db(self.active_tasks[task_id])
 
     def close(self):
         """Clean up resources"""
@@ -2583,6 +2728,64 @@ class AsyncDomainDiscoveryService:
         else:
             return 'other'
 
+    def _extract_provider_from_organization(self, organization: str):
+        """Extract provider information from organization string"""
+        org_lower = organization.lower()
+        
+        # Provider mappings for common infrastructure providers
+        provider_mappings = {
+            # CDN/Security providers
+            'incapsula': {'name': 'Incapsula', 'type': 'cdn'},
+            'cloudflare': {'name': 'Cloudflare', 'type': 'cdn'},
+            'akamai': {'name': 'Akamai', 'type': 'cdn'},
+            'fastly': {'name': 'Fastly', 'type': 'cdn'},
+            'maxcdn': {'name': 'MaxCDN', 'type': 'cdn'},
+            'keycdn': {'name': 'KeyCDN', 'type': 'cdn'},
+            
+            # Cloud providers
+            'amazon': {'name': 'Amazon Web Services', 'type': 'cloud'},
+            'aws': {'name': 'Amazon Web Services', 'type': 'cloud'},
+            'google': {'name': 'Google Cloud Platform', 'type': 'cloud'},
+            'microsoft': {'name': 'Microsoft Azure', 'type': 'cloud'},
+            'azure': {'name': 'Microsoft Azure', 'type': 'cloud'},
+            'digitalocean': {'name': 'DigitalOcean', 'type': 'cloud'},
+            'linode': {'name': 'Linode', 'type': 'cloud'},
+            'vultr': {'name': 'Vultr', 'type': 'cloud'},
+            'hetzner': {'name': 'Hetzner', 'type': 'cloud'},
+            'ovh': {'name': 'OVH', 'type': 'cloud'},
+            
+            # Hosting providers
+            'godaddy': {'name': 'GoDaddy', 'type': 'hosting'},
+            'namecheap': {'name': 'Namecheap', 'type': 'hosting'},
+            'bluehost': {'name': 'Bluehost', 'type': 'hosting'},
+            'hostgator': {'name': 'HostGator', 'type': 'hosting'},
+            
+            # ISP/Network providers
+            'level3': {'name': 'Level3', 'type': 'isp'},
+            'cogent': {'name': 'Cogent', 'type': 'isp'},
+            'hurricane': {'name': 'Hurricane Electric', 'type': 'isp'},
+            'quadranet': {'name': 'QuadraNet', 'type': 'isp'},
+        }
+        
+        # Check for provider matches
+        for key, info in provider_mappings.items():
+            if key in org_lower:
+                return info
+        
+        # Special handling for AS numbers with known provider names
+        if 'as19551' in org_lower or 'incapsula inc' in org_lower:
+            return {'name': 'Incapsula', 'type': 'cdn'}
+        elif 'as13335' in org_lower or 'cloudflare inc' in org_lower:
+            return {'name': 'Cloudflare', 'type': 'cdn'}
+        elif 'as16509' in org_lower or 'amazon.com' in org_lower:
+            return {'name': 'Amazon Web Services', 'type': 'cloud'}
+        elif 'as15169' in org_lower or 'google llc' in org_lower:
+            return {'name': 'Google Cloud Platform', 'type': 'cloud'}
+        elif 'as8075' in org_lower or 'microsoft corporation' in org_lower:
+            return {'name': 'Microsoft Azure', 'type': 'cloud'}
+        
+        return None
+
     def _save_tech_to_neo4j(self, result: TechAnalysisResult):
         """Save technology results to Neo4j"""
         if not HAS_NEO4J:
@@ -2618,13 +2821,39 @@ class AsyncDomainDiscoveryService:
         for tech in result.technologies:
             self._create_technology_nodes(tx, tech, target, current_time)
         
-        # Create Provider nodes for third-party providers
+        # Extract providers from various sources
+        providers_to_create = []
+        
+        # 1. Third-party providers from content analysis
         third_party_providers = [
             tech for tech in result.technologies 
             if tech.get("category") == "third_party_provider"
         ]
-        
         for provider in third_party_providers:
+            providers_to_create.append(provider)
+        
+        # 2. Providers from infrastructure intelligence (ISP/CDN/Cloud)
+        infrastructure_techs = [
+            tech for tech in result.technologies
+            if tech.get("category") == "infrastructure_intelligence"
+        ]
+        for tech in infrastructure_techs:
+            org = tech.get("organization", "")
+            if org:
+                # Extract provider name from organization string
+                provider_info = self._extract_provider_from_organization(org)
+                if provider_info:
+                    providers_to_create.append({
+                        "name": provider_info["name"],
+                        "provider_type": provider_info["type"],
+                        "confidence": 0.9,
+                        "source": "infrastructure_analysis",
+                        "organization": org,
+                        "category": "infrastructure_provider"
+                    })
+        
+        # Create all detected providers
+        for provider in providers_to_create:
             provider_name = provider["name"]
             provider_type = provider.get("provider_type", "other")
             confidence = provider.get("confidence", 0.8)
@@ -2647,9 +2876,10 @@ class AsyncDomainDiscoveryService:
             
             # Create relationship between domain and provider
             tx.run("""
-                MATCH (d {fqdn: $target})
+                MATCH (n {fqdn: $target})
+                WHERE n:Domain OR n:Subdomain
                 MATCH (p:Provider {name: $provider_name})
-                MERGE (d)-[r:USES_PROVIDER]->(p)
+                MERGE (n)-[r:USES_PROVIDER]->(p)
                 ON CREATE SET r.detected_at = $current_time,
                              r.confidence = $confidence,
                              r.source = $source
@@ -2912,6 +3142,114 @@ async def get_task_status(task_id: str):
     
     return discovery_service.active_tasks[task_id].dict()
 
+@app.get("/api/v1/tasks/{task_id}/logs", tags=["Tasks"])
+async def get_task_logs(task_id: str):
+    """Get logs for a specific task"""
+    if not discovery_service:
+        raise HTTPException(status_code=503, detail="Service not available")
+    
+    # Get task info
+    task = discovery_service.active_tasks.get(task_id)
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    # Enhanced logging with detailed task information
+    logs = []
+    logs.append("="*60)
+    logs.append(f"TASK LOG: {task.task_type}")
+    logs.append("="*60)
+    logs.append(f"Task ID: {task.task_id}")
+    logs.append(f"Type: {task.task_type}")
+    logs.append(f"Status: {task.status}")
+    logs.append(f"Target: {task.domain}")
+    if task.subdomain:
+        logs.append(f"Subdomain: {task.subdomain}")
+    logs.append(f"Started: {task.started_at}")
+    if task.completed_at:
+        logs.append(f"Completed: {task.completed_at}")
+        duration = task.completed_at - task.started_at
+        logs.append(f"Duration: {duration}")
+        logs.append(f"Execution Time: {duration.total_seconds():.2f} seconds")
+    logs.append(f"Progress: {task.progress}%")
+    
+    # Task-specific information
+    if task.task_type == TaskType.RISK_CALCULATION:
+        logs.append("\n--- RISK CALCULATION DETAILS ---")
+        if task.result:
+            result = task.result
+            logs.append(f"Calculation Status: {result.get('calculation_status', 'Unknown')}")
+            logs.append(f"Nodes Processed: {result.get('nodes_processed', 0)}")
+            logs.append(f"Risk Score: {result.get('risk_score', 'N/A')}")
+            logs.append(f"Risk Tier: {result.get('risk_tier', 'N/A')}")
+    
+    elif task.task_type == TaskType.RISK_TREE_CALCULATION:
+        logs.append("\n--- RISK TREE CALCULATION DETAILS ---")
+        if task.result:
+            result = task.result
+            logs.append(f"Calculation Status: {result.get('calculation_status', 'Unknown')}")
+            logs.append(f"Nodes Processed: {result.get('nodes_processed', 0)}")
+            logs.append(f"Domain: {result.get('domain', 'Unknown')}")
+            logs.append("This calculation processes the entire domain tree including all subdomains")
+    
+    elif task.task_type == TaskType.TECH_ANALYSIS:
+        logs.append("\n--- TECHNOLOGY ANALYSIS DETAILS ---")
+        if task.result:
+            result = task.result
+            tech_count = len(result.get('technologies', []))
+            logs.append(f"Technologies Detected: {tech_count}")
+            logs.append(f"Web Server: {result.get('web_server', 'None')}")
+            logs.append(f"CMS: {result.get('cms', 'None')}")
+    
+    elif task.task_type == TaskType.SERVICE_DISCOVERY:
+        logs.append("\n--- SERVICE DISCOVERY DETAILS ---")
+        if task.result:
+            result = task.result
+            services = result.get('services', [])
+            logs.append(f"Services Found: {len(services)}")
+            if services:
+                logs.append("Open Ports:")
+                for service in services[:10]:  # Show first 10 services
+                    logs.append(f"  - Port {service['port']}/{service['protocol']}: {service['service']}")
+                if len(services) > 10:
+                    logs.append(f"  ... and {len(services) - 10} more services")
+    
+    # Error information
+    if task.error:
+        logs.append("\n" + "="*40)
+        logs.append("ERROR DETAILS")
+        logs.append("="*40)
+        logs.append(f"Error: {task.error}")
+        
+        # Try to provide helpful troubleshooting info
+        if "timeout" in task.error.lower():
+            logs.append("\nTroubleshooting:")
+            logs.append("- Task timed out, consider increasing timeout values")
+            logs.append("- Check network connectivity to target")
+        elif "connection" in task.error.lower():
+            logs.append("\nTroubleshooting:")
+            logs.append("- Check if target is reachable")
+            logs.append("- Verify DNS resolution")
+        elif "permission" in task.error.lower():
+            logs.append("\nTroubleshooting:")
+            logs.append("- Check system permissions")
+            logs.append("- Verify required tools are installed")
+    
+    # Full result (for debugging)
+    if task.result:
+        logs.append("\n--- FULL RESULT DATA ---")
+        logs.append(json.dumps(task.result, indent=2))
+    
+    # Metadata
+    if task.metadata:
+        logs.append("\n--- METADATA ---")
+        logs.append(json.dumps(task.metadata, indent=2))
+    
+    logs.append("\n" + "="*60)
+    logs.append("END OF LOG")
+    logs.append("="*60)
+    
+    return {"task_id": task_id, "logs": "\n".join(logs)}
+
 @app.delete("/api/v1/tasks/{task_id}", tags=["Tasks"])
 async def delete_task(task_id: str):
     """Delete a completed task"""
@@ -2975,6 +3313,9 @@ async def start_service_discovery(
     
     # Start async discovery
     asyncio.create_task(discovery_service.run_service_discovery(domain, subdomain, task_id))
+    
+    # Auto-calculate risk after service discovery
+    asyncio.create_task(_auto_calculate_risk(domain, subdomain, delay_seconds=8))
     
     return {"task_id": task_id, "domain": domain, "subdomain": subdomain, "status": "started"}
 
@@ -3072,7 +3413,165 @@ async def start_tech_analysis(
     # Start async analysis
     asyncio.create_task(discovery_service.run_tech_analysis(domain, subdomain, task_id))
     
+    # Auto-calculate risk after technology analysis
+    asyncio.create_task(_auto_calculate_risk(domain, subdomain, delay_seconds=8))
+    
     return {"task_id": task_id, "domain": domain, "subdomain": subdomain, "status": "started"}
+
+# Risk calculation endpoints
+@app.post("/api/v1/calculate/risk/{domain}", tags=["Risk Calculation"])
+async def calculate_domain_risk(
+    domain: str = Path(..., description="Domain to calculate risk for"),
+    subdomain: Optional[str] = Query(None, description="Specific subdomain to calculate risk for"),
+    force_recalculation: bool = Query(False, description="Force recalculation even if recently calculated")
+):
+    """Calculate risk score for domain or subdomain using risk graph service"""
+    if not discovery_service:
+        raise HTTPException(status_code=503, detail="Service not available")
+    
+    target = subdomain if subdomain else domain
+    task_id = str(uuid.uuid4())
+    
+    task = TaskInfo(
+        task_id=task_id,
+        task_type=TaskType.RISK_CALCULATION,
+        domain=domain,
+        subdomain=subdomain,
+        status=TaskStatus.PENDING,
+        started_at=datetime.now()
+    )
+    discovery_service.active_tasks[task_id] = task
+    
+    # Start async risk calculation
+    asyncio.create_task(_calculate_risk_async(target, task_id, force_recalculation))
+    
+    return {"task_id": task_id, "target": target, "status": "started"}
+
+@app.post("/api/v1/calculate/risk-tree/{domain}", tags=["Risk Calculation"])
+async def calculate_domain_tree_risk(
+    domain: str = Path(..., description="Base domain to calculate risk tree for"),
+    force_recalculation: bool = Query(False, description="Force recalculation for entire tree")
+):
+    """Calculate risk scores for entire domain tree"""
+    if not discovery_service:
+        raise HTTPException(status_code=503, detail="Service not available")
+    
+    task_id = str(uuid.uuid4())
+    
+    task = TaskInfo(
+        task_id=task_id,
+        task_type=TaskType.RISK_TREE_CALCULATION,
+        domain=domain,
+        subdomain=None,
+        status=TaskStatus.PENDING,
+        started_at=datetime.now()
+    )
+    discovery_service.active_tasks[task_id] = task
+    
+    # Start async risk calculation for tree
+    asyncio.create_task(_calculate_risk_tree_async(domain, task_id, force_recalculation))
+    
+    return {"task_id": task_id, "domain": domain, "status": "started", "type": "tree_calculation"}
+
+async def _calculate_risk_async(target: str, task_id: str, force_recalculation: bool = False):
+    """Background task for risk calculation"""
+    try:
+        logger.info(f"Starting risk calculation for {target} (task: {task_id})")
+        
+        # Calculate risk using local domain-backend logic
+        risk_result = await _calculate_local_risk_score(target, force_recalculation)
+        
+        # Save risk scores to Neo4j directly
+        if risk_result:
+            await _save_risk_score_to_neo4j(target, risk_result)
+        
+        result = {
+            "calculation_id": str(uuid.uuid4()),
+            "status": "COMPLETED",
+            "nodes_processed": 1,
+            "risk_score": risk_result.get("final_score", 0.0) if risk_result else 0.0,
+            "risk_tier": risk_result.get("risk_tier", "Unknown") if risk_result else "Unknown"
+        }
+        
+        # Update task with results
+        if task_id in discovery_service.active_tasks:
+            task = discovery_service.active_tasks[task_id]
+            task.status = TaskStatus.COMPLETED
+            task.completed_at = datetime.now()
+            task.result = {
+                "target": target,
+                "risk_calculation_id": result.get("calculation_id"),
+                "calculation_status": result.get("status"),
+                "nodes_processed": result.get("nodes_processed"),
+                "message": f"Risk calculation completed for {target}"
+            }
+            logger.info(f"Risk calculation completed for {target}: {result.get('status')}")
+    
+    except Exception as e:
+        logger.error(f"Error in risk calculation for {target}: {e}")
+        if task_id in discovery_service.active_tasks:
+            task = discovery_service.active_tasks[task_id]
+            task.status = TaskStatus.FAILED
+            task.completed_at = datetime.now()
+            task.error = str(e)
+
+async def _calculate_risk_tree_async(domain: str, task_id: str, force_recalculation: bool = False):
+    """Background task for domain tree risk calculation"""
+    try:
+        logger.info(f"Starting risk tree calculation for {domain} (task: {task_id})")
+        
+        # Call risk graph service for tree calculation
+        import requests
+        risk_service_url = f"http://localhost:8081/api/v1/calculations/domain-tree/{domain}"
+        if force_recalculation:
+            risk_service_url += "?force_recalculation=true"
+        
+        logger.info(f"Calling risk tree service: {risk_service_url}")
+        response = requests.post(risk_service_url, timeout=60.0)
+        response.raise_for_status()
+        result = response.json()
+        
+        # Update task with results
+        if task_id in discovery_service.active_tasks:
+            task = discovery_service.active_tasks[task_id]
+            task.status = TaskStatus.COMPLETED
+            task.completed_at = datetime.now()
+            task.result = {
+                "domain": domain,
+                "risk_calculation_id": result.get("calculation_id"),
+                "calculation_status": result.get("status"),
+                "nodes_processed": result.get("nodes_processed"),
+                "message": f"Risk tree calculation completed for {domain}"
+            }
+            logger.info(f"Risk tree calculation completed for {domain}: {result.get('status')}")
+    
+    except Exception as e:
+        logger.error(f"Error in risk tree calculation for {domain}: {e}")
+        if task_id in discovery_service.active_tasks:
+            task = discovery_service.active_tasks[task_id]
+            task.status = TaskStatus.FAILED
+            task.completed_at = datetime.now()
+            task.error = str(e)
+
+async def _auto_calculate_risk(domain: str, subdomain: Optional[str] = None, delay_seconds: int = 5):
+    """Helper function to automatically calculate risk after analysis completion"""
+    try:
+        # Wait a bit for data to be saved to Neo4j
+        await asyncio.sleep(delay_seconds)
+        
+        target = subdomain if subdomain else domain
+        logger.info(f"Auto-calculating risk for {target}")
+        
+        import requests
+        risk_service_url = f"http://localhost:8081/api/v1/calculations/domain/{target}"
+        response = requests.post(risk_service_url, timeout=30.0)
+        response.raise_for_status()
+        result = response.json()
+        
+        logger.info(f"Auto risk calculation completed for {target}: {result.get('status')}")
+        
+    except Exception as e:
+        logger.warning(f"Auto risk calculation failed for {target}: {e}")
 
 # Batch operations
 async def _run_complete_subdomain_analysis(domain: str, task_id: str, analysis_type: str, amass_timeout: int):
@@ -3102,68 +3601,202 @@ async def _run_complete_subdomain_analysis(domain: str, task_id: str, analysis_t
         subdomains = amass_result.subdomains
         logger.info(f"Step 2: Found {len(subdomains)} subdomains, starting {analysis_type} analysis")
         
-        # Step 2: Analyze all discovered subdomains
-        analysis_task_ids = []
+        # For tech/tls analysis or 'all', first run service discovery to find active ports
+        if analysis_type in ["tech", "tls", "all"]:
+            await _run_smart_tech_analysis(domain, task_id, analysis_type, subdomains)
+        else:
+            # Step 2: Analyze all discovered subdomains for other analysis types
+            analysis_task_ids = []
+            
+            for subdomain in subdomains:
+                analysis_task_id = f"{task_id}_analysis_{len(analysis_task_ids)}"
+                
+                if analysis_type == "services":
+                    task_type = TaskType.SERVICE_DISCOVERY
+                    coro = discovery_service.run_service_discovery(domain, subdomain, analysis_task_id)
+                elif analysis_type == "dns":
+                    task_type = TaskType.DNS_ANALYSIS
+                    coro = discovery_service.run_dns_analysis(domain, subdomain, analysis_task_id)
+                else:
+                    logger.error(f"Invalid analysis type: {analysis_type}")
+                    return
+                
+                task = TaskInfo(
+                    task_id=analysis_task_id,
+                    task_type=task_type,
+                    domain=domain,
+                    subdomain=subdomain,
+                    status=TaskStatus.PENDING,
+                    started_at=datetime.now()
+                )
+                discovery_service.active_tasks[analysis_task_id] = task
+                asyncio.create_task(coro)
+                analysis_task_ids.append(analysis_task_id)
+            
+            # Update main task as completed
+            if task_id in discovery_service.active_tasks:
+                task = discovery_service.active_tasks[task_id]
+                task.status = TaskStatus.COMPLETED
+                task.completed_at = datetime.now()
+                task.result = {
+                    "message": f"Discovered {len(subdomains)} subdomains and started {analysis_type} analysis",
+                    "subdomains_found": len(subdomains),
+                    "analysis_task_ids": analysis_task_ids,
+                    "analysis_type": analysis_type
+                }
         
-        for subdomain in subdomains:
-            analysis_task_id = f"{task_id}_analysis_{len(analysis_task_ids)}"
-            
-            if analysis_type == "services":
-                task_type = TaskType.SERVICE_DISCOVERY
-                coro = discovery_service.run_service_discovery(domain, subdomain, analysis_task_id)
-            elif analysis_type == "dns":
-                task_type = TaskType.DNS_ANALYSIS
-                coro = discovery_service.run_dns_analysis(domain, subdomain, analysis_task_id)
-            elif analysis_type == "tls":
-                task_type = TaskType.TLS_ANALYSIS
-                coro = discovery_service.run_tls_analysis(domain, subdomain, analysis_task_id)
-            elif analysis_type == "tech":
-                task_type = TaskType.TECH_ANALYSIS
-                coro = discovery_service.run_tech_analysis(domain, subdomain, analysis_task_id)
-            elif analysis_type == "all":
-                # Run all types of analysis
-                for analysis in ["services", "dns", "tls", "tech"]:
-                    specific_task_id = f"{analysis_task_id}_{analysis}"
-                    if analysis == "services":
-                        task_type = TaskType.SERVICE_DISCOVERY
-                        coro = discovery_service.run_service_discovery(domain, subdomain, specific_task_id)
-                    elif analysis == "dns":
-                        task_type = TaskType.DNS_ANALYSIS
-                        coro = discovery_service.run_dns_analysis(domain, subdomain, specific_task_id)
-                    elif analysis == "tls":
-                        task_type = TaskType.TLS_ANALYSIS
-                        coro = discovery_service.run_tls_analysis(domain, subdomain, specific_task_id)
-                    elif analysis == "tech":
-                        task_type = TaskType.TECH_ANALYSIS
-                        coro = discovery_service.run_tech_analysis(domain, subdomain, specific_task_id)
-                    
-                    task = TaskInfo(
-                        task_id=specific_task_id,
-                        task_type=task_type,
-                        domain=domain,
-                        subdomain=subdomain,
-                        status=TaskStatus.PENDING,
-                        started_at=datetime.now()
-                    )
-                    discovery_service.active_tasks[specific_task_id] = task
-                    asyncio.create_task(coro)
-                    analysis_task_ids.append(specific_task_id)
-                continue
-            else:
-                logger.error(f"Invalid analysis type: {analysis_type}")
-                return
-            
-            task = TaskInfo(
-                task_id=analysis_task_id,
-                task_type=task_type,
+        logger.info(f"Completed subdomain discovery and analysis setup for {domain} (task: {task_id})")
+        
+    except Exception as e:
+        logger.error(f"Error in complete subdomain discovery and analysis for {domain}: {e}")
+        # Update task as failed
+        if task_id in discovery_service.active_tasks:
+            task = discovery_service.active_tasks[task_id]
+            task.status = TaskStatus.FAILED
+            task.completed_at = datetime.now()
+            task.error = str(e)
+
+async def _run_smart_tech_analysis(domain: str, task_id: str, analysis_type: str, subdomains: list):
+    """Smart analysis that first discovers active ports, then runs tech/tls analysis only on active subdomains"""
+    try:
+        logger.info(f"Starting smart tech/tls analysis for {domain} - first discovering active services")
+        
+        # Step 1: Run service discovery on all subdomains to find active ports
+        service_tasks = []
+        for i, subdomain in enumerate(subdomains):
+            service_task_id = f"{task_id}_service_{i}"
+            service_task = TaskInfo(
+                task_id=service_task_id,
+                task_type=TaskType.SERVICE_DISCOVERY,
                 domain=domain,
                 subdomain=subdomain,
                 status=TaskStatus.PENDING,
                 started_at=datetime.now()
             )
-            discovery_service.active_tasks[analysis_task_id] = task
-            asyncio.create_task(coro)
-            analysis_task_ids.append(analysis_task_id)
+            discovery_service.active_tasks[service_task_id] = service_task
+            service_tasks.append((service_task_id, subdomain))
+            asyncio.create_task(discovery_service.run_service_discovery(domain, subdomain, service_task_id))
+        
+        # Step 2: Wait for service discovery to complete and collect active subdomains
+        active_subdomains = []
+        max_wait_time = 300  # 5 minutes max wait
+        check_interval = 5   # Check every 5 seconds
+        waited = 0
+        
+        while waited < max_wait_time:
+            completed_tasks = 0
+            active_found = []
+            
+            for service_task_id, subdomain in service_tasks:
+                if service_task_id in discovery_service.active_tasks:
+                    task = discovery_service.active_tasks[service_task_id]
+                    if task.status == TaskStatus.COMPLETED:
+                        completed_tasks += 1
+                        # Check if subdomain has active services
+                        if (hasattr(task, 'result') and task.result and 
+                            task.result.get('services') and len(task.result['services']) > 0):
+                            active_found.append(subdomain)
+                            logger.info(f"Found active services on {subdomain}: {len(task.result['services'])} services")
+                    elif task.status == TaskStatus.FAILED:
+                        completed_tasks += 1
+                        logger.info(f"Service discovery failed for {subdomain}")
+            
+            if completed_tasks == len(service_tasks):
+                active_subdomains = active_found
+                break
+            
+            await asyncio.sleep(check_interval)
+            waited += check_interval
+        
+        logger.info(f"Service discovery completed: {len(active_subdomains)} active subdomains out of {len(subdomains)} total")
+        
+        # Step 3: Run tech/tls analysis only on active subdomains
+        analysis_task_ids = []
+        target_subdomains = active_subdomains if active_subdomains else subdomains[:10]  # Fallback to first 10 if no active found
+        
+        for i, subdomain in enumerate(target_subdomains):
+            if analysis_type == "tech":
+                analysis_task_id = f"{task_id}_tech_{i}"
+                task_type = TaskType.TECH_ANALYSIS
+                coro = discovery_service.run_tech_analysis(domain, subdomain, analysis_task_id)
+                
+                task = TaskInfo(
+                    task_id=analysis_task_id,
+                    task_type=task_type,
+                    domain=domain,
+                    subdomain=subdomain,
+                    status=TaskStatus.PENDING,
+                    started_at=datetime.now()
+                )
+                discovery_service.active_tasks[analysis_task_id] = task
+                asyncio.create_task(coro)
+                analysis_task_ids.append(analysis_task_id)
+            
+            elif analysis_type == "tls":
+                analysis_task_id = f"{task_id}_tls_{i}"
+                task_type = TaskType.TLS_ANALYSIS
+                coro = discovery_service.run_tls_analysis(domain, subdomain, analysis_task_id)
+                
+                task = TaskInfo(
+                    task_id=analysis_task_id,
+                    task_type=task_type,
+                    domain=domain,
+                    subdomain=subdomain,
+                    status=TaskStatus.PENDING,
+                    started_at=datetime.now()
+                )
+                discovery_service.active_tasks[analysis_task_id] = task
+                asyncio.create_task(coro)
+                analysis_task_ids.append(analysis_task_id)
+            
+            elif analysis_type == "all":
+                # Run DNS on all subdomains, but tech/tls only on active ones
+                for analysis in ["dns", "services", "tls", "tech"]:
+                    specific_task_id = f"{task_id}_{analysis}_{i}"
+                    
+                    # Skip services since we already ran it
+                    if analysis == "services":
+                        continue
+                    
+                    if analysis == "dns":
+                        # Run DNS on all subdomains (not just active ones)
+                        for j, all_subdomain in enumerate(subdomains):
+                            dns_task_id = f"{task_id}_dns_{j}"
+                            task_type = TaskType.DNS_ANALYSIS
+                            coro = discovery_service.run_dns_analysis(domain, all_subdomain, dns_task_id)
+                            
+                            task = TaskInfo(
+                                task_id=dns_task_id,
+                                task_type=task_type,
+                                domain=domain,
+                                subdomain=all_subdomain,
+                                status=TaskStatus.PENDING,
+                                started_at=datetime.now()
+                            )
+                            discovery_service.active_tasks[dns_task_id] = task
+                            asyncio.create_task(coro)
+                            analysis_task_ids.append(dns_task_id)
+                    
+                    elif analysis in ["tls", "tech"]:
+                        # Only run on active subdomains
+                        if analysis == "tls":
+                            task_type = TaskType.TLS_ANALYSIS
+                            coro = discovery_service.run_tls_analysis(domain, subdomain, specific_task_id)
+                        elif analysis == "tech":
+                            task_type = TaskType.TECH_ANALYSIS
+                            coro = discovery_service.run_tech_analysis(domain, subdomain, specific_task_id)
+                        
+                        task = TaskInfo(
+                            task_id=specific_task_id,
+                            task_type=task_type,
+                            domain=domain,
+                            subdomain=subdomain,
+                            status=TaskStatus.PENDING,
+                            started_at=datetime.now()
+                        )
+                        discovery_service.active_tasks[specific_task_id] = task
+                        asyncio.create_task(coro)
+                        analysis_task_ids.append(specific_task_id)
         
         # Update main task as completed
         if task_id in discovery_service.active_tasks:
@@ -3171,16 +3804,25 @@ async def _run_complete_subdomain_analysis(domain: str, task_id: str, analysis_t
             task.status = TaskStatus.COMPLETED
             task.completed_at = datetime.now()
             task.result = {
-                "message": f"Discovered {len(subdomains)} subdomains and started {analysis_type} analysis",
+                "message": f"Discovered {len(subdomains)} subdomains, {len(active_subdomains)} active, started {analysis_type} analysis on active ones",
                 "subdomains_found": len(subdomains),
+                "active_subdomains": len(active_subdomains),
                 "analysis_task_ids": analysis_task_ids,
-                "analysis_type": analysis_type
+                "analysis_type": analysis_type,
+                "optimization": "tech_tls_only_on_active_ports"
             }
         
-        logger.info(f"Completed subdomain discovery and analysis setup for {domain} (task: {task_id})")
+        logger.info(f"Completed smart tech/tls analysis setup for {domain} - analyzed {len(target_subdomains)} active subdomains")
+        
+        # Auto-calculate risk scores for analyzed subdomains
+        for subdomain in target_subdomains:
+            asyncio.create_task(_auto_calculate_risk(domain, subdomain, delay_seconds=10))
+        
+        # Also calculate risk for base domain
+        asyncio.create_task(_auto_calculate_risk(domain, delay_seconds=15))
         
     except Exception as e:
-        logger.error(f"Error in complete subdomain discovery and analysis for {domain}: {e}")
+        logger.error(f"Error in smart tech/tls analysis for {domain}: {e}")
         # Update task as failed
         if task_id in discovery_service.active_tasks:
             task = discovery_service.active_tasks[task_id]
@@ -3230,6 +3872,135 @@ async def discover_and_analyze_all_subdomains(
         "analysis_type": analysis_type,
         "amass_timeout": amass_timeout
     }
+
+async def _calculate_local_risk_score(target: str, force_recalculation: bool = False):
+    """Calculate risk score using local domain-backend logic"""
+    try:
+        if not HAS_NEO4J:
+            return None
+            
+        with discovery_service.driver.session() as session:
+            # Get all technology and service data for the target
+            result = session.run("""
+                MATCH (n {fqdn: $target})
+                OPTIONAL MATCH (n)-[:RUNS_SERVICE]->(s:Service)
+                OPTIONAL MATCH (n)-[:USES_TECHNOLOGY]->(t:Technology)
+                RETURN n.fqdn as fqdn,
+                       n.technologies as technologies,
+                       n.web_server as web_server,
+                       n.tls_grade as tls_grade,
+                       collect(DISTINCT s.service_name) as services,
+                       collect(DISTINCT {name: t.name, category: t.category}) as tech_nodes
+            """, target=target)
+            
+            record = result.single()
+            if not record:
+                return None
+                
+            # Parse technologies JSON
+            technologies_json = record.get("technologies")
+            technologies = []
+            if technologies_json:
+                try:
+                    technologies = json.loads(technologies_json)
+                except:
+                    technologies = []
+            
+            # Calculate risk based on technologies and services
+            risk_score = 0.0
+            risk_factors = []
+            
+            # Service exposure risk (high impact)
+            services = record.get("services", [])
+            high_risk_services = ['ftp', 'telnet', 'mysql', 'rdp', 'vnc', 'postgresql']
+            medium_risk_services = ['ssh', 'http-alt', 'https-alt']
+            
+            for service in services:
+                if service in high_risk_services:
+                    risk_score += 15.0
+                    risk_factors.append(f"High-risk service exposed: {service}")
+                elif service in medium_risk_services:
+                    risk_score += 5.0
+                    risk_factors.append(f"Medium-risk service: {service}")
+            
+            # Technology-based risk
+            for tech in technologies:
+                category = tech.get("category", "")
+                risk_level = tech.get("risk_level", "low")
+                
+                if risk_level == "critical":
+                    risk_score += 20.0
+                elif risk_level == "high":
+                    risk_score += 10.0
+                elif risk_level == "medium":
+                    risk_score += 5.0
+                    
+                if category == "threat_intelligence":
+                    malicious_votes = tech.get("malicious_votes", 0)
+                    if malicious_votes > 0:
+                        risk_score += malicious_votes * 10.0
+                        risk_factors.append(f"Malicious reputation: {malicious_votes} votes")
+            
+            # TLS configuration risk
+            tls_grade = record.get("tls_grade")
+            if tls_grade in ["C", "D", "F"]:
+                risk_score += 15.0
+                risk_factors.append(f"Poor TLS grade: {tls_grade}")
+            elif tls_grade == "B":
+                risk_score += 5.0
+                
+            # Determine risk tier
+            risk_score = min(risk_score, 100.0)  # Cap at 100
+            
+            if risk_score >= 80:
+                risk_tier = "Critical"
+            elif risk_score >= 60:
+                risk_tier = "High" 
+            elif risk_score >= 40:
+                risk_tier = "Medium"
+            else:
+                risk_tier = "Low"
+                
+            return {
+                "final_score": risk_score,
+                "risk_tier": risk_tier,
+                "risk_factors": risk_factors,
+                "services_count": len(services),
+                "technologies_count": len(technologies)
+            }
+            
+    except Exception as e:
+        logger.error(f"Error calculating local risk score for {target}: {e}")
+        return None
+
+async def _save_risk_score_to_neo4j(target: str, risk_result: dict):
+    """Save calculated risk score to Neo4j"""
+    try:
+        if not HAS_NEO4J:
+            return
+            
+        with discovery_service.driver.session() as session:
+            session.run("""
+                MATCH (n {fqdn: $target})
+                SET n.risk_score = $risk_score,
+                    n.risk_tier = $risk_tier,
+                    n.last_calculated = $timestamp,
+                    n.risk_factors = $risk_factors,
+                    n.services_count = $services_count,
+                    n.technologies_analyzed = $tech_count
+            """, 
+            target=target,
+            risk_score=risk_result["final_score"],
+            risk_tier=risk_result["risk_tier"], 
+            timestamp=datetime.now().isoformat(),
+            risk_factors=json.dumps(risk_result.get("risk_factors", [])),
+            services_count=risk_result.get("services_count", 0),
+            tech_count=risk_result.get("technologies_count", 0))
+            
+        logger.info(f"Saved risk score {risk_result['final_score']:.1f} ({risk_result['risk_tier']}) for {target}")
+        
+    except Exception as e:
+        logger.error(f"Error saving risk score to Neo4j for {target}: {e}")
 
 # Error handlers
 @app.exception_handler(HTTPException)

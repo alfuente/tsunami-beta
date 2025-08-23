@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { DomainResponse, DomainsListResponse, RiskScoreResponse, SecuritySummary, CalculationResponse, BaseDomainsListResponse, BaseDomainDetailsResponse } from '../types/api';
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://tsunami-api.annymo.tech';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8081';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -515,6 +515,16 @@ export const tasksApi = {
     } catch (error) {
       console.error('Error fetching task:', error);
       return null;
+    }
+  },
+
+  getTaskLogs: async (taskId: string): Promise<{ logs: string; task_id: string }> => {
+    try {
+      const response = await asyncApi.get(`/api/v1/tasks/${taskId}/logs`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching task logs:', error);
+      return { logs: 'Error loading logs: ' + String(error), task_id: taskId };
     }
   }
 };

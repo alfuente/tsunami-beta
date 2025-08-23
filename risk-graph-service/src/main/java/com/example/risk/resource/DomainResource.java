@@ -84,13 +84,17 @@ public class DomainResource {
         
         try {
             String query = buildBaseDomainQuery(riskTier, businessCriticality, monitoringEnabled, search, tld, limit, offset);
+            System.out.println("DEBUG: Executing query: " + query);
             
             try (Session session = driver.session()) {
                 Result result = session.run(query);
                 List<Map<String, Object>> baseDomains = new ArrayList<>();
+                int recordCount = 0;
                 
                 while (result.hasNext()) {
                     Record record = result.next();
+                    recordCount++;
+                    System.out.println("DEBUG: Processing record " + recordCount + ": " + record.get("base_domain").asString());
                     Map<String, Object> baseDomain = new HashMap<>();
                     baseDomain.put("base_domain", record.get("base_domain").asString());
                     baseDomain.put("subdomain_count", record.get("subdomain_count").asInt());
@@ -667,70 +671,62 @@ public class DomainResource {
     private String buildBaseDomainQuery(String riskTier, String businessCriticality, 
                                        Boolean monitoringEnabled, String search, String tld, int limit, int offset) {
         StringBuilder query = new StringBuilder("""
-            MATCH (d:Domain)
-            WITH d, 
-                 CASE 
-                     WHEN d.fqdn CONTAINS '.' THEN 
-                         CASE 
-                             WHEN size(split(d.fqdn, '.')) >= 2 THEN 
-                                 split(d.fqdn, '.')[-2] + '.' + split(d.fqdn, '.')[-1]
-                             ELSE d.fqdn
-                         END
-                     ELSE d.fqdn
-                 END as base_domain
-            WHERE 1=1
+            // Step 1: Find actual base domains (domains that don't have SUBDOMAIN_OF relationship)
+            MATCH (base:Domain)
+            WHERE NOT (base)-[:SUBDOMAIN_OF]->()
             """);
         
-        if (riskTier != null && !riskTier.isEmpty()) {
-            query.append(" AND d.risk_tier = '").append(riskTier).append("'");
-        }
-        
-        if (businessCriticality != null && !businessCriticality.isEmpty()) {
-            query.append(" AND d.business_criticality = '").append(businessCriticality).append("'");
-        }
-        
-        if (monitoringEnabled != null) {
-            query.append(" AND d.monitoring_enabled = ").append(monitoringEnabled);
-        }
-        
+        // Apply basic filters directly to base domain
         if (search != null && !search.isEmpty()) {
-            query.append(" AND base_domain CONTAINS '").append(search).append("'");
+            query.append(" AND base.fqdn CONTAINS '").append(search).append("'");
         }
         
         if (tld != null && !tld.isEmpty()) {
-            query.append(" AND base_domain ENDS WITH '").append(tld).append("'");
+            query.append(" AND base.fqdn ENDS WITH '").append(tld).append("'");
+        }
+        
+        if (businessCriticality != null && !businessCriticality.isEmpty()) {
+            query.append(" AND base.business_criticality = '").append(businessCriticality).append("'");
+        }
+        
+        if (monitoringEnabled != null) {
+            query.append(" AND base.monitoring_enabled = ").append(monitoringEnabled);
         }
         
         query.append("""
-            // Get all subdomains for this base domain
-            OPTIONAL MATCH (d)-[:HAS_SUBDOMAIN]->(sub:Subdomain)
             
-            // Get all services and providers from both domains and subdomains
-            OPTIONAL MATCH (d)-[:RUNS]->(ds:Service)
-            OPTIONAL MATCH (sub)-[:RUNS]->(ss:Service)
-            OPTIONAL MATCH (d)-[:USES_PROVIDER]->(dp:Provider)  
-            OPTIONAL MATCH (sub)-[:USES_PROVIDER]->(sp:Provider)
+            // Step 2: Get all subdomains for this base domain (using correct relationship)
+            OPTIONAL MATCH (base)-[:HAS_SUBDOMAIN]->(subdomain:Subdomain)
             
-            WITH base_domain, d, 
-                 collect(DISTINCT sub) as subdomains,
-                 collect(DISTINCT ds.name) + collect(DISTINCT ss.name) as all_service_names,
-                 collect(DISTINCT dp.name) + collect(DISTINCT sp.name) as all_provider_names,
-                 coalesce(d.risk_score, 0) as domain_risk_score,
-                 coalesce(d.business_criticality, 'Unknown') as business_criticality,
-                 coalesce(d.monitoring_enabled, false) as monitoring_enabled
+            // Step 3: Get services and providers
+            OPTIONAL MATCH (base)-[:HAS_SERVICE]->(bs:Service)
+            OPTIONAL MATCH (subdomain)-[:HAS_SERVICE]->(ss:Service) 
+            OPTIONAL MATCH (base)-[:USES_PROVIDER]->(bp:Provider)
+            OPTIONAL MATCH (subdomain)-[:USES_PROVIDER]->(sp:Provider)
             
-            WITH base_domain,
-                 1 + size(subdomains) as subdomain_count,
-                 size([name in all_service_names WHERE name IS NOT NULL AND name <> '']) as service_count,
-                 size([name in all_provider_names WHERE name IS NOT NULL AND name <> '']) as provider_count,
-                 domain_risk_score,
+            // Step 4: Group by base domain (use base.fqdn directly)
+            WITH base.fqdn as base_domain_name, base,
+                 collect(DISTINCT subdomain) as subdomains,
+                 collect(DISTINCT bs.service) + collect(DISTINCT ss.service) as all_services,
+                 collect(DISTINCT bp.name) + collect(DISTINCT sp.name) as all_providers,
+                 coalesce(base.risk_score, 0.0) as base_risk_score,
+                 coalesce(base.business_criticality, 'Unknown') as business_criticality,
+                 coalesce(base.monitoring_enabled, false) as monitoring_enabled
+            
+            // Step 5: Calculate aggregated metrics
+            WITH base_domain_name,
+                 size(subdomains) as subdomain_count,
+                 size([s in all_services WHERE s IS NOT NULL AND s <> '']) as service_count,
+                 size([p in all_providers WHERE p IS NOT NULL AND p <> '']) as provider_count,
+                 base_risk_score,
                  [sub in subdomains WHERE sub.risk_score IS NOT NULL | sub.risk_score] as subdomain_risks,
                  size([sub in subdomains WHERE sub.risk_tier = 'Critical']) as critical_subdomains,
                  size([sub in subdomains WHERE sub.risk_tier = 'High']) as high_risk_subdomains,
                  business_criticality, monitoring_enabled
             
-            WITH base_domain, subdomain_count, service_count, provider_count,
-                 domain_risk_score,
+            // Step 6: Calculate risk aggregations
+            WITH base_domain_name, subdomain_count, service_count, provider_count,
+                 base_risk_score,
                  CASE WHEN size(subdomain_risks) > 0 
                       THEN reduce(sum = 0.0, score IN subdomain_risks | sum + score) / size(subdomain_risks)
                       ELSE 0.0 END as avg_subdomain_risk,
@@ -739,22 +735,36 @@ public class DomainResource {
                       ELSE 0.0 END as max_subdomain_risk,
                  critical_subdomains, high_risk_subdomains, business_criticality, monitoring_enabled
             
-            WITH base_domain, subdomain_count, service_count, provider_count,
-                 CASE WHEN avg_subdomain_risk > 0 THEN (domain_risk_score + avg_subdomain_risk) / 2 ELSE domain_risk_score END as avg_risk_score,
-                 CASE WHEN domain_risk_score > max_subdomain_risk THEN domain_risk_score ELSE max_subdomain_risk END as max_risk_score,
-                 critical_subdomains, high_risk_subdomains, business_criticality, monitoring_enabled
+            // Step 7: Final aggregation and risk tier filtering
+            WITH base_domain_name, subdomain_count, service_count, provider_count,
+                 CASE WHEN avg_subdomain_risk > 0 AND base_risk_score > 0 
+                      THEN (base_risk_score + avg_subdomain_risk) / 2 
+                      WHEN avg_subdomain_risk > 0 THEN avg_subdomain_risk
+                      ELSE base_risk_score END as avg_risk_score,
+                 CASE WHEN base_risk_score > max_subdomain_risk THEN base_risk_score ELSE max_subdomain_risk END as max_risk_score,
+                 critical_subdomains, high_risk_subdomains, business_criticality, monitoring_enabled,
+                 CASE 
+                     WHEN CASE WHEN base_risk_score > max_subdomain_risk THEN base_risk_score ELSE max_subdomain_risk END >= 80 THEN 'Critical'
+                     WHEN CASE WHEN base_risk_score > max_subdomain_risk THEN base_risk_score ELSE max_subdomain_risk END >= 60 THEN 'High'  
+                     WHEN CASE WHEN base_risk_score > max_subdomain_risk THEN base_risk_score ELSE max_subdomain_risk END >= 40 THEN 'Medium'
+                     ELSE 'Low'
+                 END as calculated_risk_tier
+            """);
             
-            RETURN base_domain, subdomain_count, service_count, provider_count, 
+        // Apply risk tier filter if specified
+        if (riskTier != null && !riskTier.isEmpty()) {
+            query.append(" WHERE calculated_risk_tier = '").append(riskTier).append("'");
+        }
+        
+        query.append("""
+            
+            RETURN base_domain_name as base_domain, 
+                   subdomain_count, service_count, provider_count, 
                    avg_risk_score, max_risk_score,
-                   CASE 
-                       WHEN max_risk_score >= 80 THEN 'Critical'
-                       WHEN max_risk_score >= 60 THEN 'High'
-                       WHEN max_risk_score >= 40 THEN 'Medium'
-                       ELSE 'Low'
-                   END as risk_tier,
+                   calculated_risk_tier as risk_tier,
                    critical_subdomains, high_risk_subdomains, business_criticality, monitoring_enabled
             ORDER BY max_risk_score DESC
-            """).append("SKIP ").append(offset).append(" LIMIT ").append(limit);
+            """).append(" SKIP ").append(offset).append(" LIMIT ").append(limit);
         
         return query.toString();
     }

@@ -207,7 +207,7 @@ const DomainManagement: React.FC = () => {
     }
   };
 
-  const getRiskTierColor = (tier: string) => {
+  const getRiskTierColor = (tier: string): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     switch (tier.toLowerCase()) {
       case 'critical': return 'error';
       case 'high': return 'warning';
@@ -386,7 +386,7 @@ const DomainManagement: React.FC = () => {
                     <TableCell>
                       <Chip 
                         label={domain.risk_tier} 
-                        color={getRiskTierColor(domain.risk_tier) as any}
+                        color={getRiskTierColor(domain.risk_tier)}
                         size="small"
                       />
                     </TableCell>

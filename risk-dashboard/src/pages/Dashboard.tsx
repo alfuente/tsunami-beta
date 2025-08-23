@@ -23,15 +23,34 @@ const Dashboard: React.FC = () => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        const [summaryData, highRiskData, statsData] = await Promise.all([
+        
+        // Load critical data first
+        const [summaryData, highRiskData] = await Promise.all([
           domainApi.getSecuritySummary(),
-          riskApi.getHighRiskNodes(70, 10),
-          statisticsApi.getStatisticsSummary()
+          riskApi.getHighRiskNodes(70, 10)
         ]);
         
         setSecuritySummary(summaryData);
         setHighRiskNodes(highRiskData.high_risk_nodes);
-        setStatisticsSummary(statsData);
+        
+        // Load statistics data separately with timeout handling
+        try {
+          const statsData = await Promise.race([
+            statisticsApi.getStatisticsSummary(),
+            new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Statistics API timeout')), 3000)
+            )
+          ]);
+          setStatisticsSummary(statsData);
+        } catch (statsError) {
+          console.warn('Statistics data not available:', statsError);
+          setStatisticsSummary({
+            available: false,
+            message: 'Statistics unavailable',
+            timestamp: new Date().toISOString()
+          });
+        }
+        
         setError(null);
       } catch (err) {
         setError('Failed to load dashboard data');

@@ -5,12 +5,21 @@ export interface DomainResponse {
   last_calculated: string | null;
   business_criticality: string;
   monitoring_enabled: boolean;
+  subdomains_count?: number;
+  active_subdomains_count?: number;
+  high_risk_subdomains_count?: number;
   dns_info?: {
     dns_sec_enabled: boolean;
     name_servers: Array<{
       asn: string;
       country: string;
     }>;
+    has_spf?: boolean;
+    has_dmarc?: boolean;
+    dns_records?: any;
+    mx_records?: any;
+    spf_record?: string;
+    dmarc_record?: string;
   };
   security_info?: {
     tls_grade: string;
@@ -23,6 +32,27 @@ export interface DomainResponse {
     multi_region: boolean;
     has_failover: boolean;
   };
+  technology_info?: {
+    web_server: string | null;
+    cms: string | null;
+    technologies?: string;
+    tech_analyzed_at?: string | null;
+    technology_nodes?: Array<{
+      name: string;
+      category: string;
+      version?: string | null;
+      confidence?: number | null;
+    }>;
+    tls_grade?: string;
+  };
+  providers?: Array<{
+    id: string;
+    name: string;
+    service_type?: string;
+    criticality?: string;
+    confidence?: number;
+    source?: string;
+  }>;
   incidents?: IncidentInfo[];
 }
 
@@ -44,6 +74,12 @@ export interface RiskScoreResponse {
     third_party_score: number;
     incident_impact: number;
     context_boost: number;
+    weights?: {
+      base_score: number;
+      third_party_score: number;
+      incident_impact: number;
+      context_boost: number;
+    };
   };
 }
 

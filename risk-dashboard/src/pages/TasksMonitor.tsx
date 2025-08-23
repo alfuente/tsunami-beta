@@ -19,6 +19,11 @@ import {
   Tooltip,
   Checkbox,
   FormControlLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
 } from '@mui/material';
 import {
   Refresh as RefreshIcon,
@@ -27,6 +32,7 @@ import {
   Cancel as XCircleIcon,
   Warning as AlertCircleIcon,
   PlayArrow as PlayIcon,
+  TextSnippet as LogIcon,
 } from '@mui/icons-material';
 import { tasksApi } from '../services/api';
 
@@ -50,6 +56,9 @@ const TasksMonitor: React.FC = () => {
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [logDialogOpen, setLogDialogOpen] = useState(false);
+  const [selectedTaskLogs, setSelectedTaskLogs] = useState<string>('');
+  const [selectedTaskId, setSelectedTaskId] = useState<string>('');
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -61,6 +70,19 @@ const TasksMonitor: React.FC = () => {
       console.error('Error fetching tasks:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleShowLogs = async (taskId: string) => {
+    try {
+      setSelectedTaskId(taskId);
+      setSelectedTaskLogs('Loading logs...');
+      setLogDialogOpen(true);
+      
+      const response = await tasksApi.getTaskLogs(taskId);
+      setSelectedTaskLogs(response.logs || 'No logs available');
+    } catch (error) {
+      setSelectedTaskLogs('Error loading logs: ' + String(error));
     }
   };
 
@@ -364,6 +386,7 @@ const TasksMonitor: React.FC = () => {
                     <TableCell>Started</TableCell>
                     <TableCell>Duration</TableCell>
                     <TableCell>Task ID</TableCell>
+                    <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -442,6 +465,15 @@ const TasksMonitor: React.FC = () => {
                           </Typography>
                         </Tooltip>
                       </TableCell>
+                      <TableCell>
+                        <IconButton
+                          size="small"
+                          onClick={() => handleShowLogs(task.task_id)}
+                          title="View Logs"
+                        >
+                          <LogIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -450,6 +482,41 @@ const TasksMonitor: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Logs Dialog */}
+      <Dialog
+        open={logDialogOpen}
+        onClose={() => setLogDialogOpen(false)}
+        maxWidth="lg"
+        fullWidth
+      >
+        <DialogTitle>
+          Task Logs - {selectedTaskId.substring(0, 8)}...
+        </DialogTitle>
+        <DialogContent>
+          <Box
+            component="pre"
+            sx={{
+              backgroundColor: '#f5f5f5',
+              padding: 2,
+              borderRadius: 1,
+              fontFamily: 'monospace',
+              fontSize: '0.875rem',
+              overflow: 'auto',
+              maxHeight: '60vh',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word'
+            }}
+          >
+            {selectedTaskLogs}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setLogDialogOpen(false)}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

@@ -33,8 +33,8 @@ import {
   Visibility as VisibilityIcon,
   AccountTree as GraphIcon,
 } from '@mui/icons-material';
-import { domainApi, calculationApi } from '../services/api';
-import { BaseDomainDetailsResponse } from '../types/api';
+import { domainApi, calculationApi, riskApi } from '../services/api';
+import { BaseDomainDetailsResponse, RiskScoreResponse } from '../types/api';
 import DomainDependencies from '../components/DomainDependencies';
 import DependencyGraphView from '../components/DependencyGraphView';
 
@@ -42,6 +42,7 @@ const BaseDomainDetail: React.FC = () => {
   const { baseDomain } = useParams<{ baseDomain: string }>();
   const navigate = useNavigate();
   const [domainDetails, setDomainDetails] = useState<BaseDomainDetailsResponse | null>(null);
+  const [riskScore, setRiskScore] = useState<RiskScoreResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [calculating, setCalculating] = useState(false);
@@ -55,8 +56,12 @@ const BaseDomainDetail: React.FC = () => {
     
     try {
       setLoading(true);
-      const data = await domainApi.getBaseDomainDetails(baseDomain, true);
-      setDomainDetails(data);
+      const [domainData, riskData] = await Promise.all([
+        domainApi.getBaseDomainDetails(baseDomain, true),
+        riskApi.getRiskScore('domain', baseDomain, true)
+      ]);
+      setDomainDetails(domainData);
+      setRiskScore(riskData);
       setError(null);
     } catch (err) {
       setError('Failed to load base domain details');
@@ -89,6 +94,35 @@ const BaseDomainDetail: React.FC = () => {
     }
   };
 
+  // Helper function to get letter grade from risk score
+  const getRiskGrade = (score: number): { grade: string; color: string; bgColor: string } => {
+    if (score >= 80) return { grade: 'A', color: '#4caf50', bgColor: '#e8f5e8' };
+    if (score >= 60) return { grade: 'B', color: '#8bc34a', bgColor: '#f1f8e9' };
+    if (score >= 40) return { grade: 'C', color: '#ff9800', bgColor: '#fff3e0' };
+    if (score >= 20) return { grade: 'D', color: '#ff5722', bgColor: '#fce4ec' };
+    return { grade: 'E', color: '#f44336', bgColor: '#ffebee' };
+  };
+
+  const getRiskTierColor = (tier: string) => {
+    switch (tier?.toLowerCase()) {
+      case 'critical': return '#d32f2f';
+      case 'high': return '#f57c00';
+      case 'medium': return '#1976d2';
+      case 'low': return '#388e3c';
+      default: return '#757575';
+    }
+  };
+
+  const getRiskTierChipColor = (tier: string): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
+    switch (tier?.toLowerCase()) {
+      case 'critical': return 'error';
+      case 'high': return 'warning';
+      case 'medium': return 'info';
+      case 'low': return 'success';
+      default: return 'default';
+    }
+  };
+
   useEffect(() => {
     fetchDomainDetails();
   }, [baseDomain]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -112,15 +146,6 @@ const BaseDomainDetail: React.FC = () => {
     );
   }
 
-  const getRiskTierColor = (tier: string) => {
-    switch (tier.toLowerCase()) {
-      case 'critical': return 'error';
-      case 'high': return 'warning';
-      case 'medium': return 'info';
-      case 'low': return 'success';
-      default: return 'default';
-    }
-  };
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPagination(prev => ({ ...prev, page: newPage }));
@@ -214,24 +239,159 @@ const BaseDomainDetail: React.FC = () => {
       )}
 
       <Grid container spacing={3}>
-        {/* Risk Summary */}
-        <Grid item xs={12} md={4}>
+        {/* Risk Summary with Detailed Breakdown */}
+        <Grid item xs={12} md={8}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                Risk Summary
+                Risk Analysis & Calculation
               </Typography>
-              <Box display="flex" alignItems="center" mb={2}>
-                <Typography variant="h3" color="primary" sx={{ mr: 2 }}>
-                  {domainDetails.risk_summary?.max_risk_score?.toFixed(1) || '0.0'}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Max Risk Score
-                </Typography>
-              </Box>
-              <Typography variant="body2" gutterBottom>
-                Average: {domainDetails.risk_summary?.average_risk_score?.toFixed(1) || '0.0'}
-              </Typography>
+              
+              {riskScore?.score_breakdown ? (
+                <Box>
+                  {/* Overall Risk Score and Grade */}
+                  <Box display="flex" alignItems="center" mb={3}>
+                    <Box 
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        borderRadius: '50%',
+                        backgroundColor: getRiskGrade(riskScore.risk_score).bgColor,
+                        border: `3px solid ${getRiskGrade(riskScore.risk_score).color}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        mr: 3
+                      }}
+                    >
+                      <Typography 
+                        variant="h3" 
+                        sx={{ 
+                          color: getRiskGrade(riskScore.risk_score).color,
+                          fontWeight: 'bold' 
+                        }}
+                      >
+                        {getRiskGrade(riskScore.risk_score).grade}
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="h4" sx={{ color: getRiskTierColor(riskScore.risk_tier) }}>
+                        {riskScore.risk_score.toFixed(1)}
+                      </Typography>
+                      <Typography variant="h6" color="textSecondary">
+                        {riskScore.risk_tier} Risk
+                      </Typography>
+                      <Typography variant="caption" color="textSecondary">
+                        Last calculated: {riskScore.last_calculated ? new Date(riskScore.last_calculated).toLocaleString() : 'Never'}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Divider sx={{ mb: 3 }} />
+
+                  {/* Risk Component Breakdown */}
+                  <Typography variant="h6" gutterBottom>
+                    Risk Components Breakdown
+                  </Typography>
+                  
+                  <Grid container spacing={2}>
+                    <Grid item xs={6} md={3}>
+                      <Box textAlign="center" p={2} bgcolor="#f5f5f5" borderRadius={1}>
+                        <Typography variant="h5" color="primary" gutterBottom>
+                          {(riskScore.score_breakdown.base_score || 0).toFixed(1)}
+                        </Typography>
+                        <Typography variant="body2" fontWeight="medium">
+                          Base Score
+                        </Typography>
+                        <Typography variant="caption" color="textSecondary">
+                          Weight: {((riskScore.score_breakdown.weights?.base_score || 0) * 100).toFixed(0)}%
+                        </Typography>
+                      </Box>
+                    </Grid>
+                    
+                    <Grid item xs={6} md={3}>
+                      <Box textAlign="center" p={2} bgcolor="#f5f5f5" borderRadius={1}>
+                        <Typography variant="h5" color="warning.main" gutterBottom>
+                          {(riskScore.score_breakdown.third_party_score || 0).toFixed(1)}
+                        </Typography>
+                        <Typography variant="body2" fontWeight="medium">
+                          3rd Party Risk
+                        </Typography>
+                        <Typography variant="caption" color="textSecondary">
+                          Weight: {((riskScore.score_breakdown.weights?.third_party_score || 0) * 100).toFixed(0)}%
+                        </Typography>
+                      </Box>
+                    </Grid>
+                    
+                    <Grid item xs={6} md={3}>
+                      <Box textAlign="center" p={2} bgcolor="#f5f5f5" borderRadius={1}>
+                        <Typography variant="h5" color="error.main" gutterBottom>
+                          {(riskScore.score_breakdown.incident_impact || 0).toFixed(1)}
+                        </Typography>
+                        <Typography variant="body2" fontWeight="medium">
+                          Incident Impact
+                        </Typography>
+                        <Typography variant="caption" color="textSecondary">
+                          Weight: {((riskScore.score_breakdown.weights?.incident_impact || 0) * 100).toFixed(0)}%
+                        </Typography>
+                      </Box>
+                    </Grid>
+                    
+                    <Grid item xs={6} md={3}>
+                      <Box textAlign="center" p={2} bgcolor="#f5f5f5" borderRadius={1}>
+                        <Typography variant="h5" color="info.main" gutterBottom>
+                          {(riskScore.score_breakdown.context_boost || 0).toFixed(1)}
+                        </Typography>
+                        <Typography variant="body2" fontWeight="medium">
+                          Context Boost
+                        </Typography>
+                        <Typography variant="caption" color="textSecondary">
+                          Weight: {((riskScore.score_breakdown.weights?.context_boost || 0) * 100).toFixed(0)}%
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  </Grid>
+
+                  <Box mt={3} p={2} bgcolor="#e3f2fd" borderRadius={1}>
+                    <Typography variant="body2" gutterBottom>
+                      <strong>Risk Grading Scale:</strong>
+                    </Typography>
+                    <Box display="flex" gap={1} flexWrap="wrap">
+                      {[
+                        { grade: 'A', range: '80-100', desc: 'Excellent', color: '#4caf50' },
+                        { grade: 'B', range: '60-79', desc: 'Good', color: '#8bc34a' },
+                        { grade: 'C', range: '40-59', desc: 'Average', color: '#ff9800' },
+                        { grade: 'D', range: '20-39', desc: 'Poor', color: '#ff5722' },
+                        { grade: 'E', range: '0-19', desc: 'Critical', color: '#f44336' }
+                      ].map((item) => (
+                        <Chip
+                          key={item.grade}
+                          label={`${item.grade} (${item.range}): ${item.desc}`}
+                          size="small"
+                          sx={{
+                            backgroundColor: item.color + '20',
+                            color: item.color,
+                            border: `1px solid ${item.color}`
+                          }}
+                        />
+                      ))}
+                    </Box>
+                  </Box>
+                </Box>
+              ) : (
+                <Box>
+                  <Typography variant="h4" color="primary" gutterBottom>
+                    {domainDetails.risk_summary?.max_risk_score?.toFixed(1) || '0.0'}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary" gutterBottom>
+                    Max Risk Score (detailed breakdown not available)
+                  </Typography>
+                  <Typography variant="body2" gutterBottom>
+                    Average: {domainDetails.risk_summary?.average_risk_score?.toFixed(1) || '0.0'}
+                  </Typography>
+                </Box>
+              )}
+
               <Divider sx={{ my: 2 }} />
               <Box display="flex" gap={1} mb={1}>
                 <Chip 
@@ -360,7 +520,7 @@ const BaseDomainDetail: React.FC = () => {
                         <TableCell>
                           <Chip 
                             label={subdomain.risk_tier} 
-                            color={getRiskTierColor(subdomain.risk_tier) as any}
+                            color={getRiskTierChipColor(subdomain.risk_tier)}
                             size="small"
                           />
                         </TableCell>

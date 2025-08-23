@@ -49,15 +49,34 @@ const DomainDetail: React.FC = () => {
     
     try {
       setLoading(true);
-      const [domainData, riskData, performanceData] = await Promise.all([
+      // First load critical domain and risk data
+      const [domainData, riskData] = await Promise.all([
         domainApi.getDomain(fqdn, true),
-        riskApi.getRiskScore('domain', fqdn, true),
-        statisticsApi.getDomainPerformance(fqdn)
+        riskApi.getRiskScore('domain', fqdn, true)
       ]);
       
       setDomain(domainData);
       setRiskScore(riskData);
-      setDomainPerformance(performanceData);
+      
+      // Load performance data separately with timeout handling
+      try {
+        const performanceData = await Promise.race([
+          statisticsApi.getDomainPerformance(fqdn),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Performance API timeout')), 5000)
+          )
+        ]);
+        setDomainPerformance(performanceData);
+      } catch (perfError) {
+        console.warn('Performance data not available:', perfError);
+        setDomainPerformance({
+          available: false,
+          domain: fqdn,
+          message: 'Performance data unavailable (timeout)',
+          timestamp: new Date().toISOString()
+        });
+      }
+      
       setError(null);
     } catch (err) {
       setError('Failed to load domain data');
@@ -117,7 +136,7 @@ const DomainDetail: React.FC = () => {
     );
   }
 
-  const getRiskTierColor = (tier: string) => {
+  const getRiskTierColor = (tier: string): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     switch (tier.toLowerCase()) {
       case 'critical': return 'error';
       case 'high': return 'warning';
@@ -203,7 +222,7 @@ const DomainDetail: React.FC = () => {
                 </Typography>
                 <Chip 
                   label={domain.risk_tier} 
-                  color={getRiskTierColor(domain.risk_tier) as any}
+                  color={getRiskTierColor(domain.risk_tier)}
                 />
               </Box>
               <Typography variant="body2" color="textSecondary" gutterBottom>
@@ -220,6 +239,331 @@ const DomainDetail: React.FC = () => {
                   <Typography variant="body2">Context Boost: {riskScore.score_breakdown.context_boost.toFixed(1)}</Typography>
                 </Box>
               )}
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Detailed Risk Calculation Section */}
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                📊 Detailed Risk Score Calculation
+              </Typography>
+              <Typography variant="body2" color="textSecondary" sx={{ mb: 3 }}>
+                This section shows how the risk score is calculated based on subdomain analysis, DNS/MX records, technologies, and providers.
+              </Typography>
+              
+              <Grid container spacing={3}>
+                {/* Subdomain Risk Factors */}
+                <Grid item xs={12} md={6}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom color="primary">
+                        🌐 Subdomain Analysis
+                      </Typography>
+                      <List dense>
+                        <ListItem>
+                          <ListItemText 
+                            primary="Total Subdomains Found" 
+                            secondary={
+                              <Typography component="span">
+                                <strong>{domain.subdomains_count || 'N/A'}</strong> 
+                                {(domain.subdomains_count || 0) > 50 && (
+                                  <Chip label="High Exposure" color="warning" size="small" sx={{ ml: 1 }} />
+                                )}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="Active Subdomains" 
+                            secondary={
+                              <Typography component="span">
+                                <strong>{domain.active_subdomains_count || 'N/A'}</strong>
+                                {(domain.active_subdomains_count || 0) > 20 && (
+                                  <Chip label="Large Attack Surface" color="error" size="small" sx={{ ml: 1 }} />
+                                )}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="High Risk Subdomains" 
+                            secondary={
+                              <Typography component="span">
+                                <strong>{domain.high_risk_subdomains_count || 0}</strong>
+                                {(domain.high_risk_subdomains_count || 0) > 0 && (
+                                  <Chip label="Critical Impact" color="error" size="small" sx={{ ml: 1 }} />
+                                )}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="Subdomain Risk Weight" 
+                            secondary={
+                              <Typography component="span" color="primary">
+                                <strong>35%</strong> of total score
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                      </List>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                {/* DNS & MX Records */}
+                <Grid item xs={12} md={6}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom color="primary">
+                        🌍 DNS & Mail Security
+                      </Typography>
+                      <List dense>
+                        <ListItem>
+                          <ListItemText 
+                            primary="DNSSEC Status" 
+                            secondary={
+                              <Box display="flex" alignItems="center">
+                                <Chip 
+                                  label={domain.dns_info?.dns_sec_enabled ? 'Enabled' : 'Disabled'} 
+                                  color={domain.dns_info?.dns_sec_enabled ? 'success' : 'error'}
+                                  size="small"
+                                />
+                                <Typography variant="body2" sx={{ ml: 1 }}>
+                                  ({domain.dns_info?.dns_sec_enabled ? '-5' : '+10'} risk points)
+                                </Typography>
+                              </Box>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="SPF Record" 
+                            secondary={
+                              <Box display="flex" alignItems="center">
+                                <Chip 
+                                  label={domain.dns_info?.has_spf ? 'Present' : 'Missing'} 
+                                  color={domain.dns_info?.has_spf ? 'success' : 'warning'}
+                                  size="small"
+                                />
+                                <Typography variant="body2" sx={{ ml: 1 }}>
+                                  ({domain.dns_info?.has_spf ? '0' : '+5'} risk points)
+                                </Typography>
+                              </Box>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="DMARC Record" 
+                            secondary={
+                              <Box display="flex" alignItems="center">
+                                <Chip 
+                                  label={domain.dns_info?.has_dmarc ? 'Present' : 'Missing'} 
+                                  color={domain.dns_info?.has_dmarc ? 'success' : 'warning'}
+                                  size="small"
+                                />
+                                <Typography variant="body2" sx={{ ml: 1 }}>
+                                  ({domain.dns_info?.has_dmarc ? '0' : '+5'} risk points)
+                                </Typography>
+                              </Box>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="DNS Risk Weight" 
+                            secondary={
+                              <Typography component="span" color="primary">
+                                <strong>15%</strong> of total score
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                      </List>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                {/* Technology Stack */}
+                <Grid item xs={12} md={6}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom color="primary">
+                        💻 Technology Analysis
+                      </Typography>
+                      <List dense>
+                        <ListItem>
+                          <ListItemText 
+                            primary="Web Server" 
+                            secondary={
+                              <Typography component="span">
+                                <strong>{domain.technology_info?.web_server || 'Not Detected'}</strong>
+                                {!domain.technology_info?.web_server && (
+                                  <Chip label="Protected by CDN" color="info" size="small" sx={{ ml: 1 }} />
+                                )}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="CMS/Framework" 
+                            secondary={
+                              <Typography component="span">
+                                <strong>{domain.technology_info?.cms || 'Not Detected'}</strong>
+                                {!domain.technology_info?.cms && (
+                                  <Chip label="Hidden Stack" color="info" size="small" sx={{ ml: 1 }} />
+                                )}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="TLS Configuration" 
+                            secondary={
+                              <Box display="flex" alignItems="center">
+                                <Chip 
+                                  label={`Grade ${domain.security_info?.tls_grade || 'Unknown'}`} 
+                                  color={domain.security_info?.tls_grade === 'A' ? 'success' : 
+                                         domain.security_info?.tls_grade === 'B' ? 'warning' : 'error'}
+                                  size="small"
+                                />
+                                <Typography variant="body2" sx={{ ml: 1 }}>
+                                  ({domain.security_info?.tls_grade === 'A' ? '-5' : 
+                                     domain.security_info?.tls_grade === 'B' ? '0' : '+10'} risk points)
+                                </Typography>
+                              </Box>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="Detected Technologies" 
+                            secondary={
+                              <Typography component="span">
+                                <strong>{domain.technology_info?.technology_nodes?.length || 0}</strong> technologies identified
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="Technology Risk Weight" 
+                            secondary={
+                              <Typography component="span" color="primary">
+                                <strong>25%</strong> of total score
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                      </List>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                {/* Provider Dependencies */}
+                <Grid item xs={12} md={6}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom color="primary">
+                        🏢 Third-Party Providers
+                      </Typography>
+                      <List dense>
+                        <ListItem>
+                          <ListItemText 
+                            primary="Provider Count" 
+                            secondary={
+                              <Typography component="span">
+                                <strong>{domain.providers?.length || 0}</strong> external providers
+                                {(domain.providers?.length || 0) > 5 && (
+                                  <Chip label="High Dependency" color="warning" size="small" sx={{ ml: 1 }} />
+                                )}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="CDN Services" 
+                            secondary={
+                              <Typography component="span">
+                                <strong>
+                                  {domain.providers?.filter(p => p.service_type?.includes('CDN')).length || 0}
+                                </strong> CDN providers
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="Cloud Services" 
+                            secondary={
+                              <Typography component="span">
+                                <strong>
+                                  {domain.providers?.filter(p => p.service_type?.includes('Cloud')).length || 0}
+                                </strong> cloud services
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="Critical Providers" 
+                            secondary={
+                              <Typography component="span">
+                                <strong>
+                                  {domain.providers?.filter(p => p.criticality === 'high').length || 0}
+                                </strong> high-criticality providers
+                                {(domain.providers?.filter(p => p.criticality === 'high').length || 0) > 0 && (
+                                  <Chip label="Risk Multiplier" color="error" size="small" sx={{ ml: 1 }} />
+                                )}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="Provider Risk Weight" 
+                            secondary={
+                              <Typography component="span" color="primary">
+                                <strong>25%</strong> of total score
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                      </List>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+
+              {/* Risk Calculation Formula */}
+              <Box sx={{ mt: 3, p: 2, bgcolor: 'background.paper', border: '1px dashed #ccc', borderRadius: 1 }}>
+                <Typography variant="h6" gutterBottom>
+                  📐 Risk Calculation Formula
+                </Typography>
+                <Typography variant="body2" component="div">
+                  <strong>Final Risk Score = </strong>
+                  (Subdomain Risk × 0.35) + 
+                  (Technology Risk × 0.25) + 
+                  (Provider Risk × 0.25) + 
+                  (DNS/Infrastructure Risk × 0.15)
+                  <br /><br />
+                  <strong>Risk Tiers:</strong>
+                  <br />• Low: 0-25 points
+                  <br />• Medium: 26-50 points  
+                  <br />• High: 51-75 points
+                  <br />• Critical: 76-100 points
+                </Typography>
+              </Box>
             </CardContent>
           </Card>
         </Grid>
