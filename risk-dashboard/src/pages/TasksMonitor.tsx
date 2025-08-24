@@ -138,10 +138,15 @@ const TasksMonitor: React.FC = () => {
       'dns_analysis': 'DNS Analysis',
       'mx_analysis': 'MX Analysis',
       'tls_analysis': 'TLS Analysis',
-      'batch_analysis': 'Complete Analysis',
-      'subdomain_discovery': 'Subdomain Discovery'
+      'batch_analysis': 'Combined Analysis',
+      'subdomain_discovery': 'Subdomain Discovery',
+      'combined_discovery': 'Combined Discovery',
+      'combined_recursive': 'Combined Recursive Analysis',
+      'risk_calculation': 'Risk Calculation',
+      'risk_tree_calculation': 'Risk Tree Calculation',
+      'full_analysis': 'Full Analysis'
     };
-    return typeMap[taskType] || taskType;
+    return typeMap[taskType] || taskType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
   };
 
   const formatDuration = (startTime: string, endTime?: string) => {

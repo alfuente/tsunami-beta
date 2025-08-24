@@ -88,6 +88,7 @@ class TaskType(str, Enum):
     MX_ANALYSIS = "mx_analysis"
     TLS_ANALYSIS = "tls_analysis"
     TECH_ANALYSIS = "tech_analysis"
+    WEB_SCRAPING = "web_scraping"
     RISK_CALCULATION = "risk_calculation"
     RISK_TREE_CALCULATION = "risk_tree_calculation"
     FULL_ANALYSIS = "full_analysis"
@@ -106,6 +107,7 @@ class TaskInfo(BaseModel):
     result: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
     metadata: Dict[str, Any] = {}
+    logs: str = ""
 
 class AmassResult(BaseModel):
     domain: str
@@ -333,13 +335,91 @@ class AsyncDomainDiscoveryService:
                         task_info.progress,
                         task_info.started_at,
                         task_info.completed_at,
-                        json.dumps(task_info.metadata) if task_info.metadata else {},
+                        json.dumps(task_info.metadata) if task_info.metadata else "{}",
                         task_info.logs or "",
                         task_info.error,
                         json.dumps(task_info.result) if task_info.result else None
                     ))
         except Exception as e:
             logger.error(f"Error saving task to database: {e}")
+
+    def get_all_tasks_from_db(self, limit: int = 100, status_filter: Optional[str] = None):
+        """Get all tasks from database with optional status filter"""
+        try:
+            with self._get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    if status_filter:
+                        cur.execute("""
+                            SELECT task_id, task_type, domain, subdomain, status, progress,
+                                   started_at, completed_at, metadata, logs, error, result
+                            FROM async_tasks
+                            WHERE status = %s
+                            ORDER BY created_at DESC
+                            LIMIT %s
+                        """, (status_filter, limit))
+                    else:
+                        cur.execute("""
+                            SELECT task_id, task_type, domain, subdomain, status, progress,
+                                   started_at, completed_at, metadata, logs, error, result
+                            FROM async_tasks
+                            ORDER BY created_at DESC
+                            LIMIT %s
+                        """, (limit,))
+                    
+                    results = []
+                    for row in cur.fetchall():
+                        task_data = {
+                            'task_id': row[0],
+                            'task_type': row[1],
+                            'domain': row[2],
+                            'subdomain': row[3],
+                            'status': row[4],
+                            'progress': row[5],
+                            'started_at': row[6].isoformat() if row[6] else None,
+                            'completed_at': row[7].isoformat() if row[7] else None,
+                            'metadata': json.loads(row[8]) if isinstance(row[8], str) else row[8],
+                            'logs': row[9],
+                            'error': row[10],
+                            'result': json.loads(row[11]) if isinstance(row[11], str) else row[11]
+                        }
+                        results.append(task_data)
+                    return results
+        except Exception as e:
+            logger.error(f"Error getting tasks from database: {e}")
+            return []
+
+    def get_task_from_db(self, task_id: str):
+        """Get specific task from database"""
+        try:
+            with self._get_db_connection() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        SELECT task_id, task_type, domain, subdomain, status, progress,
+                               started_at, completed_at, metadata, logs, error, result
+                        FROM async_tasks
+                        WHERE task_id = %s
+                    """, (task_id,))
+                    
+                    row = cur.fetchone()
+                    if row:
+                        return {
+                            'task_id': row[0],
+                            'task_type': row[1],
+                            'domain': row[2],
+                            'subdomain': row[3],
+                            'status': row[4],
+                            'progress': row[5],
+                            'started_at': row[6].isoformat() if row[6] else None,
+                            'completed_at': row[7].isoformat() if row[7] else None,
+                            'metadata': json.loads(row[8]) if isinstance(row[8], str) else row[8],
+                            'logs': row[9],
+                            'error': row[10],
+                            'result': json.loads(row[11]) if isinstance(row[11], str) else row[11]
+                        }
+                    return None
+        except Exception as e:
+            logger.error(f"Error getting task {task_id} from database: {e}")
+            return None
 
     def _update_task_logs(self, task_id: str, log_message: str):
         """Add log message to task"""
@@ -349,6 +429,31 @@ class AsyncDomainDiscoveryService:
             self.active_tasks[task_id].logs += new_log
             # Save to database
             self._save_task_to_db(self.active_tasks[task_id])
+
+    def _update_task_status(self, task_id: str, status: TaskStatus, completed_at: Optional[datetime] = None, 
+                           error: Optional[str] = None, result: Optional[dict] = None, progress: Optional[int] = None):
+        """Update task status and automatically save to database"""
+        if task_id in self.active_tasks:
+            task = self.active_tasks[task_id]
+            task.status = status
+            
+            if completed_at:
+                task.completed_at = completed_at
+            elif status in [TaskStatus.COMPLETED, TaskStatus.FAILED]:
+                task.completed_at = datetime.now()
+            
+            if error:
+                task.error = error
+            
+            if result:
+                task.result = result
+                
+            if progress is not None:
+                task.progress = progress
+            
+            # Auto-save to database
+            self._save_task_to_db(task)
+            logger.debug(f"Updated and saved task {task_id} with status {status}")
 
     def close(self):
         """Clean up resources"""
@@ -499,6 +604,8 @@ class AsyncDomainDiscoveryService:
         if task_id in self.active_tasks:
             self.active_tasks[task_id].status = TaskStatus.RUNNING
             self.active_tasks[task_id].progress = 10
+            self._update_task_logs(task_id, f"Starting Amass discovery for {domain}")
+            self._save_task_to_db(self.active_tasks[task_id])
         
         # Check cache first
         cached_results = self._get_cached_amass_results(domain)
@@ -518,6 +625,8 @@ class AsyncDomainDiscoveryService:
                 self.active_tasks[task_id].progress = 100
                 self.active_tasks[task_id].result = result.dict()
                 self.active_tasks[task_id].completed_at = datetime.now()
+                self._update_task_logs(task_id, f"Amass discovery completed (cached results)")
+                self._save_task_to_db(self.active_tasks[task_id])
             
             return result
         
@@ -910,21 +1019,23 @@ class AsyncDomainDiscoveryService:
         try:
             result = await loop.run_in_executor(self.executor, run_service_scan)
             
-            # Update task status
-            if task_id in self.active_tasks:
-                self.active_tasks[task_id].status = TaskStatus.COMPLETED
-                self.active_tasks[task_id].progress = 100
-                self.active_tasks[task_id].result = result.dict()
-                self.active_tasks[task_id].completed_at = datetime.now()
+            # Update task status and save to database
+            self._update_task_status(
+                task_id,
+                TaskStatus.COMPLETED,
+                progress=100,
+                result=result.dict()
+            )
             
             return result
             
         except Exception as e:
             logger.error(f"Service discovery failed for {target}: {e}")
-            if task_id in self.active_tasks:
-                self.active_tasks[task_id].status = TaskStatus.FAILED
-                self.active_tasks[task_id].error = str(e)
-                self.active_tasks[task_id].completed_at = datetime.now()
+            self._update_task_status(
+                task_id,
+                TaskStatus.FAILED,
+                error=str(e)
+            )
             raise
 
     def _run_service_scan_sync(self, domain: str, subdomain: Optional[str], task_id: str) -> ServiceAnalysisResult:
@@ -2786,6 +2897,403 @@ class AsyncDomainDiscoveryService:
         
         return None
 
+    async def run_web_scraping_analysis(self, domain: str, subdomain: Optional[str], task_id: str) -> dict:
+        """Run comprehensive web scraping analysis to detect technologies and services from links and page content"""
+        target = subdomain if subdomain else domain
+        logger.info(f"Starting web scraping analysis for {target} (task: {task_id})")
+        
+        # Update task status
+        if task_id in self.active_tasks:
+            self.active_tasks[task_id].status = TaskStatus.RUNNING
+            self.active_tasks[task_id].progress = 10
+            self._update_task_logs(task_id, f"Starting web scraping analysis for {target}")
+        
+        scraped_technologies = []
+        scraped_providers = []
+        external_links = []
+        analytics_services = []
+        
+        try:
+            import requests
+            from bs4 import BeautifulSoup
+            import re
+            from urllib.parse import urlparse, urljoin
+            
+            # Try both HTTPS and HTTP
+            urls_to_try = [f"https://{target}", f"http://{target}"]
+            response = None
+            
+            for url in urls_to_try:
+                try:
+                    self._update_task_logs(task_id, f"Fetching content from {url}")
+                    response = requests.get(url, timeout=15, verify=False, 
+                                          headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'})
+                    if response.status_code == 200:
+                        break
+                except:
+                    continue
+            
+            if not response or response.status_code != 200:
+                self._update_task_logs(task_id, f"Could not fetch content from {target}")
+                return {
+                    "technologies": [],
+                    "providers": [],
+                    "external_links": [],
+                    "analytics_services": [],
+                    "error": "Could not fetch page content"
+                }
+            
+            # Update progress
+            if task_id in self.active_tasks:
+                self.active_tasks[task_id].progress = 30
+            
+            # Parse HTML content
+            soup = BeautifulSoup(response.text, 'html.parser')
+            self._update_task_logs(task_id, f"Parsed HTML content, analyzing {len(soup.find_all())} HTML elements")
+            
+            # 1. Extract all external links and scripts
+            self._extract_external_resources(soup, target, external_links, scraped_providers, analytics_services)
+            
+            # Update progress
+            if task_id in self.active_tasks:
+                self.active_tasks[task_id].progress = 50
+            
+            # 2. Analyze inline scripts for technology indicators
+            self._analyze_inline_scripts(soup, scraped_technologies, scraped_providers, analytics_services)
+            
+            # Update progress
+            if task_id in self.active_tasks:
+                self.active_tasks[task_id].progress = 70
+            
+            # 3. Analyze meta tags and HTML structure
+            self._analyze_meta_tags(soup, scraped_technologies, scraped_providers)
+            
+            # 4. Analyze CSS links for frameworks and libraries
+            self._analyze_css_links(soup, scraped_technologies, scraped_providers)
+            
+            # Update progress
+            if task_id in self.active_tasks:
+                self.active_tasks[task_id].progress = 90
+            
+            self._update_task_logs(task_id, f"Web scraping analysis completed. Found {len(scraped_technologies)} technologies, {len(scraped_providers)} providers, {len(analytics_services)} analytics services")
+            
+            # Prepare result
+            result = {
+                "domain": domain,
+                "subdomain": subdomain,
+                "technologies": scraped_technologies,
+                "providers": scraped_providers,
+                "external_links": external_links,
+                "analytics_services": analytics_services,
+                "total_external_resources": len(external_links),
+                "analysis_timestamp": datetime.now().isoformat()
+            }
+            
+            # Save results to Neo4j
+            await self._save_scraping_results_to_neo4j(result)
+            
+            # Update task completion
+            if task_id in self.active_tasks:
+                self.active_tasks[task_id].status = TaskStatus.COMPLETED
+                self.active_tasks[task_id].progress = 100
+                self.active_tasks[task_id].result = result
+                self.active_tasks[task_id].completed_at = datetime.now()
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Web scraping analysis failed for {target}: {e}")
+            self._update_task_logs(task_id, f"Web scraping analysis failed: {str(e)}")
+            if task_id in self.active_tasks:
+                self.active_tasks[task_id].status = TaskStatus.FAILED
+                self.active_tasks[task_id].error = str(e)
+                self.active_tasks[task_id].completed_at = datetime.now()
+            raise
+
+    def _extract_external_resources(self, soup, target, external_links, scraped_providers, analytics_services):
+        """Extract and analyze external resources from HTML"""
+        from urllib.parse import urlparse
+        
+        # Find all external scripts
+        scripts = soup.find_all('script', src=True)
+        for script in scripts:
+            src = script.get('src')
+            if src and not src.startswith('/') and not src.startswith('#'):
+                if not src.startswith('http'):
+                    src = f"https://{src}" if not src.startswith('//') else f"https:{src}"
+                
+                external_links.append({
+                    "url": src,
+                    "type": "script",
+                    "element": "script"
+                })
+                
+                # Analyze script URL for technologies and services
+                self._analyze_script_url(src, scraped_providers, analytics_services)
+        
+        # Find all external links
+        links = soup.find_all('a', href=True)
+        for link in links:
+            href = link.get('href')
+            if href and href.startswith('http') and target not in href:
+                external_links.append({
+                    "url": href,
+                    "type": "link",
+                    "element": "a",
+                    "text": link.get_text()[:100]  # First 100 chars of link text
+                })
+        
+        # Find all external images
+        imgs = soup.find_all('img', src=True)
+        for img in imgs:
+            src = img.get('src')
+            if src and src.startswith('http') and target not in src:
+                external_links.append({
+                    "url": src,
+                    "type": "image",
+                    "element": "img"
+                })
+                
+                # Check for tracking pixels
+                if any(keyword in src.lower() for keyword in ['pixel', 'track', 'analytics', 'beacon']):
+                    domain = urlparse(src).netloc
+                    analytics_services.append({
+                        "name": f"Tracking Pixel ({domain})",
+                        "type": "tracking_pixel",
+                        "url": src,
+                        "source": "image_analysis"
+                    })
+
+    def _analyze_script_url(self, script_url, scraped_providers, analytics_services):
+        """Analyze script URLs to identify services and technologies"""
+        from urllib.parse import urlparse
+        
+        domain = urlparse(script_url).netloc.lower()
+        
+        # Analytics and tracking services
+        analytics_patterns = {
+            'google-analytics.com': 'Google Analytics',
+            'googletagmanager.com': 'Google Tag Manager',
+            'facebook.net': 'Facebook Pixel',
+            'hotjar.com': 'Hotjar',
+            'mixpanel.com': 'Mixpanel',
+            'segment.com': 'Segment',
+            'amplitude.com': 'Amplitude',
+            'fullstory.com': 'FullStory',
+            'intercom.io': 'Intercom',
+            'zendesk.com': 'Zendesk Chat',
+            'hubspot.com': 'HubSpot',
+            'salesforce.com': 'Salesforce',
+            'mailchimp.com': 'Mailchimp',
+            'constantcontact.com': 'Constant Contact',
+            'stripe.com': 'Stripe',
+            'paypal.com': 'PayPal',
+            'braintree.com': 'Braintree',
+            'square.com': 'Square'
+        }
+        
+        for pattern, service_name in analytics_patterns.items():
+            if pattern in domain:
+                analytics_services.append({
+                    "name": service_name,
+                    "type": "analytics" if "analytics" in pattern or "tag" in pattern else "service",
+                    "domain": domain,
+                    "url": script_url,
+                    "source": "script_analysis"
+                })
+                
+                scraped_providers.append({
+                    "name": service_name,
+                    "type": "third_party_service",
+                    "confidence": 0.9,
+                    "source": "web_scraping",
+                    "evidence": f"Script loaded from {domain}"
+                })
+                break
+        
+        # CDN and library providers
+        cdn_patterns = {
+            'cdnjs.cloudflare.com': 'Cloudflare CDN',
+            'cdn.jsdelivr.net': 'jsDelivr CDN',
+            'unpkg.com': 'unpkg CDN',
+            'ajax.googleapis.com': 'Google CDN',
+            'code.jquery.com': 'jQuery CDN',
+            'maxcdn.bootstrapcdn.com': 'Bootstrap CDN',
+            'use.fontawesome.com': 'Font Awesome CDN'
+        }
+        
+        for pattern, service_name in cdn_patterns.items():
+            if pattern in domain:
+                scraped_providers.append({
+                    "name": service_name,
+                    "type": "cdn",
+                    "confidence": 0.95,
+                    "source": "web_scraping",
+                    "evidence": f"CDN script loaded from {domain}"
+                })
+                break
+
+    def _analyze_inline_scripts(self, soup, scraped_technologies, scraped_providers, analytics_services):
+        """Analyze inline JavaScript for technology indicators"""
+        scripts = soup.find_all('script', string=True)
+        
+        for script in scripts:
+            script_content = script.string.lower()
+            
+            # Technology indicators in JavaScript
+            tech_indicators = {
+                'jquery': 'jQuery',
+                'react': 'React',
+                'vue': 'Vue.js',
+                'angular': 'Angular',
+                'backbone': 'Backbone.js',
+                'underscore': 'Underscore.js',
+                'lodash': 'Lodash',
+                'd3': 'D3.js',
+                'chart.js': 'Chart.js',
+                'bootstrap': 'Bootstrap'
+            }
+            
+            for indicator, tech_name in tech_indicators.items():
+                if indicator in script_content:
+                    scraped_technologies.append({
+                        "name": tech_name,
+                        "category": "javascript_framework",
+                        "confidence": 0.7,
+                        "source": "inline_script_analysis"
+                    })
+            
+            # Analytics tracking codes
+            if 'gtag(' in script_content or 'ga(' in script_content:
+                analytics_services.append({
+                    "name": "Google Analytics",
+                    "type": "analytics",
+                    "source": "inline_script",
+                    "evidence": "Google Analytics tracking code found"
+                })
+            
+            if 'fbq(' in script_content:
+                analytics_services.append({
+                    "name": "Facebook Pixel",
+                    "type": "analytics", 
+                    "source": "inline_script",
+                    "evidence": "Facebook Pixel tracking code found"
+                })
+
+    def _analyze_meta_tags(self, soup, scraped_technologies, scraped_providers):
+        """Analyze meta tags for technology indicators"""
+        meta_tags = soup.find_all('meta')
+        
+        for meta in meta_tags:
+            name = meta.get('name', '').lower()
+            content = meta.get('content', '').lower()
+            
+            # Generator meta tags
+            if name == 'generator':
+                scraped_technologies.append({
+                    "name": content.title(),
+                    "category": "cms",
+                    "confidence": 0.9,
+                    "source": "meta_generator"
+                })
+            
+            # Framework indicators
+            if 'wordpress' in content:
+                scraped_technologies.append({
+                    "name": "WordPress",
+                    "category": "cms",
+                    "confidence": 0.8,
+                    "source": "meta_analysis"
+                })
+            
+            if 'drupal' in content:
+                scraped_technologies.append({
+                    "name": "Drupal", 
+                    "category": "cms",
+                    "confidence": 0.8,
+                    "source": "meta_analysis"
+                })
+
+    def _analyze_css_links(self, soup, scraped_technologies, scraped_providers):
+        """Analyze CSS links for frameworks and libraries"""
+        css_links = soup.find_all('link', rel='stylesheet')
+        
+        for link in css_links:
+            href = link.get('href', '').lower()
+            
+            if 'bootstrap' in href:
+                scraped_technologies.append({
+                    "name": "Bootstrap",
+                    "category": "css_framework",
+                    "confidence": 0.9,
+                    "source": "css_analysis"
+                })
+            
+            if 'fontawesome' in href or 'font-awesome' in href:
+                scraped_technologies.append({
+                    "name": "Font Awesome",
+                    "category": "icon_library",
+                    "confidence": 0.9,
+                    "source": "css_analysis"
+                })
+                
+            if 'googleapis.com/css' in href:
+                scraped_providers.append({
+                    "name": "Google Fonts",
+                    "type": "font_service",
+                    "confidence": 0.95,
+                    "source": "css_analysis",
+                    "evidence": f"Google Fonts CSS loaded: {href}"
+                })
+
+    async def _save_scraping_results_to_neo4j(self, result: dict):
+        """Save web scraping results to Neo4j"""
+        if not HAS_NEO4J:
+            return
+        
+        try:
+            target = result['subdomain'] if result['subdomain'] else result['domain']
+            
+            with self.driver.session() as session:
+                # Update target node with scraping results
+                session.run("""
+                    MATCH (n {fqdn: $target})
+                    SET n.scraped_technologies = $technologies,
+                        n.scraped_providers = $providers,
+                        n.analytics_services = $analytics,
+                        n.external_links_count = $links_count,
+                        n.scraping_analyzed_at = $timestamp,
+                        n.updated_at = $timestamp
+                """, 
+                target=target,
+                technologies=json.dumps(result['technologies']),
+                providers=json.dumps(result['providers']),
+                analytics=json.dumps(result['analytics_services']),
+                links_count=result['total_external_resources'],
+                timestamp=result['analysis_timestamp'])
+                
+                # Create provider relationships for scraped providers
+                for provider in result['providers']:
+                    session.run("""
+                        MATCH (d {fqdn: $target})
+                        MERGE (p:Provider {name: $provider_name, type: $provider_type})
+                        MERGE (d)-[r:USES_PROVIDER {source: 'web_scraping'}]->(p)
+                        SET r.confidence = $confidence,
+                            r.evidence = $evidence,
+                            r.discovered_at = $timestamp
+                    """,
+                    target=target,
+                    provider_name=provider['name'],
+                    provider_type=provider.get('type', 'unknown'),
+                    confidence=provider.get('confidence', 0.7),
+                    evidence=provider.get('evidence', ''),
+                    timestamp=result['analysis_timestamp'])
+                
+            logger.info(f"Saved web scraping results to Neo4j for {target}")
+            
+        except Exception as e:
+            logger.error(f"Error saving scraping results to Neo4j for {target}: {e}")
+
     def _save_tech_to_neo4j(self, result: TechAnalysisResult):
         """Save technology results to Neo4j"""
         if not HAS_NEO4J:
@@ -3122,38 +3630,54 @@ async def health_check():
 
 # Task management endpoints
 @app.get("/api/v1/tasks", tags=["Tasks"])
-async def list_tasks():
-    """List all active tasks"""
+async def list_tasks(
+    limit: int = Query(100, description="Maximum number of tasks to return"),
+    status: Optional[str] = Query(None, description="Filter by task status: pending, running, completed, failed")
+):
+    """List all tasks from database with optional filtering"""
     if not discovery_service:
         raise HTTPException(status_code=503, detail="Service not available")
     
-    tasks = list(discovery_service.active_tasks.values())
-    tasks.sort(key=lambda t: t.started_at, reverse=True)
-    return {"tasks": [task.dict() for task in tasks]}
+    tasks = discovery_service.get_all_tasks_from_db(limit=limit, status_filter=status)
+    return {"tasks": tasks}
 
 @app.get("/api/v1/tasks/{task_id}", tags=["Tasks"])
 async def get_task_status(task_id: str):
-    """Get task status and results"""
+    """Get task status and results from database"""
     if not discovery_service:
         raise HTTPException(status_code=503, detail="Service not available")
     
-    if task_id not in discovery_service.active_tasks:
-        raise HTTPException(status_code=404, detail="Task not found")
+    # First try in-memory tasks (for currently running tasks)
+    if task_id in discovery_service.active_tasks:
+        return discovery_service.active_tasks[task_id].dict()
     
-    return discovery_service.active_tasks[task_id].dict()
-
-@app.get("/api/v1/tasks/{task_id}/logs", tags=["Tasks"])
-async def get_task_logs(task_id: str):
-    """Get logs for a specific task"""
-    if not discovery_service:
-        raise HTTPException(status_code=503, detail="Service not available")
-    
-    # Get task info
-    task = discovery_service.active_tasks.get(task_id)
+    # Then try database
+    task = discovery_service.get_task_from_db(task_id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     
-    # Enhanced logging with detailed task information
+    return task
+
+@app.get("/api/v1/tasks/{task_id}/logs", tags=["Tasks"])
+async def get_task_logs(task_id: str):
+    """Get logs for a specific task from database or memory"""
+    if not discovery_service:
+        raise HTTPException(status_code=503, detail="Service not available")
+    
+    # First try in-memory tasks
+    task = discovery_service.active_tasks.get(task_id)
+    
+    # If not found in memory, try database
+    if not task:
+        task_data = discovery_service.get_task_from_db(task_id)
+        if not task_data:
+            raise HTTPException(status_code=404, detail="Task not found")
+        
+        # Return database logs directly
+        logs = task_data.get('logs', 'No logs available')
+        return {"task_id": task_id, "logs": logs}
+    
+    # Enhanced logging with detailed task information for in-memory tasks
     logs = []
     logs.append("="*60)
     logs.append(f"TASK LOG: {task.task_type}")
@@ -3266,6 +3790,264 @@ async def delete_task(task_id: str):
     del discovery_service.active_tasks[task_id]
     return {"message": "Task deleted successfully"}
 
+# Technologies endpoints
+@app.get("/api/v1/technologies", tags=["Technologies"])
+async def get_technologies_overview(
+    limit: int = Query(50, description="Maximum number of technologies to return", ge=1, le=500),
+    category: Optional[str] = Query(None, description="Filter by technology category (cms, javascript_framework, web_server, etc.)"),
+    min_usage_count: int = Query(1, description="Minimum number of domains using the technology", ge=1)
+):
+    """Get overview of all technologies detected across domains"""
+    if not discovery_service or not HAS_NEO4J:
+        raise HTTPException(status_code=503, detail="Service not available")
+    
+    try:
+        with discovery_service.driver.session() as session:
+            # Build the Cypher query with optional filtering
+            where_conditions = []
+            if category:
+                where_conditions.append("tech.category = $category")
+            
+            where_clause = "WHERE " + " AND ".join(where_conditions) if where_conditions else ""
+            
+            cypher_query = f"""
+            MATCH (d)-[:USES_TECHNOLOGY]->(tech:Technology)
+            {where_clause}
+            WITH tech.name as technology_name, 
+                 tech.category as category,
+                 COUNT(DISTINCT d) as domain_count,
+                 COLLECT(DISTINCT d.fqdn) as domains
+            WHERE domain_count >= $min_usage_count
+            RETURN technology_name, category, domain_count, domains
+            ORDER BY domain_count DESC, technology_name ASC
+            LIMIT $limit
+            """
+            
+            result = session.run(cypher_query, 
+                               category=category,
+                               min_usage_count=min_usage_count,
+                               limit=limit)
+            
+            technologies = []
+            for record in result:
+                technologies.append({
+                    "name": record["technology_name"],
+                    "category": record["category"],
+                    "domain_count": record["domain_count"],
+                    "domains": record["domains"][:10],  # Limit domains shown
+                    "total_domains": record["domain_count"]
+                })
+            
+            return {
+                "technologies": technologies,
+                "total_count": len(technologies),
+                "filters": {
+                    "category": category,
+                    "min_usage_count": min_usage_count,
+                    "limit": limit
+                }
+            }
+    
+    except Exception as e:
+        logger.error(f"Error fetching technologies overview: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@app.get("/api/v1/technologies/{technology_name}/details", tags=["Technologies"])
+async def get_technology_details(
+    technology_name: str = Path(..., description="Technology name to get details for"),
+    include_scraped: bool = Query(True, description="Include web scraping results"),
+    limit: int = Query(100, description="Maximum number of domains to return", ge=1, le=500)
+):
+    """Get detailed information about a specific technology including all domains and services using it"""
+    if not discovery_service or not HAS_NEO4J:
+        raise HTTPException(status_code=503, detail="Service not available")
+    
+    try:
+        with discovery_service.driver.session() as session:
+            # Get technology details from regular tech analysis
+            tech_query = """
+            MATCH (d)-[rel:USES_TECHNOLOGY]->(tech:Technology {name: $tech_name})
+            OPTIONAL MATCH (d)-[:USES_SERVICE]->(service:Service)
+            OPTIONAL MATCH (d)-[:USES_PROVIDER]->(provider:Provider)
+            WITH d, tech, rel,
+                 COLLECT(DISTINCT service.name) as services,
+                 COLLECT(DISTINCT provider.name) as providers
+            RETURN d.fqdn as domain,
+                   d.base_domain as base_domain,
+                   d.risk_score as risk_score,
+                   d.risk_tier as risk_tier,
+                   tech.category as category,
+                   rel.confidence as confidence,
+                   services,
+                   providers,
+                   d.tech_analyzed_at as analyzed_at
+            ORDER BY d.risk_score DESC, d.fqdn ASC
+            LIMIT $limit
+            """
+            
+            tech_result = session.run(tech_query, tech_name=technology_name, limit=limit)
+            domains_with_tech = []
+            
+            for record in tech_result:
+                domains_with_tech.append({
+                    "domain": record["domain"],
+                    "base_domain": record["base_domain"],
+                    "risk_score": record["risk_score"],
+                    "risk_tier": record["risk_tier"],
+                    "category": record["category"],
+                    "confidence": record["confidence"],
+                    "services": record["services"][:5],  # Limit services shown
+                    "providers": record["providers"][:5],  # Limit providers shown
+                    "analyzed_at": record["analyzed_at"],
+                    "source": "tech_analysis"
+                })
+            
+            # Get web scraping results if requested
+            scraped_domains = []
+            if include_scraped:
+                scraped_query = """
+                MATCH (d:Domain)
+                WHERE d.scraped_technologies IS NOT NULL
+                  AND ANY(tech IN d.scraped_technologies WHERE tech CONTAINS $tech_name)
+                OPTIONAL MATCH (d)-[:USES_SERVICE]->(service:Service)  
+                OPTIONAL MATCH (d)-[:USES_PROVIDER]->(provider:Provider)
+                WITH d,
+                     COLLECT(DISTINCT service.name) as services,
+                     COLLECT(DISTINCT provider.name) as providers
+                RETURN d.fqdn as domain,
+                       d.base_domain as base_domain,
+                       d.risk_score as risk_score,
+                       d.risk_tier as risk_tier,
+                       services,
+                       providers,
+                       d.scraping_analyzed_at as analyzed_at
+                ORDER BY d.risk_score DESC, d.fqdn ASC
+                LIMIT $limit
+                """
+                
+                scraped_result = session.run(scraped_query, tech_name=technology_name, limit=limit)
+                
+                for record in scraped_result:
+                    scraped_domains.append({
+                        "domain": record["domain"],
+                        "base_domain": record["base_domain"], 
+                        "risk_score": record["risk_score"],
+                        "risk_tier": record["risk_tier"],
+                        "category": "web_scraping",
+                        "confidence": 0.7,
+                        "services": record["services"][:5],
+                        "providers": record["providers"][:5],
+                        "analyzed_at": record["analyzed_at"],
+                        "source": "web_scraping"
+                    })
+            
+            return {
+                "technology_name": technology_name,
+                "domains_from_analysis": domains_with_tech,
+                "domains_from_scraping": scraped_domains,
+                "total_domains_analysis": len(domains_with_tech),
+                "total_domains_scraping": len(scraped_domains),
+                "total_domains_combined": len(domains_with_tech) + len(scraped_domains)
+            }
+    
+    except Exception as e:
+        logger.error(f"Error fetching technology details for {technology_name}: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@app.get("/api/v1/technologies/categories", tags=["Technologies"])
+async def get_technology_categories():
+    """Get all available technology categories with counts"""
+    if not discovery_service or not HAS_NEO4J:
+        raise HTTPException(status_code=503, detail="Service not available")
+    
+    try:
+        with discovery_service.driver.session() as session:
+            # Get categories from regular tech analysis
+            categories_query = """
+            MATCH (d)-[:USES_TECHNOLOGY]->(tech:Technology)
+            WHERE tech.category IS NOT NULL
+            WITH tech.category as category, COUNT(DISTINCT tech.name) as tech_count, COUNT(DISTINCT d) as domain_count
+            RETURN category, tech_count, domain_count
+            ORDER BY domain_count DESC, category ASC
+            """
+            
+            result = session.run(categories_query)
+            categories = []
+            
+            for record in result:
+                categories.append({
+                    "category": record["category"],
+                    "technology_count": record["tech_count"],
+                    "domain_count": record["domain_count"]
+                })
+            
+            return {
+                "categories": categories,
+                "total_categories": len(categories)
+            }
+    
+    except Exception as e:
+        logger.error(f"Error fetching technology categories: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
+@app.get("/api/v1/technologies/stats", tags=["Technologies"])
+async def get_technology_statistics():
+    """Get overall technology statistics across all domains"""
+    if not discovery_service or not HAS_NEO4J:
+        raise HTTPException(status_code=503, detail="Service not available")
+    
+    try:
+        with discovery_service.driver.session() as session:
+            # Get overall statistics
+            stats_query = """
+            MATCH (d:Domain)
+            OPTIONAL MATCH (d)-[:USES_TECHNOLOGY]->(tech:Technology)
+            OPTIONAL MATCH (d)-[:USES_SERVICE]->(service:Service)
+            OPTIONAL MATCH (d)-[:USES_PROVIDER]->(provider:Provider)
+            WITH COUNT(DISTINCT d) as total_domains,
+                 COUNT(DISTINCT tech) as total_technologies,
+                 COUNT(DISTINCT service) as total_services,
+                 COUNT(DISTINCT provider) as total_providers,
+                 COUNT(DISTINCT CASE WHEN d.tech_analyzed_at IS NOT NULL THEN d END) as domains_with_tech_analysis,
+                 COUNT(DISTINCT CASE WHEN d.scraping_analyzed_at IS NOT NULL THEN d END) as domains_with_scraping_analysis
+            RETURN total_domains, total_technologies, total_services, total_providers,
+                   domains_with_tech_analysis, domains_with_scraping_analysis
+            """
+            
+            result = session.run(stats_query)
+            record = result.single()
+            
+            if not record:
+                return {
+                    "total_domains": 0,
+                    "total_technologies": 0,
+                    "total_services": 0,
+                    "total_providers": 0,
+                    "domains_with_tech_analysis": 0,
+                    "domains_with_scraping_analysis": 0,
+                    "analysis_coverage": 0.0
+                }
+            
+            total_domains = record["total_domains"]
+            analysis_coverage = 0.0
+            if total_domains > 0:
+                analyzed_domains = max(record["domains_with_tech_analysis"], record["domains_with_scraping_analysis"])
+                analysis_coverage = (analyzed_domains / total_domains) * 100
+            
+            return {
+                "total_domains": total_domains,
+                "total_technologies": record["total_technologies"],
+                "total_services": record["total_services"],
+                "total_providers": record["total_providers"],
+                "domains_with_tech_analysis": record["domains_with_tech_analysis"],
+                "domains_with_scraping_analysis": record["domains_with_scraping_analysis"],
+                "analysis_coverage": round(analysis_coverage, 2)
+            }
+    
+    except Exception as e:
+        logger.error(f"Error fetching technology statistics: {e}")
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+
 # Discovery endpoints
 @app.post("/api/v1/discover/amass/{domain}", tags=["Discovery"])
 async def start_amass_discovery(
@@ -3285,6 +4067,8 @@ async def start_amass_discovery(
         started_at=datetime.now()
     )
     discovery_service.active_tasks[task_id] = task
+    discovery_service._update_task_logs(task_id, f"Task created for Amass discovery on {domain}")
+    discovery_service._save_task_to_db(task)
     
     # Start async discovery
     asyncio.create_task(discovery_service.run_amass_discovery(domain, task_id, timeout))
@@ -3417,6 +4201,38 @@ async def start_tech_analysis(
     asyncio.create_task(_auto_calculate_risk(domain, subdomain, delay_seconds=8))
     
     return {"task_id": task_id, "domain": domain, "subdomain": subdomain, "status": "started"}
+
+@app.post("/api/v1/discover/web-scraping/{domain}", tags=["Discovery"])
+async def start_web_scraping_analysis(
+    domain: str = Path(..., description="Domain to analyze"),
+    subdomain: Optional[str] = Query(None, description="Specific subdomain to analyze")
+):
+    """Start comprehensive web scraping analysis to detect technologies and services from page content and links"""
+    if not discovery_service:
+        raise HTTPException(status_code=503, detail="Service not available")
+    
+    task_id = str(uuid.uuid4())
+    task = TaskInfo(
+        task_id=task_id,
+        task_type=TaskType.WEB_SCRAPING,
+        domain=domain,
+        subdomain=subdomain,
+        status=TaskStatus.PENDING,
+        started_at=datetime.now()
+    )
+    discovery_service.active_tasks[task_id] = task
+    
+    # Start async web scraping analysis
+    asyncio.create_task(discovery_service.run_web_scraping_analysis(domain, subdomain, task_id))
+    
+    return {
+        "task_id": task_id, 
+        "domain": domain, 
+        "subdomain": subdomain, 
+        "status": "started",
+        "analysis_type": "web_scraping",
+        "description": "Comprehensive web scraping to detect technologies, analytics services, and third-party providers"
+    }
 
 # Risk calculation endpoints
 @app.post("/api/v1/calculate/risk/{domain}", tags=["Risk Calculation"])
@@ -3872,6 +4688,357 @@ async def discover_and_analyze_all_subdomains(
         "analysis_type": analysis_type,
         "amass_timeout": amass_timeout
     }
+
+@app.post("/api/v1/discover/combined/{domain}", tags=["Batch Operations"])
+async def start_combined_discovery(
+    domain: str = Path(..., description="Domain to analyze"),
+    subdomain: Optional[str] = Query(None, description="Specific subdomain to analyze (if not provided, analyzes the main domain)"),
+    include_services: bool = Query(True, description="Include service discovery"),
+    include_dns: bool = Query(True, description="Include DNS analysis"),
+    include_mx: bool = Query(True, description="Include MX record analysis"),
+    include_tls: bool = Query(True, description="Include TLS analysis"),
+    include_tech: bool = Query(True, description="Include technology discovery")
+):
+    """Run combined discovery (services, DNS, MX, TLS, tech) for a single domain or subdomain"""
+    if not discovery_service:
+        raise HTTPException(status_code=503, detail="Service not available")
+    
+    target = subdomain if subdomain else domain
+    task_id = str(uuid.uuid4())
+    
+    # Create main task
+    main_task = TaskInfo(
+        task_id=task_id,
+        task_type=TaskType.BATCH_ANALYSIS,
+        domain=domain,
+        subdomain=subdomain,
+        status=TaskStatus.RUNNING,
+        started_at=datetime.now()
+    )
+    discovery_service.active_tasks[task_id] = main_task
+    
+    # Start background task
+    asyncio.create_task(_run_combined_discovery(domain, subdomain, task_id, include_services, include_dns, include_mx, include_tls, include_tech))
+    
+    return {
+        "task_id": task_id,
+        "domain": domain,
+        "target": target,
+        "status": "started",
+        "analysis_types": {
+            "services": include_services,
+            "dns": include_dns,
+            "mx": include_mx,
+            "tls": include_tls,
+            "tech": include_tech
+        }
+    }
+
+@app.post("/api/v1/discover/combined-recursive/{domain}", tags=["Batch Operations"])
+async def start_combined_recursive_discovery(
+    domain: str = Path(..., description="Base domain to analyze recursively with existing subdomains"),
+    max_subdomains: int = Query(1000, description="Maximum number of existing subdomains to analyze"),
+    include_services: bool = Query(True, description="Include service discovery"),
+    include_dns: bool = Query(True, description="Include DNS analysis"),
+    include_mx: bool = Query(True, description="Include MX record analysis"),
+    include_tls: bool = Query(True, description="Include TLS analysis"),
+    include_tech: bool = Query(True, description="Include technology discovery")
+):
+    """Run combined analysis on base domain and all existing subdomains from Neo4j graph (no new subdomain discovery)"""
+    if not discovery_service:
+        raise HTTPException(status_code=503, detail="Service not available")
+    
+    task_id = str(uuid.uuid4())
+    
+    # Create main task
+    main_task = TaskInfo(
+        task_id=task_id,
+        task_type=TaskType.BATCH_ANALYSIS,
+        domain=domain,
+        subdomain=None,
+        status=TaskStatus.RUNNING,
+        started_at=datetime.now()
+    )
+    discovery_service.active_tasks[task_id] = main_task
+    
+    # Start background task
+    asyncio.create_task(_run_combined_recursive_discovery(
+        domain, task_id, max_subdomains,
+        include_services, include_dns, include_mx, include_tls, include_tech
+    ))
+    
+    return {
+        "task_id": task_id,
+        "domain": domain,
+        "status": "started",
+        "max_subdomains": max_subdomains,
+        "data_source": "existing_subdomains_from_neo4j",
+        "analysis_types": {
+            "services": include_services,
+            "dns": include_dns,
+            "mx": include_mx,
+            "tls": include_tls,
+            "tech": include_tech
+        }
+    }
+
+async def _run_combined_discovery(domain: str, subdomain: Optional[str], task_id: str, 
+                                include_services: bool, include_dns: bool, include_mx: bool, 
+                                include_tls: bool, include_tech: bool):
+    """Run combined discovery analysis for a single domain/subdomain"""
+    try:
+        target = subdomain if subdomain else domain
+        logger.info(f"Starting combined discovery for {target} (task: {task_id})")
+        
+        results = {}
+        
+        # Update task progress
+        if task_id in discovery_service.active_tasks:
+            task = discovery_service.active_tasks[task_id]
+            task.progress = 10
+            discovery_service._update_task_logs(task_id, f"Started combined discovery for {target}")
+        
+        # Run service discovery
+        if include_services:
+            try:
+                logger.info(f"Running service discovery for {target}")
+                service_result = await discovery_service.run_service_discovery(domain, subdomain, f"{task_id}-services")
+                results["services"] = service_result
+                if task_id in discovery_service.active_tasks:
+                    task = discovery_service.active_tasks[task_id]
+                    task.progress = 25
+                    discovery_service._update_task_logs(task_id, f"Completed service discovery for {target}")
+            except Exception as e:
+                logger.error(f"Service discovery failed for {target}: {e}")
+                results["services"] = {"error": str(e)}
+        
+        # Run DNS analysis
+        if include_dns:
+            try:
+                logger.info(f"Running DNS analysis for {target}")
+                dns_result = await discovery_service.run_dns_analysis(domain, subdomain, f"{task_id}-dns")
+                results["dns"] = dns_result
+                if task_id in discovery_service.active_tasks:
+                    task = discovery_service.active_tasks[task_id]
+                    task.progress = 40
+                    discovery_service._update_task_logs(task_id, f"Completed DNS analysis for {target}")
+            except Exception as e:
+                logger.error(f"DNS analysis failed for {target}: {e}")
+                results["dns"] = {"error": str(e)}
+        
+        # Run MX analysis (only for base domain, not subdomains)
+        if include_mx and not subdomain:
+            try:
+                logger.info(f"Running MX analysis for {domain}")
+                mx_result = await discovery_service.run_mx_analysis(domain, f"{task_id}-mx")
+                results["mx"] = mx_result
+                if task_id in discovery_service.active_tasks:
+                    task = discovery_service.active_tasks[task_id]
+                    task.progress = 60
+                    discovery_service._update_task_logs(task_id, f"Completed MX analysis for {domain}")
+            except Exception as e:
+                logger.error(f"MX analysis failed for {domain}: {e}")
+                results["mx"] = {"error": str(e)}
+        
+        # Run TLS analysis
+        if include_tls:
+            try:
+                logger.info(f"Running TLS analysis for {target}")
+                tls_result = await discovery_service.run_tls_analysis(domain, subdomain, f"{task_id}-tls")
+                results["tls"] = tls_result
+                if task_id in discovery_service.active_tasks:
+                    task = discovery_service.active_tasks[task_id]
+                    task.progress = 80
+                    discovery_service._update_task_logs(task_id, f"Completed TLS analysis for {target}")
+            except Exception as e:
+                logger.error(f"TLS analysis failed for {target}: {e}")
+                results["tls"] = {"error": str(e)}
+        
+        # Run tech analysis
+        if include_tech:
+            try:
+                logger.info(f"Running technology analysis for {target}")
+                tech_result = await discovery_service.run_tech_analysis(domain, subdomain, f"{task_id}-tech")
+                results["tech"] = tech_result
+                if task_id in discovery_service.active_tasks:
+                    task = discovery_service.active_tasks[task_id]
+                    task.progress = 95
+                    discovery_service._update_task_logs(task_id, f"Completed technology analysis for {target}")
+            except Exception as e:
+                logger.error(f"Technology analysis failed for {target}: {e}")
+                results["tech"] = {"error": str(e)}
+        
+        # Mark task as completed
+        discovery_service._update_task_status(
+            task_id, 
+            TaskStatus.COMPLETED, 
+            progress=100, 
+            result=results
+        )
+        if task_id in discovery_service.active_tasks:
+            discovery_service._update_task_logs(task_id, f"Completed combined discovery for {target}")
+            
+        logger.info(f"Combined discovery completed for {target}")
+        
+    except Exception as e:
+        logger.error(f"Combined discovery failed for {target}: {e}")
+        discovery_service._update_task_status(
+            task_id,
+            TaskStatus.FAILED,
+            error=str(e)
+        )
+
+async def _run_combined_recursive_discovery(domain: str, task_id: str, max_subdomains: int,
+                                          include_services: bool, include_dns: bool, include_mx: bool, 
+                                          include_tls: bool, include_tech: bool):
+    """Run combined discovery analysis recursively for base domain and all existing subdomains from Neo4j"""
+    try:
+        logger.info(f"Starting combined recursive discovery for {domain} (task: {task_id})")
+        
+        # Update task progress
+        if task_id in discovery_service.active_tasks:
+            task = discovery_service.active_tasks[task_id]
+            task.progress = 5
+            discovery_service._update_task_logs(task_id, f"Retrieving existing subdomains for {domain} from Neo4j")
+        
+        # Get existing subdomains from Neo4j graph
+        logger.info(f"Querying existing subdomains for {domain} from Neo4j")
+        subdomains = []
+        
+        if HAS_NEO4J and discovery_service.driver:
+            try:
+                with discovery_service.driver.session() as session:
+                    result = session.run("""
+                        MATCH (d:Domain {fqdn: $domain})-[:HAS_SUBDOMAIN]->(s:Subdomain)
+                        RETURN s.fqdn as subdomain
+                        ORDER BY s.fqdn
+                        LIMIT $max_subdomains
+                    """, domain=domain, max_subdomains=max_subdomains)
+                    
+                    subdomains = [record["subdomain"] for record in result if record["subdomain"]]
+                    
+            except Exception as e:
+                logger.error(f"Error querying subdomains from Neo4j for {domain}: {e}")
+                # Fallback: try to get subdomains from any existing nodes with the domain suffix
+                try:
+                    with discovery_service.driver.session() as session:
+                        result = session.run("""
+                            MATCH (n:Subdomain)
+                            WHERE n.fqdn ENDS WITH $domain_suffix
+                            AND n.fqdn <> $domain
+                            RETURN n.fqdn as subdomain
+                            ORDER BY n.fqdn
+                            LIMIT $max_subdomains
+                        """, domain_suffix=f".{domain}", domain=domain, max_subdomains=max_subdomains)
+                        
+                        subdomains = [record["subdomain"] for record in result if record["subdomain"]]
+                        
+                except Exception as e2:
+                    logger.error(f"Fallback subdomain query also failed for {domain}: {e2}")
+                    subdomains = []
+        
+        logger.info(f"Found {len(subdomains)} existing subdomains for {domain} in Neo4j")
+        
+        if task_id in discovery_service.active_tasks:
+            task = discovery_service.active_tasks[task_id]
+            task.progress = 20
+            discovery_service._update_task_logs(task_id, f"Found {len(subdomains)} existing subdomains, starting combined analysis")
+        
+        # All targets to analyze (base domain + subdomains)
+        all_targets = [domain] + subdomains
+        total_targets = len(all_targets)
+        results = {}
+        
+        # Analyze each target
+        for i, target in enumerate(all_targets):
+            try:
+                logger.info(f"Running combined analysis for {target} ({i+1}/{total_targets})")
+                
+                is_subdomain = target != domain
+                target_results = {}
+                
+                # Run service discovery
+                if include_services:
+                    try:
+                        service_result = await discovery_service.run_service_discovery(domain, target if is_subdomain else None, f"{task_id}-services-{i}")
+                        target_results["services"] = service_result
+                    except Exception as e:
+                        logger.error(f"Service discovery failed for {target}: {e}")
+                        target_results["services"] = {"error": str(e)}
+                
+                # Run DNS analysis
+                if include_dns:
+                    try:
+                        dns_result = await discovery_service.run_dns_analysis(domain, target if is_subdomain else None, f"{task_id}-dns-{i}")
+                        target_results["dns"] = dns_result
+                    except Exception as e:
+                        logger.error(f"DNS analysis failed for {target}: {e}")
+                        target_results["dns"] = {"error": str(e)}
+                
+                # Run MX analysis (only for base domain)
+                if include_mx and not is_subdomain:
+                    try:
+                        mx_result = await discovery_service.run_mx_analysis(domain, f"{task_id}-mx")
+                        target_results["mx"] = mx_result
+                    except Exception as e:
+                        logger.error(f"MX analysis failed for {target}: {e}")
+                        target_results["mx"] = {"error": str(e)}
+                
+                # Run TLS analysis
+                if include_tls:
+                    try:
+                        tls_result = await discovery_service.run_tls_analysis(domain, target if is_subdomain else None, f"{task_id}-tls-{i}")
+                        target_results["tls"] = tls_result
+                    except Exception as e:
+                        logger.error(f"TLS analysis failed for {target}: {e}")
+                        target_results["tls"] = {"error": str(e)}
+                
+                # Run tech analysis
+                if include_tech:
+                    try:
+                        tech_result = await discovery_service.run_tech_analysis(domain, target if is_subdomain else None, f"{task_id}-tech-{i}")
+                        target_results["tech"] = tech_result
+                    except Exception as e:
+                        logger.error(f"Technology analysis failed for {target}: {e}")
+                        target_results["tech"] = {"error": str(e)}
+                
+                results[target] = target_results
+                
+                # Update progress
+                progress = 20 + (70 * (i + 1) / total_targets)
+                if task_id in discovery_service.active_tasks:
+                    task = discovery_service.active_tasks[task_id]
+                    task.progress = int(progress)
+                    discovery_service._update_task_logs(task_id, f"Completed analysis for {target} ({i+1}/{total_targets})")
+                
+            except Exception as e:
+                logger.error(f"Analysis failed for {target}: {e}")
+                results[target] = {"error": str(e)}
+        
+        # Mark task as completed
+        discovery_service._update_task_status(
+            task_id,
+            TaskStatus.COMPLETED,
+            progress=100,
+            result={
+                "domain": domain,
+                "total_targets_analyzed": total_targets,
+                "subdomains_found": len(subdomains),
+                "results": results
+            }
+        )
+        if task_id in discovery_service.active_tasks:
+            discovery_service._update_task_logs(task_id, f"Completed combined recursive discovery for {domain} - analyzed {total_targets} targets")
+            
+        logger.info(f"Combined recursive discovery completed for {domain} - analyzed {total_targets} targets")
+        
+    except Exception as e:
+        logger.error(f"Combined recursive discovery failed for {domain}: {e}")
+        discovery_service._update_task_status(
+            task_id,
+            TaskStatus.FAILED,
+            error=str(e)
+        )
 
 async def _calculate_local_risk_score(target: str, force_recalculation: bool = False):
     """Calculate risk score using local domain-backend logic"""

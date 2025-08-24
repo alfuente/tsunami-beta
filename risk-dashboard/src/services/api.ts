@@ -352,7 +352,7 @@ export const providerApi = {
 
 // Domain Backend Statistics API (from domain-backend service)
 const DOMAIN_BACKEND_URL = process.env.REACT_APP_DOMAIN_BACKEND_URL || 'http://localhost:8000';
-// Async Discovery API (for tasks monitoring)
+// Async Discovery API (for tasks monitoring) - Uses domain-backend on port 8001
 const ASYNC_API_URL = process.env.REACT_APP_ASYNC_API_URL || 'http://localhost:8001';
 
 const domainBackendApi = axios.create({
@@ -526,6 +526,122 @@ export const tasksApi = {
       console.error('Error fetching task logs:', error);
       return { logs: 'Error loading logs: ' + String(error), task_id: taskId };
     }
+  }
+};
+
+// Technologies API (from domain-backend on port 8001)
+const TECHNOLOGIES_API_URL = process.env.REACT_APP_DOMAIN_BACKEND_URL || 'http://localhost:8001';
+
+const technologiesApi = axios.create({
+  baseURL: TECHNOLOGIES_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export const technologyApi = {
+  getOverview: async (params: {
+    limit?: number;
+    category?: string;
+    min_usage_count?: number;
+  } = {}): Promise<{
+    technologies: Array<{
+      name: string;
+      category: string;
+      domain_count: number;
+      domains: string[];
+      total_domains: number;
+    }>;
+    total_count: number;
+    filters: {
+      category: string | null;
+      min_usage_count: number;
+      limit: number;
+    };
+  }> => {
+    const response = await technologiesApi.get('/api/v1/technologies', { params });
+    return response.data;
+  },
+
+  getTechnologyDetails: async (
+    technologyName: string,
+    params: {
+      include_scraped?: boolean;
+      limit?: number;
+    } = {}
+  ): Promise<{
+    technology_name: string;
+    domains_from_analysis: Array<{
+      domain: string;
+      base_domain: string;
+      risk_score: number;
+      risk_tier: string;
+      category: string;
+      confidence: number;
+      services: string[];
+      providers: string[];
+      analyzed_at: string;
+      source: string;
+    }>;
+    domains_from_scraping: Array<{
+      domain: string;
+      base_domain: string;
+      risk_score: number;
+      risk_tier: string;
+      category: string;
+      confidence: number;
+      services: string[];
+      providers: string[];
+      analyzed_at: string;
+      source: string;
+    }>;
+    total_domains_analysis: number;
+    total_domains_scraping: number;
+    total_domains_combined: number;
+  }> => {
+    const response = await technologiesApi.get(`/api/v1/technologies/${encodeURIComponent(technologyName)}/details`, { params });
+    return response.data;
+  },
+
+  getCategories: async (): Promise<{
+    categories: Array<{
+      category: string;
+      technology_count: number;
+      domain_count: number;
+    }>;
+    total_categories: number;
+  }> => {
+    const response = await technologiesApi.get('/api/v1/technologies/categories');
+    return response.data;
+  },
+
+  getStatistics: async (): Promise<{
+    total_domains: number;
+    total_technologies: number;
+    total_services: number;
+    total_providers: number;
+    domains_with_tech_analysis: number;
+    domains_with_scraping_analysis: number;
+    analysis_coverage: number;
+  }> => {
+    const response = await technologiesApi.get('/api/v1/technologies/stats');
+    return response.data;
+  },
+
+  // Web scraping analysis
+  startWebScrapingAnalysis: async (domain: string, subdomain?: string): Promise<{
+    task_id: string;
+    domain: string;
+    subdomain: string | null;
+    status: string;
+    analysis_type: string;
+    description: string;
+  }> => {
+    const url = subdomain 
+      ? `/api/v1/discover/web-scraping/${domain}?subdomain=${subdomain}`
+      : `/api/v1/discover/web-scraping/${domain}`;
+    const response = await technologiesApi.post(url);
+    return response.data;
   }
 };
 

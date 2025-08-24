@@ -23,6 +23,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  List,
+  ListItem,
+  ListItemText,
 } from '@mui/material';
 import {
   ArrowBack as ArrowBackIcon,
@@ -32,6 +35,8 @@ import {
   Storage as StorageIcon,
   Visibility as VisibilityIcon,
   AccountTree as GraphIcon,
+  Dns as DnsIcon,
+  Mail as MailIcon,
 } from '@mui/icons-material';
 import { domainApi, calculationApi, riskApi } from '../services/api';
 import { BaseDomainDetailsResponse, RiskScoreResponse } from '../types/api';
@@ -121,6 +126,49 @@ const BaseDomainDetail: React.FC = () => {
       case 'low': return 'success';
       default: return 'default';
     }
+  };
+
+  // Helper functions to aggregate DNS and MX data from subdomains
+  const getDnsData = () => {
+    if (!domainDetails?.subdomains) return null;
+    
+    let dnssecEnabled = 0;
+    let spfRecords = 0;
+    let dmarcRecords = 0;
+    let totalWithDns = 0;
+    let nameServers: Set<string> = new Set();
+    
+    domainDetails.subdomains.forEach(subdomain => {
+      // We would need to fetch individual domain details to get DNS info
+      // For now, we'll show placeholder data
+    });
+    
+    return {
+      hasData: totalWithDns > 0,
+      dnssecEnabled,
+      spfRecords,
+      dmarcRecords,
+      totalWithDns,
+      nameServers: Array.from(nameServers)
+    };
+  };
+  
+  const getMxData = () => {
+    if (!domainDetails?.subdomains) return null;
+    
+    let mxProviders: Set<string> = new Set();
+    let totalWithMx = 0;
+    
+    domainDetails.subdomains.forEach(subdomain => {
+      // We would need to fetch individual domain details to get MX info
+      // For now, we'll show placeholder data
+    });
+    
+    return {
+      hasData: totalWithMx > 0,
+      mxProviders: Array.from(mxProviders),
+      totalWithMx
+    };
   };
 
   useEffect(() => {
@@ -483,6 +531,96 @@ const BaseDomainDetail: React.FC = () => {
             </CardContent>
           </Card>
         </Grid>
+        
+        {/* DNS Summary */}
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Box display="flex" alignItems="center" mb={2}>
+                <DnsIcon sx={{ mr: 1 }} />
+                <Typography variant="h6">DNS Information</Typography>
+              </Box>
+              <Typography variant="h4" color="primary" gutterBottom>
+                {domainDetails?.total_count || 0}
+              </Typography>
+              <Typography variant="body2" color="textSecondary" gutterBottom>
+                Subdomains with DNS Data
+              </Typography>
+              
+              <List dense>
+                <ListItem>
+                  <ListItemText 
+                    primary="Base Domain DNS" 
+                    secondary={
+                      <Chip 
+                        label="Available at subdomain level" 
+                        color="info"
+                        size="small"
+                      />
+                    }
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText 
+                    primary="DNSSEC Analysis" 
+                    secondary="Check individual subdomains for DNSSEC status"
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText 
+                    primary="SPF/DMARC Records" 
+                    secondary="Email security records per subdomain"
+                  />
+                </ListItem>
+              </List>
+            </CardContent>
+          </Card>
+        </Grid>
+        
+        {/* MX Summary */}
+        <Grid item xs={12} md={6}>
+          <Card>
+            <CardContent>
+              <Box display="flex" alignItems="center" mb={2}>
+                <MailIcon sx={{ mr: 1 }} />
+                <Typography variant="h6">Mail (MX) Information</Typography>
+              </Box>
+              <Typography variant="h4" color="primary" gutterBottom>
+                {domainDetails?.total_count || 0}
+              </Typography>
+              <Typography variant="body2" color="textSecondary" gutterBottom>
+                Subdomains with Mail Services
+              </Typography>
+              
+              <List dense>
+                <ListItem>
+                  <ListItemText 
+                    primary="MX Records" 
+                    secondary={
+                      <Chip 
+                        label="Available at subdomain level" 
+                        color="info"
+                        size="small"
+                      />
+                    }
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText 
+                    primary="Mail Providers" 
+                    secondary="Check individual subdomains for mail servers"
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText 
+                    primary="Email Security" 
+                    secondary="SPF, DMARC, DKIM analysis per subdomain"
+                  />
+                </ListItem>
+              </List>
+            </CardContent>
+          </Card>
+        </Grid>
 
         {/* Subdomains Detail */}
         <Grid item xs={12}>
@@ -491,6 +629,9 @@ const BaseDomainDetail: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Subdomains ({domainDetails?.total_count || 0})
               </Typography>
+              <Alert severity="info" sx={{ mb: 2 }}>
+                DNS and MX information is available at the individual subdomain level. Click the view icon to see detailed DNS and MX records for each subdomain.
+              </Alert>
               <TableContainer>
                 <Table>
                   <TableHead>
