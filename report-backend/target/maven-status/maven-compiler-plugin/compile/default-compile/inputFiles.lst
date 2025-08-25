@@ -1,0 +1,16 @@
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/ReportApplication.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/config/Neo4jConfig.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/dto/ClientSummary.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/dto/ReportRequest.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/dto/ReportResponse.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/entity/Client.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/entity/ReportGeneration.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/entity/ReportPurchase.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/resource/ClientResource.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/resource/DigitalSignatureResource.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/resource/GraphAnalysisResource.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/resource/ReportResource.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/service/DigitalSignatureService.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/service/DomainDataService.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/service/PdfGenerationService.java
+/home/alf/dev/tsunami-beta/report-backend/src/main/java/com/example/report/service/ReportService.java

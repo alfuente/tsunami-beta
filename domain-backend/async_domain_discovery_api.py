@@ -1258,9 +1258,28 @@ class AsyncDomainDiscoveryService:
         """, target=target, dns_records=json.dumps(result.records),
              nameservers=result.nameservers, current_time=current_time)
 
+    def _is_base_domain(self, domain: str) -> bool:
+        """Check if domain is a base domain (not a subdomain)"""
+        parts = domain.split('.')
+        # Base domains typically have 2 parts (domain.tld) or 3 for country codes (domain.co.uk)
+        # For Chilean domains (.cl), base domains have exactly 2 parts
+        if domain.endswith('.cl'):
+            return len(parts) == 2
+        # For other domains, consider 2-3 parts as base domains
+        return len(parts) <= 3 and not any(part in ['www', 'mail', 'email', 'smtp', 'mx'] for part in parts[:-2])
+
     async def run_mx_analysis(self, domain: str, task_id: str) -> MXAnalysisResult:
-        """Run MX record analysis with SPF, DMARC, DKIM"""
+        """Run MX record analysis with SPF, DMARC, DKIM - only for base domains"""
         logger.info(f"Starting MX analysis for {domain} (task: {task_id})")
+        
+        # Only analyze MX records for base domains
+        if not self._is_base_domain(domain):
+            logger.info(f"Skipping MX analysis for subdomain: {domain}")
+            return MXAnalysisResult(
+                domain=domain,
+                mx_records=[],
+                metadata={"skipped": True, "reason": "subdomain_mx_not_analyzed"}
+            )
         
         # Update task status
         if task_id in self.active_tasks:
@@ -3325,9 +3344,10 @@ class AsyncDomainDiscoveryService:
              cms=result.cms,
              current_time=current_time)
         
-        # Process all technologies to create detailed nodes
+        # Process all technologies to create detailed nodes with enhanced modeling
         for tech in result.technologies:
-            self._create_technology_nodes(tx, tech, target, current_time)
+            # Use enhanced technology modeling for new detailed structure
+            self._create_enhanced_technology_nodes(tx, tech, target, current_time)
         
         # Extract providers from various sources
         providers_to_create = []
@@ -3400,6 +3420,236 @@ class AsyncDomainDiscoveryService:
                  current_time=current_time, confidence=confidence,
                  source=provider.get("source", "web_analysis"))
 
+    def _create_enhanced_technology_nodes(self, tx, tech, target, current_time):
+        """Create enhanced technology nodes with versions and detailed TLS modeling"""
+        
+        tech_name = tech.get("name", "Unknown")
+        category = tech.get("category", "unknown")
+        confidence = tech.get("confidence", 0.5)
+        
+        # Enhanced software parsing with version extraction
+        software_info = self._parse_software_with_version(tech)
+        if software_info:
+            # Create Software node
+            tx.run("""
+                MERGE (s:Software {name: $software_name})
+                SET s.category = $category,
+                    s.vendor = $vendor,
+                    s.updated_at = $timestamp
+            """, 
+            software_name=software_info["name"],
+            category=software_info["category"],
+            vendor=software_info["vendor"],
+            timestamp=current_time)
+            
+            # Create SoftwareVersion node if version detected
+            if software_info["version"]:
+                tx.run("""
+                    MERGE (sv:SoftwareVersion {software_name: $software_name, version: $version})
+                    SET sv.confidence = $confidence,
+                        sv.detection_source = $source,
+                        sv.created_at = coalesce(sv.created_at, $timestamp),
+                        sv.updated_at = $timestamp
+                """,
+                software_name=software_info["name"],
+                version=software_info["version"],
+                confidence=confidence,
+                source=tech.get("source", "technology_detection"),
+                timestamp=current_time)
+                
+                # Create relationship: Software <-[:VERSION_OF]- SoftwareVersion
+                tx.run("""
+                    MATCH (s:Software {name: $software_name})
+                    MATCH (sv:SoftwareVersion {software_name: $software_name, version: $version})
+                    MERGE (sv)-[:VERSION_OF]->(s)
+                """,
+                software_name=software_info["name"],
+                version=software_info["version"])
+                
+                # Create relationship: Domain -[:USES]-> SoftwareVersion
+                tx.run("""
+                    MATCH (d {fqdn: $target})
+                    MATCH (sv:SoftwareVersion {software_name: $software_name, version: $version})
+                    MERGE (d)-[r:USES]->(sv)
+                    SET r.confidence = $confidence,
+                        r.detected_at = $timestamp,
+                        r.detection_source = $source
+                """,
+                target=target,
+                software_name=software_info["name"],
+                version=software_info["version"],
+                confidence=confidence,
+                source=tech.get("source", "technology_detection"),
+                timestamp=current_time)
+        
+        # Enhanced TLS modeling
+        tls_info = self._parse_tls_detailed(tech)
+        if tls_info:
+            # Create TLSProtocol node
+            tx.run("""
+                MERGE (tls:TLSProtocol {version: $tls_version})
+                SET tls.security_level = $security_level,
+                    tls.updated_at = $timestamp
+            """,
+            tls_version=tls_info["protocol_version"],
+            security_level=tls_info["security_level"],
+            timestamp=current_time)
+            
+            # Create relationship: Domain -[:SUPPORTS]-> TLSProtocol
+            tx.run("""
+                MATCH (d {fqdn: $target})
+                MATCH (tls:TLSProtocol {version: $tls_version})
+                MERGE (d)-[r:SUPPORTS]->(tls)
+                SET r.detected_at = $timestamp
+            """,
+            target=target,
+            tls_version=tls_info["protocol_version"],
+            timestamp=current_time)
+            
+            # Create CipherSuite nodes and relationships
+            for cipher_suite in tls_info["cipher_suites"]:
+                cipher_security = self._get_cipher_security_level(cipher_suite)
+                
+                # Create CipherSuite node
+                tx.run("""
+                    MERGE (cs:CipherSuite {name: $cipher_name})
+                    SET cs.security_level = $security_level,
+                        cs.updated_at = $timestamp
+                """,
+                cipher_name=cipher_suite,
+                security_level=cipher_security,
+                timestamp=current_time)
+                
+                # Create relationships: TLSProtocol -[:INCLUDES]-> CipherSuite
+                tx.run("""
+                    MATCH (tls:TLSProtocol {version: $tls_version})
+                    MATCH (cs:CipherSuite {name: $cipher_name})
+                    MERGE (tls)-[r:INCLUDES]->(cs)
+                    SET r.detected_at = $timestamp
+                """,
+                tls_version=tls_info["protocol_version"],
+                cipher_name=cipher_suite,
+                timestamp=current_time)
+                
+                # Create direct relationship: Domain -[:USES_CIPHER]-> CipherSuite
+                tx.run("""
+                    MATCH (d {fqdn: $target})
+                    MATCH (cs:CipherSuite {name: $cipher_name})
+                    MERGE (d)-[r:USES_CIPHER]->(cs)
+                    SET r.detected_at = $timestamp
+                """,
+                target=target,
+                cipher_name=cipher_suite,
+                timestamp=current_time)
+        
+        # Keep original technology node creation for backward compatibility
+        self._create_technology_nodes(tx, tech, target, current_time)
+    
+    def _parse_software_with_version(self, tech_data):
+        """Parse software information with version extraction"""
+        tech_name = tech_data.get('name', '').lower()
+        category = tech_data.get('category', 'unknown')
+        
+        # Software patterns for version extraction
+        software_patterns = {
+            r'apache[/\s]*([\d\.]+)': {'name': 'Apache Web Server', 'vendor': 'Apache Software Foundation', 'category': 'web_server'},
+            r'nginx[/\s]*([\d\.]+)': {'name': 'Nginx', 'vendor': 'Nginx Inc.', 'category': 'web_server'},
+            r'php[/\s]*([\d\.]+)': {'name': 'PHP', 'vendor': 'PHP Group', 'category': 'programming_language'},
+            r'mysql[/\s]*([\d\.]+)': {'name': 'MySQL', 'vendor': 'Oracle Corporation', 'category': 'database'},
+            r'wordpress[/\s]*([\d\.]+)': {'name': 'WordPress', 'vendor': 'Automattic', 'category': 'cms'},
+            r'jquery[/\s]*([\d\.]+)': {'name': 'jQuery', 'vendor': 'jQuery Foundation', 'category': 'javascript_library'},
+        }
+        
+        # Try to extract version from name using patterns
+        for pattern, info in software_patterns.items():
+            match = re.search(pattern, tech_name, re.IGNORECASE)
+            if match:
+                version = match.group(1) if match.groups() else None
+                return {
+                    "name": info['name'],
+                    "category": info['category'],
+                    "vendor": info['vendor'],
+                    "version": version
+                }
+        
+        # Handle known software without version
+        if 'apache' in tech_name:
+            return {"name": 'Apache Web Server', "category": 'web_server', "vendor": 'Apache Software Foundation', "version": None}
+        elif 'nginx' in tech_name:
+            return {"name": 'Nginx', "category": 'web_server', "vendor": 'Nginx Inc.', "version": None}
+        elif 'cloudflare' in tech_name:
+            return {"name": 'Cloudflare', "category": 'cdn_security', "vendor": 'Cloudflare Inc.', "version": None}
+        
+        return None
+    
+    def _parse_tls_detailed(self, tech_data):
+        """Parse detailed TLS information"""
+        tech_name = tech_data.get('name', '').lower()
+        
+        if 'tls' not in tech_name and 'ssl' not in tech_name:
+            return None
+        
+        # Extract TLS version
+        tls_version = None
+        if 'tlsv1.3' in tech_name or 'tls 1.3' in tech_name:
+            tls_version = 'TLS 1.3'
+        elif 'tlsv1.2' in tech_name or 'tls 1.2' in tech_name:
+            tls_version = 'TLS 1.2'
+        elif 'tlsv1.1' in tech_name or 'tls 1.1' in tech_name:
+            tls_version = 'TLS 1.1'
+        elif 'tlsv1.0' in tech_name or 'tls 1.0' in tech_name:
+            tls_version = 'TLS 1.0'
+        elif 'ssl' in tech_name:
+            tls_version = 'SSL 3.0'
+        
+        if not tls_version:
+            return None
+        
+        # Extract cipher suites
+        cipher_suites = []
+        cipher_suite = tech_data.get('cipher_suite')
+        if cipher_suite:
+            cipher_suites = [cipher_suite]
+        
+        # Determine security level
+        protocol_security = {
+            'TLS 1.3': 'excellent',
+            'TLS 1.2': 'good',
+            'TLS 1.1': 'deprecated',
+            'TLS 1.0': 'insecure',
+            'SSL 3.0': 'insecure'
+        }
+        security_level = protocol_security.get(tls_version, 'unknown')
+        
+        return {
+            "protocol_version": tls_version,
+            "cipher_suites": cipher_suites,
+            "security_level": security_level
+        }
+    
+    def _get_cipher_security_level(self, cipher_suite):
+        """Get security level for cipher suite"""
+        cipher_security = {
+            # Strong ciphers
+            'TLS_AES_256_GCM_SHA384': 'strong',
+            'TLS_AES_128_GCM_SHA256': 'strong', 
+            'TLS_CHACHA20_POLY1305_SHA256': 'strong',
+            'TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384': 'strong',
+            'TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256': 'strong',
+            
+            # Moderate ciphers
+            'TLS_RSA_WITH_AES_256_GCM_SHA384': 'moderate',
+            'TLS_RSA_WITH_AES_128_GCM_SHA256': 'moderate',
+            'TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384': 'moderate',
+            
+            # Weak ciphers
+            'TLS_RSA_WITH_3DES_EDE_CBC_SHA': 'weak',
+            'TLS_RSA_WITH_RC4_128_SHA': 'weak',
+            'TLS_RSA_WITH_RC4_128_MD5': 'weak',
+        }
+        
+        return cipher_security.get(cipher_suite, 'unknown')
+    
     def _create_technology_nodes(self, tx, tech, target, current_time):
         """Create specific and generic technology nodes with proper relationships"""
         
@@ -4321,6 +4571,8 @@ async def _calculate_risk_async(target: str, task_id: str, force_recalculation: 
                 "nodes_processed": result.get("nodes_processed"),
                 "message": f"Risk calculation completed for {target}"
             }
+            # Save task to database so it appears in UI
+            discovery_service._save_task_to_db(task)
             logger.info(f"Risk calculation completed for {target}: {result.get('status')}")
     
     except Exception as e:
@@ -4330,6 +4582,8 @@ async def _calculate_risk_async(target: str, task_id: str, force_recalculation: 
             task.status = TaskStatus.FAILED
             task.completed_at = datetime.now()
             task.error = str(e)
+            # Save failed task to database so it appears in UI
+            discovery_service._save_task_to_db(task)
 
 async def _calculate_risk_tree_async(domain: str, task_id: str, force_recalculation: bool = False):
     """Background task for domain tree risk calculation"""
@@ -4359,6 +4613,8 @@ async def _calculate_risk_tree_async(domain: str, task_id: str, force_recalculat
                 "nodes_processed": result.get("nodes_processed"),
                 "message": f"Risk tree calculation completed for {domain}"
             }
+            # Save task to database so it appears in UI
+            discovery_service._save_task_to_db(task)
             logger.info(f"Risk tree calculation completed for {domain}: {result.get('status')}")
     
     except Exception as e:
@@ -4368,6 +4624,8 @@ async def _calculate_risk_tree_async(domain: str, task_id: str, force_recalculat
             task.status = TaskStatus.FAILED
             task.completed_at = datetime.now()
             task.error = str(e)
+            # Save failed task to database so it appears in UI
+            discovery_service._save_task_to_db(task)
 
 async def _auto_calculate_risk(domain: str, subdomain: Optional[str] = None, delay_seconds: int = 5):
     """Helper function to automatically calculate risk after analysis completion"""
@@ -5041,103 +5299,123 @@ async def _run_combined_recursive_discovery(domain: str, task_id: str, max_subdo
         )
 
 async def _calculate_local_risk_score(target: str, force_recalculation: bool = False):
-    """Calculate risk score using local domain-backend logic"""
+    """Calculate enhanced risk score with 4 components using configurable weights"""
     try:
         if not HAS_NEO4J:
             return None
             
         with discovery_service.driver.session() as session:
-            # Get all technology and service data for the target
-            result = session.run("""
-                MATCH (n {fqdn: $target})
-                OPTIONAL MATCH (n)-[:RUNS_SERVICE]->(s:Service)
-                OPTIONAL MATCH (n)-[:USES_TECHNOLOGY]->(t:Technology)
-                RETURN n.fqdn as fqdn,
-                       n.technologies as technologies,
-                       n.web_server as web_server,
-                       n.tls_grade as tls_grade,
-                       collect(DISTINCT s.service_name) as services,
-                       collect(DISTINCT {name: t.name, category: t.category}) as tech_nodes
-            """, target=target)
+            # Import enhanced risk calculator
+            from enhanced_risk_calculator import EnhancedRiskCalculator
             
-            record = result.single()
-            if not record:
-                return None
+            # Initialize calculator with session
+            calculator = EnhancedRiskCalculator(session)
+            
+            # Determine if this is a base domain
+            is_base_domain = _is_base_domain(target)
+            
+            # Calculate enhanced risk score
+            risk_result = await calculator.calculate_enhanced_risk_score(target, is_base_domain)
+            
+            if risk_result:
+                # Add legacy fields for backward compatibility
+                risk_result["services_count"] = risk_result.get("score_breakdown", {}).get("base_score", 0)
+                risk_result["technologies_count"] = risk_result.get("score_breakdown", {}).get("base_score", 0)
                 
-            # Parse technologies JSON
-            technologies_json = record.get("technologies")
-            technologies = []
-            if technologies_json:
-                try:
-                    technologies = json.loads(technologies_json)
-                except:
-                    technologies = []
-            
-            # Calculate risk based on technologies and services
-            risk_score = 0.0
-            risk_factors = []
-            
-            # Service exposure risk (high impact)
-            services = record.get("services", [])
-            high_risk_services = ['ftp', 'telnet', 'mysql', 'rdp', 'vnc', 'postgresql']
-            medium_risk_services = ['ssh', 'http-alt', 'https-alt']
-            
-            for service in services:
-                if service in high_risk_services:
-                    risk_score += 15.0
-                    risk_factors.append(f"High-risk service exposed: {service}")
-                elif service in medium_risk_services:
-                    risk_score += 5.0
-                    risk_factors.append(f"Medium-risk service: {service}")
-            
-            # Technology-based risk
-            for tech in technologies:
-                category = tech.get("category", "")
-                risk_level = tech.get("risk_level", "low")
+                logger.info(f"Enhanced risk calculation for {target}: {risk_result['final_score']:.1f} "
+                          f"(Base: {risk_result['score_breakdown']['base_score']:.1f}, "
+                          f"Subdomain: {risk_result['score_breakdown']['subdomain_score']:.1f}, "
+                          f"DNS/MX: {risk_result['score_breakdown']['dns_mx_score']:.1f}, "
+                          f"Provider: {risk_result['score_breakdown']['provider_score']:.1f})")
                 
-                if risk_level == "critical":
-                    risk_score += 20.0
-                elif risk_level == "high":
-                    risk_score += 10.0
-                elif risk_level == "medium":
-                    risk_score += 5.0
-                    
-                if category == "threat_intelligence":
-                    malicious_votes = tech.get("malicious_votes", 0)
-                    if malicious_votes > 0:
-                        risk_score += malicious_votes * 10.0
-                        risk_factors.append(f"Malicious reputation: {malicious_votes} votes")
-            
-            # TLS configuration risk
-            tls_grade = record.get("tls_grade")
-            if tls_grade in ["C", "D", "F"]:
-                risk_score += 15.0
-                risk_factors.append(f"Poor TLS grade: {tls_grade}")
-            elif tls_grade == "B":
-                risk_score += 5.0
-                
-            # Determine risk tier
-            risk_score = min(risk_score, 100.0)  # Cap at 100
-            
-            if risk_score >= 80:
-                risk_tier = "Critical"
-            elif risk_score >= 60:
-                risk_tier = "High" 
-            elif risk_score >= 40:
-                risk_tier = "Medium"
+                return risk_result
             else:
-                risk_tier = "Low"
-                
-            return {
-                "final_score": risk_score,
-                "risk_tier": risk_tier,
-                "risk_factors": risk_factors,
-                "services_count": len(services),
-                "technologies_count": len(technologies)
-            }
+                # Fallback to simple calculation if enhanced fails
+                return await _calculate_simple_fallback_risk(target, session)
             
     except Exception as e:
-        logger.error(f"Error calculating local risk score for {target}: {e}")
+        logger.error(f"Error calculating enhanced risk score for {target}: {e}")
+        # Fallback to simple calculation
+        try:
+            with discovery_service.driver.session() as session:
+                return await _calculate_simple_fallback_risk(target, session)
+        except:
+            return None
+
+async def _calculate_simple_fallback_risk(target: str, session):
+    """Simple fallback risk calculation for compatibility"""
+    try:
+        result = session.run("""
+            MATCH (n {fqdn: $target})
+            OPTIONAL MATCH (n)-[:RUNS_SERVICE]->(s:Service)
+            OPTIONAL MATCH (n)-[:USES_TECHNOLOGY]->(t:Technology)
+            RETURN n.fqdn as fqdn,
+                   n.technologies as technologies,
+                   n.tls_grade as tls_grade,
+                   collect(DISTINCT s.service_name) as services
+        """, target=target)
+        
+        record = result.single()
+        if not record:
+            return None
+        
+        # Simple base risk calculation
+        risk_score = 15.0  # Base risk
+        risk_factors = ["Fallback risk calculation used"]
+        
+        services = record.get("services", [])
+        high_risk_services = ['ftp', 'telnet', 'mysql', 'rdp', 'vnc', 'postgresql']
+        
+        for service in services:
+            if service in high_risk_services:
+                risk_score += 15.0
+                risk_factors.append(f"High-risk service: {service}")
+        
+        # TLS risk
+        tls_grade = record.get("tls_grade")
+        if tls_grade in ["C", "D", "F"]:
+            risk_score += 15.0
+            risk_factors.append(f"Poor TLS grade: {tls_grade}")
+        elif not tls_grade:
+            risk_score += 10.0
+        
+        risk_score = min(risk_score, 100.0)
+        
+        # Simple grading
+        if risk_score <= 20:
+            risk_tier = risk_grade = "A"
+        elif risk_score <= 40:
+            risk_tier = risk_grade = "B"
+        elif risk_score <= 60:
+            risk_tier = risk_grade = "C"
+        elif risk_score <= 80:
+            risk_tier = risk_grade = "D"
+        else:
+            risk_tier = risk_grade = "E"
+        
+        return {
+            "final_score": risk_score,
+            "risk_tier": risk_tier,
+            "risk_grade": risk_grade,
+            "risk_factors": risk_factors,
+            "services_count": len(services),
+            "technologies_count": 0,
+            "score_breakdown": {
+                "base_score": risk_score,
+                "subdomain_score": 0.0,
+                "dns_mx_score": 0.0,
+                "provider_score": 0.0,
+                "weights": {
+                    "base_score": 1.0,
+                    "subdomain_score": 0.0,
+                    "dns_mx_score": 0.0,
+                    "provider_score": 0.0
+                }
+            }
+        }
+        
+    except Exception as e:
+        logger.error(f"Error in fallback risk calculation for {target}: {e}")
         return None
 
 async def _save_risk_score_to_neo4j(target: str, risk_result: dict):
@@ -5150,15 +5428,19 @@ async def _save_risk_score_to_neo4j(target: str, risk_result: dict):
             session.run("""
                 MATCH (n {fqdn: $target})
                 SET n.risk_score = $risk_score,
+                    n.riskScore = $risk_score,
                     n.risk_tier = $risk_tier,
+                    n.risk_grade = $risk_grade,
                     n.last_calculated = $timestamp,
+                    n.lastRiskCalculation = $timestamp,
                     n.risk_factors = $risk_factors,
                     n.services_count = $services_count,
                     n.technologies_analyzed = $tech_count
             """, 
             target=target,
             risk_score=risk_result["final_score"],
-            risk_tier=risk_result["risk_tier"], 
+            risk_tier=risk_result["risk_tier"],
+            risk_grade=risk_result["risk_grade"], 
             timestamp=datetime.now().isoformat(),
             risk_factors=json.dumps(risk_result.get("risk_factors", [])),
             services_count=risk_result.get("services_count", 0),

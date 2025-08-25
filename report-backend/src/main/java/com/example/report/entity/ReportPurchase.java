@@ -46,7 +46,7 @@ public class ReportPurchase extends PanacheEntity {
     public String notes;
     
     public enum ReportType {
-        STANDARD, PREMIUM
+        BASIC, STANDARD, PREMIUM, COMPREHENSIVE, COMPLIANCE, TECHNICAL
     }
     
     public enum PaymentStatus {

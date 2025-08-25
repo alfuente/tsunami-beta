@@ -3,6 +3,14 @@ package com.example.report.resource;
 import com.example.report.dto.ReportRequest;
 import com.example.report.dto.ReportResponse;
 import com.example.report.service.ReportService;
+import com.example.report.service.DomainDataService;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
@@ -14,12 +22,16 @@ import java.util.logging.Logger;
 @Path("/api/v1/reports")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@Tag(name = "Reports", description = "Generación y gestión de reportes de seguridad")
 public class ReportResource {
     
     private static final Logger LOGGER = Logger.getLogger(ReportResource.class.getName());
     
     @Inject
     ReportService reportService;
+    
+    @Inject
+    DomainDataService domainDataService;
     
     @POST
     public Response generateReport(@Valid ReportRequest request) {
@@ -128,6 +140,61 @@ public class ReportResource {
             LOGGER.severe("Failed to get client reports: " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity(new ErrorResponse("Internal error", "Failed to get client reports"))
+                    .build();
+        }
+    }
+    
+    @GET
+    @Path("/graph/analysis")
+    public Response getGraphAnalysis() {
+        try {
+            LOGGER.info("Generating graph analysis report");
+            
+            DomainDataService.GraphAnalysisData analysis = domainDataService.getGraphAnalysisData();
+            return Response.ok(analysis).build();
+            
+        } catch (Exception e) {
+            LOGGER.severe("Failed to generate graph analysis: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ErrorResponse("Internal error", "Failed to generate graph analysis"))
+                    .build();
+        }
+    }
+    
+    @GET
+    @Path("/domain/{domain}/analysis")
+    @Operation(
+        summary = "Análisis de dominio específico",
+        description = "Obtiene análisis detallado de riesgos y tecnologías para un dominio específico"
+    )
+    @APIResponses({
+        @APIResponse(
+            responseCode = "200",
+            description = "Análisis obtenido exitosamente",
+            content = @Content(
+                mediaType = MediaType.APPLICATION_JSON,
+                schema = @Schema(implementation = Object.class)
+            )
+        ),
+        @APIResponse(
+            responseCode = "500",
+            description = "Error interno del servidor",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON)
+        )
+    })
+    public Response getDomainAnalysis(
+        @Parameter(description = "Nombre del dominio a analizar", required = true)
+        @PathParam("domain") String domain) {
+        try {
+            LOGGER.info("Generating domain analysis for: " + domain);
+            
+            DomainDataService.DomainRiskData analysis = domainDataService.getDomainRiskData(domain);
+            return Response.ok(analysis).build();
+            
+        } catch (Exception e) {
+            LOGGER.severe("Failed to generate domain analysis: " + e.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(new ErrorResponse("Internal error", "Failed to generate domain analysis"))
                     .build();
         }
     }

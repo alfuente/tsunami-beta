@@ -8,13 +8,13 @@
   <properties>
     <compiler-plugin.version>3.12.1</compiler-plugin.version>
     <maven.compiler.parameters>true</maven.compiler.parameters>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-    <quarkus.platform.version>3.15.0</quarkus.platform.version>
+    <quarkus.platform.version>3.15.1</quarkus.platform.version>
     <skipITs>true</skipITs>
     <surefire-plugin.version>3.2.5</surefire-plugin.version>
   </properties>
@@ -32,7 +32,7 @@
   <dependencies>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-resteasy-reactive-jackson</artifactId>
+      <artifactId>quarkus-rest-jackson</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -40,7 +40,11 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-resteasy-reactive</artifactId>
+      <artifactId>quarkus-rest</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-hibernate-validator</artifactId>
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -48,7 +52,7 @@
     </dependency>
     <dependency>
       <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jdbc-postgresql</artifactId>
+      <artifactId>quarkus-jdbc-h2</artifactId>
     </dependency>
     <dependency>
       <groupId>org.neo4j.driver</groupId>
@@ -62,13 +66,34 @@
     <!-- PDF Generation -->
     <dependency>
       <groupId>com.itextpdf</groupId>
-      <artifactId>itext7-core</artifactId>
+      <artifactId>kernel</artifactId>
+      <version>7.2.5</version>
+    </dependency>
+    <dependency>
+      <groupId>com.itextpdf</groupId>
+      <artifactId>layout</artifactId>
       <version>7.2.5</version>
     </dependency>
     <dependency>
       <groupId>com.itextpdf</groupId>
       <artifactId>html2pdf</artifactId>
       <version>4.0.5</version>
+    </dependency>
+    <!-- DSS (Digital Signature Services) for PDF signing -->
+    <dependency>
+      <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+      <artifactId>dss-pades</artifactId>
+      <version>6.0</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+      <artifactId>dss-service</artifactId>
+      <version>6.0</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.europa.ec.joinup.sd-dss</groupId>
+      <artifactId>dss-token</artifactId>
+      <version>6.0</version>
     </dependency>
     <!-- JSON processing -->
     <dependency>

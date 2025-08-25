@@ -1,0 +1,36 @@
+{
+  "validation_timestamp": "2025-08-24T14:19:05.243359",
+  "cache_statistics": {
+    "total_cache_entries": 0,
+    "cache_entries_by_type": {},
+    "total_checkpoints": 2,
+    "resumable_tasks": 2,
+    "cache_db_path": "task_cache.db",
+    "cache_db_size_mb": 0.04
+  },
+  "resumable_tasks": [
+    {
+      "task_id": "test_batch_123",
+      "domain": "example.com",
+      "task_type": "batch_analysis",
+      "progress_percentage": 40.0,
+      "updated_at": "2025-08-24T14:19:01.385442",
+      "age_hours": 0.00107182
+    },
+    {
+      "task_id": "test_123",
+      "domain": "example.com",
+      "task_type": "batch_analysis",
+      "progress_percentage": 40.0,
+      "updated_at": "2025-08-24T14:18:58.491478",
+      "age_hours": 0.0018757002777777777
+    }
+  ],
+  "expired_entries_cleaned": 0,
+  "validation_errors": [],
+  "recommendations": [
+    "2 recent tasks (< 24h old) available for resumption"
+  ],
+  "consistency_issues": [],
+  "auto_resumed_tasks": []
+}

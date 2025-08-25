@@ -194,7 +194,12 @@ const Technologies: React.FC = () => {
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4">Technologies Overview</Typography>
+        <Box>
+          <Typography variant="h4">Technologies Overview</Typography>
+          <Typography variant="body1" color="textSecondary" sx={{ mt: 1 }}>
+            Comprehensive technology analysis across domains and subdomains with associated services and providers
+          </Typography>
+        </Box>
         <Button
           variant="outlined"
           startIcon={<RefreshIcon />}
@@ -394,7 +399,10 @@ const Technologies: React.FC = () => {
       <Card>
         <CardContent>
           <Typography variant="h6" gutterBottom>
-            Technologies ({filteredTechnologies.length})
+            Technologies Overview ({filteredTechnologies.length})
+          </Typography>
+          <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+            Comprehensive view of all technologies detected across domains and subdomains, including associated services and providers
           </Typography>
           
           <TableContainer>
@@ -403,8 +411,8 @@ const Technologies: React.FC = () => {
                 <TableRow>
                   <TableCell>Technology</TableCell>
                   <TableCell>Category</TableCell>
-                  <TableCell>Domains Using</TableCell>
-                  <TableCell>Sample Domains</TableCell>
+                  <TableCell>Usage Statistics</TableCell>
+                  <TableCell>Associated Domains</TableCell>
                   <TableCell>Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -417,6 +425,9 @@ const Technologies: React.FC = () => {
                         <Box ml={1}>
                           <Typography variant="subtitle2" fontWeight="bold">
                             {tech.name}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            Technology Detection
                           </Typography>
                         </Box>
                       </Box>
@@ -434,12 +445,17 @@ const Technologies: React.FC = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <Typography variant="h6" color="primary">
-                        {tech.domain_count}
-                      </Typography>
-                      <Typography variant="body2" color="textSecondary">
-                        domains
-                      </Typography>
+                      <Box>
+                        <Typography variant="h6" color="primary">
+                          {tech.domain_count}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary">
+                          domains & subdomains
+                        </Typography>
+                        <Typography variant="body2" color="primary">
+                          View details for services & providers →
+                        </Typography>
+                      </Box>
                     </TableCell>
                     <TableCell>
                       <Box display="flex" flexWrap="wrap" gap={0.5}>
@@ -450,23 +466,32 @@ const Technologies: React.FC = () => {
                             size="small"
                             variant="outlined"
                             onClick={() => navigate(`/domains/${domain}`)}
-                            sx={{ cursor: 'pointer' }}
+                            sx={{ 
+                              cursor: 'pointer',
+                              '&:hover': { backgroundColor: 'action.hover' }
+                            }}
                           />
                         ))}
                         {tech.domains.length > 3 && (
                           <Chip
-                            label={`+${tech.domains.length - 3} more`}
+                            label={`+${tech.domains.length - 3} more domains`}
                             size="small"
                             color="primary"
+                            onClick={() => handleViewTechnology(tech.name)}
+                            sx={{ cursor: 'pointer' }}
                           />
                         )}
                       </Box>
+                      <Typography variant="body2" color="textSecondary" sx={{ mt: 0.5 }}>
+                        Click technology name for complete domain, service & provider mapping
+                      </Typography>
                     </TableCell>
                     <TableCell>
-                      <Tooltip title="View Technology Details">
+                      <Tooltip title="View Complete Technology Analysis - Domains, Subdomains, Services & Providers">
                         <IconButton
                           size="small"
                           onClick={() => handleViewTechnology(tech.name)}
+                          color="primary"
                         >
                           <ViewIcon />
                         </IconButton>

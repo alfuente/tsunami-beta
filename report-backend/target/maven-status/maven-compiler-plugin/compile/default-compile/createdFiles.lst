@@ -1,0 +1,8 @@
+com/example/report/entity/ReportGeneration.class
+com/example/report/entity/ReportPurchase$ReportType.class
+com/example/report/entity/Client.class
+com/example/report/entity/Client$ClientStatus.class
+com/example/report/entity/ReportPurchase.class
+com/example/report/dto/ReportResponse.class
+com/example/report/entity/ReportGeneration$ReportStatus.class
+com/example/report/entity/ReportPurchase$PaymentStatus.class

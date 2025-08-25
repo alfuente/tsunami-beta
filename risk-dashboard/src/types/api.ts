@@ -74,11 +74,21 @@ export interface RiskScoreResponse {
     third_party_score: number;
     incident_impact: number;
     context_boost: number;
+    // New risk components
+    subdomain_risk?: number;
+    provider_risk?: number;
+    dns_risk?: number;
+    mx_risk?: number;
     weights?: {
       base_score: number;
       third_party_score: number;
       incident_impact: number;
       context_boost: number;
+      // New weight components
+      subdomain_risk?: number;
+      provider_risk?: number;
+      dns_risk?: number;
+      mx_risk?: number;
     };
   };
 }

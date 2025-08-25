@@ -18,6 +18,7 @@ import {
   Search as SearchIcon,
   Business as ProviderIcon,
   Assignment as TaskIcon,
+  Computer as TechnologyIcon,
 } from '@mui/icons-material';
 
 interface SidebarProps {
@@ -28,6 +29,7 @@ const menuItems = [
   { text: 'Dashboard', path: '/', icon: <DashboardIcon /> },
   { text: 'Domain Management', path: '/domains', icon: <DomainIcon /> },
   { text: 'Provider Management', path: '/providers', icon: <ProviderIcon /> },
+  { text: 'Technologies', path: '/technologies', icon: <TechnologyIcon /> },
   { text: 'Risk Analysis', path: '/risk-analysis', icon: <AnalyticsIcon /> },
   { text: 'Tasks Monitor', path: '/tasks', icon: <TaskIcon /> },
   { text: 'Queries', path: '/queries', icon: <SearchIcon /> },

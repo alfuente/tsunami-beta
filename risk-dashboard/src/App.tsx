@@ -14,6 +14,8 @@ import ProviderManagement from './pages/ProviderManagement';
 import ProviderDetail from './pages/ProviderDetail';
 import TasksMonitor from './pages/TasksMonitor';
 import Queries from './pages/Queries';
+import Technologies from './pages/Technologies';
+import TechnologyDetail from './pages/TechnologyDetail';
 
 const theme = createTheme({
   palette: {
@@ -62,6 +64,8 @@ function App() {
               <Route path="/providers" element={<ProviderManagement />} />
               <Route path="/providers/:providerId" element={<ProviderDetail />} />
               <Route path="/risk-analysis" element={<RiskAnalysis />} />
+              <Route path="/technologies" element={<Technologies />} />
+              <Route path="/technologies/:technologyName" element={<TechnologyDetail />} />
               <Route path="/tasks" element={<TasksMonitor />} />
               <Route path="/queries" element={<Queries />} />
             </Routes>

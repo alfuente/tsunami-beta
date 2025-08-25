@@ -524,9 +524,9 @@ start_quarkus_dev() {
     cd ..
 }
 
-# Function to start Report Backend in development mode
+# Function to start Report Backend in development mode (Python FastAPI)
 start_report_backend_dev() {
-    print_header "Starting Report Backend in development mode"
+    print_header "Starting Report Backend in development mode (Python/FastAPI)"
     
     if [ ! -d "$REPORT_BACKEND_DIR" ]; then
         print_error "Directory $REPORT_BACKEND_DIR not found"
@@ -535,22 +535,95 @@ start_report_backend_dev() {
     
     cd "$REPORT_BACKEND_DIR"
     
-    # Check if already running
-    if ps aux | grep -E "mvn.*quarkus.*8082|report-backend" | grep -v grep > /dev/null; then
-        print_warning "Report Backend process already running. Stopping first..."
+    # Check if already running on port 8082
+    if lsof -ti:8082 > /dev/null 2>&1; then
+        print_warning "Report Backend process already running on port 8082. Stopping first..."
         stop_report_backend
         sleep 2
     fi
     
-    print_status "Starting Report Backend development server in background..."
-    nohup mvn quarkus:dev -Dquarkus.http.port=8082 > ../report-backend-dev.log 2>&1 &
+    # Check if FastAPI dependencies are installed
+    if ! python3 -c "import fastapi, uvicorn" 2>/dev/null; then
+        print_status "Installing FastAPI dependencies..."
+        pip3 install fastapi uvicorn neo4j
+    fi
+    
+    print_status "Starting Report Backend (Python FastAPI) in background..."
+    nohup python3 simple_graph_api.py > ../report-backend-dev.log 2>&1 &
     REPORT_BACKEND_PID=$!
     
     echo $REPORT_BACKEND_PID > ../report-backend-dev.pid
     print_status "Report Backend started with PID: $REPORT_BACKEND_PID"
-    print_status "API available at: http://localhost:8082"
-    print_status "Swagger UI at: http://localhost:8082/swagger-ui"
+    print_status "API Base: http://localhost:8082/api/v1"
+    print_status "Swagger UI: http://localhost:8082/swagger-ui"
+    print_status "OpenAPI Spec: http://localhost:8082/openapi"
+    print_status "Graph Analysis: http://localhost:8082/api/v1/graph/analysis"
+    print_status "Graph Health: http://localhost:8082/api/v1/graph/health"
     print_status "Logs: tail -f report-backend-dev.log"
+    
+    cd ..
+}
+
+# Function to start Report Backend in Quarkus mode (alternative)
+start_report_backend_quarkus() {
+    print_header "Starting Report Backend in Quarkus mode"
+    
+    if [ ! -d "$REPORT_BACKEND_DIR" ]; then
+        print_error "Directory $REPORT_BACKEND_DIR not found"
+        return 1
+    fi
+    
+    cd "$REPORT_BACKEND_DIR"
+    
+    # Check if already running on port 8082
+    if lsof -ti:8082 > /dev/null 2>&1; then
+        print_warning "Report Backend process already running on port 8082. Stopping first..."
+        stop_report_backend
+        sleep 2
+    fi
+    
+    print_status "Starting Report Backend (Quarkus) in background..."
+    nohup mvn quarkus:dev -Dquarkus.http.port=8082 > ../report-backend-dev.log 2>&1 &
+    REPORT_BACKEND_PID=$!
+    
+    echo $REPORT_BACKEND_PID > ../report-backend-dev.pid
+    print_status "Report Backend (Quarkus) started with PID: $REPORT_BACKEND_PID"
+    print_status "API Base: http://localhost:8082/api/v1"
+    print_status "Swagger UI: http://localhost:8082/swagger-ui"
+    print_status "OpenAPI Spec: http://localhost:8082/openapi"
+    print_status "Logs: tail -f report-backend-dev.log"
+    
+    cd ..
+}
+
+# Function to start Report Backend in Java 21 Quarkus mode (port 8083)
+start_report_backend_java21() {
+    print_header "Starting Report Backend in Java 21 Quarkus mode (port 8083)"
+    
+    if [ ! -d "$REPORT_BACKEND_DIR" ]; then
+        print_error "Directory $REPORT_BACKEND_DIR not found"
+        return 1
+    fi
+    
+    cd "$REPORT_BACKEND_DIR"
+    
+    # Check if already running on port 8083
+    if lsof -ti:8083 > /dev/null 2>&1; then
+        print_warning "Report Backend process already running on port 8083. Stopping first..."
+        lsof -ti:8083 | xargs kill -15 2>/dev/null
+        sleep 2
+    fi
+    
+    print_status "Starting Report Backend (Java 21 Quarkus) in background..."
+    nohup mvn quarkus:dev > ../report-backend-java21-dev.log 2>&1 &
+    REPORT_BACKEND_PID=$!
+    
+    echo $REPORT_BACKEND_PID > ../report-backend-java21-dev.pid
+    print_status "Report Backend (Java 21) started with PID: $REPORT_BACKEND_PID"
+    print_status "API Base: http://localhost:8083"
+    print_status "Swagger UI: http://localhost:8083/swagger-ui"
+    print_status "OpenAPI Spec: http://localhost:8083/openapi"
+    print_status "Logs: tail -f report-backend-java21-dev.log"
     
     cd ..
 }
@@ -559,7 +632,7 @@ start_report_backend_dev() {
 stop_report_backend() {
     print_header "Stopping Report Backend processes"
     
-    # Kill by PID if exists
+    # Method 1: Kill by PID if exists
     if [ -f "report-backend-dev.pid" ]; then
         PID=$(cat report-backend-dev.pid)
         if ps -p $PID > /dev/null 2>&1; then
@@ -577,20 +650,40 @@ stop_report_backend() {
         rm -f report-backend-dev.pid
     fi
     
-    # Kill any remaining Report Backend processes
+    # Method 2: Kill processes on port 8082
+    PORT_PIDS=$(lsof -ti:8082 2>/dev/null)
+    if [ ! -z "$PORT_PIDS" ]; then
+        print_status "Killing processes on port 8082: $PORT_PIDS"
+        echo $PORT_PIDS | xargs kill -15 2>/dev/null
+        sleep 2
+        
+        # Force kill if still running
+        REMAINING_PORT=$(lsof -ti:8082 2>/dev/null)
+        if [ ! -z "$REMAINING_PORT" ]; then
+            print_status "Force killing remaining processes on port 8082: $REMAINING_PORT"
+            echo $REMAINING_PORT | xargs kill -9 2>/dev/null
+        fi
+    fi
+    
+    # Method 3: Kill any remaining Report Backend processes by pattern
     PIDS=$(ps aux | grep -E "mvn.*quarkus.*8082|report-backend" | grep -v grep | awk '{print $2}')
     if [ ! -z "$PIDS" ]; then
         print_status "Killing remaining Report Backend processes: $PIDS"
-        echo $PIDS | xargs kill
+        echo $PIDS | xargs kill -15 2>/dev/null
         sleep 2
         
         # Force kill if still running
         PIDS=$(ps aux | grep -E "mvn.*quarkus.*8082|report-backend" | grep -v grep | awk '{print $2}')
         if [ ! -z "$PIDS" ]; then
-            echo $PIDS | xargs kill -9
+            echo $PIDS | xargs kill -9 2>/dev/null
         fi
+    fi
+    
+    # Verify port is free
+    if lsof -ti:8082 > /dev/null 2>&1; then
+        print_warning "Port 8082 may still be in use"
     else
-        print_status "No Report Backend processes found running"
+        print_status "Report Backend stopped successfully - port 8082 is free"
     fi
 }
 
@@ -788,6 +881,19 @@ show_status() {
     else
         print_warning "Async Discovery API: STOPPED"
     fi
+    
+    # Check Report Backend (Port 8082)
+    REPORT_PORT_PID=$(lsof -ti:8082 2>/dev/null | head -1)
+    REPORT_PROCESS_PID=$(ps aux | grep -E "mvn.*quarkus.*8082|report-backend" | grep -v grep | awk '{print $2}' | head -1)
+    
+    if [ -n "$REPORT_PORT_PID" ] || [ -n "$REPORT_PROCESS_PID" ]; then
+        ACTIVE_PID=${REPORT_PORT_PID:-$REPORT_PROCESS_PID}
+        print_status "Report Backend: RUNNING (PID: $ACTIVE_PID, Port: 8082)"
+        print_status "  ↳ Swagger UI: http://localhost:8082/swagger-ui"
+        print_status "  ↳ Graph Analysis: http://localhost:8082/api/v1/graph/analysis"
+    else
+        print_warning "Report Backend: STOPPED"
+    fi
 }
 
 # Function to show logs
@@ -940,6 +1046,12 @@ case $1 in
     "start-report")
         start_report_backend_dev
         ;;
+    "start-report-quarkus")
+        start_report_backend_quarkus
+        ;;
+    "start-report-java21")
+        start_report_backend_java21
+        ;;
     "stop-report")
         stop_report_backend
         ;;
@@ -977,7 +1089,8 @@ case $1 in
         echo "  start-discovery - Alias for start-discovery-legacy"
         echo "  stop-discovery  - Stop all Discovery API services (legacy + async)"
         echo "  stop-async  - Stop all Discovery API services (legacy + async)"
-        echo "  start-report- Start Report Backend service only (port 8082)"
+        echo "  start-report- Start Report Backend service only (Python/FastAPI, port 8082)"
+        echo "  start-report-quarkus - Start Report Backend in Quarkus mode (port 8082)"
         echo "  stop-report - Stop Report Backend service only"
         echo "  clear-cache - Clear React development cache"
         echo "  restart-react- Stop React, clear cache, and restart React"
@@ -994,7 +1107,8 @@ case $1 in
         echo "  $0 start-ollama   # Start only Ollama service"
         echo "  $0 start-async    # Start only NEW Async Discovery API (port 8001)"
         echo "  $0 start-discovery-legacy # Start only Legacy Discovery API (port 8000)"
-        echo "  $0 start-report   # Start only Report Backend service (port 8082)"
+        echo "  $0 start-report   # Start only Report Backend service (Python/FastAPI, port 8082)"
+        echo "  $0 start-report-quarkus # Start Report Backend in Quarkus mode (port 8082)"
         echo "  $0 logs report    # View Report Backend logs"
         echo "  $0 clear-cache    # Clear React cache (useful when env vars don't update)"
         echo "  $0 restart-react  # Restart React with cache clearing"
@@ -1008,8 +1122,12 @@ case $1 in
         echo "📊 NEW: Report Backend Service"
         echo "  - Available at: http://localhost:8082"
         echo "  - Swagger UI: http://localhost:8082/swagger-ui"
-        echo "  - API Docs: http://localhost:8082/q/openapi"
-        echo "  - Features: PDF generation, client management, purchase tracking"
+        echo "  - OpenAPI Spec: http://localhost:8082/openapi"
+        echo "  - Graph Analysis: http://localhost:8082/api/v1/graph/analysis"
+        echo "  - Graph Health: http://localhost:8082/api/v1/graph/health"
+        echo "  - Features: Neo4j graph analysis, domain risk assessment, PDF reports"
+        echo "  - Default: Python/FastAPI mode (faster startup)"
+        echo "  - Alternative: Quarkus mode (use 'start-report-quarkus')"
         exit 1
         ;;
 esac
