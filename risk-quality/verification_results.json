@@ -1,0 +1,17 @@
+{
+  "remaining_domain_duplicates": 9,
+  "confirmed_subdomains": [
+    "api.bancochile.cl",
+    "extranet.bancochile.cl",
+    "login.bancochile.cl",
+    "mail.bancochile.cl",
+    "online.bancochile.cl",
+    "portal.bancochile.cl",
+    "portalempresas.bancochile.cl",
+    "portalpersonas.bancochile.cl",
+    "servicios.bancochile.cl",
+    "www.bancochile.cl"
+  ],
+  "missing_subdomains": [],
+  "verification_success": true
+}

@@ -1,0 +1,181 @@
+{
+  "timestamp": "2025-08-25T12:34:38.560718",
+  "total_domains": 28,
+  "total_gaps": 13,
+  "critical_gaps": 4,
+  "high_priority_gaps": 3,
+  "gaps_by_type": {
+    "dns": 4,
+    "certificate": 3,
+    "technology": 2,
+    "service": 1,
+    "risk": 1,
+    "provider": 1,
+    "vulnerability": 1
+  },
+  "completion_estimate_hours": 88.05,
+  "data_gaps": [
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "api.bancochile.cl",
+      "description": "Missing DNS resolution data for subdomain api.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/api.bancochile.cl'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "mail.bancochile.cl",
+      "description": "Missing DNS resolution data for subdomain mail.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/mail.bancochile.cl'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "portal.bancochile.cl",
+      "description": "Missing DNS resolution data for subdomain portal.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/portal.bancochile.cl'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "www.bancochile.cl",
+      "description": "Missing DNS resolution data for subdomain www.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/www.bancochile.cl'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "api.bancochile.cl",
+      "description": "Missing SSL/TLS certificate data for web subdomain api.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/api.bancochile.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "portal.bancochile.cl",
+      "description": "Missing SSL/TLS certificate data for web subdomain portal.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/portal.bancochile.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "www.bancochile.cl",
+      "description": "Missing SSL/TLS certificate data for web subdomain www.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/www.bancochile.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "portal.bancochile.cl",
+      "description": "Missing web technology data for web subdomain portal.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tech/portal.bancochile.cl'",
+      "estimated_time_minutes": 5,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "www.bancochile.cl",
+      "description": "Missing web technology data for web subdomain www.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tech/www.bancochile.cl'",
+      "estimated_time_minutes": 5,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "service",
+      "priority": "medium",
+      "domain": "api.bancochile.cl",
+      "description": "Missing service discovery data for API/service subdomain api.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/services/api.bancochile.cl'",
+      "estimated_time_minutes": 4,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "risk",
+      "priority": "medium",
+      "domain": "services",
+      "description": "Missing risk scores for 4812 services - calculate via domain analysis",
+      "affected_count": 4812,
+      "completion_command": "echo 'Services get risk scores through domain analysis - run domain risk calculations first'",
+      "estimated_time_minutes": 4812,
+      "dependencies": [
+        "domain-backend",
+        "risk-calculator"
+      ]
+    },
+    {
+      "data_type": "provider",
+      "priority": "medium",
+      "domain": "services",
+      "description": "Missing provider relationships for 20 services",
+      "affected_count": 20,
+      "completion_command": "echo 'Provider linking is not available via API - requires manual database operations'",
+      "estimated_time_minutes": 60,
+      "dependencies": [
+        "domain-backend",
+        "provider-database"
+      ]
+    },
+    {
+      "data_type": "vulnerability",
+      "priority": "low",
+      "domain": "technologies",
+      "description": "Missing vulnerability data for 190 technologies",
+      "affected_count": 190,
+      "completion_command": "echo 'Vulnerability scanning is not available via API - requires external tools'",
+      "estimated_time_minutes": 380,
+      "dependencies": [
+        "domain-backend",
+        "nvd-api",
+        "cve-database"
+      ]
+    }
+  ]
+}

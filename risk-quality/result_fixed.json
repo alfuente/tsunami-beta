@@ -1,0 +1,549 @@
+{
+  "timestamp": "2025-08-25T12:43:18.072377",
+  "total_domains": 28,
+  "total_gaps": 43,
+  "critical_gaps": 10,
+  "high_priority_gaps": 10,
+  "gaps_by_type": {
+    "dns": 10,
+    "certificate": 10,
+    "technology": 10,
+    "service": 10,
+    "risk": 1,
+    "provider": 1,
+    "vulnerability": 1
+  },
+  "completion_estimate_hours": 89.9,
+  "data_gaps": [
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "api.bci.cl",
+      "description": "Missing DNS analysis for subdomain api.bci.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/api.bci.cl'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "api.cuentafan.bancochile.cl",
+      "description": "Missing DNS analysis for subdomain api.cuentafan.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/api.cuentafan.bancochile.cl'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "api.github.com",
+      "description": "Missing DNS analysis for subdomain api.github.com",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/api.github.com'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "api.security.github.com",
+      "description": "Missing DNS analysis for subdomain api.security.github.com",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/api.security.github.com'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "beacon.www.lider.cl",
+      "description": "Missing DNS analysis for subdomain beacon.www.lider.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/beacon.www.lider.cl'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "email.enterprise.github.com",
+      "description": "Missing DNS analysis for subdomain email.enterprise.github.com",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/email.enterprise.github.com'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "email.finance.github.com",
+      "description": "Missing DNS analysis for subdomain email.finance.github.com",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/email.finance.github.com'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "email.staging.finance.github.com",
+      "description": "Missing DNS analysis for subdomain email.staging.finance.github.com",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/email.staging.finance.github.com'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "email.support.github.com",
+      "description": "Missing DNS analysis for subdomain email.support.github.com",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/email.support.github.com'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "email.verify.github.com",
+      "description": "Missing DNS analysis for subdomain email.verify.github.com",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/dns/email.verify.github.com'",
+      "estimated_time_minutes": 2,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "beacon.www.lider.cl",
+      "description": "Missing SSL/TLS certificate analysis for subdomain beacon.www.lider.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/beacon.www.lider.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "puntodecompra.www.lider.cl",
+      "description": "Missing SSL/TLS certificate analysis for subdomain puntodecompra.www.lider.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/puntodecompra.www.lider.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "www.about.hsbc.cl",
+      "description": "Missing SSL/TLS certificate analysis for subdomain www.about.hsbc.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/www.about.hsbc.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "www.bancapropia.bancochile.cl",
+      "description": "Missing SSL/TLS certificate analysis for subdomain www.bancapropia.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/www.bancapropia.bancochile.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "www.bancochile.cl",
+      "description": "Missing SSL/TLS certificate analysis for subdomain www.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/www.bancochile.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "www.bancofalabella.cl",
+      "description": "Missing SSL/TLS certificate analysis for subdomain www.bancofalabella.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/www.bancofalabella.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "www.bancoripley.cl",
+      "description": "Missing SSL/TLS certificate analysis for subdomain www.bancoripley.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/www.bancoripley.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "www.bci.cl",
+      "description": "Missing SSL/TLS certificate analysis for subdomain www.bci.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/www.bci.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "www.bice.cl",
+      "description": "Missing SSL/TLS certificate analysis for subdomain www.bice.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/www.bice.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "www.citiconnect.bancochile.cl",
+      "description": "Missing SSL/TLS certificate analysis for subdomain www.citiconnect.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tls/www.citiconnect.bancochile.cl'",
+      "estimated_time_minutes": 3,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "app.cooperativa.cl",
+      "description": "Missing web technology analysis for subdomain app.cooperativa.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tech/app.cooperativa.cl'",
+      "estimated_time_minutes": 5,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "app.santander.cl",
+      "description": "Missing web technology analysis for subdomain app.santander.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tech/app.santander.cl'",
+      "estimated_time_minutes": 5,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "beacon.www.lider.cl",
+      "description": "Missing web technology analysis for subdomain beacon.www.lider.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tech/beacon.www.lider.cl'",
+      "estimated_time_minutes": 5,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "login.portal.bancochile.cl",
+      "description": "Missing web technology analysis for subdomain login.portal.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tech/login.portal.bancochile.cl'",
+      "estimated_time_minutes": 5,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "login.portal.qa.bancochile.cl",
+      "description": "Missing web technology analysis for subdomain login.portal.qa.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tech/login.portal.qa.bancochile.cl'",
+      "estimated_time_minutes": 5,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "puntodecompra.www.lider.cl",
+      "description": "Missing web technology analysis for subdomain puntodecompra.www.lider.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tech/puntodecompra.www.lider.cl'",
+      "estimated_time_minutes": 5,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "web.bancofalabella.cl",
+      "description": "Missing web technology analysis for subdomain web.bancofalabella.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tech/web.bancofalabella.cl'",
+      "estimated_time_minutes": 5,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "web.bancoripley.cl",
+      "description": "Missing web technology analysis for subdomain web.bancoripley.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tech/web.bancoripley.cl'",
+      "estimated_time_minutes": 5,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "web.gslbe.bancofalabella.cl",
+      "description": "Missing web technology analysis for subdomain web.gslbe.bancofalabella.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tech/web.gslbe.bancofalabella.cl'",
+      "estimated_time_minutes": 5,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "www.about.hsbc.cl",
+      "description": "Missing web technology analysis for subdomain www.about.hsbc.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/tech/www.about.hsbc.cl'",
+      "estimated_time_minutes": 5,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "service",
+      "priority": "medium",
+      "domain": "ac-auc-cn-srv-detalle-cobros-helm.ac.prod.aws.transbank.cl",
+      "description": "Missing service discovery for API/service subdomain ac-auc-cn-srv-detalle-cobros-helm.ac.prod.aws.transbank.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/services/ac-auc-cn-srv-detalle-cobros-helm.ac.prod.aws.transbank.cl'",
+      "estimated_time_minutes": 4,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "service",
+      "priority": "medium",
+      "domain": "anupor.qa.aws.transbank.cl",
+      "description": "Missing service discovery for API/service subdomain anupor.qa.aws.transbank.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/services/anupor.qa.aws.transbank.cl'",
+      "estimated_time_minutes": 4,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "service",
+      "priority": "medium",
+      "domain": "api.bancochile.cl",
+      "description": "Missing service discovery for API/service subdomain api.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/services/api.bancochile.cl'",
+      "estimated_time_minutes": 4,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "service",
+      "priority": "medium",
+      "domain": "api.bci.cl",
+      "description": "Missing service discovery for API/service subdomain api.bci.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/services/api.bci.cl'",
+      "estimated_time_minutes": 4,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "service",
+      "priority": "medium",
+      "domain": "api.bice.cl",
+      "description": "Missing service discovery for API/service subdomain api.bice.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/services/api.bice.cl'",
+      "estimated_time_minutes": 4,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "service",
+      "priority": "medium",
+      "domain": "api.cuentafan.bancochile.cl",
+      "description": "Missing service discovery for API/service subdomain api.cuentafan.bancochile.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/services/api.cuentafan.bancochile.cl'",
+      "estimated_time_minutes": 4,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "service",
+      "priority": "medium",
+      "domain": "api.github.com",
+      "description": "Missing service discovery for API/service subdomain api.github.com",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/services/api.github.com'",
+      "estimated_time_minutes": 4,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "service",
+      "priority": "medium",
+      "domain": "api.onepay.dev.aws.transbank.cl",
+      "description": "Missing service discovery for API/service subdomain api.onepay.dev.aws.transbank.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/services/api.onepay.dev.aws.transbank.cl'",
+      "estimated_time_minutes": 4,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "service",
+      "priority": "medium",
+      "domain": "api.onepay.prdnpci.aws.transbank.cl",
+      "description": "Missing service discovery for API/service subdomain api.onepay.prdnpci.aws.transbank.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/services/api.onepay.prdnpci.aws.transbank.cl'",
+      "estimated_time_minutes": 4,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "service",
+      "priority": "medium",
+      "domain": "api.onepay.prod.aws.transbank.cl",
+      "description": "Missing service discovery for API/service subdomain api.onepay.prod.aws.transbank.cl",
+      "affected_count": 1,
+      "completion_command": "curl -X POST 'http://localhost:8001/api/v1/discover/services/api.onepay.prod.aws.transbank.cl'",
+      "estimated_time_minutes": 4,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "risk",
+      "priority": "medium",
+      "domain": "services",
+      "description": "Missing risk scores for 4812 services - calculate via domain analysis",
+      "affected_count": 4812,
+      "completion_command": "echo 'Services get risk scores through domain analysis - run domain risk calculations first'",
+      "estimated_time_minutes": 4812,
+      "dependencies": [
+        "domain-backend",
+        "risk-calculator"
+      ]
+    },
+    {
+      "data_type": "provider",
+      "priority": "medium",
+      "domain": "services",
+      "description": "Missing provider relationships for 20 services",
+      "affected_count": 20,
+      "completion_command": "echo 'Provider linking is not available via API - requires manual database operations'",
+      "estimated_time_minutes": 60,
+      "dependencies": [
+        "domain-backend",
+        "provider-database"
+      ]
+    },
+    {
+      "data_type": "vulnerability",
+      "priority": "low",
+      "domain": "technologies",
+      "description": "Missing vulnerability data for 191 technologies",
+      "affected_count": 191,
+      "completion_command": "echo 'Vulnerability scanning is not available via API - requires external tools'",
+      "estimated_time_minutes": 382,
+      "dependencies": [
+        "domain-backend",
+        "nvd-api",
+        "cve-database"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "timestamp": "2025-08-25T18:05:33.018172",
+  "dry_run": false,
+  "total_domains": 10,
+  "successful_migrations": [
+    "extranet.bancochile.cl"
+  ],
+  "failed_migrations": [
+    {
+      "fqdn": "api.bancochile.cl",
+      "error": "Error migrating api.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "login.bancochile.cl",
+      "error": "Error migrating login.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "mail.bancochile.cl",
+      "error": "Error migrating mail.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "online.bancochile.cl",
+      "error": "Error migrating online.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "portal.bancochile.cl",
+      "error": "Error migrating portal.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "portalempresas.bancochile.cl",
+      "error": "Error migrating portalempresas.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "portalpersonas.bancochile.cl",
+      "error": "Error migrating portalpersonas.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "servicios.bancochile.cl",
+      "error": "Error migrating servicios.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "www.bancochile.cl",
+      "error": "Error migrating www.bancochile.cl: 'NoneType' object is not subscriptable"
+    }
+  ],
+  "migration_details": [
+    {
+      "fqdn": "api.bancochile.cl",
+      "properties_merged": 7,
+      "relationships_migrated": 5,
+      "success": false,
+      "error": "Error migrating api.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "extranet.bancochile.cl",
+      "properties_merged": 8,
+      "relationships_migrated": 3,
+      "success": true,
+      "error": null
+    },
+    {
+      "fqdn": "login.bancochile.cl",
+      "properties_merged": 10,
+      "relationships_migrated": 32,
+      "success": false,
+      "error": "Error migrating login.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "mail.bancochile.cl",
+      "properties_merged": 10,
+      "relationships_migrated": 30,
+      "success": false,
+      "error": "Error migrating mail.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "online.bancochile.cl",
+      "properties_merged": 9,
+      "relationships_migrated": 47,
+      "success": false,
+      "error": "Error migrating online.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "portal.bancochile.cl",
+      "properties_merged": 9,
+      "relationships_migrated": 48,
+      "success": false,
+      "error": "Error migrating portal.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "portalempresas.bancochile.cl",
+      "properties_merged": 9,
+      "relationships_migrated": 43,
+      "success": false,
+      "error": "Error migrating portalempresas.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "portalpersonas.bancochile.cl",
+      "properties_merged": 9,
+      "relationships_migrated": 48,
+      "success": false,
+      "error": "Error migrating portalpersonas.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "servicios.bancochile.cl",
+      "properties_merged": 9,
+      "relationships_migrated": 38,
+      "success": false,
+      "error": "Error migrating servicios.bancochile.cl: 'NoneType' object is not subscriptable"
+    },
+    {
+      "fqdn": "www.bancochile.cl",
+      "properties_merged": 9,
+      "relationships_migrated": 48,
+      "success": false,
+      "error": "Error migrating www.bancochile.cl: 'NoneType' object is not subscriptable"
+    }
+  ]
+}

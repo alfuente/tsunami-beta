@@ -220,29 +220,38 @@ const BaseDomainDetail: React.FC = () => {
         mxRecords.forEach(mx => {
           // Extract meaningful provider name from MX record
           const exchange = mx.exchange.replace(/\.$/, ''); // Remove trailing dot
-          const parts = exchange.split('.');
+          const exchangeLower = exchange.toLowerCase();
           
-          // Try to get a meaningful provider name
-          if (parts.includes('pphosted')) {
+          // Try to get a meaningful provider name with improved detection
+          if (exchangeLower.includes('pphosted')) {
             mxProviders.add('ProofPoint (pphosted)');
-          } else if (parts.includes('outlook')) {
-            mxProviders.add('Microsoft Outlook');
-          } else if (parts.includes('google')) {
-            mxProviders.add('Google Workspace');
-          } else if (parts.includes('amazonses')) {
-            mxProviders.add('Amazon SES');
-          } else if (parts.includes('protection')) {
+          } else if (exchangeLower.includes('protection.outlook.com')) {
             mxProviders.add('Microsoft 365 Protection');
-          } else if (parts.includes('mimecast')) {
+          } else if (exchangeLower.includes('outlook.com')) {
+            mxProviders.add('Microsoft Outlook/365');
+          } else if (exchangeLower.includes('google.com') || exchangeLower.includes('googlemail.com')) {
+            mxProviders.add('Google Workspace');
+          } else if (exchangeLower.includes('amazonses')) {
+            mxProviders.add('Amazon SES');
+          } else if (exchangeLower.includes('mimecast')) {
             mxProviders.add('Mimecast');
-          } else if (parts.includes('barracuda')) {
+          } else if (exchangeLower.includes('barracuda')) {
             mxProviders.add('Barracuda');
-          } else if (parts.length >= 2) {
-            // Fallback: use the main domain part
-            const domain = parts.slice(-2).join('.');
-            mxProviders.add(domain);
+          } else if (exchangeLower.includes('mailgun')) {
+            mxProviders.add('Mailgun');
+          } else if (exchangeLower.includes('sendgrid')) {
+            mxProviders.add('SendGrid');
+          } else if (exchangeLower.includes('zoho')) {
+            mxProviders.add('Zoho Mail');
           } else {
-            mxProviders.add(exchange);
+            // Fallback: use the main domain part or full exchange
+            const parts = exchange.split('.');
+            if (parts.length >= 2) {
+              const domain = parts.slice(-2).join('.');
+              mxProviders.add(domain);
+            } else {
+              mxProviders.add(exchange);
+            }
           }
         });
       }

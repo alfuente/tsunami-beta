@@ -13,9 +13,9 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuración
-DOMAIN_API_BASE="http://localhost:8001/api/v1"
-MAX_WAIT_TIME=300  # 5 minutos máximo por tarea
-POLL_INTERVAL=5    # Revisar cada 5 segundos
+DOMAIN_API_BASE="http://localhost:8001"  # Puerto correcto del domain-backend
+MAX_WAIT_TIME=2400  # 40 minutos máximo por tarea (especialmente para amass)
+POLL_INTERVAL=10   # Revisar cada 10 segundos (reducir carga API)
 
 # Función para mostrar ayuda
 show_help() {
@@ -23,13 +23,18 @@ show_help() {
     echo ""
     echo "Opciones:"
     echo "  -h, --help         Mostrar esta ayuda"
-    echo "  -t, --timeout SEC  Timeout máximo por tarea (default: 300)"
-    echo "  -i, --interval SEC Intervalo de polling (default: 5)"
+    echo "  -t, --timeout SEC  Timeout máximo por tarea (default: 2400)"
+    echo "  -i, --interval SEC Intervalo de polling (default: 10)"
     echo "  -v, --verbose      Mostrar output detallado"
+    echo "  -f, --fast         Solo ejecutar análisis rápidos (DNS, TLS, MX)"
+    echo "  --skip-subdomains  Saltar descubrimiento de subdominios"
+    echo "  --recursive        Analizar también todos los subdominios encontrados"
     echo ""
     echo "Ejemplo:"
     echo "  $0 www.ejemplo.cl"
-    echo "  $0 api.banco.cl --timeout 600 --verbose"
+    echo "  $0 api.banco.cl --timeout 1200 --verbose"
+    echo "  $0 clarochile.cl --fast  # Solo análisis básicos"
+    echo "  $0 entel.cl --recursive  # Incluir análisis de subdominios"
 }
 
 # Función para logging
@@ -54,15 +59,19 @@ wait_for_task() {
     local task_id=$1
     local phase_name=$2
     local elapsed=0
+    local last_progress=0
+    local stuck_count=0
     
     log "Esperando completación de $phase_name (Task ID: $task_id)"
     
     while [ $elapsed -lt $MAX_WAIT_TIME ]; do
-        local response=$(curl -s "$DOMAIN_API_BASE/tasks/$task_id" 2>/dev/null || echo '{"status":"error"}')
+        local response=$(curl -s "$DOMAIN_API_BASE/api/v1/tasks/$task_id" 2>/dev/null || echo '{"status":"error"}')
         local status=$(echo "$response" | jq -r '.status // "unknown"' 2>/dev/null || echo "error")
+        local progress=$(echo "$response" | jq -r '.progress // 0' 2>/dev/null || echo "0")
         
         case $status in
             "completed")
+                echo ""  # Nueva línea después del progress
                 log_success "$phase_name completada en ${elapsed}s"
                 if [ "$VERBOSE" = true ]; then
                     echo "$response" | jq '.' 2>/dev/null || echo "$response"
@@ -70,15 +79,46 @@ wait_for_task() {
                 return 0
                 ;;
             "failed"|"error")
+                echo ""  # Nueva línea después del progress
                 log_error "$phase_name falló después de ${elapsed}s"
                 local error_msg=$(echo "$response" | jq -r '.error // "Error desconocido"' 2>/dev/null || echo "Error de parsing JSON")
                 echo "Error: $error_msg"
                 return 1
                 ;;
             "running"|"pending")
-                printf "\r${YELLOW}[$(date '+%H:%M:%S')] ⏳${NC} $phase_name ejecutándose... (${elapsed}s)"
+                # Detectar si la tarea está colgada (sin progreso)
+                # Para amass, permitir más tiempo sin progreso
+                local max_stuck_time=120  # Por defecto 20 minutos
+                if [[ "$phase_name" == *"Amass"* ]]; then
+                    max_stuck_time=240  # 40 minutos para amass
+                fi
+                
+                if [ "$progress" = "$last_progress" ]; then
+                    stuck_count=$((stuck_count + 1))
+                else
+                    stuck_count=0
+                fi
+                last_progress=$progress
+                
+                # Usar el timeout específico por fase
+                if [ $stuck_count -gt $max_stuck_time ]; then
+                    echo ""
+                    log_warning "$phase_name parece estar colgada, cancelando..."
+                    curl -s -X DELETE "$DOMAIN_API_BASE/api/v1/tasks/$task_id" >/dev/null 2>&1 || true
+                    return 1
+                fi
+                
+                printf "\r${YELLOW}[$(date '+%H:%M:%S')] ⏳${NC} $phase_name ejecutándose... (${elapsed}s, ${progress}%%)"
                 sleep $POLL_INTERVAL
                 elapsed=$((elapsed + POLL_INTERVAL))
+                ;;
+            "partial")
+                echo ""
+                log_warning "$phase_name completada parcialmente en ${elapsed}s"
+                if [ "$VERBOSE" = true ]; then
+                    echo "$response" | jq '.' 2>/dev/null || echo "$response"
+                fi
+                return 0  # Aceptar resultados parciales
                 ;;
             *)
                 log_warning "Estado desconocido para $phase_name: $status"
@@ -90,6 +130,8 @@ wait_for_task() {
     
     echo ""
     log_error "$phase_name timeout después de ${MAX_WAIT_TIME}s"
+    # Cancelar tarea timeout
+    curl -s -X DELETE "$DOMAIN_API_BASE/api/v1/tasks/$task_id" >/dev/null 2>&1 || true
     return 1
 }
 
@@ -144,6 +186,9 @@ execute_phase() {
 # Parsear argumentos
 DOMAIN=""
 VERBOSE=false
+FAST_MODE=false
+SKIP_SUBDOMAINS=false
+RECURSIVE_ANALYSIS=false
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -161,6 +206,18 @@ while [[ $# -gt 0 ]]; do
             ;;
         -v|--verbose)
             VERBOSE=true
+            shift
+            ;;
+        -f|--fast)
+            FAST_MODE=true
+            shift
+            ;;
+        --skip-subdomains)
+            SKIP_SUBDOMAINS=true
+            shift
+            ;;
+        --recursive)
+            RECURSIVE_ANALYSIS=true
             shift
             ;;
         -*)
@@ -224,17 +281,73 @@ if ! curl -s "$DOMAIN_API_BASE/health" >/dev/null 2>&1; then
 fi
 log_success "Conectividad confirmada"
 
-# Definir las fases en orden
-declare -a PHASES=(
-    "discover/all-subdomains:Subdomain Discovery"
-    "discover/amass:Advanced Subdomain Discovery"
-    "discover/services:Service Detection"
-    "discover/tech:Technology Detection"
-    "discover/tls:TLS Analysis"
-    "discover/dns:DNS Analysis"
-    "discover/mx:MX Records Analysis"
-    "calculate/risk:Risk Calculation"
-)
+# Función para limpiar tareas colgadas del dominio
+cleanup_stuck_tasks() {
+    local domain=$1
+    log "Limpiando tareas previas para $domain..."
+    
+    # Obtener tareas running/pending para este dominio
+    local tasks_response=$(curl -s "$DOMAIN_API_BASE/api/v1/tasks?domain=$domain" 2>/dev/null || echo '{"tasks":[]}')
+    local stuck_tasks=$(echo "$tasks_response" | jq -r '.tasks[]? | select(.status=="running" or .status=="pending") | .task_id' 2>/dev/null || echo "")
+    
+    if [ -n "$stuck_tasks" ]; then
+        log_warning "Cancelando tareas colgadas para $domain..."
+        echo "$stuck_tasks" | while read -r task_id; do
+            if [ -n "$task_id" ]; then
+                curl -s -X DELETE "$DOMAIN_API_BASE/api/v1/tasks/$task_id" >/dev/null 2>&1 || true
+                log "Cancelada tarea: $task_id"
+            fi
+        done
+        sleep 3  # Esperar que las cancelaciones tomen efecto
+    else
+        log "No hay tareas colgadas para $domain"
+    fi
+    
+    # Matar procesos amass colgados para este dominio
+    pkill -f "amass.*$domain" 2>/dev/null || true
+}
+
+# Limpiar antes de empezar
+cleanup_stuck_tasks "$DOMAIN"
+
+# Definir las fases según el modo
+if [ "$FAST_MODE" = true ]; then
+    log "Modo rápido activado - solo análisis básicos"
+    declare -a PHASES=(
+        "api/v1/discover/dns:DNS Analysis"
+        "api/v1/discover/tls:TLS Analysis"
+        "api/v1/discover/mx:MX Records Analysis"
+        "api/v1/calculate/risk:Risk Calculation"
+    )
+else
+    # Fases completas en orden optimizado
+    declare -a PHASES=(
+        "api/v1/discover/dns:DNS Analysis"                    # Rápido, fundamental
+        "api/v1/discover/tls:TLS Analysis"                   # Rápido, importante
+        "api/v1/discover/mx:MX Records Analysis"             # Rápido
+    )
+    
+    # Añadir subdominios si no se saltean
+    if [ "$SKIP_SUBDOMAINS" != true ]; then
+        PHASES+=("api/v1/discover/amass:Subdomain Discovery (Amass)")
+    fi
+    
+    # Añadir análisis más lentos
+    if [ "$RECURSIVE_ANALYSIS" = true ] && [ "$SKIP_SUBDOMAINS" != true ]; then
+        # Análisis recursivo: primero subdominios, luego análisis en todos (dominio + subdominios)
+        PHASES+=(
+            "api/v1/discover/combined-recursive:Recursive Analysis (Domain + Subdomains)" 
+            "api/v1/calculate/risk:Risk Calculation"           # Al final
+        )
+    else
+        # Análisis solo en dominio principal
+        PHASES+=(
+            "api/v1/discover/services:Service Detection"         # Depende de DNS/TLS
+            "api/v1/discover/tech:Technology Detection"          # Puede ser lento
+            "api/v1/calculate/risk:Risk Calculation"              # Al final, depende de todo
+        )
+    fi
+fi
 
 # Ejecutar cada fase
 FAILED_PHASES=()

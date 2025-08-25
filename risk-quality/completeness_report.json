@@ -1,0 +1,108 @@
+{
+  "timestamp": "2025-08-25T11:40:23.477137",
+  "total_domains": 30,
+  "total_gaps": 7,
+  "critical_gaps": 1,
+  "high_priority_gaps": 2,
+  "gaps_by_type": {
+    "dns": 1,
+    "certificate": 1,
+    "technology": 1,
+    "service": 1,
+    "risk": 1,
+    "provider": 1,
+    "vulnerability": 1
+  },
+  "completion_estimate_hours": 93.36666666666666,
+  "data_gaps": [
+    {
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "multiple",
+      "description": "Missing DNS resolution data for 30 domains",
+      "affected_count": 30,
+      "completion_command": "curl -X POST 'http://localhost:8081/analyze/dns/batch' -H 'Content-Type: application/json' -d '{\"domains\": [\"api.bancochile.cl\", \"bancochile.cl\", \"bancoestado.cl\", \"bancofalabella.cl\", \"bancoripley.cl\", \"bancosecurity.cl\", \"bci.cl\", \"bice.cl\", \"cooperativa.cl\", \"example.com\", \"extranet.bancochile.cl\", \"github.com\", \"hsbc.cl\", \"internacional.cl\", \"itau.cl\", \"larrainvial.cl\", \"lider.cl\", \"login.bancochile.cl\", \"mail.bancochile.cl\", \"online.bancochile.cl\", \"portal.bancochile.cl\", \"portalempresas.bancochile.cl\", \"portalpersonas.bancochile.cl\", \"redbanc.cl\", \"santander.cl\", \"scotiabankchile.cl\", \"servicios.bancochile.cl\", \"tempo.cl\", \"transbank.cl\", \"www.bancochile.cl\"]}'",
+      "estimated_time_minutes": 60,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "certificate",
+      "priority": "high",
+      "domain": "multiple",
+      "description": "Missing SSL/TLS certificate data for 30 domains",
+      "affected_count": 30,
+      "completion_command": "curl -X POST 'http://localhost:8081/analyze/tls/batch' -H 'Content-Type: application/json' -d '{\"domains\": [\"api.bancochile.cl\", \"bancochile.cl\", \"bancoestado.cl\", \"bancofalabella.cl\", \"bancoripley.cl\", \"bancosecurity.cl\", \"bci.cl\", \"bice.cl\", \"cooperativa.cl\", \"example.com\", \"extranet.bancochile.cl\", \"github.com\", \"hsbc.cl\", \"internacional.cl\", \"itau.cl\", \"larrainvial.cl\", \"lider.cl\", \"login.bancochile.cl\", \"mail.bancochile.cl\", \"online.bancochile.cl\", \"portal.bancochile.cl\", \"portalempresas.bancochile.cl\", \"portalpersonas.bancochile.cl\", \"redbanc.cl\", \"santander.cl\", \"scotiabankchile.cl\", \"servicios.bancochile.cl\", \"tempo.cl\", \"transbank.cl\", \"www.bancochile.cl\"]}'",
+      "estimated_time_minutes": 90,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "technology",
+      "priority": "medium",
+      "domain": "multiple",
+      "description": "Missing web technology data for 30 domains",
+      "affected_count": 30,
+      "completion_command": "curl -X POST 'http://localhost:8081/analyze/tech/batch' -H 'Content-Type: application/json' -d '{\"domains\": [\"api.bancochile.cl\", \"bancochile.cl\", \"bancoestado.cl\", \"bancofalabella.cl\", \"bancoripley.cl\", \"bancosecurity.cl\", \"bci.cl\", \"bice.cl\", \"cooperativa.cl\", \"example.com\", \"extranet.bancochile.cl\", \"github.com\", \"hsbc.cl\", \"internacional.cl\", \"itau.cl\", \"larrainvial.cl\", \"lider.cl\", \"login.bancochile.cl\", \"mail.bancochile.cl\", \"online.bancochile.cl\", \"portal.bancochile.cl\", \"portalempresas.bancochile.cl\", \"portalpersonas.bancochile.cl\", \"redbanc.cl\", \"santander.cl\", \"scotiabankchile.cl\", \"servicios.bancochile.cl\", \"tempo.cl\", \"transbank.cl\", \"www.bancochile.cl\"]}'",
+      "estimated_time_minutes": 150,
+      "dependencies": [
+        "domain-backend",
+        "wappalyzer"
+      ]
+    },
+    {
+      "data_type": "service",
+      "priority": "medium",
+      "domain": "multiple",
+      "description": "Missing service discovery data for 25 domains",
+      "affected_count": 25,
+      "completion_command": "curl -X POST 'http://localhost:8081/analyze/services/batch' -H 'Content-Type: application/json' -d '{\"domains\": [\"api.bancochile.cl\", \"bancochile.cl\", \"bancoestado.cl\", \"bancofalabella.cl\", \"bancoripley.cl\", \"bancosecurity.cl\", \"bci.cl\", \"bice.cl\", \"cooperativa.cl\", \"example.com\", \"extranet.bancochile.cl\", \"github.com\", \"hsbc.cl\", \"internacional.cl\", \"itau.cl\", \"larrainvial.cl\", \"lider.cl\", \"login.bancochile.cl\", \"mail.bancochile.cl\", \"online.bancochile.cl\", \"portal.bancochile.cl\", \"portalempresas.bancochile.cl\", \"portalpersonas.bancochile.cl\", \"redbanc.cl\", \"santander.cl\"]}'",
+      "estimated_time_minutes": 100,
+      "dependencies": [
+        "domain-backend"
+      ]
+    },
+    {
+      "data_type": "risk",
+      "priority": "high",
+      "domain": "services",
+      "description": "Missing risk scores for 4774 services",
+      "affected_count": 4774,
+      "completion_command": "curl -X POST 'http://localhost:8081/analyze/risk/services' -H 'Content-Type: application/json'",
+      "estimated_time_minutes": 4774,
+      "dependencies": [
+        "domain-backend",
+        "risk-calculator"
+      ]
+    },
+    {
+      "data_type": "provider",
+      "priority": "medium",
+      "domain": "services",
+      "description": "Missing provider relationships for 20 services",
+      "affected_count": 20,
+      "completion_command": "curl -X POST 'http://localhost:8081/analyze/providers/link' -H 'Content-Type: application/json'",
+      "estimated_time_minutes": 60,
+      "dependencies": [
+        "domain-backend",
+        "provider-database"
+      ]
+    },
+    {
+      "data_type": "vulnerability",
+      "priority": "low",
+      "domain": "technologies",
+      "description": "Missing vulnerability data for 184 technologies",
+      "affected_count": 184,
+      "completion_command": "curl -X POST 'http://localhost:8081/analyze/vulnerabilities/scan' -H 'Content-Type: application/json'",
+      "estimated_time_minutes": 368,
+      "dependencies": [
+        "domain-backend",
+        "nvd-api",
+        "cve-database"
+      ]
+    }
+  ]
+}

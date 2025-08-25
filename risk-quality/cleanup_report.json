@@ -1,0 +1,103 @@
+{
+  "timestamp": "2025-08-25T12:43:45.107622",
+  "total_duplicates": 10,
+  "actions_summary": {
+    "keep_both_manual_review": 10
+  },
+  "actions_detail": {
+    "keep_both_manual_review": [
+      "api.bancochile.cl",
+      "extranet.bancochile.cl",
+      "login.bancochile.cl",
+      "mail.bancochile.cl",
+      "online.bancochile.cl",
+      "portal.bancochile.cl",
+      "portalempresas.bancochile.cl",
+      "portalpersonas.bancochile.cl",
+      "servicios.bancochile.cl",
+      "www.bancochile.cl"
+    ]
+  },
+  "duplicates": [
+    {
+      "fqdn": "api.bancochile.cl",
+      "action": "keep_both_manual_review",
+      "domain_properties_count": 33,
+      "subdomain_properties_count": 28,
+      "has_domain_relationships": true,
+      "has_subdomain_relationships": true
+    },
+    {
+      "fqdn": "extranet.bancochile.cl",
+      "action": "keep_both_manual_review",
+      "domain_properties_count": 30,
+      "subdomain_properties_count": 24,
+      "has_domain_relationships": true,
+      "has_subdomain_relationships": true
+    },
+    {
+      "fqdn": "login.bancochile.cl",
+      "action": "keep_both_manual_review",
+      "domain_properties_count": 27,
+      "subdomain_properties_count": 19,
+      "has_domain_relationships": true,
+      "has_subdomain_relationships": true
+    },
+    {
+      "fqdn": "mail.bancochile.cl",
+      "action": "keep_both_manual_review",
+      "domain_properties_count": 27,
+      "subdomain_properties_count": 19,
+      "has_domain_relationships": true,
+      "has_subdomain_relationships": true
+    },
+    {
+      "fqdn": "online.bancochile.cl",
+      "action": "keep_both_manual_review",
+      "domain_properties_count": 28,
+      "subdomain_properties_count": 29,
+      "has_domain_relationships": true,
+      "has_subdomain_relationships": true
+    },
+    {
+      "fqdn": "portal.bancochile.cl",
+      "action": "keep_both_manual_review",
+      "domain_properties_count": 27,
+      "subdomain_properties_count": 28,
+      "has_domain_relationships": true,
+      "has_subdomain_relationships": true
+    },
+    {
+      "fqdn": "portalempresas.bancochile.cl",
+      "action": "keep_both_manual_review",
+      "domain_properties_count": 27,
+      "subdomain_properties_count": 28,
+      "has_domain_relationships": true,
+      "has_subdomain_relationships": true
+    },
+    {
+      "fqdn": "portalpersonas.bancochile.cl",
+      "action": "keep_both_manual_review",
+      "domain_properties_count": 27,
+      "subdomain_properties_count": 28,
+      "has_domain_relationships": true,
+      "has_subdomain_relationships": true
+    },
+    {
+      "fqdn": "servicios.bancochile.cl",
+      "action": "keep_both_manual_review",
+      "domain_properties_count": 27,
+      "subdomain_properties_count": 27,
+      "has_domain_relationships": true,
+      "has_subdomain_relationships": true
+    },
+    {
+      "fqdn": "www.bancochile.cl",
+      "action": "keep_both_manual_review",
+      "domain_properties_count": 27,
+      "subdomain_properties_count": 13,
+      "has_domain_relationships": true,
+      "has_subdomain_relationships": true
+    }
+  ]
+}

@@ -1,0 +1,338 @@
+{
+  "timestamp": "2025-08-25T11:49:57.867920",
+  "total_issues": 26,
+  "errors": 17,
+  "warnings": 8,
+  "info": 1,
+  "results": [
+    {
+      "level": "ERROR",
+      "category": "Missing Node Types",
+      "description": "Graph is missing 2 expected node types",
+      "details": {
+        "missing_types": [
+          "DNSServer",
+          "Organization"
+        ]
+      },
+      "remediation_action": "Use domain-backend to create missing node types"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Relationship Types",
+      "description": "Graph is missing 9 expected relationship types",
+      "details": {
+        "missing_types": [
+          "OWNS",
+          "PROVIDES",
+          "DEPENDS_ON",
+          "SUPPLIES_TO",
+          "SECURED_BY",
+          "RESOLVES_TO",
+          "USES_TECH",
+          "HAS_VULNERABILITY",
+          "ISSUED_BY"
+        ]
+      },
+      "remediation_action": "Use domain-backend to create missing relationships"
+    },
+    {
+      "level": "WARNING",
+      "category": "Empty Node Type",
+      "description": "No Organization nodes found in the graph",
+      "details": {
+        "node_type": "Organization",
+        "expected_properties": [
+          "id",
+          "name",
+          "type",
+          "country"
+        ]
+      },
+      "remediation_action": "Use domain-backend to populate Organization nodes"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Properties",
+      "description": "30 Domain nodes missing required property 'id' (100.0%)",
+      "details": {
+        "node_type": "Domain",
+        "property": "id",
+        "missing_count": 30,
+        "total_count": 30,
+        "percentage": 100.0
+      },
+      "remediation_action": "Update Domain nodes to include id property"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Properties",
+      "description": "20 Domain nodes missing required property 'tld' (66.7%)",
+      "details": {
+        "node_type": "Domain",
+        "property": "tld",
+        "missing_count": 20,
+        "total_count": 30,
+        "percentage": 66.66666666666666
+      },
+      "remediation_action": "Update Domain nodes to include tld property"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Properties",
+      "description": "30 Domain nodes missing required property 'status' (100.0%)",
+      "details": {
+        "node_type": "Domain",
+        "property": "status",
+        "missing_count": 30,
+        "total_count": 30,
+        "percentage": 100.0
+      },
+      "remediation_action": "Update Domain nodes to include status property"
+    },
+    {
+      "level": "WARNING",
+      "category": "Empty Node Type",
+      "description": "No DNSServer nodes found in the graph",
+      "details": {
+        "node_type": "DNSServer",
+        "expected_properties": [
+          "id",
+          "hostname",
+          "ip_address",
+          "type"
+        ]
+      },
+      "remediation_action": "Use domain-backend to populate DNSServer nodes"
+    },
+    {
+      "level": "WARNING",
+      "category": "Empty Node Type",
+      "description": "No Certificate nodes found in the graph",
+      "details": {
+        "node_type": "Certificate",
+        "expected_properties": [
+          "id",
+          "serial_number",
+          "subject_cn",
+          "issuer_cn"
+        ]
+      },
+      "remediation_action": "Use domain-backend to populate Certificate nodes"
+    },
+    {
+      "level": "WARNING",
+      "category": "Missing Properties",
+      "description": "2 Service nodes missing required property 'id' (0.0%)",
+      "details": {
+        "node_type": "Service",
+        "property": "id",
+        "missing_count": 2,
+        "total_count": 5002,
+        "percentage": 0.03998400639744103
+      },
+      "remediation_action": "Update Service nodes to include id property"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Properties",
+      "description": "5002 Service nodes missing required property 'name' (100.0%)",
+      "details": {
+        "node_type": "Service",
+        "property": "name",
+        "missing_count": 5002,
+        "total_count": 5002,
+        "percentage": 100.0
+      },
+      "remediation_action": "Update Service nodes to include name property"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Properties",
+      "description": "5002 Service nodes missing required property 'type' (100.0%)",
+      "details": {
+        "node_type": "Service",
+        "property": "type",
+        "missing_count": 5002,
+        "total_count": 5002,
+        "percentage": 100.0
+      },
+      "remediation_action": "Update Service nodes to include type property"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Properties",
+      "description": "5002 Service nodes missing required property 'provider_name' (100.0%)",
+      "details": {
+        "node_type": "Service",
+        "property": "provider_name",
+        "missing_count": 5002,
+        "total_count": 5002,
+        "percentage": 100.0
+      },
+      "remediation_action": "Update Service nodes to include provider_name property"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Properties",
+      "description": "25 Provider nodes missing required property 'id' (52.1%)",
+      "details": {
+        "node_type": "Provider",
+        "property": "id",
+        "missing_count": 25,
+        "total_count": 48,
+        "percentage": 52.083333333333336
+      },
+      "remediation_action": "Update Provider nodes to include id property"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Properties",
+      "description": "42 Provider nodes missing required property 'country' (87.5%)",
+      "details": {
+        "node_type": "Provider",
+        "property": "country",
+        "missing_count": 42,
+        "total_count": 48,
+        "percentage": 87.5
+      },
+      "remediation_action": "Update Provider nodes to include country property"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Properties",
+      "description": "189 Technology nodes missing required property 'id' (100.0%)",
+      "details": {
+        "node_type": "Technology",
+        "property": "id",
+        "missing_count": 189,
+        "total_count": 189,
+        "percentage": 100.0
+      },
+      "remediation_action": "Update Technology nodes to include id property"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Properties",
+      "description": "189 Technology nodes missing required property 'version' (100.0%)",
+      "details": {
+        "node_type": "Technology",
+        "property": "version",
+        "missing_count": 189,
+        "total_count": 189,
+        "percentage": 100.0
+      },
+      "remediation_action": "Update Technology nodes to include version property"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Properties",
+      "description": "60 Technology nodes missing required property 'type' (31.7%)",
+      "details": {
+        "node_type": "Technology",
+        "property": "type",
+        "missing_count": 60,
+        "total_count": 189,
+        "percentage": 31.746031746031743
+      },
+      "remediation_action": "Update Technology nodes to include type property"
+    },
+    {
+      "level": "WARNING",
+      "category": "Orphaned Domains",
+      "description": "30 domains not owned by any organization",
+      "details": {
+        "orphaned_count": 30
+      },
+      "remediation_action": "Create Organization nodes and OWNS relationships"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing DNS Resolution",
+      "description": "30 domains without DNS resolution data",
+      "details": {
+        "no_dns_count": 30
+      },
+      "remediation_action": "Run DNS analysis for domains missing resolution data"
+    },
+    {
+      "level": "WARNING",
+      "category": "Missing Certificate Data",
+      "description": "30 domains without SSL/TLS certificate data",
+      "details": {
+        "no_cert_count": 30
+      },
+      "remediation_action": "Run TLS analysis to collect certificate information"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Risk Scores",
+      "description": "4802 Service nodes missing risk scores (100.0%)",
+      "details": {
+        "entity_type": "Service",
+        "no_risk_count": 4802,
+        "total_count": 4802,
+        "percentage": 100.0
+      },
+      "remediation_action": "Run risk calculation for Service nodes"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Risk Scores",
+      "description": "25 Provider nodes missing risk scores (100.0%)",
+      "details": {
+        "entity_type": "Provider",
+        "no_risk_count": 25,
+        "total_count": 25,
+        "percentage": 100.0
+      },
+      "remediation_action": "Run risk calculation for Provider nodes"
+    },
+    {
+      "level": "ERROR",
+      "category": "Missing Risk Scores",
+      "description": "189 Technology nodes missing risk scores (100.0%)",
+      "details": {
+        "entity_type": "Technology",
+        "no_risk_count": 189,
+        "total_count": 189,
+        "percentage": 100.0
+      },
+      "remediation_action": "Run risk calculation for Technology nodes"
+    },
+    {
+      "level": "INFO",
+      "category": "Missing Technology Data",
+      "description": "30 domains without technology detection data",
+      "details": {
+        "no_tech_count": 30
+      },
+      "remediation_action": "Run web technology analysis for domains"
+    },
+    {
+      "level": "WARNING",
+      "category": "Orphaned Services",
+      "description": "5002 services not linked to any provider",
+      "details": {
+        "orphaned_count": 5002
+      },
+      "remediation_action": "Create Provider nodes and PROVIDES relationships"
+    },
+    {
+      "level": "WARNING",
+      "category": "Isolated Nodes",
+      "description": "108 nodes are not connected to any other nodes",
+      "details": {
+        "isolated_by_type": {
+          "Service": 70,
+          "Provider": 16,
+          "Vulnerability": 15,
+          "RiskConfiguration": 1,
+          "Technology": 6
+        },
+        "total_isolated": 108
+      },
+      "remediation_action": "Review and create appropriate relationships for isolated nodes"
+    }
+  ]
+}

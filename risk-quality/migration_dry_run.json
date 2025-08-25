@@ -1,0 +1,90 @@
+{
+  "timestamp": "2025-08-25T18:05:22.194965",
+  "dry_run": true,
+  "total_domains": 10,
+  "successful_migrations": [
+    "api.bancochile.cl",
+    "extranet.bancochile.cl",
+    "login.bancochile.cl",
+    "mail.bancochile.cl",
+    "online.bancochile.cl",
+    "portal.bancochile.cl",
+    "portalempresas.bancochile.cl",
+    "portalpersonas.bancochile.cl",
+    "servicios.bancochile.cl",
+    "www.bancochile.cl"
+  ],
+  "failed_migrations": [],
+  "migration_details": [
+    {
+      "fqdn": "api.bancochile.cl",
+      "properties_merged": 7,
+      "relationships_migrated": 5,
+      "success": true,
+      "error": null
+    },
+    {
+      "fqdn": "extranet.bancochile.cl",
+      "properties_merged": 8,
+      "relationships_migrated": 3,
+      "success": true,
+      "error": null
+    },
+    {
+      "fqdn": "login.bancochile.cl",
+      "properties_merged": 10,
+      "relationships_migrated": 32,
+      "success": true,
+      "error": null
+    },
+    {
+      "fqdn": "mail.bancochile.cl",
+      "properties_merged": 10,
+      "relationships_migrated": 30,
+      "success": true,
+      "error": null
+    },
+    {
+      "fqdn": "online.bancochile.cl",
+      "properties_merged": 9,
+      "relationships_migrated": 47,
+      "success": true,
+      "error": null
+    },
+    {
+      "fqdn": "portal.bancochile.cl",
+      "properties_merged": 9,
+      "relationships_migrated": 48,
+      "success": true,
+      "error": null
+    },
+    {
+      "fqdn": "portalempresas.bancochile.cl",
+      "properties_merged": 9,
+      "relationships_migrated": 43,
+      "success": true,
+      "error": null
+    },
+    {
+      "fqdn": "portalpersonas.bancochile.cl",
+      "properties_merged": 9,
+      "relationships_migrated": 48,
+      "success": true,
+      "error": null
+    },
+    {
+      "fqdn": "servicios.bancochile.cl",
+      "properties_merged": 9,
+      "relationships_migrated": 38,
+      "success": true,
+      "error": null
+    },
+    {
+      "fqdn": "www.bancochile.cl",
+      "properties_merged": 9,
+      "relationships_migrated": 48,
+      "success": true,
+      "error": null
+    }
+  ]
+}

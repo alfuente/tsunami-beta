@@ -596,7 +596,7 @@ class AsyncDomainDiscoveryService:
             logger.warning(f"Failed to get cached Amass results: {e}")
             return None
 
-    async def run_amass_discovery(self, domain: str, task_id: str, timeout: int = 900) -> AmassResult:
+    async def run_amass_discovery(self, domain: str, task_id: str, timeout: int = 1800) -> AmassResult:
         """Run Amass discovery with caching"""
         logger.info(f"Starting Amass discovery for {domain} (task: {task_id})")
         
@@ -811,7 +811,7 @@ class AsyncDomainDiscoveryService:
             ]
             
             logger.info(f"Running Amass command: {' '.join(cmd)}")
-            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout + 60)
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout + 300)
             
             if result.returncode != 0:
                 raise Exception(f"Amass command failed: {result.stderr}")
@@ -1130,25 +1130,105 @@ class AsyncDomainDiscoveryService:
         """Create Neo4j nodes for services"""
         current_time = datetime.now().isoformat()
         target = result.subdomain if result.subdomain else result.domain
+        is_base = self._is_base_domain(target)
         
+        # Create/update Domain or Subdomain node first
+        if is_base:
+            tx.run("""
+                MERGE (d:Domain {fqdn: $target})
+                SET d.id = COALESCE(d.id, $target),
+                    d.tld = split($target, '.')[-1],
+                    d.status = 'active',
+                    d.services_count = $services_count,
+                    d.services_analyzed_at = $current_time,
+                    d.updated_at = $current_time
+            """, target=target, services_count=len(result.services), current_time=current_time)
+        else:
+            tx.run("""
+                MERGE (s:Subdomain {fqdn: $target})
+                SET s.id = COALESCE(s.id, $target),
+                    s.services_count = $services_count,
+                    s.services_analyzed_at = $current_time,
+                    s.updated_at = $current_time
+            """, target=target, services_count=len(result.services), current_time=current_time)
+        
+        # Create Service nodes with required properties
         for service in result.services:
             service_id = f"{target}_{service['port']}_{service['protocol']}"
+            protocol = service['protocol']
+            port = service['port']
+            service_name = service['service']
+            
+            # Generate name, type, and provider_name for Service
+            name = f"{protocol}/{port}"
+            service_type = self._get_service_type(port, service_name)
+            provider_name = self._infer_provider_from_service(service_name, target)
+            
             tx.run("""
                 MERGE (srv:Service {id: $service_id})
-                SET srv.port = $port,
+                SET srv.name = $name,
+                    srv.type = $service_type,
+                    srv.provider_name = $provider_name,
+                    srv.port = $port,
                     srv.protocol = $protocol,
                     srv.service_name = $service_name,
                     srv.state = $state,
                     srv.detected_at = $detected_at,
                     srv.updated_at = $current_time
-                WITH srv
-                MATCH (n {fqdn: $target})
+            """, service_id=service_id, name=name, service_type=service_type,
+                 provider_name=provider_name, port=port, protocol=protocol, 
+                 service_name=service_name, state=service['state'], 
+                 detected_at=service['detected_at'], current_time=current_time)
+            
+            # Link Domain/Subdomain to Service
+            node_label = "Domain" if is_base else "Subdomain"
+            tx.run(f"""
+                MERGE (n:{node_label} {{fqdn: $target}})
+                MERGE (srv:Service {{id: $service_id}})
                 MERGE (n)-[r:RUNS_SERVICE]->(srv)
                 SET r.created_at = $current_time
-            """, service_id=service_id, port=service['port'], 
-                 protocol=service['protocol'], service_name=service['service'],
-                 state=service['state'], detected_at=service['detected_at'],
-                 target=target, current_time=current_time)
+            """, target=target, service_id=service_id, current_time=current_time)
+
+    def _get_service_type(self, port: int, service_name: str) -> str:
+        """Determine service type based on port and service name"""
+        if port in [80, 8080, 8000]:
+            return 'web'
+        elif port in [443, 8443]:
+            return 'https'
+        elif port == 22:
+            return 'ssh'
+        elif port in [25, 587]:
+            return 'smtp'
+        elif port == 53:
+            return 'dns'
+        elif port == 21:
+            return 'ftp'
+        elif port == 23:
+            return 'telnet'
+        elif port in [3306]:
+            return 'database'
+        elif service_name:
+            return service_name.lower()
+        else:
+            return 'unknown'
+
+    def _infer_provider_from_service(self, service_name: str, target: str) -> str:
+        """Infer provider from service name and target"""
+        # Extract organization from domain for provider inference
+        if target.endswith('.cl'):
+            parts = target.split('.')
+            if len(parts) >= 2:
+                return parts[-2].title()  # e.g., bancochile.cl -> Bancochile
+        
+        # Default provider names based on service
+        if 'apache' in service_name.lower():
+            return 'Apache'
+        elif 'nginx' in service_name.lower():
+            return 'Nginx'
+        elif 'iis' in service_name.lower():
+            return 'Microsoft'
+        else:
+            return 'Unknown'
 
     async def run_dns_analysis(self, domain: str, subdomain: Optional[str], task_id: str) -> DNSAnalysisResult:
         """Run DNS analysis for domain or subdomain"""
@@ -1247,16 +1327,61 @@ class AsyncDomainDiscoveryService:
         """Create Neo4j nodes for DNS records"""
         current_time = datetime.now().isoformat()
         target = result.subdomain if result.subdomain else result.domain
+        is_base = self._is_base_domain(target)
         
-        # Update target node with DNS info
-        tx.run("""
-            MATCH (n {fqdn: $target})
-            SET n.dns_records = $dns_records,
-                n.nameservers = $nameservers,
-                n.dns_analyzed_at = $current_time,
-                n.updated_at = $current_time
-        """, target=target, dns_records=json.dumps(result.records),
-             nameservers=result.nameservers, current_time=current_time)
+        if is_base:
+            # Create/update Domain node for base domains
+            tx.run("""
+                MERGE (d:Domain {fqdn: $target})
+                SET d.id = $target,
+                    d.tld = split($target, '.')[-1],
+                    d.status = 'active',
+                    d.dns_records = $dns_records,
+                    d.nameservers = $nameservers,
+                    d.dns_analyzed_at = $current_time,
+                    d.updated_at = $current_time,
+                    d.has_dns = true
+            """, target=target, dns_records=json.dumps(result.records),
+                 nameservers=result.nameservers, current_time=current_time)
+            
+            # Create DNSServer nodes for each IP
+            if 'A' in result.records:
+                for ip in result.records['A']:
+                    tx.run("""
+                        MERGE (dns:DNSServer {ip_address: $ip_address})
+                        SET dns.id = $ip_address,
+                            dns.hostname = $target,
+                            dns.type = 'A_record',
+                            dns.discovered_at = $current_time
+                        
+                        MERGE (d:Domain {fqdn: $target})
+                        MERGE (d)-[:RESOLVES_TO]->(dns)
+                    """, ip_address=ip, target=target, current_time=current_time)
+        else:
+            # Create/update Subdomain node
+            tx.run("""
+                MERGE (s:Subdomain {fqdn: $target})
+                SET s.id = $target,
+                    s.dns_records = $dns_records,
+                    s.nameservers = $nameservers,
+                    s.dns_analyzed_at = $current_time,
+                    s.updated_at = $current_time,
+                    s.has_dns = true
+            """, target=target, dns_records=json.dumps(result.records),
+                 nameservers=result.nameservers, current_time=current_time)
+                 
+            # Link subdomain to parent domain
+            parent_domain = '.'.join(target.split('.')[1:])
+            if self._is_base_domain(parent_domain):
+                tx.run("""
+                    MERGE (d:Domain {fqdn: $parent_domain})
+                    SET d.id = $parent_domain,
+                        d.tld = split($parent_domain, '.')[-1],
+                        d.status = 'active'
+                    
+                    MERGE (s:Subdomain {fqdn: $target})
+                    MERGE (d)-[:HAS_SUBDOMAIN]->(s)
+                """, target=target, parent_domain=parent_domain)
 
     def _is_base_domain(self, domain: str) -> bool:
         """Check if domain is a base domain (not a subdomain)"""
@@ -1553,20 +1678,88 @@ class AsyncDomainDiscoveryService:
         """Create Neo4j nodes for TLS info"""
         current_time = datetime.now().isoformat()
         target = result.subdomain if result.subdomain else result.domain
+        is_base = self._is_base_domain(target)
         
-        # Update target node with TLS info
-        tx.run("""
-            MATCH (n {fqdn: $target})
-            SET n.certificate_info = $cert_info,
-                n.tls_version = $tls_version,
-                n.cipher_suites = $cipher_suites,
-                n.tls_analyzed_at = $current_time,
-                n.updated_at = $current_time
-        """, target=target,
-             cert_info=json.dumps(result.certificate_info),
-             tls_version=result.tls_version,
-             cipher_suites=result.cipher_suites,
-             current_time=current_time)
+        # Create/update Domain or Subdomain node
+        if is_base:
+            tx.run("""
+                MERGE (d:Domain {fqdn: $target})
+                SET d.id = COALESCE(d.id, $target),
+                    d.tld = split($target, '.')[-1],
+                    d.status = 'active',
+                    d.certificate_info = $cert_info,
+                    d.tls_version = $tls_version,
+                    d.cipher_suites = $cipher_suites,
+                    d.tls_analyzed_at = $current_time,
+                    d.updated_at = $current_time,
+                    d.has_ssl = true
+            """, target=target,
+                 cert_info=json.dumps(result.certificate_info),
+                 tls_version=result.tls_version,
+                 cipher_suites=result.cipher_suites,
+                 current_time=current_time)
+        else:
+            tx.run("""
+                MERGE (s:Subdomain {fqdn: $target})
+                SET s.id = COALESCE(s.id, $target),
+                    s.certificate_info = $cert_info,
+                    s.tls_version = $tls_version,
+                    s.cipher_suites = $cipher_suites,
+                    s.tls_analyzed_at = $current_time,
+                    s.updated_at = $current_time,
+                    s.has_ssl = true
+            """, target=target,
+                 cert_info=json.dumps(result.certificate_info),
+                 tls_version=result.tls_version,
+                 cipher_suites=result.cipher_suites,
+                 current_time=current_time)
+        
+        # Create Certificate node if certificate info is valid
+        if result.certificate_info and "error" not in result.certificate_info:
+            cert_info = result.certificate_info
+            serial_number = cert_info.get('serial_number', 'unknown')
+            subject_cn = cert_info.get('subject', {}).get('commonName', target)
+            issuer_cn = cert_info.get('issuer', {}).get('commonName', 'unknown')
+            
+            if serial_number and serial_number != 'unknown':
+                # Create Certificate node
+                tx.run("""
+                    MERGE (cert:Certificate {serial_number: $serial_number})
+                    SET cert.id = $serial_number,
+                        cert.subject_cn = $subject_cn,
+                        cert.issuer_cn = $issuer_cn,
+                        cert.valid_from = $valid_from,
+                        cert.valid_to = $valid_to,
+                        cert.algorithm = $algorithm,
+                        cert.discovered_at = $current_time
+                """, serial_number=serial_number,
+                     subject_cn=subject_cn,
+                     issuer_cn=issuer_cn,
+                     valid_from=cert_info.get('not_before', ''),
+                     valid_to=cert_info.get('not_after', ''),
+                     algorithm=cert_info.get('signature_algorithm', ''),
+                     current_time=current_time)
+                
+                # Link Domain/Subdomain to Certificate
+                node_label = "Domain" if is_base else "Subdomain"
+                tx.run(f"""
+                    MERGE (n:{node_label} {{fqdn: $target}})
+                    MERGE (cert:Certificate {{serial_number: $serial_number}})
+                    MERGE (n)-[:SECURED_BY]->(cert)
+                """, target=target, serial_number=serial_number)
+                
+                # Create Organization for CA if issuer exists
+                if issuer_cn and issuer_cn != 'unknown':
+                    org_id = issuer_cn.lower().replace(' ', '_').replace('.', '_')
+                    tx.run("""
+                        MERGE (ca:Organization {name: $issuer_cn})
+                        SET ca.id = $org_id,
+                            ca.type = 'certificate_authority',
+                            ca.country = 'unknown'
+                        
+                        MERGE (cert:Certificate {serial_number: $serial_number})
+                        MERGE (cert)-[:ISSUED_BY]->(ca)
+                    """, issuer_cn=issuer_cn, org_id=org_id, serial_number=serial_number)
 
     async def run_tech_analysis(self, domain: str, subdomain: Optional[str], task_id: str) -> TechAnalysisResult:
         """Run web technology analysis"""
@@ -3329,23 +3522,44 @@ class AsyncDomainDiscoveryService:
         """Create Neo4j nodes for technology info with detailed technology tracking"""
         current_time = datetime.now().isoformat()
         target = result.subdomain if result.subdomain else result.domain
+        is_base = self._is_base_domain(target)
         
-        # Update target node with tech info
-        tx.run("""
-            MATCH (n {fqdn: $target})
-            SET n.technologies = $technologies,
-                n.web_server = $web_server,
-                n.cms = $cms,
-                n.tech_analyzed_at = $current_time,
-                n.updated_at = $current_time
-        """, target=target,
-             technologies=json.dumps(result.technologies),
-             web_server=result.web_server,
-             cms=result.cms,
-             current_time=current_time)
+        # Create/update Domain or Subdomain node with tech info
+        if is_base:
+            tx.run("""
+                MERGE (d:Domain {fqdn: $target})
+                SET d.id = COALESCE(d.id, $target),
+                    d.tld = split($target, '.')[-1],
+                    d.status = 'active',
+                    d.technologies = $technologies,
+                    d.web_server = $web_server,
+                    d.cms = $cms,
+                    d.tech_analyzed_at = $current_time,
+                    d.updated_at = $current_time
+            """, target=target,
+                 technologies=json.dumps(result.technologies),
+                 web_server=result.web_server,
+                 cms=result.cms,
+                 current_time=current_time)
+        else:
+            tx.run("""
+                MERGE (s:Subdomain {fqdn: $target})
+                SET s.id = COALESCE(s.id, $target),
+                    s.technologies = $technologies,
+                    s.web_server = $web_server,
+                    s.cms = $cms,
+                    s.tech_analyzed_at = $current_time,
+                    s.updated_at = $current_time
+            """, target=target,
+                 technologies=json.dumps(result.technologies),
+                 web_server=result.web_server,
+                 cms=result.cms,
+                 current_time=current_time)
         
         # Process all technologies to create detailed nodes with enhanced modeling
         for tech in result.technologies:
+            # Create Technology nodes with required properties
+            self._create_technology_node(tx, tech, target, current_time)
             # Use enhanced technology modeling for new detailed structure
             self._create_enhanced_technology_nodes(tx, tech, target, current_time)
         
@@ -3419,6 +3633,55 @@ class AsyncDomainDiscoveryService:
             """, target=target, provider_name=provider_name,
                  current_time=current_time, confidence=confidence,
                  source=provider.get("source", "web_analysis"))
+
+    def _create_technology_node(self, tx, tech, target, current_time):
+        """Create Technology node with required properties"""
+        tech_name = tech.get("name", "Unknown")
+        category = tech.get("category", "unknown")
+        version = tech.get("version", "unknown")
+        confidence = tech.get("confidence", 0.5)
+        
+        # Categorize technology type
+        tech_type = "unknown"
+        if category in ["web_server", "server"]:
+            tech_type = "web_server"
+        elif category in ["database", "db"]:
+            tech_type = "database"
+        elif category in ["framework", "runtime", "language"]:
+            tech_type = "runtime"
+        elif category in ["cms", "content_management"]:
+            tech_type = "cms"
+        elif category in ["javascript", "js", "frontend"]:
+            tech_type = "frontend"
+        elif category in ["security", "ssl", "tls"]:
+            tech_type = "security"
+        elif category in ["os", "operating_system"]:
+            tech_type = "os"
+        else:
+            tech_type = category
+        
+        # Create Technology node with all required properties
+        tech_id = tech_name.lower().replace(' ', '_').replace('.', '_')
+        tx.run("""
+            MERGE (t:Technology {name: $tech_name})
+            SET t.id = $tech_id,
+                t.version = $version,
+                t.type = $tech_type,
+                t.category = $category,
+                t.confidence = $confidence,
+                t.discovered_at = $current_time,
+                t.updated_at = $current_time
+        """, tech_name=tech_name, tech_id=tech_id, version=version, 
+             tech_type=tech_type, category=category, confidence=confidence,
+             current_time=current_time)
+        
+        # Link Domain/Subdomain to Technology
+        node_label = "Domain" if self._is_base_domain(target) else "Subdomain"
+        tx.run(f"""
+            MERGE (n:{node_label} {{fqdn: $target}})
+            MERGE (t:Technology {{name: $tech_name}})
+            MERGE (n)-[:USES_TECH]->(t)
+        """, target=target, tech_name=tech_name)
 
     def _create_enhanced_technology_nodes(self, tx, tech, target, current_time):
         """Create enhanced technology nodes with versions and detailed TLS modeling"""
@@ -4907,7 +5170,7 @@ async def _run_smart_tech_analysis(domain: str, task_id: str, analysis_type: str
 @app.post("/api/v1/discover/all-subdomains/{domain}", tags=["Batch Operations"])
 async def discover_and_analyze_all_subdomains(
     domain: str = Path(..., description="Base domain to discover and analyze"),
-    amass_timeout: int = Query(900, description="Timeout for Amass discovery in seconds"),
+    amass_timeout: int = Query(1800, description="Timeout for Amass discovery in seconds"),
     max_subdomains: int = Query(1000, description="Maximum number of subdomains to discover"),
     max_workers: int = Query(10, description="Maximum number of worker threads"),
     timeout_per_subdomain: int = Query(30, description="Timeout per subdomain analysis"),
@@ -5127,24 +5390,23 @@ async def _run_combined_discovery(domain: str, subdomain: Optional[str], task_id
                 results["tech"] = {"error": str(e)}
         
         # Mark task as completed
-        discovery_service._update_task_status(
-            task_id, 
-            TaskStatus.COMPLETED, 
-            progress=100, 
-            result=results
-        )
         if task_id in discovery_service.active_tasks:
+            task = discovery_service.active_tasks[task_id]
+            task.status = TaskStatus.COMPLETED
+            task.progress = 100
+            task.result = results
+            task.completed_at = datetime.now()
             discovery_service._update_task_logs(task_id, f"Completed combined discovery for {target}")
             
         logger.info(f"Combined discovery completed for {target}")
         
     except Exception as e:
         logger.error(f"Combined discovery failed for {target}: {e}")
-        discovery_service._update_task_status(
-            task_id,
-            TaskStatus.FAILED,
-            error=str(e)
-        )
+        if task_id in discovery_service.active_tasks:
+            task = discovery_service.active_tasks[task_id]
+            task.status = TaskStatus.FAILED
+            task.error = str(e)
+            task.completed_at = datetime.now()
 
 async def _run_combined_recursive_discovery(domain: str, task_id: str, max_subdomains: int,
                                           include_services: bool, include_dns: bool, include_mx: bool, 
