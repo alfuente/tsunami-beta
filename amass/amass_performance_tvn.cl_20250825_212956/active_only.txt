@@ -1,0 +1,1 @@
+sara.ns.cloudflare.com (FQDN) --> a_record --> 173.245.58.144 (IPAddress)
