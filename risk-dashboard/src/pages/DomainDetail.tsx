@@ -106,7 +106,21 @@ const DomainDetail: React.FC = () => {
     }
   };
 
+  // Helper function to extract base domain from FQDN
+  const extractBaseDomain = (fqdn: string): string | null => {
+    const parts = fqdn.split('.');
+    if (parts.length > 2) {
+      // For subdomains, return domain + TLD (e.g., app.entel.cl -> entel.cl)
+      return parts.slice(-2).join('.');
+    }
+    return null; // This is already a base domain
+  };
+
   useEffect(() => {
+    if (fqdn) {
+      const base = extractBaseDomain(fqdn);
+      setBaseDomain(base);
+    }
     fetchDomainData();
   }, [fqdn]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -255,141 +269,7 @@ const DomainDetail: React.FC = () => {
               </Typography>
               
               <Grid container spacing={3}>
-                {/* Subdomain Risk Factors */}
-                <Grid item xs={12} md={6}>
-                  <Card variant="outlined">
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom color="primary">
-                        🌐 Subdomain Analysis
-                      </Typography>
-                      <List dense>
-                        <ListItem>
-                          <ListItemText 
-                            primary="Total Subdomains Found" 
-                            secondary={
-                              <Typography component="span">
-                                <strong>{domain.subdomains_count || 'N/A'}</strong> 
-                                {(domain.subdomains_count || 0) > 50 && (
-                                  <Chip label="High Exposure" color="warning" size="small" sx={{ ml: 1 }} />
-                                )}
-                              </Typography>
-                            }
-                          />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemText 
-                            primary="Active Subdomains" 
-                            secondary={
-                              <Typography component="span">
-                                <strong>{domain.active_subdomains_count || 'N/A'}</strong>
-                                {(domain.active_subdomains_count || 0) > 20 && (
-                                  <Chip label="Large Attack Surface" color="error" size="small" sx={{ ml: 1 }} />
-                                )}
-                              </Typography>
-                            }
-                          />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemText 
-                            primary="High Risk Subdomains" 
-                            secondary={
-                              <Typography component="span">
-                                <strong>{domain.high_risk_subdomains_count || 0}</strong>
-                                {(domain.high_risk_subdomains_count || 0) > 0 && (
-                                  <Chip label="Critical Impact" color="error" size="small" sx={{ ml: 1 }} />
-                                )}
-                              </Typography>
-                            }
-                          />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemText 
-                            primary="Subdomain Risk Weight" 
-                            secondary={
-                              <Typography component="span" color="primary">
-                                <strong>35%</strong> of total score
-                              </Typography>
-                            }
-                          />
-                        </ListItem>
-                      </List>
-                    </CardContent>
-                  </Card>
-                </Grid>
 
-                {/* DNS & MX Records */}
-                <Grid item xs={12} md={6}>
-                  <Card variant="outlined">
-                    <CardContent>
-                      <Typography variant="h6" gutterBottom color="primary">
-                        🌍 DNS & Mail Security
-                      </Typography>
-                      <List dense>
-                        <ListItem>
-                          <ListItemText 
-                            primary="DNSSEC Status" 
-                            secondary={
-                              <Box display="flex" alignItems="center">
-                                <Chip 
-                                  label={domain.dns_info?.dns_sec_enabled ? 'Enabled' : 'Disabled'} 
-                                  color={domain.dns_info?.dns_sec_enabled ? 'success' : 'error'}
-                                  size="small"
-                                />
-                                <Typography variant="body2" sx={{ ml: 1 }}>
-                                  ({domain.dns_info?.dns_sec_enabled ? '-5' : '+10'} risk points)
-                                </Typography>
-                              </Box>
-                            }
-                          />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemText 
-                            primary="SPF Record" 
-                            secondary={
-                              <Box display="flex" alignItems="center">
-                                <Chip 
-                                  label={domain.dns_info?.has_spf ? 'Present' : 'Missing'} 
-                                  color={domain.dns_info?.has_spf ? 'success' : 'warning'}
-                                  size="small"
-                                />
-                                <Typography variant="body2" sx={{ ml: 1 }}>
-                                  ({domain.dns_info?.has_spf ? '0' : '+5'} risk points)
-                                </Typography>
-                              </Box>
-                            }
-                          />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemText 
-                            primary="DMARC Record" 
-                            secondary={
-                              <Box display="flex" alignItems="center">
-                                <Chip 
-                                  label={domain.dns_info?.has_dmarc ? 'Present' : 'Missing'} 
-                                  color={domain.dns_info?.has_dmarc ? 'success' : 'warning'}
-                                  size="small"
-                                />
-                                <Typography variant="body2" sx={{ ml: 1 }}>
-                                  ({domain.dns_info?.has_dmarc ? '0' : '+5'} risk points)
-                                </Typography>
-                              </Box>
-                            }
-                          />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemText 
-                            primary="DNS Risk Weight" 
-                            secondary={
-                              <Typography component="span" color="primary">
-                                <strong>15%</strong> of total score
-                              </Typography>
-                            }
-                          />
-                        </ListItem>
-                      </List>
-                    </CardContent>
-                  </Card>
-                </Grid>
 
                 {/* Technology Stack */}
                 <Grid item xs={12} md={6}>
@@ -448,9 +328,53 @@ const DomainDetail: React.FC = () => {
                           <ListItemText 
                             primary="Detected Technologies" 
                             secondary={
-                              <Typography component="span">
-                                <strong>{domain.technology_info?.technology_nodes?.length || 0}</strong> technologies identified
-                              </Typography>
+                              <Box>
+                                {domain.technology_info?.technologies ? (
+                                  (() => {
+                                    try {
+                                      const techs = JSON.parse(domain.technology_info.technologies);
+                                      return (
+                                        <Box sx={{ mt: 1 }}>
+                                          <Typography variant="body2" sx={{ mb: 1 }}>
+                                            <strong>{techs.length}</strong> technologies identified:
+                                          </Typography>
+                                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                            {techs.slice(0, 10).map((tech: any, index: number) => (
+                                              <Chip 
+                                                key={index} 
+                                                label={typeof tech === 'string' ? tech : tech.name || tech.category || JSON.stringify(tech)} 
+                                                size="small" 
+                                                variant="outlined" 
+                                                color="primary"
+                                              />
+                                            ))}
+                                            {techs.length > 10 && (
+                                              <Chip 
+                                                label={`+${techs.length - 10} more`} 
+                                                size="small" 
+                                                variant="outlined" 
+                                                color="secondary"
+                                              />
+                                            )}
+                                          </Box>
+                                        </Box>
+                                      );
+                                    } catch (e) {
+                                      return (
+                                        <Typography component="span">
+                                          <strong>0</strong> technologies identified
+                                          <Chip label="Analysis Needed" color="warning" size="small" sx={{ ml: 1 }} />
+                                        </Typography>
+                                      );
+                                    }
+                                  })()
+                                ) : (
+                                  <Typography component="span">
+                                    <strong>0</strong> technologies identified
+                                    <Chip label="Analysis Needed" color="warning" size="small" sx={{ ml: 1 }} />
+                                  </Typography>
+                                )}
+                              </Box>
                             }
                           />
                         </ListItem>
@@ -479,53 +403,89 @@ const DomainDetail: React.FC = () => {
                       <List dense>
                         <ListItem>
                           <ListItemText 
-                            primary="Provider Count" 
+                            primary="Detected Providers" 
                             secondary={
-                              <Typography component="span">
-                                <strong>{domain.providers?.length || 0}</strong> external providers
-                                {(domain.providers?.length || 0) > 5 && (
-                                  <Chip label="High Dependency" color="warning" size="small" sx={{ ml: 1 }} />
-                                )}
-                              </Typography>
-                            }
-                          />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemText 
-                            primary="CDN Services" 
-                            secondary={
-                              <Typography component="span">
-                                <strong>
-                                  {domain.providers?.filter(p => p.service_type?.includes('CDN')).length || 0}
-                                </strong> CDN providers
-                              </Typography>
-                            }
-                          />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemText 
-                            primary="Cloud Services" 
-                            secondary={
-                              <Typography component="span">
-                                <strong>
-                                  {domain.providers?.filter(p => p.service_type?.includes('Cloud')).length || 0}
-                                </strong> cloud services
-                              </Typography>
-                            }
-                          />
-                        </ListItem>
-                        <ListItem>
-                          <ListItemText 
-                            primary="Critical Providers" 
-                            secondary={
-                              <Typography component="span">
-                                <strong>
-                                  {domain.providers?.filter(p => p.criticality === 'high').length || 0}
-                                </strong> high-criticality providers
-                                {(domain.providers?.filter(p => p.criticality === 'high').length || 0) > 0 && (
-                                  <Chip label="Risk Multiplier" color="error" size="small" sx={{ ml: 1 }} />
-                                )}
-                              </Typography>
+                              <Box>
+                                {(() => {
+                                  // Get providers from various sources
+                                  const providers: Array<{name: string, type: string, color: string}> = [];
+                                  
+                                  // From web server (e.g., Cloudflare)
+                                  if (domain.technology_info?.web_server && domain.technology_info.web_server !== 'Not Detected') {
+                                    providers.push({
+                                      name: domain.technology_info.web_server,
+                                      type: 'Web Server / CDN',
+                                      color: 'primary'
+                                    });
+                                  }
+                                  
+                                  // From providers array if available
+                                  if (domain.providers && domain.providers.length > 0) {
+                                    domain.providers.forEach((p: any) => {
+                                      providers.push({
+                                        name: p.name || p.provider_name,
+                                        type: p.service_type || 'Service Provider',
+                                        color: p.criticality === 'high' ? 'error' : 'info'
+                                      });
+                                    });
+                                  }
+                                  
+                                  // From DNS/MX records if available
+                                  if (domain.dns_info?.dns_records) {
+                                    try {
+                                      const records = JSON.parse(domain.dns_info.dns_records);
+                                      if (records.MX) {
+                                        records.MX.forEach((mx: string) => {
+                                          if (mx.includes('google') || mx.includes('outlook') || mx.includes('microsoft')) {
+                                            const provider = mx.includes('google') ? 'Google Workspace' : 'Microsoft 365';
+                                            if (!providers.some(p => p.name.includes(provider.split(' ')[0]))) {
+                                              providers.push({
+                                                name: provider,
+                                                type: 'Email Provider',
+                                                color: 'secondary'
+                                              });
+                                            }
+                                          }
+                                        });
+                                      }
+                                    } catch (e) {
+                                      // Ignore parsing errors
+                                    }
+                                  }
+                                  
+                                  if (providers.length === 0) {
+                                    return (
+                                      <Typography component="span">
+                                        <strong>No providers detected</strong>
+                                        <Chip label="Hidden Infrastructure" color="info" size="small" sx={{ ml: 1 }} />
+                                      </Typography>
+                                    );
+                                  }
+                                  
+                                  return (
+                                    <Box sx={{ mt: 1 }}>
+                                      <Typography variant="body2" sx={{ mb: 1 }}>
+                                        <strong>{providers.length}</strong> providers identified:
+                                      </Typography>
+                                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                        {providers.map((provider, index) => (
+                                          <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Chip 
+                                              label={provider.name} 
+                                              size="small" 
+                                              color={provider.color as any}
+                                              variant="outlined"
+                                            />
+                                            <Typography variant="caption" color="textSecondary">
+                                              {provider.type}
+                                            </Typography>
+                                          </Box>
+                                        ))}
+                                      </Box>
+                                    </Box>
+                                  );
+                                })()}
+                              </Box>
                             }
                           />
                         </ListItem>
@@ -535,6 +495,125 @@ const DomainDetail: React.FC = () => {
                             secondary={
                               <Typography component="span" color="primary">
                                 <strong>25%</strong> of total score
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                      </List>
+                    </CardContent>
+                  </Card>
+                </Grid>
+
+                {/* Security Information */}
+                <Grid item xs={12} md={6}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <Typography variant="h6" gutterBottom color="primary">
+                        🔒 Security Analysis
+                      </Typography>
+                      <List dense>
+                        <ListItem>
+                          <ListItemText 
+                            primary="TLS Configuration" 
+                            secondary={
+                              <Box display="flex" alignItems="center">
+                                <Chip 
+                                  label={`Grade ${domain.security_info?.tls_grade || 'Unknown'}`} 
+                                  color={domain.security_info?.tls_grade === 'A' ? 'success' : 
+                                         domain.security_info?.tls_grade === 'B' ? 'warning' : 'error'}
+                                  size="small"
+                                />
+                                <Typography variant="body2" sx={{ ml: 1 }}>
+                                  ({domain.security_info?.tls_grade === 'A' ? '-5' : 
+                                     domain.security_info?.tls_grade === 'B' ? '0' : '+10'} risk points)
+                                </Typography>
+                              </Box>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="Critical Vulnerabilities" 
+                            secondary={
+                              <Typography component="span">
+                                <strong>{domain.security_info?.critical_cves || 0}</strong> critical CVEs
+                                {(domain.security_info?.critical_cves || 0) > 0 && (
+                                  <Chip label="High Risk" color="error" size="small" sx={{ ml: 1 }} />
+                                )}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="High Vulnerabilities" 
+                            secondary={
+                              <Typography component="span">
+                                <strong>{domain.security_info?.high_cves || 0}</strong> high CVEs
+                                {(domain.security_info?.high_cves || 0) > 0 && (
+                                  <Chip label="Medium Risk" color="warning" size="small" sx={{ ml: 1 }} />
+                                )}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="TLS Certificate Details" 
+                            secondary={
+                              <Box>
+                                {domain.security_info?.tls_grade ? (
+                                  <Box sx={{ mt: 1 }}>
+                                    <Typography variant="body2" sx={{ mb: 1 }}>
+                                      <strong>Certificate Analysis:</strong>
+                                    </Typography>
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <Chip 
+                                          label={`SSL Grade: ${domain.security_info.tls_grade}`}
+                                          color={domain.security_info.tls_grade === 'A' ? 'success' : 
+                                                 domain.security_info.tls_grade === 'B' ? 'warning' : 'error'}
+                                          size="small"
+                                        />
+                                      </Box>
+                                      {(domain.security_info as any).cert_valid_from && (
+                                        <Typography variant="caption" color="textSecondary">
+                                          Certificate Valid From: {new Date((domain.security_info as any).cert_valid_from).toLocaleDateString()}
+                                        </Typography>
+                                      )}
+                                      {(domain.security_info as any).cert_valid_to && (
+                                        <Typography variant="caption" color="textSecondary">
+                                          Certificate Expires: {new Date((domain.security_info as any).cert_valid_to).toLocaleDateString()}
+                                        </Typography>
+                                      )}
+                                      {(domain.security_info as any).cipher_suite && (
+                                        <Typography variant="caption" color="textSecondary">
+                                          Cipher Suite: {(domain.security_info as any).cipher_suite}
+                                        </Typography>
+                                      )}
+                                      {domain.last_calculated && (
+                                        <Typography variant="caption" color="textSecondary">
+                                          Last Analyzed: {new Date(domain.last_calculated).toLocaleDateString()}
+                                        </Typography>
+                                      )}
+                                    </Box>
+                                  </Box>
+                                ) : (
+                                  <Typography component="span">
+                                    <strong>Analysis Pending</strong>
+                                    <Chip label="TLS Scan Needed" color="warning" size="small" sx={{ ml: 1 }} />
+                                  </Typography>
+                                )}
+                              </Box>
+                            }
+                          />
+                        </ListItem>
+                        <ListItem>
+                          <ListItemText 
+                            primary="Security Risk Weight" 
+                            secondary={
+                              <Typography component="span" color="primary">
+                                <strong>15%</strong> of total score
                               </Typography>
                             }
                           />
@@ -568,166 +647,6 @@ const DomainDetail: React.FC = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={8}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <Card>
-                <CardContent>
-                  <Box display="flex" alignItems="center" mb={2}>
-                    <SecurityIcon sx={{ mr: 1 }} />
-                    <Typography variant="h6">Security Information</Typography>
-                  </Box>
-                  {domain.security_info && (
-                    <List dense>
-                      <ListItem>
-                        <ListItemText 
-                          primary="TLS Grade" 
-                          secondary={domain.security_info.tls_grade}
-                        />
-                      </ListItem>
-                      <ListItem>
-                        <ListItemText 
-                          primary="Critical CVEs" 
-                          secondary={domain.security_info.critical_cves}
-                        />
-                      </ListItem>
-                      <ListItem>
-                        <ListItemText 
-                          primary="High CVEs" 
-                          secondary={domain.security_info.high_cves}
-                        />
-                      </ListItem>
-                      <ListItem>
-                        <ListItemText 
-                          primary="Last Assessment" 
-                          secondary={domain.security_info.last_assessment ? new Date(domain.security_info.last_assessment).toLocaleDateString() : 'Never'}
-                        />
-                      </ListItem>
-                    </List>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Card>
-                <CardContent>
-                  <Box display="flex" alignItems="center" mb={2}>
-                    <PublicIcon sx={{ mr: 1 }} />
-                    <Typography variant="h6">DNS Information</Typography>
-                  </Box>
-                  {domain.dns_info && (
-                    <List dense>
-                      <ListItem>
-                        <ListItemText 
-                          primary="DNSSEC Enabled" 
-                          secondary={
-                            <Chip 
-                              label={domain.dns_info.dns_sec_enabled ? 'Yes' : 'No'} 
-                              color={domain.dns_info.dns_sec_enabled ? 'success' : 'default'}
-                              size="small"
-                            />
-                          }
-                        />
-                      </ListItem>
-                      <ListItem>
-                        <ListItemText 
-                          primary="Name Servers" 
-                          secondary={`${domain.dns_info.name_servers?.length || 0} configured`}
-                        />
-                      </ListItem>
-                    </List>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Card>
-                <CardContent>
-                  <Box display="flex" alignItems="center" mb={2}>
-                    <StorageIcon sx={{ mr: 1 }} />
-                    <Typography variant="h6">Infrastructure</Typography>
-                  </Box>
-                  {domain.infrastructure_info && (
-                    <List dense>
-                      <ListItem>
-                        <ListItemText 
-                          primary="Multi-AZ" 
-                          secondary={
-                            <Chip 
-                              label={domain.infrastructure_info.multi_az ? 'Yes' : 'No'} 
-                              color={domain.infrastructure_info.multi_az ? 'success' : 'default'}
-                              size="small"
-                            />
-                          }
-                        />
-                      </ListItem>
-                      <ListItem>
-                        <ListItemText 
-                          primary="Multi-Region" 
-                          secondary={
-                            <Chip 
-                              label={domain.infrastructure_info.multi_region ? 'Yes' : 'No'} 
-                              color={domain.infrastructure_info.multi_region ? 'success' : 'default'}
-                              size="small"
-                            />
-                          }
-                        />
-                      </ListItem>
-                      <ListItem>
-                        <ListItemText 
-                          primary="Has Failover" 
-                          secondary={
-                            <Chip 
-                              label={domain.infrastructure_info.has_failover ? 'Yes' : 'No'} 
-                              color={domain.infrastructure_info.has_failover ? 'success' : 'default'}
-                              size="small"
-                            />
-                          }
-                        />
-                      </ListItem>
-                    </List>
-                  )}
-                </CardContent>
-              </Card>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>General Information</Typography>
-                  <List dense>
-                    <ListItem>
-                      <ListItemText 
-                        primary="Business Criticality" 
-                        secondary={
-                          <Chip 
-                            label={domain.business_criticality} 
-                            variant="outlined"
-                            size="small"
-                          />
-                        }
-                      />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemText 
-                        primary="Monitoring Enabled" 
-                        secondary={
-                          <Chip 
-                            label={domain.monitoring_enabled ? 'Yes' : 'No'} 
-                            color={domain.monitoring_enabled ? 'success' : 'default'}
-                            size="small"
-                          />
-                        }
-                      />
-                    </ListItem>
-                  </List>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Grid>
 
         {domain.incidents && domain.incidents.length > 0 && (
           <Grid item xs={12}>

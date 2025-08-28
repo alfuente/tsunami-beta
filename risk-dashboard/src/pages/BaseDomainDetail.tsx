@@ -685,20 +685,18 @@ const BaseDomainDetail: React.FC = () => {
                     </Box>
                   </Box>
                   
+                  {/* DNS Risk Assessment */}
+                  <Box mt={2} p={1} bgcolor="#f0f7ff" borderRadius={1}>
+                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.85rem' }}>
+                      <strong>DNS Risk Assessment:</strong> Evaluates nameserver redundancy for high availability (4+ nameservers = excellent, 2+ = good, &lt;2 = low availability risk).
+                    </Typography>
+                  </Box>
+                  
                   {/* Last Analyzed Timestamp */}
                   {dnsData.lastAnalyzed && (
                     <Box mt={1}>
                       <Typography variant="caption" color="textSecondary" sx={{ fontSize: '0.7rem' }}>
-                        (Last analyzed: {new Date(dnsData.lastAnalyzed).toLocaleString()})
-                      </Typography>
-                    </Box>
-                  )}
-                  
-                  {/* Last Analyzed Timestamp */}
-                  {mxData.lastAnalyzed && (
-                    <Box mt={1}>
-                      <Typography variant="caption" color="textSecondary" sx={{ fontSize: '0.7rem' }}>
-                        (Last analyzed: {new Date(mxData.lastAnalyzed).toLocaleString()})
+                        Last analyzed: {new Date(dnsData.lastAnalyzed).toLocaleString()}
                       </Typography>
                     </Box>
                   )}
@@ -773,6 +771,27 @@ const BaseDomainDetail: React.FC = () => {
                     </Grid>
                   </Grid>
 
+                  {/* Complete MX Records List */}
+                  <Box mt={2}>
+                    <Typography variant="body2" color="textSecondary" gutterBottom>
+                      MX Records ({mxData.mxRecords.length}):
+                    </Typography>
+                    <Box>
+                      {mxData.mxRecords.map((mx: any, index: number) => (
+                        <Typography key={index} variant="body2" sx={{ 
+                          fontFamily: 'monospace', 
+                          bgcolor: '#f5f5f5', 
+                          p: 0.5, 
+                          mb: 0.5,
+                          borderRadius: 1,
+                          fontSize: '0.8rem'
+                        }}>
+                          {mx.priority} {mx.exchange}
+                        </Typography>
+                      ))}
+                    </Box>
+                  </Box>
+
                   {/* Mail Providers */}
                   <Box mt={2}>
                     <Typography variant="body2" color="textSecondary" gutterBottom>
@@ -784,15 +803,19 @@ const BaseDomainDetail: React.FC = () => {
                       ))}
                     </Box>
                   </Box>
-
-                  {/* Primary MX */}
-                  {mxData.primaryMx && (
-                    <Box mt={2}>
-                      <Typography variant="body2" color="textSecondary" gutterBottom>
-                        Primary Mail Server:
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontFamily: 'monospace', bgcolor: '#f5f5f5', p: 1, borderRadius: 1 }}>
-                        {mxData.primaryMx.exchange} (priority: {mxData.primaryMx.priority})
+                  
+                  {/* MX Risk Assessment */}
+                  <Box mt={2} p={1} bgcolor="#f0fff0" borderRadius={1}>
+                    <Typography variant="body2" color="textSecondary" sx={{ fontSize: '0.85rem' }}>
+                      <strong>MX Risk Assessment:</strong> Analyzes mail server configuration including provider diversity, SPF/DMARC/DKIM email security protocols, and redundancy setup.
+                    </Typography>
+                  </Box>
+                  
+                  {/* Last Analyzed Timestamp */}
+                  {mxData.lastAnalyzed && (
+                    <Box mt={1}>
+                      <Typography variant="caption" color="textSecondary" sx={{ fontSize: '0.7rem' }}>
+                        Last analyzed: {new Date(mxData.lastAnalyzed).toLocaleString()}
                       </Typography>
                     </Box>
                   )}
@@ -815,14 +838,6 @@ const BaseDomainDetail: React.FC = () => {
               <Typography variant="h6" gutterBottom>
                 Subdomains ({domainDetails?.total_count || 0})
               </Typography>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="body2" color="textSecondary" gutterBottom>
-                  <strong>DNS Risk Assessment:</strong> Evaluates nameserver redundancy for high availability (4+ nameservers = excellent, 2+ = good, &lt;2 = low availability risk).
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  <strong>MX Risk Assessment:</strong> Analyzes mail server configuration including provider diversity, SPF/DMARC/DKIM email security protocols, and redundancy setup.
-                </Typography>
-              </Box>
               <TableContainer>
                 <Table>
                   <TableHead>
@@ -830,6 +845,7 @@ const BaseDomainDetail: React.FC = () => {
                       <TableCell>Subdomain</TableCell>
                       <TableCell>Risk Score</TableCell>
                       <TableCell>Risk Tier</TableCell>
+                      <TableCell>TLS Security</TableCell>
                       <TableCell>Services</TableCell>
                       <TableCell>Providers</TableCell>
                       <TableCell>Incidents</TableCell>
@@ -855,6 +871,64 @@ const BaseDomainDetail: React.FC = () => {
                             color={getRiskTierChipColor(subdomain.risk_tier)}
                             size="small"
                           />
+                        </TableCell>
+                        <TableCell>
+                          {subdomain.tls_info ? (
+                            <Box display="flex" flexDirection="column" gap={0.5}>
+                              {subdomain.tls_info.has_tls ? (
+                                <>
+                                  <Chip 
+                                    label={subdomain.tls_info.ssl_grade || 'Unknown'} 
+                                    color={
+                                      subdomain.tls_info.ssl_grade === 'A+' || subdomain.tls_info.ssl_grade === 'A' ? 'success' :
+                                      subdomain.tls_info.ssl_grade === 'B' ? 'warning' :
+                                      subdomain.tls_info.ssl_grade === 'C' || subdomain.tls_info.ssl_grade === 'D' ? 'error' :
+                                      'default'
+                                    }
+                                    size="small"
+                                    icon={<SecurityIcon />}
+                                  />
+                                  {subdomain.tls_info.certificates && subdomain.tls_info.certificates.length > 0 && (
+                                    <Typography variant="caption" color="textSecondary">
+                                      {subdomain.tls_info.certificates.length} cert{subdomain.tls_info.certificates.length > 1 ? 's' : ''}
+                                      {subdomain.tls_info.certificates[0] && (
+                                        <>, exp: {new Date(subdomain.tls_info.certificates[0].not_after).toLocaleDateString()}</>
+                                      )}
+                                    </Typography>
+                                  )}
+                                  {subdomain.tls_info.vulnerabilities && (
+                                    <Box display="flex" gap={0.25}>
+                                      {Object.entries(subdomain.tls_info.vulnerabilities).map(([vuln, hasVuln]) => 
+                                        hasVuln ? (
+                                          <Chip 
+                                            key={vuln}
+                                            label={vuln.toUpperCase()} 
+                                            color="error" 
+                                            size="small" 
+                                            sx={{ fontSize: '0.6rem', height: '16px' }}
+                                          />
+                                        ) : null
+                                      )}
+                                    </Box>
+                                  )}
+                                </>
+                              ) : (
+                                <Chip 
+                                  label="No TLS" 
+                                  color="default" 
+                                  size="small"
+                                  variant="outlined"
+                                />
+                              )}
+                            </Box>
+                          ) : (
+                            <Chip 
+                              label="Not Scanned" 
+                              color="default" 
+                              size="small"
+                              variant="outlined"
+                            />
+                          )}
                         </TableCell>
                         <TableCell>
                           <Box display="flex" flexWrap="wrap" gap={0.5}>

@@ -69,14 +69,6 @@ try:
 except ImportError:
     HAS_DISCOVERY_UTILS = False
 
-# Import domain relationship detector
-try:
-    from domain_relationship_detector import DomainRelationshipDetector, integrate_with_existing_scraping
-    HAS_DOMAIN_RELATIONSHIP_DETECTOR = True
-except ImportError:
-    HAS_DOMAIN_RELATIONSHIP_DETECTOR = False
-    print("Warning: Domain Relationship Detector not available")
-
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -859,7 +851,7 @@ class AsyncDomainDiscoveryService:
             
             # Update progress
             if task_id in self.active_tasks:
-                self.active_tasks[task_id].progress = 85
+                self.active_tasks[task_id].progress = 90
             
             # Resolve providers for discovered subdomains (sample for performance)
             sample_subdomains = subdomains[:10] if len(subdomains) > 10 else subdomains
@@ -1583,7 +1575,7 @@ class AsyncDomainDiscoveryService:
         
         # Update progress
         if task_id in self.active_tasks:
-            self.active_tasks[task_id].progress = 85
+            self.active_tasks[task_id].progress = 90
         
         # Check for common DKIM selectors
         common_selectors = ['default', 'selector1', 'selector2', 'google', 'mail', 'k1']
@@ -1952,7 +1944,7 @@ class AsyncDomainDiscoveryService:
             
             # Update progress
             if task_id in self.active_tasks:
-                self.active_tasks[task_id].progress = 85
+                self.active_tasks[task_id].progress = 90
             
             # Save enhanced TLS info to Neo4j and PostgreSQL
             self._save_enhanced_tls_info(target, ssl_data)
@@ -3818,35 +3810,9 @@ class AsyncDomainDiscoveryService:
             
             # Update progress
             if task_id in self.active_tasks:
-                self.active_tasks[task_id].progress = 85
+                self.active_tasks[task_id].progress = 90
             
             self._update_task_logs(task_id, f"Web scraping analysis completed. Found {len(scraped_technologies)} technologies, {len(scraped_providers)} providers, {len(analytics_services)} analytics services")
-            
-            # 5. NEW: Detect domain relationships from scraped content
-            domain_relationships_result = {}
-            domain_references = []
-            if HAS_DOMAIN_RELATIONSHIP_DETECTOR:
-                try:
-                    self._update_task_logs(task_id, "Detecting domain relationships from page content")
-                    relationship_result, domain_references = integrate_with_existing_scraping(
-                        soup, domain, subdomain, self.neo4j_driver
-                    )
-                    domain_relationships_result = relationship_result
-                    
-                    # Save domain references to Neo4j
-                    if domain_references:
-                        detector = DomainRelationshipDetector(self.neo4j_driver)
-                        save_stats = await detector.save_domain_references_to_neo4j(domain_references)
-                        domain_relationships_result.update(save_stats)
-                        self._update_task_logs(task_id, f"Created {save_stats.get('created_references', 0)} domain references, {save_stats.get('created_domains', 0)} new domains")
-                    
-                except Exception as e:
-                    logger.warning(f"Domain relationship detection failed for {target}: {e}")
-                    domain_relationships_result = {"error": str(e)}
-            
-            # Update progress
-            if task_id in self.active_tasks:
-                self.active_tasks[task_id].progress = 95
             
             # Prepare result
             result = {
@@ -3856,7 +3822,6 @@ class AsyncDomainDiscoveryService:
                 "providers": scraped_providers,
                 "external_links": external_links,
                 "analytics_services": analytics_services,
-                "domain_relationships": domain_relationships_result,  # NEW: Domain relationship data
                 "total_external_resources": len(external_links),
                 "analysis_timestamp": datetime.now().isoformat()
             }
@@ -4117,76 +4082,6 @@ class AsyncDomainDiscoveryService:
                     "source": "css_analysis",
                     "evidence": f"Google Fonts CSS loaded: {href}"
                 })
-
-    
-    async def get_domain_relationships(self, domain: str) -> Dict[str, any]:
-        """Get domain relationships for a specific domain"""
-        if not HAS_NEO4J:
-            return {"error": "Neo4j not available"}
-        
-        try:
-            with self.neo4j_driver.session() as session:
-                # Get outgoing references (domains this domain references)
-                outgoing_query = """
-                MATCH (d:Domain {fqdn: $domain})-[r:REFERENCES]->(target:Domain)
-                RETURN target.fqdn as target_domain,
-                       r.reference_type as reference_type,
-                       r.reference_context as reference_context,
-                       r.confidence as confidence,
-                       r.reference_count as reference_count,
-                       r.last_seen as last_seen
-                ORDER BY r.confidence DESC, r.reference_count DESC
-                """
-                
-                outgoing_results = session.run(outgoing_query, domain=domain)
-                outgoing_references = []
-                
-                for record in outgoing_results:
-                    outgoing_references.append({
-                        "target_domain": record["target_domain"],
-                        "reference_type": record["reference_type"],
-                        "reference_context": record["reference_context"], 
-                        "confidence": record["confidence"],
-                        "reference_count": record["reference_count"] or 1,
-                        "last_seen": record["last_seen"]
-                    })
-                
-                # Get incoming references (domains that reference this domain)
-                incoming_query = """
-                MATCH (source:Domain)-[r:REFERENCES]->(d:Domain {fqdn: $domain})
-                RETURN source.fqdn as source_domain,
-                       r.reference_type as reference_type,
-                       r.reference_context as reference_context,
-                       r.confidence as confidence,
-                       r.reference_count as reference_count,
-                       r.last_seen as last_seen
-                ORDER BY r.confidence DESC, r.reference_count DESC
-                """
-                
-                incoming_results = session.run(incoming_query, domain=domain)
-                incoming_references = []
-                
-                for record in incoming_results:
-                    incoming_references.append({
-                        "source_domain": record["source_domain"],
-                        "reference_type": record["reference_type"],
-                        "reference_context": record["reference_context"],
-                        "confidence": record["confidence"],
-                        "reference_count": record["reference_count"] or 1,
-                        "last_seen": record["last_seen"]
-                    })
-                
-                return {
-                    "domain": domain,
-                    "outgoing_references": outgoing_references,
-                    "incoming_references": incoming_references,
-                    "total_outgoing": len(outgoing_references),
-                    "total_incoming": len(incoming_references)
-                }
-                
-        except Exception as e:
-            logger.error(f"Error getting domain relationships for {domain}: {e}")
-            return {"error": str(e)}
 
     async def _save_scraping_results_to_neo4j(self, result: dict):
         """Save web scraping results to Neo4j"""

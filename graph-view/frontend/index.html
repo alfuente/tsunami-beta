@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tsunami - 2D Graph Visualization</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            overflow: hidden;
+        }
+        
+        #container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 300px;
+        }
+        
+        #controls h3 {
+            margin: 0 0 15px 0;
+            color: #4CAF50;
+            font-size: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 5px;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #cccccc;
+            font-size: 14px;
+        }
+        
+        select, input[type="text"], input[type="number"], button {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #444;
+            background: #2a2a2a;
+            color: #ffffff;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        
+        button {
+            background: #4CAF50;
+            border: none;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        #info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-width: 200px;
+            max-width: 400px;
+        }
+        
+        #legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 250px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .legend-text {
+            font-size: 12px;
+            color: #cccccc;
+        }
+        
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2000;
+            text-align: center;
+            color: #4CAF50;
+        }
+        
+        .spinner {
+            border: 4px solid #333;
+            border-top: 4px solid #4CAF50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            padding: 10px;
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 5px;
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+        
+        #search-results {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #2a2a2a;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        
+        .search-item {
+            padding: 8px;
+            cursor: pointer;
+            border-bottom: 1px solid #444;
+            transition: background 0.2s;
+        }
+        
+        .search-item:hover {
+            background: #3a3a3a;
+        }
+        
+        .search-item:last-child {
+            border-bottom: none;
+        }
+
+        #graph {
+            width: 100%;
+            height: 100%;
+        }
+        
+        #mode-toggle {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        #mode-toggle a {
+            color: #cccccc;
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            transition: all 0.3s;
+        }
+        
+        #mode-toggle a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #4CAF50;
+        }
+        
+        #mode-toggle a.active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        input[type="checkbox"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        input[type="checkbox"]:disabled + label {
+            opacity: 0.5;
+            cursor: not-allowed;
+            color: #888 !important;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="mode-toggle">
+            <a href="index.html" class="active">2D View</a>
+            <a href="index-3d.html">3D View</a>
+        </div>
+        
+        <div id="loading">
+            <div class="spinner"></div>
+            <div>Loading 2D graph data...</div>
+        </div>
+        
+        <div id="controls">
+            <h3>🌊 Tsunami Graph Controls</h3>
+            
+            <div class="control-group">
+                <label for="dataSource">Data Source:</label>
+                <select id="dataSource">
+                    <option value="complete">Complete Graph</option>
+                    <option value="domain">Domain Focus</option>
+                    <option value="provider">Provider Focus</option>
+                    <option value="risk">Risk Level</option>
+                    <option value="industry">Industry</option>
+                    <option value="search">Search</option>
+                </select>
+            </div>
+            
+            <div class="control-group" id="domainInput" style="display:none;">
+                <label for="domainName">Domain:</label>
+                <input type="text" id="domainName" placeholder="example.com">
+            </div>
+            
+            <div class="control-group" id="providerInput" style="display:none;">
+                <label for="providerName">Provider:</label>
+                <input type="text" id="providerName" placeholder="AWS CloudFront">
+            </div>
+            
+            <div class="control-group" id="riskInput" style="display:none;">
+                <label for="riskLevel">Risk Level:</label>
+                <select id="riskLevel">
+                    <option value="low">Low (0-25)</option>
+                    <option value="medium">Medium (25-50)</option>
+                    <option value="high">High (50-75)</option>
+                    <option value="critical">Critical (75-100)</option>
+                </select>
+            </div>
+            
+            <div class="control-group" id="industryInput" style="display:none;">
+                <label for="industryName">Industry:</label>
+                <select id="industryName">
+                    <option value="">Loading industries...</option>
+                </select>
+            </div>
+            
+            <div class="control-group" id="searchInput" style="display:none;">
+                <label for="searchQuery">Search:</label>
+                <input type="text" id="searchQuery" placeholder="Search nodes...">
+                <div id="search-results"></div>
+            </div>
+            
+            <div class="control-group">
+                <label for="nodeLimit">Node Limit:</label>
+                <input type="number" id="nodeLimit" min="10" max="1000" value="300">
+            </div>
+            
+            <div class="control-group">
+                <button id="loadGraph">Load Graph</button>
+                <button id="testAPI">Test API</button>
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="showSubdomains" disabled> Show Subdomains (Disabled)
+                </label>
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="includeOrganizations"> Include Organizations
+                </label>
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="includeIndustries"> Include Industries
+                </label>
+            </div>
+        </div>
+        
+        <div id="legend">
+            <h3>Legend</h3>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #44aa44;"></div>
+                <div class="legend-text">Low Risk Domain</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff8800;"></div>
+                <div class="legend-text">Medium Risk Domain</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ff4444;"></div>
+                <div class="legend-text">High Risk Domain</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4488ff;"></div>
+                <div class="legend-text">CDN Provider</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffcc44;"></div>
+                <div class="legend-text">Technology</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #cc44ff;"></div>
+                <div class="legend-text">Service</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #cc0000;"></div>
+                <div class="legend-text">Critical Vulnerability</div>
+            </div>
+        </div>
+        
+        <div id="info">
+            <div id="nodeInfo">
+                <strong>Graph Visualization Interface</strong><br>
+                <small>Backend: <span id="backendStatus">Connecting...</span></small>
+            </div>
+            <div id="graphStats" style="margin-top: 10px; font-size: 12px; color: #888;">
+                Nodes: 0 | Edges: 0
+            </div>
+        </div>
+
+        <div id="graph"></div>
+    </div>
+    
+    <!-- Use basic D3.js for simple graph visualization -->
+    <script src="https://unpkg.com/d3@7.8.5/dist/d3.min.js"></script>
+    
+    <script>
+        class GraphVisualizationSimple {
+            constructor() {
+                this.apiBaseUrl = 'http://localhost:8500';
+                this.currentData = { nodes: [], links: [] };
+                this.svg = null;
+                this.simulation = null;
+                
+                this.setupEventListeners();
+                this.initializeGraph();
+                this.testConnection();
+                this.loadInitialData();
+            }
+            
+            initializeGraph() {
+                const container = document.getElementById('graph');
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                
+                this.svg = d3.select('#graph')
+                    .append('svg')
+                    .attr('width', width)
+                    .attr('height', height);
+                
+                // Add zoom behavior
+                const zoom = d3.zoom()
+                    .scaleExtent([0.1, 10])
+                    .on('zoom', (event) => {
+                        this.svg.select('g').attr('transform', event.transform);
+                    });
+                
+                this.svg.call(zoom);
+                
+                // Create main group for zooming/panning
+                this.svg.append('g');
+                
+                // Initialize simulation
+                this.simulation = d3.forceSimulation()
+                    .force('link', d3.forceLink().id(d => d.id).distance(50))
+                    .force('charge', d3.forceManyBody().strength(-100))
+                    .force('center', d3.forceCenter(width / 2, height / 2));
+            }
+            
+            setupEventListeners() {
+                const dataSource = document.getElementById('dataSource');
+                const loadButton = document.getElementById('loadGraph');
+                const testButton = document.getElementById('testAPI');
+                const includeOrganizations = document.getElementById('includeOrganizations');
+                const includeIndustries = document.getElementById('includeIndustries');
+                
+                dataSource.addEventListener('change', () => this.onDataSourceChange());
+                loadButton.addEventListener('click', () => this.loadGraphData());
+                testButton.addEventListener('click', () => this.testConnection());
+                
+                // Auto-reload when filter checkboxes change
+                includeOrganizations.addEventListener('change', () => this.loadGraphData());
+                includeIndustries.addEventListener('change', () => this.loadGraphData());
+                
+                // Handle window resize
+                window.addEventListener('resize', () => this.handleResize());
+            }
+            
+            onDataSourceChange() {
+                const dataSource = document.getElementById('dataSource').value;
+                
+                // Hide all input groups first
+                document.getElementById('domainInput').style.display = 'none';
+                document.getElementById('providerInput').style.display = 'none';
+                document.getElementById('riskInput').style.display = 'none';
+                document.getElementById('industryInput').style.display = 'none';
+                document.getElementById('searchInput').style.display = 'none';
+                
+                // Show relevant input group
+                switch(dataSource) {
+                    case 'domain':
+                        document.getElementById('domainInput').style.display = 'block';
+                        break;
+                    case 'provider':
+                        document.getElementById('providerInput').style.display = 'block';
+                        break;
+                    case 'risk':
+                        document.getElementById('riskInput').style.display = 'block';
+                        break;
+                    case 'industry':
+                        document.getElementById('industryInput').style.display = 'block';
+                        this.loadIndustries();
+                        break;
+                    case 'search':
+                        document.getElementById('searchInput').style.display = 'block';
+                        break;
+                }
+            }
+            
+            async loadInitialData() {
+                // Auto-load complete graph with small limit on startup
+                await this.loadGraphData();
+            }
+            
+            async testConnection() {
+                try {
+                    document.getElementById('backendStatus').textContent = 'Testing...';
+                    const response = await fetch(`${this.apiBaseUrl}/health`);
+                    const data = await response.json();
+                    
+                    if (data.status === 'healthy') {
+                        document.getElementById('backendStatus').textContent = '✅ Connected';
+                        document.getElementById('backendStatus').style.color = '#4CAF50';
+                    } else {
+                        document.getElementById('backendStatus').textContent = '⚠️ Issues';
+                        document.getElementById('backendStatus').style.color = '#ff8800';
+                    }
+                    
+                } catch (error) {
+                    document.getElementById('backendStatus').textContent = '❌ Offline';
+                    document.getElementById('backendStatus').style.color = '#ff4444';
+                    console.error('Backend connection failed:', error);
+                }
+            }
+            
+            async loadIndustries() {
+                try {
+                    const industrySelect = document.getElementById('industryName');
+                    industrySelect.innerHTML = '<option value="">Loading industries...</option>';
+                    
+                    const response = await fetch(`${this.apiBaseUrl}/industries`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Clear and populate the select
+                    industrySelect.innerHTML = '<option value="">Select an industry...</option>';
+                    data.industries.forEach(industry => {
+                        const option = document.createElement('option');
+                        option.value = industry.name;
+                        option.textContent = `${industry.name} (${industry.domain_count})`;
+                        industrySelect.appendChild(option);
+                    });
+                    
+                } catch (error) {
+                    console.error('Failed to load industries:', error);
+                    const industrySelect = document.getElementById('industryName');
+                    industrySelect.innerHTML = '<option value="">Error loading industries</option>';
+                }
+            }
+            
+            async loadGraphData() {
+                this.showLoading(true);
+                
+                try {
+                    const dataSource = document.getElementById('dataSource').value;
+                    const nodeLimit = document.getElementById('nodeLimit').value;
+                    const showSubdomains = document.getElementById('showSubdomains').checked;
+                    const includeOrganizations = document.getElementById('includeOrganizations').checked;
+                    const includeIndustries = document.getElementById('includeIndustries').checked;
+                    
+                    let url = `${this.apiBaseUrl}/graph/`;
+                    
+                    switch(dataSource) {
+                        case 'complete':
+                            url += `complete?limit=${nodeLimit}&include_subdomains=${showSubdomains}&include_organizations=${includeOrganizations}&include_industries=${includeIndustries}`;
+                            break;
+                        case 'domain':
+                            const domain = document.getElementById('domainName').value;
+                            if (!domain) {
+                                throw new Error('Please enter a domain name');
+                            }
+                            url += `domain/${encodeURIComponent(domain)}`;
+                            break;
+                        case 'provider':
+                            const provider = document.getElementById('providerName').value;
+                            if (!provider) {
+                                throw new Error('Please enter a provider name');
+                            }
+                            url += `provider/${encodeURIComponent(provider)}?limit=${nodeLimit}`;
+                            break;
+                        case 'risk':
+                            const riskLevel = document.getElementById('riskLevel').value;
+                            url += `risk/${riskLevel}?limit=${nodeLimit}`;
+                            break;
+                        case 'industry':
+                            const industry = document.getElementById('industryName').value;
+                            if (!industry) {
+                                throw new Error('Please select an industry');
+                            }
+                            url += `industry/${encodeURIComponent(industry)}?limit=${nodeLimit}&include_providers=${showSubdomains}&include_organizations=${includeOrganizations}&include_industries=${includeIndustries}`;
+                            break;
+                        case 'search':
+                            const searchQuery = document.getElementById('searchQuery').value;
+                            if (!searchQuery) {
+                                throw new Error('Please enter a search query');
+                            }
+                            url += `search?query_string=${encodeURIComponent(searchQuery)}&limit=${nodeLimit}`;
+                            break;
+                    }
+                    
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    this.renderGraph(data);
+                    
+                } catch (error) {
+                    this.showError(error.message);
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+            
+            renderGraph(data) {
+                // Clear previous graph
+                this.svg.select('g').selectAll('*').remove();
+                
+                // Transform data
+                const nodes = data.nodes.map(node => {
+                    let size = node.size || 5;
+                    
+                    // Make providers larger
+                    if (node.properties && node.properties.labels && 
+                        node.properties.labels.includes('Provider')) {
+                        size = size * 2; // Double the size for providers
+                    }
+                    
+                    return {
+                        id: node.id,
+                        label: node.label,
+                        color: node.color,
+                        size: size,
+                        properties: node.properties
+                    };
+                });
+                
+                const links = data.edges.map(edge => ({
+                    source: edge.source,
+                    target: edge.target,
+                    color: edge.color || '#999999'
+                }));
+                
+                this.currentData = { nodes, links };
+                
+                // Create links
+                const link = this.svg.select('g')
+                    .selectAll('line')
+                    .data(links)
+                    .enter()
+                    .append('line')
+                    .attr('stroke', d => d.color)
+                    .attr('stroke-width', 1)
+                    .attr('stroke-opacity', 0.6);
+                
+                // Create nodes
+                const node = this.svg.select('g')
+                    .selectAll('circle')
+                    .data(nodes)
+                    .enter()
+                    .append('circle')
+                    .attr('r', d => d.size)
+                    .attr('fill', d => d.color)
+                    .attr('stroke', '#fff')
+                    .attr('stroke-width', 1)
+                    .on('click', (event, d) => this.onNodeClick(d))
+                    .call(d3.drag()
+                        .on('start', (event, d) => this.dragstarted(event, d))
+                        .on('drag', (event, d) => this.dragged(event, d))
+                        .on('end', (event, d) => this.dragended(event, d)));
+                
+                // Add labels
+                const labels = this.svg.select('g')
+                    .selectAll('text')
+                    .data(nodes)
+                    .enter()
+                    .append('text')
+                    .text(d => d.label)
+                    .attr('font-size', '10px')
+                    .attr('fill', '#ffffff')
+                    .attr('text-anchor', 'middle')
+                    .attr('dy', d => d.size + 15);
+                
+                // Update simulation
+                this.simulation
+                    .nodes(nodes)
+                    .on('tick', () => {
+                        link
+                            .attr('x1', d => d.source.x)
+                            .attr('y1', d => d.source.y)
+                            .attr('x2', d => d.target.x)
+                            .attr('y2', d => d.target.y);
+                        
+                        node
+                            .attr('cx', d => d.x)
+                            .attr('cy', d => d.y);
+                        
+                        labels
+                            .attr('x', d => d.x)
+                            .attr('y', d => d.y);
+                    });
+                
+                this.simulation.force('link').links(links);
+                this.simulation.alpha(1).restart();
+                
+                // Update stats
+                document.getElementById('graphStats').innerHTML = 
+                    `Nodes: ${nodes.length} | Edges: ${links.length}`;
+                
+                console.log('Graph rendered:', data.metadata);
+            }
+            
+            onNodeClick(node) {
+                this.displayNodeInfo(node);
+            }
+            
+            displayNodeInfo(node) {
+                const infoDiv = document.getElementById('nodeInfo');
+                
+                let html = `<strong>${node.label}</strong><br>`;
+                html += `<small>ID: ${node.id}</small><br><br>`;
+                
+                // Display key properties
+                const props = node.properties;
+                if (props.risk_score !== undefined) {
+                    html += `Risk Score: <span style="color: ${this.getRiskColor(props.risk_score)}">${props.risk_score}</span><br>`;
+                }
+                if (props.fqdn) {
+                    html += `FQDN: ${props.fqdn}<br>`;
+                }
+                if (props.type) {
+                    html += `Type: ${props.type}<br>`;
+                }
+                if (props.country) {
+                    html += `Country: ${props.country}<br>`;
+                }
+                
+                infoDiv.innerHTML = html;
+            }
+            
+            getRiskColor(score) {
+                if (score >= 70) return '#ff4444';
+                if (score >= 40) return '#ff8800';
+                return '#44aa44';
+            }
+            
+            // D3 drag handlers
+            dragstarted(event, d) {
+                if (!event.active) this.simulation.alphaTarget(0.3).restart();
+                d.fx = d.x;
+                d.fy = d.y;
+            }
+            
+            dragged(event, d) {
+                d.fx = event.x;
+                d.fy = event.y;
+            }
+            
+            dragended(event, d) {
+                if (!event.active) this.simulation.alphaTarget(0);
+                d.fx = null;
+                d.fy = null;
+            }
+            
+            handleResize() {
+                const container = document.getElementById('graph');
+                const width = container.clientWidth;
+                const height = container.clientHeight;
+                
+                this.svg.attr('width', width).attr('height', height);
+                this.simulation.force('center', d3.forceCenter(width / 2, height / 2));
+            }
+            
+            showLoading(show) {
+                document.getElementById('loading').classList.toggle('hidden', !show);
+            }
+            
+            showError(message) {
+                const infoDiv = document.getElementById('nodeInfo');
+                infoDiv.innerHTML = `<div class="error">Error: ${message}</div>`;
+            }
+        }
+        
+        // Initialize the visualization when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new GraphVisualizationSimple();
+        });
+    </script>
+</body>
+</html>

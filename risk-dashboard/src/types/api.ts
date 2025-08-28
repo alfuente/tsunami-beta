@@ -177,6 +177,54 @@ export interface SubdomainDetail {
   services?: string[];
   providers?: string[];
   active_incidents: number;
+  // Enhanced TLS information from SSL Labs
+  tls_info?: {
+    ssl_grade?: string;
+    grade_trust_ignored?: string;
+    has_tls: boolean;
+    tls_ports_available?: boolean;
+    scan_time?: string;
+    certificates?: Array<{
+      subject: string;
+      issuer: string;
+      not_before: number;
+      not_after: number;
+      key_algorithm: string;
+      key_size: number;
+      signature_algorithm: string;
+      alt_names: string[];
+      common_names: string[];
+      sha256_hash: string;
+      revocation_status?: number;
+      must_staple?: boolean;
+      sct?: boolean;
+    }>;
+    vulnerabilities?: {
+      heartbleed?: boolean;
+      freak?: boolean;
+      poodle_tls?: boolean;
+      logjam?: boolean;
+      beast?: boolean;
+      rc4_with_modern?: boolean;
+    };
+    protocols?: {
+      tls_versions: string[];
+      cipher_suites: string[];
+      forward_secrecy?: number;
+    };
+    hsts_policy?: {
+      status: string;
+      max_age?: number;
+      include_subdomains?: boolean;
+      preloaded?: boolean;
+    };
+    http_transactions?: Array<{
+      status_code?: number;
+      request_url?: string;
+      response_headers?: any;
+    }>;
+    raw_ssl_labs_data?: any;
+  };
 }
 
 export interface BaseDomainDetailsResponse {

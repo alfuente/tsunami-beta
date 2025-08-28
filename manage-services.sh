@@ -8,6 +8,7 @@ RISK_DASHBOARD_DIR="risk-dashboard"
 RISK_QUERY_DIR="risk-query"
 DOMAIN_BACKEND_DIR="domain-backend"
 REPORT_BACKEND_DIR="report-backend"
+GRAPH_VIEW_DIR="graph-view"
 
 # Colors for output
 RED='\033[0;31m'
@@ -628,6 +629,73 @@ start_report_backend_java21() {
     cd ..
 }
 
+# Function to stop Graph View processes
+stop_graph_view() {
+    print_header "Stopping Graph View processes"
+    
+    # Method 1: Kill processes on port 8500 (backend)
+    PORT_8500_PIDS=$(lsof -ti:8500 2>/dev/null)
+    if [ ! -z "$PORT_8500_PIDS" ]; then
+        print_status "Killing Graph View backend processes on port 8500: $PORT_8500_PIDS"
+        echo $PORT_8500_PIDS | xargs kill -15 2>/dev/null
+        sleep 2
+        
+        # Force kill if still running
+        REMAINING_PORT=$(lsof -ti:8500 2>/dev/null)
+        if [ ! -z "$REMAINING_PORT" ]; then
+            print_status "Force killing remaining processes on port 8500: $REMAINING_PORT"
+            echo $REMAINING_PORT | xargs kill -9 2>/dev/null
+        fi
+    fi
+    
+    # Method 2: Kill processes on port 8083 (frontend)
+    PORT_8083_PIDS=$(lsof -ti:8083 2>/dev/null)
+    if [ ! -z "$PORT_8083_PIDS" ]; then
+        print_status "Killing Graph View frontend processes on port 8083: $PORT_8083_PIDS"
+        echo $PORT_8083_PIDS | xargs kill -15 2>/dev/null
+        sleep 2
+        
+        # Force kill if still running
+        REMAINING_PORT=$(lsof -ti:8083 2>/dev/null)
+        if [ ! -z "$REMAINING_PORT" ]; then
+            print_status "Force killing remaining processes on port 8083: $REMAINING_PORT"
+            echo $REMAINING_PORT | xargs kill -9 2>/dev/null
+        fi
+    fi
+    
+    # Method 3: Kill Graph View processes by pattern
+    GRAPH_VIEW_PIDS=$(ps aux | grep -E "graph_visualization_api|python.*serve\.py" | grep -v grep | awk '{print $2}')
+    if [ ! -z "$GRAPH_VIEW_PIDS" ]; then
+        print_status "Killing Graph View processes: $GRAPH_VIEW_PIDS"
+        echo $GRAPH_VIEW_PIDS | xargs kill -15 2>/dev/null
+        sleep 2
+        
+        # Force kill if still running
+        REMAINING_PIDS=$(ps aux | grep -E "graph_visualization_api|python.*serve\.py" | grep -v grep | awk '{print $2}')
+        if [ ! -z "$REMAINING_PIDS" ]; then
+            echo $REMAINING_PIDS | xargs kill -9 2>/dev/null
+        fi
+    fi
+    
+    # Clean up PID files
+    rm -f graph-view-backend-dev.pid graph-view-frontend-dev.pid
+    
+    # Verify ports are free
+    REMAINING_8500=$(lsof -ti:8500 2>/dev/null)
+    REMAINING_8083=$(lsof -ti:8083 2>/dev/null)
+    
+    if [ -z "$REMAINING_8500" ] && [ -z "$REMAINING_8083" ]; then
+        print_status "Graph View services stopped successfully - ports 8500 and 8083 are free"
+    else
+        if [ -n "$REMAINING_8500" ]; then
+            print_warning "Port 8500 may still be in use: $REMAINING_8500"
+        fi
+        if [ -n "$REMAINING_8083" ]; then
+            print_warning "Port 8083 may still be in use: $REMAINING_8083"
+        fi
+    fi
+}
+
 # Function to stop Report Backend
 stop_report_backend() {
     print_header "Stopping Report Backend processes"
@@ -732,6 +800,70 @@ clear_react_cache() {
     
     print_status "React cache cleared successfully"
     cd ..
+}
+
+# Function to start Graph View services in development mode
+start_graph_view_dev() {
+    print_header "Starting Graph View services in development mode"
+    
+    if [ ! -d "$GRAPH_VIEW_DIR" ]; then
+        print_error "Directory $GRAPH_VIEW_DIR not found"
+        return 1
+    fi
+    
+    # Check if already running
+    if lsof -ti:8500 > /dev/null 2>&1 || lsof -ti:8083 > /dev/null 2>&1; then
+        print_warning "Graph View processes already running. Stopping first..."
+        stop_graph_view
+        sleep 2
+    fi
+    
+    # Start Backend (Python FastAPI)
+    cd "$GRAPH_VIEW_DIR/backend"
+    print_status "Starting Graph View Backend API in background..."
+    
+    # Check if virtual environment exists, create if not
+    if [ ! -d "venv" ]; then
+        print_status "Creating Python virtual environment..."
+        python3 -m venv venv
+    fi
+    
+    # Activate virtual environment and install dependencies
+    source venv/bin/activate
+    
+    if [ ! -f "venv/graph_api_installed.flag" ]; then
+        print_status "Installing Graph API dependencies..."
+        pip install -r requirements.txt
+        touch venv/graph_api_installed.flag
+    fi
+    
+    # Set environment variables
+    export NEO4J_URI=${NEO4J_URI:-"bolt://localhost:7687"}
+    export NEO4J_USER=${NEO4J_USER:-"neo4j"}
+    export NEO4J_PASS=${NEO4J_PASS:-"test.password"}
+    
+    nohup python3 graph_visualization_api.py > ../../graph-view-backend-dev.log 2>&1 &
+    BACKEND_PID=$!
+    echo $BACKEND_PID > ../../graph-view-backend-dev.pid
+    
+    cd ../..
+    
+    # Start Frontend (Simple HTTP Server)
+    cd "$GRAPH_VIEW_DIR/frontend"
+    print_status "Starting Graph View Frontend server in background..."
+    nohup python3 serve.py > ../../graph-view-frontend-dev.log 2>&1 &
+    FRONTEND_PID=$!
+    echo $FRONTEND_PID > ../../graph-view-frontend-dev.pid
+    
+    cd ../..
+    
+    print_status "Graph View Backend started with PID: $BACKEND_PID (Port: 8500)"
+    print_status "Graph View Frontend started with PID: $FRONTEND_PID (Port: 8083)"
+    print_status "Backend API: http://localhost:8500"
+    print_status "Frontend UI: http://localhost:8083"
+    print_status "API Docs: http://localhost:8500/docs"
+    print_status "Backend logs: tail -f graph-view-backend-dev.log"
+    print_status "Frontend logs: tail -f graph-view-frontend-dev.log"
 }
 
 # Function to start npm in development mode (detached)
@@ -882,15 +1014,40 @@ show_status() {
         print_warning "Async Discovery API: STOPPED"
     fi
     
-    # Check Report Backend (Port 8082)
-    REPORT_PORT_PID=$(lsof -ti:8082 2>/dev/null | head -1)
-    REPORT_PROCESS_PID=$(ps aux | grep -E "mvn.*quarkus.*8082|report-backend" | grep -v grep | awk '{print $2}' | head -1)
+    # Check Graph View Backend (Port 8500)
+    GRAPH_BACKEND_PORT_PID=$(lsof -ti:8500 2>/dev/null | head -1)
+    GRAPH_BACKEND_PROCESS_PID=$(ps aux | grep -E "graph_visualization_api" | grep -v grep | awk '{print $2}' | head -1)
+    
+    if [ -n "$GRAPH_BACKEND_PORT_PID" ] || [ -n "$GRAPH_BACKEND_PROCESS_PID" ]; then
+        ACTIVE_PID=${GRAPH_BACKEND_PORT_PID:-$GRAPH_BACKEND_PROCESS_PID}
+        print_status "Graph View Backend: RUNNING (PID: $ACTIVE_PID, Port: 8500)"
+        print_status "  ↳ API Docs: http://localhost:8500/docs"
+        print_status "  ↳ Graph Stats: http://localhost:8500/stats"
+    else
+        print_warning "Graph View Backend: STOPPED"
+    fi
+    
+    # Check Graph View Frontend (Port 8083)
+    GRAPH_FRONTEND_PORT_PID=$(lsof -ti:8083 2>/dev/null | head -1)
+    GRAPH_FRONTEND_PROCESS_PID=$(ps aux | grep -E "python.*serve\.py" | grep -v grep | awk '{print $2}' | head -1)
+    
+    if [ -n "$GRAPH_FRONTEND_PORT_PID" ] || [ -n "$GRAPH_FRONTEND_PROCESS_PID" ]; then
+        ACTIVE_PID=${GRAPH_FRONTEND_PORT_PID:-$GRAPH_FRONTEND_PROCESS_PID}
+        print_status "Graph View Frontend: RUNNING (PID: $ACTIVE_PID, Port: 8083)"
+        print_status "  ↳ 3D Visualization: http://localhost:8083"
+    else
+        print_warning "Graph View Frontend: STOPPED"
+    fi
+    
+    # Check Report Backend (Alternative ports)
+    REPORT_PORT_PID=$(lsof -ti:8084 2>/dev/null | head -1)
+    REPORT_PROCESS_PID=$(ps aux | grep -E "mvn.*quarkus.*8084|report-backend" | grep -v grep | awk '{print $2}' | head -1)
     
     if [ -n "$REPORT_PORT_PID" ] || [ -n "$REPORT_PROCESS_PID" ]; then
         ACTIVE_PID=${REPORT_PORT_PID:-$REPORT_PROCESS_PID}
-        print_status "Report Backend: RUNNING (PID: $ACTIVE_PID, Port: 8082)"
-        print_status "  ↳ Swagger UI: http://localhost:8082/swagger-ui"
-        print_status "  ↳ Graph Analysis: http://localhost:8082/api/v1/graph/analysis"
+        print_status "Report Backend: RUNNING (PID: $ACTIVE_PID, Port: 8084)"
+        print_status "  ↳ Swagger UI: http://localhost:8084/swagger-ui"
+        print_status "  ↳ Graph Analysis: http://localhost:8084/api/v1/graph/analysis"
     else
         print_warning "Report Backend: STOPPED"
     fi
@@ -945,6 +1102,20 @@ show_logs() {
                 print_error "No Ollama log files found"
             fi
             ;;
+        "graph"|"gv")
+            if [ -f "graph-view-backend-dev.log" ]; then
+                tail -f graph-view-backend-dev.log
+            else
+                print_error "No Graph View Backend log files found"
+            fi
+            ;;
+        "graph-frontend"|"gvf")
+            if [ -f "graph-view-frontend-dev.log" ]; then
+                tail -f graph-view-frontend-dev.log
+            else
+                print_error "No Graph View Frontend log files found"
+            fi
+            ;;
         "report"|"rb")
             if [ -f "report-backend-dev.log" ]; then
                 tail -f report-backend-dev.log
@@ -953,7 +1124,7 @@ show_logs() {
             fi
             ;;
         *)
-            print_error "Usage: $0 logs [quarkus|react|query|discovery|async|ollama|report]"
+            print_error "Usage: $0 logs [quarkus|react|query|discovery|async|ollama|graph|graph-frontend|report]"
             print_error "Available log types:"
             print_error "  quarkus|q    - Risk Graph Service logs"
             print_error "  react|r      - Risk Dashboard logs"
@@ -961,7 +1132,9 @@ show_logs() {
             print_error "  discovery|api|da - Legacy Discovery API logs (port 8000)"
             print_error "  async|async-api|aa - Async Discovery API logs (port 8001)"
             print_error "  ollama|o     - Ollama Service logs"
-            print_error "  report|rb    - Report Backend Service logs (port 8082)"
+            print_error "  graph|gv     - Graph View Backend logs (port 8500)"
+            print_error "  graph-frontend|gvf - Graph View Frontend logs (port 8083)"
+            print_error "  report|rb    - Report Backend Service logs (port 8084)"
             ;;
     esac
 }
@@ -975,6 +1148,7 @@ case $1 in
         stop_risk_query
         stop_discovery_api
         stop_report_backend
+        stop_graph_view
         ;;
     "start-dev")
        # start_ollama
@@ -982,7 +1156,7 @@ case $1 in
         start_npm_dev
         start_risk_query_dev
         start_async_api_dev
-        start_report_backend_dev
+        start_graph_view_dev
         ;;
     "start-test")
         start_ollama
@@ -996,13 +1170,14 @@ case $1 in
         stop_risk_query
         stop_discovery_api
         stop_report_backend
+        stop_graph_view
         sleep 2
         start_ollama
         start_quarkus_dev
         start_npm_dev
         start_risk_query_dev
         start_async_api_dev
-        start_report_backend_dev
+        start_graph_view_dev
         ;;
     "restart-test")
         stop_ollama
@@ -1011,6 +1186,7 @@ case $1 in
         stop_risk_query
         stop_discovery_api
         stop_report_backend
+        stop_graph_view
         sleep 2
         start_ollama
         start_quarkus_test
@@ -1055,6 +1231,17 @@ case $1 in
     "stop-report")
         stop_report_backend
         ;;
+    "start-graph")
+        start_graph_view_dev
+        ;;
+    "stop-graph")
+        stop_graph_view
+        ;;
+    "restart-graph")
+        stop_graph_view
+        sleep 2
+        start_graph_view_dev
+        ;;
     "clear-cache")
         clear_react_cache
         ;;
@@ -1072,13 +1259,13 @@ case $1 in
     *)
         echo "Tsunami Beta Services Management Script"
         echo ""
-        echo "Usage: $0 {stop|start-dev|start-test|restart-dev|restart-test|start-ollama|stop-ollama|start-query|stop-query|start-discovery|start-async|start-discovery-legacy|stop-discovery|stop-async|start-report|stop-report|clear-cache|restart-react|status|logs}"
+        echo "Usage: $0 {stop|start-dev|start-test|restart-dev|restart-test|start-ollama|stop-ollama|start-query|stop-query|start-discovery|start-async|start-discovery-legacy|stop-discovery|stop-async|start-report|stop-report|start-graph|stop-graph|restart-graph|clear-cache|restart-react|status|logs}"
         echo ""
         echo "Commands:"
         echo "  stop        - Stop all running services"
-        echo "  start-dev   - Start all services in development mode (detached) - uses async API"
+        echo "  start-dev   - Start all services in development mode (detached) - includes Graph View"
         echo "  start-test  - Start services in test mode (detached)"  
-        echo "  restart-dev - Restart all services in development mode - uses async API"
+        echo "  restart-dev - Restart all services in development mode - includes Graph View"
         echo "  restart-test- Restart services in test mode"
         echo "  start-ollama- Start Ollama service only"
         echo "  stop-ollama - Stop Ollama service only"
@@ -1089,26 +1276,33 @@ case $1 in
         echo "  start-discovery - Alias for start-discovery-legacy"
         echo "  stop-discovery  - Stop all Discovery API services (legacy + async)"
         echo "  stop-async  - Stop all Discovery API services (legacy + async)"
-        echo "  start-report- Start Report Backend service only (Python/FastAPI, port 8082)"
-        echo "  start-report-quarkus - Start Report Backend in Quarkus mode (port 8082)"
+        echo "  start-report- Start Report Backend service only (Python/FastAPI, port 8084)"
+        echo "  start-report-quarkus - Start Report Backend in Quarkus mode (port 8084)"
         echo "  stop-report - Stop Report Backend service only"
+        echo "  start-graph - Start Graph View service only (Backend: 8500, Frontend: 8083)"
+        echo "  stop-graph  - Stop Graph View service only"
+        echo "  restart-graph - Restart Graph View service"
         echo "  clear-cache - Clear React development cache"
         echo "  restart-react- Stop React, clear cache, and restart React"
         echo "  status      - Show status of all services"
-        echo "  logs [quarkus|react|query|discovery|async|ollama|report] - Show logs for specific service"
+        echo "  logs [quarkus|react|query|discovery|async|ollama|graph|graph-frontend|report] - Show logs for specific service"
         echo ""
         echo "Examples:"
-        echo "  $0 start-dev      # Start all services (uses new async API on port 8001)"
+        echo "  $0 start-dev      # Start all services (includes Graph View on ports 8082/8083)"
         echo "  $0 stop           # Stop all services"
         echo "  $0 status         # Check if services are running"
         echo "  $0 logs query     # View Risk Query logs"
         echo "  $0 logs async     # View Async Discovery API logs"
         echo "  $0 logs discovery # View Legacy Discovery API logs"
+        echo "  $0 logs graph     # View Graph View Backend logs"
+        echo "  $0 logs graph-frontend # View Graph View Frontend logs"
         echo "  $0 start-ollama   # Start only Ollama service"
         echo "  $0 start-async    # Start only NEW Async Discovery API (port 8001)"
         echo "  $0 start-discovery-legacy # Start only Legacy Discovery API (port 8000)"
-        echo "  $0 start-report   # Start only Report Backend service (Python/FastAPI, port 8082)"
-        echo "  $0 start-report-quarkus # Start Report Backend in Quarkus mode (port 8082)"
+        echo "  $0 start-graph    # Start only Graph View (Backend: 8082, Frontend: 8083)"
+        echo "  $0 start-report   # Start only Report Backend service (Python/FastAPI, port 8084)"
+        echo "  $0 start-report-quarkus # Start Report Backend in Quarkus mode (port 8084)"
+        echo "  $0 restart-graph  # Restart Graph View services"
         echo "  $0 logs report    # View Report Backend logs"
         echo "  $0 clear-cache    # Clear React cache (useful when env vars don't update)"
         echo "  $0 restart-react  # Restart React with cache clearing"
@@ -1119,12 +1313,20 @@ case $1 in
         echo "  - Features: Incremental analysis, Redis caching, progress tracking"
         echo "  - Test scripts: ./scripts/test_async_api.sh"
         echo ""
-        echo "📊 NEW: Report Backend Service"
-        echo "  - Available at: http://localhost:8082"
-        echo "  - Swagger UI: http://localhost:8082/swagger-ui"
-        echo "  - OpenAPI Spec: http://localhost:8082/openapi"
-        echo "  - Graph Analysis: http://localhost:8082/api/v1/graph/analysis"
-        echo "  - Graph Health: http://localhost:8082/api/v1/graph/health"
+        echo "🌊 NEW: Graph View 3D Visualization"
+        echo "  - Backend API: http://localhost:8082"
+        echo "  - Frontend UI: http://localhost:8083"
+        echo "  - API Docs: http://localhost:8082/docs"
+        echo "  - Graph Stats: http://localhost:8082/stats"
+        echo "  - Features: Interactive 3D graph visualization, risk-based coloring"
+        echo "  - Views: Complete graph, domain-focused, provider analysis, risk filtering"
+        echo ""
+        echo "📊 Report Backend Service"
+        echo "  - Available at: http://localhost:8084 (moved to avoid port conflicts)"
+        echo "  - Swagger UI: http://localhost:8084/swagger-ui"
+        echo "  - OpenAPI Spec: http://localhost:8084/openapi"
+        echo "  - Graph Analysis: http://localhost:8084/api/v1/graph/analysis"
+        echo "  - Graph Health: http://localhost:8084/api/v1/graph/health"
         echo "  - Features: Neo4j graph analysis, domain risk assessment, PDF reports"
         echo "  - Default: Python/FastAPI mode (faster startup)"
         echo "  - Alternative: Quarkus mode (use 'start-report-quarkus')"

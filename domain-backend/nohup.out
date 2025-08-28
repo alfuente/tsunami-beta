@@ -1,0 +1,96 @@
+/home/alf/dev/tsunami-beta/domain-backend/async_domain_discovery_api.py:4105: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+/home/alf/dev/tsunami-beta/domain-backend/async_domain_discovery_api.py:4123: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("shutdown")
+INFO:     Will watch for changes in these directories: ['/home/alf/dev/tsunami-beta/domain-backend']
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     Started reloader process [689967] using StatReload
+INFO:     Started server process [690016]
+INFO:     Waiting for application startup.
+WARNING:async_domain_discovery_api:Redis not available: Error 111 connecting to localhost:6379. Connection refused.
+INFO:async_domain_discovery_api:Neo4j connection established
+INFO:async_domain_discovery_api:Async task database initialized
+INFO:async_domain_discovery_api:Loaded 100 existing tasks from database
+INFO:async_domain_discovery_api:Discovery service initialized
+INFO:     Application startup complete.
+INFO:     127.0.0.1:43884 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43892 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43892 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41586 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37690 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37698 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37698 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44188 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44198 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39516 - "GET /api/v1/tasks/803f73d8-9a4b-440d-8eb9-000c9066c29d/logs HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55966 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55982 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55982 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36040 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36052 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40956 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35898 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35910 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35910 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57772 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57784 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36878 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36884 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36884 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47396 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47408 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35796 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35798 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35798 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39132 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39136 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57610 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57612 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57612 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57502 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57508 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35996 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36004 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36004 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36170 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36172 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:32784 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59316 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59330 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59330 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43474 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43484 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42022 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42026 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42026 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59498 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59510 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+WARNING:  StatReload detected changes in 'async_domain_discovery_api.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [690016]
+INFO:     Started server process [708620]
+INFO:     Waiting for application startup.
+WARNING:async_domain_discovery_api:Redis not available: Error 111 connecting to localhost:6379. Connection refused.
+INFO:async_domain_discovery_api:Neo4j connection established
+INFO:async_domain_discovery_api:Async task database initialized
+INFO:async_domain_discovery_api:Loaded 100 existing tasks from database
+INFO:async_domain_discovery_api:Discovery service initialized
+INFO:     Application startup complete.
+INFO:     127.0.0.1:53628 - "GET /api/v1/tasks HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [708620]
+INFO:     Stopping reloader process [689967]
