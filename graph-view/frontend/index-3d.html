@@ -561,7 +561,8 @@
                             if (!industry) {
                                 throw new Error('Please select an industry');
                             }
-                            url += `industry/${encodeURIComponent(industry)}?limit=${nodeLimit}&include_providers=${showSubdomains}`;
+                            // Always include providers for industry queries as requested by user
+                            url += `industry/${encodeURIComponent(industry)}?limit=${nodeLimit}&include_providers=true`;
                             break;
                         case 'search':
                             const searchQuery = document.getElementById('searchQuery')?.value;

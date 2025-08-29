@@ -699,15 +699,15 @@ public class DomainResource {
             OPTIONAL MATCH (base)-[:HAS_SUBDOMAIN]->(subdomain:Subdomain)
             
             // Step 3: Get services and providers
-            OPTIONAL MATCH (base)-[:HAS_SERVICE]->(bs:Service)
-            OPTIONAL MATCH (subdomain)-[:HAS_SERVICE]->(ss:Service) 
+            OPTIONAL MATCH (base)-[:RUNS_SERVICE]->(bs:Service)
+            OPTIONAL MATCH (subdomain)-[:RUNS_SERVICE]->(ss:Service) 
             OPTIONAL MATCH (base)-[:USES_PROVIDER]->(bp:Provider)
             OPTIONAL MATCH (subdomain)-[:USES_PROVIDER]->(sp:Provider)
             
             // Step 4: Group by base domain (use base.fqdn directly)
             WITH base.fqdn as base_domain_name, base,
                  collect(DISTINCT subdomain) as subdomains,
-                 collect(DISTINCT bs.service) + collect(DISTINCT ss.service) as all_services,
+                 collect(DISTINCT bs.name) + collect(DISTINCT ss.name) as all_services,
                  collect(DISTINCT bp.name) + collect(DISTINCT sp.name) as all_providers,
                  coalesce(base.risk_score, 0.0) as base_risk_score,
                  coalesce(base.business_criticality, 'Unknown') as business_criticality,

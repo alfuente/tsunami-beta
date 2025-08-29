@@ -178,7 +178,8 @@ class AsyncDomainDiscoveryService:
     
     def __init__(self, neo4j_uri: str, neo4j_user: str, neo4j_password: str, 
                  redis_host: str = "localhost", redis_port: int = 6379,
-                 amass_cache_dir: str = "./amass_cache", cache_duration_hours: int = 168):
+                 amass_cache_dir: str = "./amass_cache", cache_duration_hours: int = 168,
+                 max_workers: int = 50):
         self.neo4j_uri = neo4j_uri
         self.neo4j_user = neo4j_user
         self.neo4j_password = neo4j_password
@@ -215,7 +216,7 @@ class AsyncDomainDiscoveryService:
         
         # Task tracking
         self.active_tasks: Dict[str, TaskInfo] = {}
-        self.executor = ThreadPoolExecutor(max_workers=10)
+        self.executor = ThreadPoolExecutor(max_workers=max_workers)
         
         # Initialize PostgreSQL connection for task persistence
         self.db_config = {
@@ -357,7 +358,7 @@ class AsyncDomainDiscoveryService:
                 except:
                     logger.error(f"Task result: {str(task_info.result)[:200]}...")
 
-    def get_all_tasks_from_db(self, limit: int = 100, status_filter: Optional[str] = None):
+    def get_all_tasks_from_db(self, limit: int = 1000, status_filter: Optional[str] = None):
         """Get all tasks from database with optional status filter"""
         try:
             with self._get_db_connection() as conn:
@@ -2055,7 +2056,7 @@ class AsyncDomainDiscoveryService:
             raw_fields = ssl_data.get('raw_fields', {})
             
             # Save to Neo4j with comprehensive structure
-            with self.neo4j_driver.session() as session:
+            with self.driver.session() as session:
                 # Create or update domain node with enhanced SSL Labs data
                 session.run("""
                     MERGE (d:Domain {name: $target})
@@ -2227,7 +2228,7 @@ class AsyncDomainDiscoveryService:
             return None
             
         try:
-            with self.neo4j_driver.session() as session:
+            with self.driver.session() as session:
                 # Get domain SSL Labs data
                 result = session.run("""
                     MATCH (d:Domain {name: $domain})
@@ -3829,13 +3830,13 @@ class AsyncDomainDiscoveryService:
                 try:
                     self._update_task_logs(task_id, "Detecting domain relationships from page content")
                     relationship_result, domain_references = integrate_with_existing_scraping(
-                        soup, domain, subdomain, self.neo4j_driver
+                        soup, domain, subdomain, self.driver
                     )
                     domain_relationships_result = relationship_result
                     
                     # Save domain references to Neo4j
                     if domain_references:
-                        detector = DomainRelationshipDetector(self.neo4j_driver)
+                        detector = DomainRelationshipDetector(self.driver)
                         save_stats = await detector.save_domain_references_to_neo4j(domain_references)
                         domain_relationships_result.update(save_stats)
                         self._update_task_logs(task_id, f"Created {save_stats.get('created_references', 0)} domain references, {save_stats.get('created_domains', 0)} new domains")
@@ -4125,7 +4126,7 @@ class AsyncDomainDiscoveryService:
             return {"error": "Neo4j not available"}
         
         try:
-            with self.neo4j_driver.session() as session:
+            with self.driver.session() as session:
                 # Get outgoing references (domains this domain references)
                 outgoing_query = """
                 MATCH (d:Domain {fqdn: $domain})-[r:REFERENCES]->(target:Domain)
@@ -4849,7 +4850,8 @@ async def startup_event():
             redis_host=os.getenv("REDIS_HOST", "localhost"),
             redis_port=int(os.getenv("REDIS_PORT", "6379")),
             amass_cache_dir=os.getenv("AMASS_CACHE_DIR", "./amass_cache"),
-            cache_duration_hours=int(os.getenv("CACHE_DURATION_HOURS", "168"))
+            cache_duration_hours=int(os.getenv("CACHE_DURATION_HOURS", "168")),
+            max_workers=int(os.getenv("MAX_WORKERS", "50"))
         )
         logger.info("Discovery service initialized")
     except Exception as e:
@@ -4874,7 +4876,7 @@ async def health_check():
 # Task management endpoints
 @app.get("/api/v1/tasks", tags=["Tasks"])
 async def list_tasks(
-    limit: int = Query(100, description="Maximum number of tasks to return"),
+    limit: int = Query(1000, description="Maximum number of tasks to return"),
     status: Optional[str] = Query(None, description="Filter by task status: pending, running, completed, failed")
 ):
     """List all tasks from database with optional filtering"""
@@ -6390,7 +6392,7 @@ async def _calculate_local_risk_score(target: str, force_recalculation: bool = F
             calculator = EnhancedRiskCalculator(session)
             
             # Determine if this is a base domain
-            is_base_domain = _is_base_domain(target)
+            is_base_domain = self._is_base_domain(target)
             
             # Calculate enhanced risk score
             risk_result = await calculator.calculate_enhanced_risk_score(target, is_base_domain)

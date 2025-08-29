@@ -311,7 +311,7 @@
             
             <div class="control-group">
                 <label>
-                    <input type="checkbox" id="showSubdomains" disabled> Show Subdomains (Disabled)
+                    <input type="checkbox" id="showSubdomains"> Show Subdomains
                 </label>
             </div>
             
@@ -433,6 +433,7 @@
                 // Auto-reload when filter checkboxes change
                 includeOrganizations.addEventListener('change', () => this.loadGraphData());
                 includeIndustries.addEventListener('change', () => this.loadGraphData());
+                showSubdomains.addEventListener('change', () => this.loadGraphData());
                 
                 // Handle window resize
                 window.addEventListener('resize', () => this.handleResize());
@@ -562,7 +563,8 @@
                             if (!industry) {
                                 throw new Error('Please select an industry');
                             }
-                            url += `industry/${encodeURIComponent(industry)}?limit=${nodeLimit}&include_providers=${showSubdomains}&include_organizations=${includeOrganizations}&include_industries=${includeIndustries}`;
+                            // Always include providers for industry queries as requested by user
+                            url += `industry/${encodeURIComponent(industry)}?limit=${nodeLimit}&include_providers=true&include_organizations=${includeOrganizations}&include_industries=${includeIndustries}&include_subdomains=${showSubdomains}`;
                             break;
                         case 'search':
                             const searchQuery = document.getElementById('searchQuery').value;

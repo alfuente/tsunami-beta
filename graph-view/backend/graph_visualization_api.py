@@ -114,10 +114,30 @@ class GraphVisualizationAPI:
             return "#6C757D"  # Gray for unknown types
     
     def get_node_size(self, node_labels: List[str], properties: Dict[str, Any]) -> float:
-        """Determine node size based on importance and connections"""
+        """Determine node size based on importance and industry category"""
         if "Domain" in node_labels:
             risk_score = properties.get("risk_score", 0)
-            return max(4.0, risk_score / 10)  # Size 4-10 based on risk (doubled)
+            base_size = max(4.0, risk_score / 10)  # Size 4-10 based on risk
+            
+            # Apply industry-based size normalization
+            fqdn = properties.get("fqdn", "")
+            
+            # Banking and Finance domains get consistent sizing
+            if any(bank in fqdn.lower() for bank in [
+                "banco", "bci.cl", "santander.cl", "itau.cl", "falabella.cl",
+                "coopeuch.cl", "security.cl", "ripley.cl", "consorcio.cl"
+            ]):
+                return max(6.0, base_size)  # Banking domains minimum size 6
+                
+            # Government domains  
+            elif ".gob.cl" in fqdn or fqdn in ["sii.cl", "bcentral.cl", "cmfchile.cl"]:
+                return max(5.5, base_size)  # Government domains
+                
+            # Major telecoms
+            elif fqdn in ["entel.cl", "movistar.cl", "claro.cl", "wom.cl", "vtr.com"]:
+                return max(5.5, base_size)  # Telecom domains
+                
+            return base_size
         elif "Subdomain" in node_labels:
             return 3.0  # Doubled from 1.5
         elif "Provider" in node_labels:
@@ -154,6 +174,290 @@ class GraphVisualizationAPI:
         }
         return color_map.get(relationship_type, "#999999")
     
+    def execute_domain_multi_query(self, domain: str, include_vulnerabilities: bool = True) -> GraphData:
+        """Execute multiple focused queries for a domain to avoid cartesian products"""
+        logger.info(f"Starting multi-query execution for domain: {domain}")
+        start_time = datetime.now()
+        
+        all_nodes = {}
+        all_edges = []
+        total_records = 0
+        
+        try:
+            with self.driver.session() as session:
+                # Query 1: Get the domain itself
+                domain_query = "MATCH (d:Domain {fqdn: $domain}) RETURN d"
+                result = session.run(domain_query, {"domain": domain})
+                for record in result:
+                    total_records += 1
+                    d = record["d"]
+                    if d:
+                        node_id = str(d.id)
+                        node_props = convert_neo4j_properties(dict(d))
+                        node_labels = list(d.labels)
+                        all_nodes[node_id] = GraphNode(
+                            id=node_id,
+                            label=node_props.get('fqdn', f"Node {node_id}"),
+                            labels=node_labels,
+                            properties=node_props,
+                            size=self.get_node_size(node_labels, node_props),
+                            color=self.get_node_color(node_labels, node_props)
+                        )
+                
+                # Query 2: Get direct providers
+                provider_query = """
+                MATCH (d:Domain {fqdn: $domain})-[r:USES_PROVIDER]->(p:Provider)
+                RETURN d, r, p
+                """
+                result = session.run(provider_query, {"domain": domain})
+                for record in result:
+                    total_records += 1
+                    d, r, p = record["d"], record["r"], record["p"]
+                    # Add provider node
+                    if p:
+                        node_id = str(p.id)
+                        if node_id not in all_nodes:
+                            node_props = convert_neo4j_properties(dict(p))
+                            node_labels = list(p.labels)
+                            all_nodes[node_id] = GraphNode(
+                                id=node_id,
+                                label=node_props.get('name', f"Node {node_id}"),
+                                labels=node_labels,
+                                properties=node_props,
+                                size=self.get_node_size(node_labels, node_props),
+                                color=self.get_node_color(node_labels, node_props)
+                            )
+                        # Add edge
+                        if r:
+                            edge_id = f"{d.id}-{r.type}-{p.id}"
+                            edge_props = convert_neo4j_properties(dict(r))
+                            all_edges.append(GraphEdge(
+                                id=edge_id,
+                                source=str(d.id),
+                                target=str(p.id),
+                                relationship_type=r.type,
+                                properties=edge_props,
+                                weight=edge_props.get('confidence', 1.0),
+                                color=self.get_edge_color(r.type, edge_props)
+                            ))
+                
+                # Query 3: Get subdomains and their providers
+                subdomain_query = """
+                MATCH (d:Domain {fqdn: $domain})-[:HAS_SUBDOMAIN]->(sub:Subdomain)
+                OPTIONAL MATCH (sub)-[r:USES_PROVIDER]->(p:Provider)
+                RETURN d, sub, r, p
+                """
+                result = session.run(subdomain_query, {"domain": domain})
+                for record in result:
+                    total_records += 1
+                    d, sub, r, p = record["d"], record["sub"], record["r"], record["p"]
+                    # Add subdomain node
+                    if sub:
+                        node_id = str(sub.id)
+                        if node_id not in all_nodes:
+                            node_props = convert_neo4j_properties(dict(sub))
+                            node_labels = list(sub.labels)
+                            all_nodes[node_id] = GraphNode(
+                                id=node_id,
+                                label=node_props.get('fqdn', f"Node {node_id}"),
+                                labels=node_labels,
+                                properties=node_props,
+                                size=self.get_node_size(node_labels, node_props),
+                                color=self.get_node_color(node_labels, node_props)
+                            )
+                        # Add HAS_SUBDOMAIN edge
+                        subdomain_edge_id = f"{d.id}-HAS_SUBDOMAIN-{sub.id}"
+                        if not any(edge.id == subdomain_edge_id for edge in all_edges):
+                            all_edges.append(GraphEdge(
+                                id=subdomain_edge_id,
+                                source=str(d.id),
+                                target=str(sub.id),
+                                relationship_type="HAS_SUBDOMAIN",
+                                properties={},
+                                weight=1.0,
+                                color=self.get_edge_color("HAS_SUBDOMAIN", {})
+                            ))
+                    
+                    # Add provider node and edge if exists
+                    if p and r:
+                        node_id = str(p.id)
+                        if node_id not in all_nodes:
+                            node_props = convert_neo4j_properties(dict(p))
+                            node_labels = list(p.labels)
+                            all_nodes[node_id] = GraphNode(
+                                id=node_id,
+                                label=node_props.get('name', f"Node {node_id}"),
+                                labels=node_labels,
+                                properties=node_props,
+                                size=self.get_node_size(node_labels, node_props),
+                                color=self.get_node_color(node_labels, node_props)
+                            )
+                        # Add edge
+                        edge_id = f"{sub.id}-{r.type}-{p.id}"
+                        edge_props = convert_neo4j_properties(dict(r))
+                        all_edges.append(GraphEdge(
+                            id=edge_id,
+                            source=str(sub.id),
+                            target=str(p.id),
+                            relationship_type=r.type,
+                            properties=edge_props,
+                            weight=edge_props.get('confidence', 1.0),
+                            color=self.get_edge_color(r.type, edge_props)
+                        ))
+                
+                # Query 4: Get technologies and services
+                tech_query = """
+                MATCH (d:Domain {fqdn: $domain})
+                OPTIONAL MATCH (d)-[r1:USES_TECHNOLOGY]->(t:Technology)
+                OPTIONAL MATCH (d)-[r2:RUNS_SERVICE]->(s:Service)  
+                OPTIONAL MATCH (d)-[r3:SECURED_BY]->(c:Certificate)
+                RETURN d, r1, t, r2, s, r3, c
+                """
+                result = session.run(tech_query, {"domain": domain})
+                for record in result:
+                    total_records += 1
+                    d, r1, t, r2, s, r3, c = record["d"], record["r1"], record["t"], record["r2"], record["s"], record["r3"], record["c"]
+                    
+                    # Add technology node and edge
+                    if t and r1:
+                        node_id = str(t.id)
+                        if node_id not in all_nodes:
+                            node_props = convert_neo4j_properties(dict(t))
+                            node_labels = list(t.labels)
+                            all_nodes[node_id] = GraphNode(
+                                id=node_id,
+                                label=node_props.get('name', f"Node {node_id}"),
+                                labels=node_labels,
+                                properties=node_props,
+                                size=self.get_node_size(node_labels, node_props),
+                                color=self.get_node_color(node_labels, node_props)
+                            )
+                        edge_id = f"{d.id}-{r1.type}-{t.id}"
+                        edge_props = convert_neo4j_properties(dict(r1))
+                        all_edges.append(GraphEdge(
+                            id=edge_id,
+                            source=str(d.id),
+                            target=str(t.id),
+                            relationship_type=r1.type,
+                            properties=edge_props,
+                            weight=edge_props.get('confidence', 1.0),
+                            color=self.get_edge_color(r1.type, edge_props)
+                        ))
+                    
+                    # Add service node and edge  
+                    if s and r2:
+                        node_id = str(s.id)
+                        if node_id not in all_nodes:
+                            node_props = convert_neo4j_properties(dict(s))
+                            node_labels = list(s.labels)
+                            all_nodes[node_id] = GraphNode(
+                                id=node_id,
+                                label=node_props.get('name', f"Node {node_id}"),
+                                labels=node_labels,
+                                properties=node_props,
+                                size=self.get_node_size(node_labels, node_props),
+                                color=self.get_node_color(node_labels, node_props)
+                            )
+                        edge_id = f"{d.id}-{r2.type}-{s.id}"
+                        edge_props = convert_neo4j_properties(dict(r2))
+                        all_edges.append(GraphEdge(
+                            id=edge_id,
+                            source=str(d.id),
+                            target=str(s.id),
+                            relationship_type=r2.type,
+                            properties=edge_props,
+                            weight=edge_props.get('confidence', 1.0),
+                            color=self.get_edge_color(r2.type, edge_props)
+                        ))
+                    
+                    # Add certificate node and edge
+                    if c and r3:
+                        node_id = str(c.id)
+                        if node_id not in all_nodes:
+                            node_props = convert_neo4j_properties(dict(c))
+                            node_labels = list(c.labels)
+                            all_nodes[node_id] = GraphNode(
+                                id=node_id,
+                                label=node_props.get('subject', f"Node {node_id}"),
+                                labels=node_labels,
+                                properties=node_props,
+                                size=self.get_node_size(node_labels, node_props),
+                                color=self.get_node_color(node_labels, node_props)
+                            )
+                        edge_id = f"{d.id}-{r3.type}-{c.id}"
+                        edge_props = convert_neo4j_properties(dict(r3))
+                        all_edges.append(GraphEdge(
+                            id=edge_id,
+                            source=str(d.id),
+                            target=str(c.id),
+                            relationship_type=r3.type,
+                            properties=edge_props,
+                            weight=edge_props.get('confidence', 1.0),
+                            color=self.get_edge_color(r3.type, edge_props)
+                        ))
+                
+                # Query 5: Get vulnerabilities if requested
+                if include_vulnerabilities:
+                    vuln_query = """
+                    MATCH (d:Domain {fqdn: $domain})-[:USES_TECHNOLOGY]->(t:Technology)-[r:HAS_VULNERABILITY]->(v:Vulnerability)
+                    RETURN t, r, v
+                    """
+                    result = session.run(vuln_query, {"domain": domain})
+                    for record in result:
+                        total_records += 1
+                        t, r, v = record["t"], record["r"], record["v"]
+                        
+                        if v and r:
+                            node_id = str(v.id)
+                            if node_id not in all_nodes:
+                                node_props = convert_neo4j_properties(dict(v))
+                                node_labels = list(v.labels)
+                                all_nodes[node_id] = GraphNode(
+                                    id=node_id,
+                                    label=node_props.get('name', f"Node {node_id}"),
+                                    labels=node_labels,
+                                    properties=node_props,
+                                    size=self.get_node_size(node_labels, node_props),
+                                    color=self.get_node_color(node_labels, node_props)
+                                )
+                            edge_id = f"{t.id}-{r.type}-{v.id}"
+                            edge_props = convert_neo4j_properties(dict(r))
+                            all_edges.append(GraphEdge(
+                                id=edge_id,
+                                source=str(t.id),
+                                target=str(v.id),
+                                relationship_type=r.type,
+                                properties=edge_props,
+                                weight=edge_props.get('confidence', 1.0),
+                                color=self.get_edge_color(r.type, edge_props)
+                            ))
+                
+                end_time = datetime.now()
+                execution_time = (end_time - start_time).total_seconds()
+                
+                logger.info(f"Multi-query completed in {execution_time:.2f} seconds")
+                logger.info(f"Processed {total_records} records, found {len(all_nodes)} nodes and {len(all_edges)} edges")
+                
+                return GraphData(
+                    nodes=list(all_nodes.values()),
+                    edges=all_edges,
+                    metadata={
+                        "node_count": len(all_nodes),
+                        "edge_count": len(all_edges),
+                        "record_count": total_records,
+                        "execution_time_seconds": execution_time,
+                        "generated_at": datetime.now().isoformat(),
+                        "query": "multi-query approach for domain subgraph",
+                        "domain": domain
+                    }
+                )
+                
+        except Exception as e:
+            end_time = datetime.now()
+            execution_time = (end_time - start_time).total_seconds()
+            logger.error(f"Multi-query failed after {execution_time:.2f} seconds: {e}")
+            raise
+
     def execute_graph_query(self, query: str, parameters: Dict[str, Any] = None) -> GraphData:
         """Execute a Cypher query and return formatted graph data"""
         if parameters is None:
@@ -239,6 +543,31 @@ class GraphVisualizationAPI:
                                 color=self.get_edge_color(value.type, edge_props)
                             ))
                 
+                # Create virtual USES_PROVIDER relationships when domains and providers exist but no USES_PROVIDER relationships
+                domain_nodes = [node for node in nodes.values() if 'Domain' in node.labels]
+                provider_nodes = [node for node in nodes.values() if 'Provider' in node.labels]
+                existing_uses_provider = len([edge for edge in edges if edge.relationship_type == "USES_PROVIDER"])
+                
+                # If we have domains and providers but no USES_PROVIDER relationships, create virtual ones
+                if domain_nodes and provider_nodes and existing_uses_provider == 0:
+                    logger.info("Creating virtual USES_PROVIDER relationships for aggregated provider data")
+                    for record in session.run(query, parameters):
+                        d_node = record.get('d')
+                        p_node = record.get('p')
+                        if d_node and p_node:
+                            virtual_edge_id = f"{d_node.id}-USES_PROVIDER-{p_node.id}"
+                            # Only create if virtual doesn't exist
+                            if not any(edge.id == virtual_edge_id for edge in edges):
+                                edges.append(GraphEdge(
+                                    id=virtual_edge_id,
+                                    source=str(d_node.id),
+                                    target=str(p_node.id),
+                                    relationship_type="USES_PROVIDER",
+                                    properties={"source": "aggregated_from_subdomains"},
+                                    weight=1.0,
+                                    color=self.get_edge_color("USES_PROVIDER", {})
+                                ))
+                
                 end_time = datetime.now()
                 execution_time = (end_time - start_time).total_seconds()
                 
@@ -309,8 +638,9 @@ async def get_complete_graph(
     optional_matches = []
     returns = ["d"]
     
-    # Always include providers (core functionality)
+    # Always include providers (core functionality) - from domain and subdomain
     optional_matches.append("OPTIONAL MATCH (d)-[r1:USES_PROVIDER]->(p:Provider)")
+    optional_matches.append("OPTIONAL MATCH (d)-[:HAS_SUBDOMAIN]->(sub:Subdomain)-[:USES_PROVIDER]->(p)")
     returns.extend(["r1", "p"])
     
     # Conditionally include industries
@@ -357,38 +687,11 @@ async def get_domain_subgraph(
     depth: int = Query(2, description="Graph traversal depth"),
     include_vulnerabilities: bool = Query(True, description="Include vulnerability nodes")
 ) -> GraphData:
-    """Get subgraph focused on a specific domain"""
-    
-    vuln_clause = ""
-    if include_vulnerabilities:
-        vuln_clause = """
-        OPTIONAL MATCH (t)-[r6:HAS_VULNERABILITY]->(v:Vulnerability)
-        """
-    
-    query = f"""
-    MATCH (d:Domain {{fqdn: $domain}})
-    
-    // Get immediate relationships
-    OPTIONAL MATCH (d)-[r1:HAS_SUBDOMAIN]->(s:Subdomain)
-    OPTIONAL MATCH (d)-[r2:USES_PROVIDER]->(p:Provider)
-    OPTIONAL MATCH (d)-[r3:USES_TECHNOLOGY]->(t:Technology)
-    OPTIONAL MATCH (d)-[r4:RUNS_SERVICE]->(srv:Service)
-    OPTIONAL MATCH (d)-[r5:SECURED_BY]->(c:Certificate)
-    
-    // Get deeper relationships based on depth
-    OPTIONAL MATCH (c)-[r7:ISSUED_BY]->(o:Organization)
-    OPTIONAL MATCH (t)-[r8:IS_VERSION_OF]->(tv:TechnologyVersion)
-    
-    {vuln_clause}
-    
-    RETURN d, s, p, t, srv, c, o, tv
-    {", v" if include_vulnerabilities else ""},
-    r1, r2, r3, r4, r5, r7, r8
-    {", r6" if include_vulnerabilities else ""}
-    """
+    """Get subgraph focused on a specific domain using multiple focused queries"""
     
     try:
-        return graph_api.execute_graph_query(query, {"domain": domain})
+        # Use the new multi-query approach
+        return graph_api.execute_domain_multi_query(domain, include_vulnerabilities)
     except Exception as e:
         logger.error(f"Error executing domain subgraph query: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -443,8 +746,9 @@ async def get_risk_filtered_graph(
     WHERE d.risk_score >= $min_risk AND d.risk_score < $max_risk
     WITH d LIMIT $limit
     
-    OPTIONAL MATCH (d)-[r1:HAS_SUBDOMAIN]->(s:Subdomain)
     OPTIONAL MATCH (d)-[r2:USES_PROVIDER]->(p:Provider)
+    OPTIONAL MATCH (d)-[:HAS_SUBDOMAIN]->()-[:USES_PROVIDER]->(sp:Provider)
+    WITH d, t, srv, c, o, tv, r2, r3, r4, r5, r7, r8, coalesce(p, sp) as p
     OPTIONAL MATCH (d)-[r3:USES_TECHNOLOGY]->(t:Technology)
     OPTIONAL MATCH (t)-[r4:HAS_VULNERABILITY]->(v:Vulnerability)
     WHERE v.severity = CASE 
@@ -453,7 +757,7 @@ async def get_risk_filtered_graph(
         ELSE v.severity
     END
     
-    RETURN d, s, p, t, v, r1, r2, r3, r4
+    RETURN d, p, t, v, r2, r3, r4
     """
     
     try:
@@ -497,8 +801,13 @@ async def get_industries():
             MATCH (i:Industry)
             OPTIONAL MATCH (i)<-[:BELONGS_TO_INDUSTRY]-(d:Domain)
             WITH i, count(d) as domain_count
-            RETURN i.name as name, domain_count
-            ORDER BY domain_count DESC, i.name ASC
+            // Merge Banking and Finance into single category
+            WITH CASE 
+                WHEN i.name IN ["Banking", "Finance"] THEN "Banking"
+                ELSE i.name
+            END as industry_name, sum(domain_count) as total_domains
+            RETURN industry_name as name, total_domains as domain_count
+            ORDER BY total_domains DESC, industry_name ASC
             """
             
             result = session.run(query)
@@ -526,17 +835,18 @@ async def get_industry_graph(
     limit: int = Query(100, description="Maximum number of domains per industry"),
     include_providers: bool = Query(True, description="Include provider relationships"),
     include_organizations: bool = Query(True, description="Include organization nodes"),
-    include_industries: bool = Query(True, description="Include industry nodes")
+    include_industries: bool = Query(True, description="Include industry nodes"),
+    include_subdomains: bool = Query(False, description="Include subdomain nodes and their relationships")
 ) -> GraphData:
     """Get graph data filtered by industry"""
     
-    logger.info(f"GET /graph/industry/{industry_name} - limit: {limit}, include_providers: {include_providers}, include_organizations: {include_organizations}, include_industries: {include_industries}")
+    logger.info(f"GET /graph/industry/{industry_name} - limit: {limit}, include_providers: {include_providers}, include_organizations: {include_organizations}, include_industries: {include_industries}, include_subdomains: {include_subdomains}")
     
     # Build conditional query based on what to include
     optional_matches = []
     returns = ["d"]
     
-    # Conditionally include providers
+    # Conditionally include providers - from domain 
     if include_providers:
         optional_matches.append("OPTIONAL MATCH (d)-[r1:USES_PROVIDER]->(p:Provider)")
         returns.extend(["r1", "p"])
@@ -551,17 +861,110 @@ async def get_industry_graph(
         optional_matches.append("OPTIONAL MATCH (d)-[r3:BELONGS_TO_ORGANIZATION]->(o:Organization)")
         returns.extend(["r3", "o"])
     
-    query = f"""
-    MATCH (i:Industry {{name: $industry_name}})<-[:BELONGS_TO_INDUSTRY]-(d:Domain)
-    WITH d
-    ORDER BY d.risk_score DESC
-    LIMIT $limit
-    
-    {' '.join(optional_matches)}
-    
-    RETURN {', '.join(returns)}
-    ORDER BY d.fqdn
-    """
+    # Handle Banking/Finance merge and always include providers
+    if industry_name in ["Banking", "Finance"]:
+        # Merge Banking and Finance into unified query
+        additional_returns = returns[3:] if len(returns) > 3 else []
+        additional_matches = optional_matches[1:] if len(optional_matches) > 1 else []
+        
+        return_clause = "d, r1, p"
+        if additional_returns:
+            return_clause += f", {', '.join(additional_returns)}"
+            
+        if include_subdomains:
+            query = f"""
+            // First get unique banking/finance domains with limit
+            MATCH (d:Domain)-[:BELONGS_TO_INDUSTRY]->(i:Industry)
+            WHERE i.name IN ["Banking", "Finance"] 
+            WITH DISTINCT d
+            ORDER BY d.risk_score DESC
+            LIMIT $limit
+            
+            // Get direct providers from domain
+            OPTIONAL MATCH (d)-[r1:USES_PROVIDER]->(p:Provider)
+            
+            // Get subdomains and their relationships
+            OPTIONAL MATCH (d)-[r_sub_rel:HAS_SUBDOMAIN]->(sub:Subdomain)
+            OPTIONAL MATCH (sub)-[r_sub:USES_PROVIDER]->(p_sub:Provider)
+            
+            {' '.join(additional_matches)}
+            
+            RETURN d, r1, p, r_sub_rel, sub, r_sub, p_sub{', ' + ', '.join(additional_returns) if additional_returns else ''}
+            ORDER BY d.fqdn
+            """
+        else:
+            query = f"""
+            // First get unique banking/finance domains with limit
+            MATCH (d:Domain)-[:BELONGS_TO_INDUSTRY]->(i:Industry)
+            WHERE i.name IN ["Banking", "Finance"] 
+            WITH DISTINCT d
+            ORDER BY d.risk_score DESC
+            LIMIT $limit
+            
+            // Get all unique providers (direct and from subdomains)
+            OPTIONAL MATCH (d)-[:USES_PROVIDER]->(p_direct:Provider)
+            OPTIONAL MATCH (d)-[:HAS_SUBDOMAIN]->()-[:USES_PROVIDER]->(p_sub:Provider)
+            
+            WITH d, collect(DISTINCT p_direct) + collect(DISTINCT p_sub) as all_providers
+            UNWIND all_providers as p
+            WITH d, p WHERE p IS NOT NULL
+            WITH d, p, null as r1  // Create virtual relationship
+            
+            {' '.join(additional_matches)}
+            
+            RETURN d, r1, p{', ' + ', '.join(additional_returns) if additional_returns else ''}
+            ORDER BY d.fqdn
+            """
+    else:
+        additional_returns = returns[3:] if len(returns) > 3 else []
+        additional_matches = optional_matches[1:] if len(optional_matches) > 1 else []
+        
+        return_clause = "d, r1, p"
+        if additional_returns:
+            return_clause += f", {', '.join(additional_returns)}"
+            
+        if include_subdomains:
+            query = f"""
+            // First get unique domains for this industry with limit
+            MATCH (i:Industry {{name: $industry_name}})<-[:BELONGS_TO_INDUSTRY]-(d:Domain)
+            WITH DISTINCT d
+            ORDER BY d.risk_score DESC
+            LIMIT $limit
+            
+            // Get direct providers from domain
+            OPTIONAL MATCH (d)-[r1:USES_PROVIDER]->(p:Provider)
+            
+            // Get subdomains and their relationships
+            OPTIONAL MATCH (d)-[r_sub_rel:HAS_SUBDOMAIN]->(sub:Subdomain)
+            OPTIONAL MATCH (sub)-[r_sub:USES_PROVIDER]->(p_sub:Provider)
+            
+            {' '.join(additional_matches)}
+            
+            RETURN d, r1, p, r_sub_rel, sub, r_sub, p_sub{', ' + ', '.join(additional_returns) if additional_returns else ''}
+            ORDER BY d.fqdn
+            """
+        else:
+            query = f"""
+            // First get unique domains for this industry with limit
+            MATCH (i:Industry {{name: $industry_name}})<-[:BELONGS_TO_INDUSTRY]-(d:Domain)
+            WITH DISTINCT d
+            ORDER BY d.risk_score DESC
+            LIMIT $limit
+            
+            // Get all unique providers (direct and from subdomains)
+            OPTIONAL MATCH (d)-[:USES_PROVIDER]->(p_direct:Provider)
+            OPTIONAL MATCH (d)-[:HAS_SUBDOMAIN]->()-[:USES_PROVIDER]->(p_sub:Provider)
+            
+            WITH d, collect(DISTINCT p_direct) + collect(DISTINCT p_sub) as all_providers
+            UNWIND all_providers as p
+            WITH d, p WHERE p IS NOT NULL
+            WITH d, p, null as r1  // Create virtual relationship
+            
+            {' '.join(additional_matches)}
+            
+            RETURN d, r1, p{', ' + ', '.join(additional_returns) if additional_returns else ''}
+            ORDER BY d.fqdn
+            """
     
     try:
         return graph_api.execute_graph_query(query, {
