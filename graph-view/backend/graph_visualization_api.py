@@ -122,27 +122,15 @@ class GraphVisualizationAPI:
             # Apply industry-based size normalization
             fqdn = properties.get("fqdn", "")
             
-            # Banking and Finance domains get consistent sizing
-            if any(bank in fqdn.lower() for bank in [
-                "banco", "bci.cl", "santander.cl", "itau.cl", "falabella.cl",
-                "coopeuch.cl", "security.cl", "ripley.cl", "consorcio.cl"
-            ]):
-                return max(6.0, base_size)  # Banking domains minimum size 6
-                
-            # Government domains  
-            elif ".gob.cl" in fqdn or fqdn in ["sii.cl", "bcentral.cl", "cmfchile.cl"]:
-                return max(5.5, base_size)  # Government domains
-                
-            # Major telecoms
-            elif fqdn in ["entel.cl", "movistar.cl", "claro.cl", "wom.cl", "vtr.com"]:
-                return max(5.5, base_size)  # Telecom domains
+            # Use consistent sizing based on risk score only
+            # All domains get same base sizing logic for fairness
                 
             return base_size
         elif "Subdomain" in node_labels:
             return 3.0  # Doubled from 1.5
         elif "Provider" in node_labels:
-            # Larger nodes for important providers
-            return 4.0  # Doubled from 2.0
+            # Larger nodes for important providers - increased as requested
+            return 6.0  # Increased for better visibility
         elif "Technology" in node_labels:
             return 3.6  # Doubled from 1.8
         elif "Certificate" in node_labels:
@@ -662,6 +650,7 @@ async def get_complete_graph(
     MATCH (d:Domain)
     WHERE d.risk_score >= $min_risk_score
     AND ((d)-[:USES_PROVIDER]->() OR (d)-[:BELONGS_TO_INDUSTRY]->() OR (d)-[:BELONGS_TO_ORGANIZATION]->())
+    AND NOT d.fqdn STARTS WITH 'www.'
     WITH d 
     ORDER BY d.fqdn ASC
     LIMIT $limit
@@ -699,19 +688,35 @@ async def get_domain_subgraph(
 @app.get("/graph/provider/{provider_name}", response_model=GraphData, tags=["Graph Data"])
 async def get_provider_subgraph(
     provider_name: str = Path(..., description="Provider name to focus on"),
-    limit: int = Query(100, description="Maximum domains per provider")
+    limit: int = Query(100, description="Maximum domains per provider"),
+    include_subdomains: bool = Query(False, description="Include subdomain nodes"),
+    include_technologies: bool = Query(False, description="Include technology nodes")
 ) -> GraphData:
     """Get subgraph showing all domains using a specific provider"""
     
-    query = """
+    base_query = """
     MATCH (p:Provider {name: $provider_name})-[r1:USES_PROVIDER]-(d:Domain)
+    WHERE NOT d.fqdn STARTS WITH 'www.'
     WITH p, r1, d LIMIT $limit
-    
-    OPTIONAL MATCH (d)-[r2:HAS_SUBDOMAIN]->(s:Subdomain)
-    OPTIONAL MATCH (d)-[r3:USES_TECHNOLOGY]->(t:Technology)
-    
-    RETURN p, d, s, t, r1, r2, r3
     """
+    
+    optional_matches = []
+    return_items = ["p", "d", "r1"]
+    
+    if include_technologies:
+        optional_matches.append("OPTIONAL MATCH (d)-[r3:USES_TECHNOLOGY]->(t:Technology)")
+        return_items.extend(["t", "r3"])
+    
+    if include_subdomains:
+        optional_matches.append("OPTIONAL MATCH (d)-[r2:HAS_SUBDOMAIN]->(s:Subdomain)")
+        return_items.extend(["s", "r2"])
+    
+    # Build the complete query
+    query = base_query
+    if optional_matches:
+        query += "\n" + "\n".join(optional_matches)
+    
+    query += f"\nRETURN {', '.join(return_items)}"
     
     try:
         return graph_api.execute_graph_query(query, {
@@ -876,6 +881,7 @@ async def get_industry_graph(
             // First get unique banking/finance domains with limit
             MATCH (d:Domain)-[:BELONGS_TO_INDUSTRY]->(i:Industry)
             WHERE i.name IN ["Banking", "Finance"] 
+            AND NOT d.fqdn STARTS WITH 'www.' 
             WITH DISTINCT d
             ORDER BY d.risk_score DESC
             LIMIT $limit
@@ -897,6 +903,7 @@ async def get_industry_graph(
             // First get unique banking/finance domains with limit
             MATCH (d:Domain)-[:BELONGS_TO_INDUSTRY]->(i:Industry)
             WHERE i.name IN ["Banking", "Finance"] 
+            AND NOT d.fqdn STARTS WITH 'www.' 
             WITH DISTINCT d
             ORDER BY d.risk_score DESC
             LIMIT $limit
@@ -927,6 +934,7 @@ async def get_industry_graph(
             query = f"""
             // First get unique domains for this industry with limit
             MATCH (i:Industry {{name: $industry_name}})<-[:BELONGS_TO_INDUSTRY]-(d:Domain)
+            WHERE NOT d.fqdn STARTS WITH 'www.'
             WITH DISTINCT d
             ORDER BY d.risk_score DESC
             LIMIT $limit
@@ -947,6 +955,7 @@ async def get_industry_graph(
             query = f"""
             // First get unique domains for this industry with limit
             MATCH (i:Industry {{name: $industry_name}})<-[:BELONGS_TO_INDUSTRY]-(d:Domain)
+            WHERE NOT d.fqdn STARTS WITH 'www.'
             WITH DISTINCT d
             ORDER BY d.risk_score DESC
             LIMIT $limit
@@ -1186,6 +1195,36 @@ async def get_references_statistics():
             
     except Exception as e:
         logger.error(f"Error getting references statistics: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/providers", tags=["Metadata"])
+async def get_providers():
+    """Get list of all providers with domain counts"""
+    
+    try:
+        with graph_api.driver.session() as session:
+            result = session.run("""
+                MATCH (p:Provider)
+                RETURN p.name as name, p.type as type, count{(d)-[:USES_PROVIDER]->(p)} as domain_count
+                ORDER BY domain_count DESC, p.name
+            """)
+            
+            providers = []
+            for record in result:
+                providers.append({
+                    "name": record["name"],
+                    "type": record["type"],
+                    "domain_count": record["domain_count"]
+                })
+            
+            return {
+                "providers": providers,
+                "total_providers": len(providers),
+                "generated_at": datetime.now().isoformat()
+            }
+            
+    except Exception as e:
+        logger.error(f"Error getting providers: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

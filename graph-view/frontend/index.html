@@ -273,7 +273,9 @@
             
             <div class="control-group" id="providerInput" style="display:none;">
                 <label for="providerName">Provider:</label>
-                <input type="text" id="providerName" placeholder="AWS CloudFront">
+                <select id="providerName">
+                    <option value="">Loading providers...</option>
+                </select>
             </div>
             
             <div class="control-group" id="riskInput" style="display:none;">
@@ -312,6 +314,12 @@
             <div class="control-group">
                 <label>
                     <input type="checkbox" id="showSubdomains"> Show Subdomains
+                </label>
+            </div>
+            
+            <div class="control-group">
+                <label>
+                    <input type="checkbox" id="showTechnologies"> Show Technologies
                 </label>
             </div>
             
@@ -425,6 +433,7 @@
                 const testButton = document.getElementById('testAPI');
                 const includeOrganizations = document.getElementById('includeOrganizations');
                 const includeIndustries = document.getElementById('includeIndustries');
+                const showTechnologies = document.getElementById('showTechnologies');
                 
                 dataSource.addEventListener('change', () => this.onDataSourceChange());
                 loadButton.addEventListener('click', () => this.loadGraphData());
@@ -434,6 +443,7 @@
                 includeOrganizations.addEventListener('change', () => this.loadGraphData());
                 includeIndustries.addEventListener('change', () => this.loadGraphData());
                 showSubdomains.addEventListener('change', () => this.loadGraphData());
+                showTechnologies.addEventListener('change', () => this.loadGraphData());
                 
                 // Handle window resize
                 window.addEventListener('resize', () => this.handleResize());
@@ -456,6 +466,7 @@
                         break;
                     case 'provider':
                         document.getElementById('providerInput').style.display = 'block';
+                        this.loadProviders();
                         break;
                     case 'risk':
                         document.getElementById('riskInput').style.display = 'block';
@@ -524,6 +535,34 @@
                 }
             }
             
+            async loadProviders() {
+                try {
+                    const providerSelect = document.getElementById('providerName');
+                    providerSelect.innerHTML = '<option value="">Loading providers...</option>';
+                    
+                    const response = await fetch(`${this.apiBaseUrl}/providers`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // Clear and populate the select
+                    providerSelect.innerHTML = '<option value="">Select a provider...</option>';
+                    data.providers.forEach(provider => {
+                        const option = document.createElement('option');
+                        option.value = provider.name;
+                        option.textContent = `${provider.name} (${provider.domain_count})`;
+                        providerSelect.appendChild(option);
+                    });
+                    
+                } catch (error) {
+                    console.error('Failed to load providers:', error);
+                    const providerSelect = document.getElementById('providerName');
+                    providerSelect.innerHTML = '<option value="">Error loading providers</option>';
+                }
+            }
+            
             async loadGraphData() {
                 this.showLoading(true);
                 
@@ -531,6 +570,7 @@
                     const dataSource = document.getElementById('dataSource').value;
                     const nodeLimit = document.getElementById('nodeLimit').value;
                     const showSubdomains = document.getElementById('showSubdomains').checked;
+                    const showTechnologies = document.getElementById('showTechnologies').checked;
                     const includeOrganizations = document.getElementById('includeOrganizations').checked;
                     const includeIndustries = document.getElementById('includeIndustries').checked;
                     
@@ -550,9 +590,9 @@
                         case 'provider':
                             const provider = document.getElementById('providerName').value;
                             if (!provider) {
-                                throw new Error('Please enter a provider name');
+                                throw new Error('Please select a provider');
                             }
-                            url += `provider/${encodeURIComponent(provider)}?limit=${nodeLimit}`;
+                            url += `provider/${encodeURIComponent(provider)}?limit=${nodeLimit}&include_subdomains=${showSubdomains}&include_technologies=${showTechnologies}`;
                             break;
                         case 'risk':
                             const riskLevel = document.getElementById('riskLevel').value;

@@ -102,9 +102,9 @@ class ProviderDetector:
             r'.*\.cloudflare\.com': ('Cloudflare', ServiceType.CDN, ProviderRisk.MEDIUM),
             r'.*\.cloudflare\.net': ('Cloudflare', ServiceType.CDN, ProviderRisk.MEDIUM),
             
-            # AWS CloudFront
-            r'.*\.cloudfront\.net': ('AWS CloudFront', ServiceType.CDN, ProviderRisk.MEDIUM),
-            r'.*\.amazonaws\.com': ('AWS', ServiceType.CLOUD, ProviderRisk.MEDIUM),
+            # Amazon Web Services
+            r'.*\.cloudfront\.net': ('Amazon Web Services', ServiceType.CDN, ProviderRisk.MEDIUM),
+            r'.*\.amazonaws\.com': ('Amazon Web Services', ServiceType.CLOUD, ProviderRisk.MEDIUM),
             
             # Fastly
             r'.*\.fastly\.com': ('Fastly', ServiceType.CDN, ProviderRisk.MEDIUM),
@@ -116,7 +116,7 @@ class ProviderDetector:
             r'.*\.edgesuite\.net': ('Akamai', ServiceType.CDN, ProviderRisk.MEDIUM),
             
             # Azure CDN
-            r'.*\.azureedge\.net': ('Microsoft Azure CDN', ServiceType.CDN, ProviderRisk.MEDIUM),
+            r'.*\.azureedge\.net': ('Microsoft Azure', ServiceType.CDN, ProviderRisk.MEDIUM),
             r'.*\.trafficmanager\.net': ('Microsoft Azure', ServiceType.CLOUD, ProviderRisk.MEDIUM),
             
             # Incapsula/Imperva
@@ -140,7 +140,7 @@ class ProviderDetector:
             
             # Communication
             'slack': ('Slack', ServiceType.SAAS, ProviderRisk.MEDIUM),
-            'teams': ('Microsoft Teams', ServiceType.SAAS, ProviderRisk.MEDIUM),
+            'teams': ('Microsoft 365', ServiceType.SAAS, ProviderRisk.MEDIUM),
             'zoom': ('Zoom', ServiceType.SAAS, ProviderRisk.MEDIUM),
             
             # Development
@@ -158,8 +158,8 @@ class ProviderDetector:
             
             # Storage
             'dropbox': ('Dropbox', ServiceType.SAAS, ProviderRisk.MEDIUM),
-            'onedrive': ('Microsoft OneDrive', ServiceType.SAAS, ProviderRisk.MEDIUM),
-            'sharepoint': ('Microsoft SharePoint', ServiceType.SAAS, ProviderRisk.MEDIUM),
+            'onedrive': ('Microsoft 365', ServiceType.SAAS, ProviderRisk.MEDIUM),
+            'sharepoint': ('Microsoft 365', ServiceType.SAAS, ProviderRisk.MEDIUM),
             
             # Security
             'okta': ('Okta', ServiceType.SECURITY, ProviderRisk.HIGH),
@@ -427,7 +427,7 @@ class ProviderDetector:
             dns_providers = {
                 r'.*\.cloudflare\.com': ('Cloudflare DNS', ServiceType.HOSTING, ProviderRisk.MEDIUM),
                 r'.*\.awsdns.*\.com': ('Amazon Route 53', ServiceType.CLOUD, ProviderRisk.MEDIUM),
-                r'.*\.azure-dns\.com': ('Microsoft Azure DNS', ServiceType.CLOUD, ProviderRisk.MEDIUM),
+                r'.*\.azure-dns\.com': ('Microsoft Azure', ServiceType.CLOUD, ProviderRisk.MEDIUM),
                 r'.*\.googledomains\.com': ('Google Cloud DNS', ServiceType.CLOUD, ProviderRisk.MEDIUM),
                 r'.*\.dnsimple\.com': ('DNSimple', ServiceType.HOSTING, ProviderRisk.LOW),
                 r'.*\.dnsmadeeasy\.com': ('DNS Made Easy', ServiceType.HOSTING, ProviderRisk.LOW),

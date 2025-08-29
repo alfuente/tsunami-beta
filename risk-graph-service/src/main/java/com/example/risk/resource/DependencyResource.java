@@ -350,7 +350,7 @@ public class DependencyResource {
                 baseNode.fqdn as domain,
                 nodeType as node_type,
                 CASE WHEN nodeType = 'Subdomain' THEN baseNode.base_domain ELSE null END as base_domain,
-                collect(DISTINCT {
+                [provider IN collect(DISTINCT {
                     id: p.id,
                     name: p.name,
                     type: 'provider',
@@ -360,8 +360,8 @@ public class DependencyResource {
                     service_type: coalesce(p.type, 'unknown'),
                     confidence: coalesce(p.confidence, 0.8),
                     subdomain: CASE WHEN nodeType = 'Subdomain' THEN baseNode.fqdn ELSE null END
-                }) + 
-                collect(DISTINCT {
+                }) WHERE provider.id IS NOT NULL] + 
+                [provider IN collect(DISTINCT {
                     id: rp.id,
                     name: rp.name,
                     type: 'provider',
@@ -371,8 +371,8 @@ public class DependencyResource {
                     service_type: coalesce(rp.type, 'unknown'),
                     confidence: coalesce(rp.confidence, 0.8),
                     subdomain: CASE WHEN nodeType = 'Subdomain' THEN baseNode.fqdn ELSE null END
-                }) +
-                collect(DISTINCT {
+                }) WHERE provider.id IS NOT NULL] +
+                [provider IN collect(DISTINCT {
                     id: subProv.id,
                     name: subProv.name,
                     type: 'provider',
@@ -382,8 +382,8 @@ public class DependencyResource {
                     service_type: coalesce(subProv.type, 'unknown'),
                     confidence: coalesce(subProv.confidence, 0.8),
                     subdomain: childSub.fqdn
-                }) +
-                collect(DISTINCT {
+                }) WHERE provider.id IS NOT NULL] +
+                [provider IN collect(DISTINCT {
                     id: subProv2.id,
                     name: subProv2.name,
                     type: 'provider',
@@ -393,9 +393,9 @@ public class DependencyResource {
                     service_type: coalesce(subProv2.type, 'unknown'),
                     confidence: coalesce(subProv2.confidence, 0.8),
                     subdomain: childSub2.fqdn
-                }) as allProviders,
+                }) WHERE provider.id IS NOT NULL] as allProviders,
                 
-                collect(DISTINCT {
+                [service IN collect(DISTINCT {
                     id: s.id,
                     name: coalesce(s.service_name, 'unknown'),
                     type: 'service',
@@ -408,8 +408,8 @@ public class DependencyResource {
                     protocol: s.protocol,
                     state: s.state,
                     subdomain: CASE WHEN nodeType = 'Subdomain' THEN baseNode.fqdn ELSE null END
-                }) +
-                collect(DISTINCT {
+                }) WHERE service.id IS NOT NULL] +
+                [service IN collect(DISTINCT {
                     id: subSvc.id,
                     name: coalesce(subSvc.service_name, 'unknown'),
                     type: 'service',
@@ -422,7 +422,7 @@ public class DependencyResource {
                     protocol: subSvc.protocol,
                     state: subSvc.state,
                     subdomain: childSub3.fqdn
-                }) as allServices
+                }) WHERE service.id IS NOT NULL] as allServices
             """;
         
         try (Session session = driver.session()) {
