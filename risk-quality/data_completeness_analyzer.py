@@ -134,7 +134,7 @@ class DataCompletenessAnalyzer:
                     domain=domain,
                     description=f"No subdomains discovered for {domain}",
                     affected_count=1,
-                    completion_command=f"curl -X POST '{self.domain_backend_api}/api/v1/discover/amass/{domain}'",
+                    completion_command=f"curl -X 'POST' '{self.domain_backend_api}/api/v1/discover/amass/{domain}' -H 'accept: application/json' -d ''",
                     estimated_time_minutes=30,
                     dependencies=["amass", "domain-backend"]
                 ))
@@ -161,7 +161,7 @@ class DataCompletenessAnalyzer:
                     domain=subdomain,
                     description=f"Missing DNS analysis for subdomain {subdomain}",
                     affected_count=1,
-                    completion_command=f"curl -X POST '{self.domain_backend_api}/api/v1/discover/dns/{subdomain}'",
+                    completion_command=f"curl -X 'POST' '{self.domain_backend_api}/api/v1/discover/dns/{subdomain.split('.', 1)[1] if '.' in subdomain else subdomain}?subdomain={subdomain}' -H 'accept: application/json' -d ''",
                     estimated_time_minutes=2,
                     dependencies=["domain-backend"]
                 ))
@@ -188,7 +188,7 @@ class DataCompletenessAnalyzer:
                     domain=subdomain,
                     description=f"Missing SSL/TLS certificate analysis for subdomain {subdomain}",
                     affected_count=1,
-                    completion_command=f"curl -X POST '{self.domain_backend_api}/api/v1/discover/tls/{subdomain}'",
+                    completion_command=f"curl -X 'POST' '{self.domain_backend_api}/api/v1/discover/tls/{subdomain.split('.', 1)[1] if '.' in subdomain else subdomain}?subdomain={subdomain}' -H 'accept: application/json' -d ''",
                     estimated_time_minutes=3,
                     dependencies=["domain-backend"]
                 ))
@@ -215,7 +215,7 @@ class DataCompletenessAnalyzer:
                     domain=subdomain,
                     description=f"Missing web technology analysis for subdomain {subdomain}",
                     affected_count=1,
-                    completion_command=f"curl -X POST '{self.domain_backend_api}/api/v1/discover/tech/{subdomain}'",
+                    completion_command=f"curl -X 'POST' '{self.domain_backend_api}/api/v1/discover/tech/{subdomain.split('.', 1)[1] if '.' in subdomain else subdomain}?subdomain={subdomain}' -H 'accept: application/json' -d ''",
                     estimated_time_minutes=5,
                     dependencies=["domain-backend", "wappalyzer"]
                 ))
@@ -243,7 +243,7 @@ class DataCompletenessAnalyzer:
                     domain=subdomain,
                     description=f"Missing service discovery for API/service subdomain {subdomain}",
                     affected_count=1,
-                    completion_command=f"curl -X POST '{self.domain_backend_api}/api/v1/discover/services/{subdomain}'",
+                    completion_command=f"curl -X 'POST' '{self.domain_backend_api}/api/v1/discover/services/{subdomain.split('.', 1)[1] if '.' in subdomain else subdomain}?subdomain={subdomain}' -H 'accept: application/json' -d ''",
                     estimated_time_minutes=4,
                     dependencies=["domain-backend"]
                 ))
@@ -278,7 +278,7 @@ class DataCompletenessAnalyzer:
                         domain=domain,
                         description=f"Missing risk score for {domain}",
                         affected_count=1,
-                        completion_command=f"curl -X POST '{self.domain_backend_api}/api/v1/calculate/risk/{domain}'",
+                        completion_command=f"curl -X 'POST' '{self.domain_backend_api}/api/v1/calculate/risk/{domain}' -H 'accept: application/json' -d ''",
                         estimated_time_minutes=2,
                         dependencies=["domain-backend", "risk-calculator"]
                     ))

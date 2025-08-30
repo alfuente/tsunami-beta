@@ -1,0 +1,145 @@
+{
+  "timestamp": "2025-08-30T13:42:36.416791",
+  "total_tasks": 8,
+  "successful_tasks": 0,
+  "failed_tasks": 5,
+  "success_rate": 0.0,
+  "total_related_sites": 0,
+  "execution_time": 189.04219007492065,
+  "tasks": [
+    {
+      "subdomain": "dns01.mega.cl",
+      "base_domain": "mega.cl",
+      "web_ports": [
+        80,
+        443,
+        8080,
+        8443
+      ],
+      "task_id": "50fd2f69-b258-4ad6-b4a5-7d6fbb3b4b6f",
+      "status": "timeout",
+      "response_code": 200,
+      "error_message": "Task did not complete within 30 minutes",
+      "execution_time": 0.041768789291381836,
+      "related_sites_count": 0,
+      "related_sites": []
+    },
+    {
+      "subdomain": "dns01.meganoticias.cl",
+      "base_domain": "meganoticias.cl",
+      "web_ports": [
+        80,
+        443,
+        8080,
+        8443
+      ],
+      "task_id": "1ba3dc16-cf59-4fd4-bded-a1c470c278a6",
+      "status": "timeout",
+      "response_code": 200,
+      "error_message": "Task did not complete within 30 minutes",
+      "execution_time": 30.027300596237183,
+      "related_sites_count": 0,
+      "related_sites": []
+    },
+    {
+      "subdomain": "dns01.megatiempo.cl",
+      "base_domain": "megatiempo.cl",
+      "web_ports": [
+        80,
+        443,
+        8080,
+        8443
+      ],
+      "task_id": null,
+      "status": "failed",
+      "response_code": null,
+      "error_message": "Network error: HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)",
+      "execution_time": 30.030159950256348,
+      "related_sites_count": 0,
+      "related_sites": []
+    },
+    {
+      "subdomain": "dns02.benzahosting.cl",
+      "base_domain": "benzahosting.cl",
+      "web_ports": [
+        80,
+        443
+      ],
+      "task_id": null,
+      "status": "failed",
+      "response_code": null,
+      "error_message": "Network error: HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)",
+      "execution_time": 30.03028130531311,
+      "related_sites_count": 0,
+      "related_sites": []
+    },
+    {
+      "subdomain": "dns02.mega.cl",
+      "base_domain": "mega.cl",
+      "web_ports": [
+        80,
+        443,
+        8080,
+        8443
+      ],
+      "task_id": "1ae9571c-bdcb-4602-ad97-54c9ffa18cdc",
+      "status": "timeout",
+      "response_code": 200,
+      "error_message": "Task did not complete within 30 minutes",
+      "execution_time": 0.8305454254150391,
+      "related_sites_count": 0,
+      "related_sites": []
+    },
+    {
+      "subdomain": "dns02.meganoticias.cl",
+      "base_domain": "meganoticias.cl",
+      "web_ports": [
+        80,
+        443,
+        8080,
+        8443
+      ],
+      "task_id": null,
+      "status": "failed",
+      "response_code": null,
+      "error_message": "Network error: HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)",
+      "execution_time": 30.0299551486969,
+      "related_sites_count": 0,
+      "related_sites": []
+    },
+    {
+      "subdomain": "dns02.megatiempo.cl",
+      "base_domain": "megatiempo.cl",
+      "web_ports": [
+        80,
+        443,
+        8080,
+        8443
+      ],
+      "task_id": null,
+      "status": "failed",
+      "response_code": null,
+      "error_message": "Network error: HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)",
+      "execution_time": 30.03045105934143,
+      "related_sites_count": 0,
+      "related_sites": []
+    },
+    {
+      "subdomain": "dns03.mega.cl",
+      "base_domain": "mega.cl",
+      "web_ports": [
+        80,
+        443,
+        8080,
+        8443
+      ],
+      "task_id": null,
+      "status": "failed",
+      "response_code": null,
+      "error_message": "Network error: HTTPConnectionPool(host='localhost', port=8001): Read timed out. (read timeout=30)",
+      "execution_time": 30.008421182632446,
+      "related_sites_count": 0,
+      "related_sites": []
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "timestamp": "2025-08-30T11:37:04.199017",
+  "total_tasks": 3,
+  "successful_tasks": 0,
+  "failed_tasks": 0,
+  "success_rate": 0.0,
+  "total_related_sites": 0,
+  "execution_time": 2.0007307529449463,
+  "tasks": [
+    {
+      "subdomain": "01826732.bancochile.cl",
+      "base_domain": "bancochile.cl",
+      "web_ports": [
+        80,
+        443
+      ],
+      "task_id": null,
+      "status": "skipped",
+      "response_code": null,
+      "error_message": null,
+      "execution_time": 0,
+      "related_sites_count": 0,
+      "related_sites": []
+    },
+    {
+      "subdomain": "03.doctoralia.cl",
+      "base_domain": "doctoralia.cl",
+      "web_ports": [
+        80,
+        443
+      ],
+      "task_id": null,
+      "status": "skipped",
+      "response_code": null,
+      "error_message": null,
+      "execution_time": 0,
+      "related_sites_count": 0,
+      "related_sites": []
+    },
+    {
+      "subdomain": "10.hostgator.cl",
+      "base_domain": "hostgator.cl",
+      "web_ports": [
+        80,
+        443
+      ],
+      "task_id": null,
+      "status": "skipped",
+      "response_code": null,
+      "error_message": null,
+      "execution_time": 0,
+      "related_sites_count": 0,
+      "related_sites": []
+    }
+  ]
+}

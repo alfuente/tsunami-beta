@@ -9,6 +9,7 @@ RISK_QUERY_DIR="risk-query"
 DOMAIN_BACKEND_DIR="domain-backend"
 REPORT_BACKEND_DIR="report-backend"
 GRAPH_VIEW_DIR="graph-view"
+RISK_STATS_DIR="risk-stats"
 
 # Colors for output
 RED='\033[0;31m'
@@ -268,6 +269,82 @@ stop_discovery_api() {
     fi
 }
 
+# Function to stop risk-stats Python processes
+stop_risk_stats() {
+    print_header "Stopping Risk Stats processes"
+    
+    # Method 1: Find processes by port 8002
+    PORT_PIDS=$(lsof -ti:8002 2>/dev/null)
+    
+    # Method 2: Find Python processes related to risk-stats API
+    STATS_PIDS=$(ps aux | grep -E "python.*risk_stats|uvicorn.*risk_stats|python.*api\.py" | grep -v grep | awk '{print $2}')
+    
+    # Method 3: Find processes by PID file and validate they exist
+    PID_FILE_PIDS=""
+    if [ -f "risk-stats-dev.pid" ]; then
+        POTENTIAL_PID=$(cat risk-stats-dev.pid 2>/dev/null)
+        # Only include PID if the process actually exists
+        if [ -n "$POTENTIAL_PID" ] && kill -0 $POTENTIAL_PID 2>/dev/null; then
+            PID_FILE_PIDS=$POTENTIAL_PID
+        else
+            print_status "Removing stale PID file risk-stats-dev.pid (process $POTENTIAL_PID no longer exists)"
+            rm -f risk-stats-dev.pid
+        fi
+    fi
+    
+    # Method 4: Find Python processes by broader pattern
+    PYTHON_PIDS=$(pgrep -f "python.*risk.stats" 2>/dev/null)
+    
+    # Combine all PIDs
+    ALL_PIDS="$PORT_PIDS $STATS_PIDS $PID_FILE_PIDS $PYTHON_PIDS"
+    
+    # Remove duplicates and empty values
+    UNIQUE_PIDS=$(echo $ALL_PIDS | tr ' ' '\n' | sort -u | grep -v '^$')
+    
+    if [ -z "$UNIQUE_PIDS" ]; then
+        print_status "No Risk Stats processes found running"
+        # Clean up stale PID file if it exists
+        if [ -f "risk-stats-dev.pid" ]; then
+            print_status "Cleaning up stale PID file risk-stats-dev.pid"
+            rm -f risk-stats-dev.pid
+        fi
+    else
+        print_status "Found Risk Stats processes: $(echo $UNIQUE_PIDS | tr '\n' ' ')"
+        for PID in $UNIQUE_PIDS; do
+            if kill -0 $PID 2>/dev/null; then
+                print_status "Killing Risk Stats process $PID"
+                kill -15 $PID 2>/dev/null
+                sleep 1
+                # Force kill if still running
+                if kill -0 $PID 2>/dev/null; then
+                    print_status "Force killing process $PID"
+                    kill -9 $PID 2>/dev/null
+                fi
+            else
+                print_status "Process $PID already terminated"
+            fi
+        done
+        sleep 2
+        
+        # Verify processes are stopped
+        REMAINING_PORT=$(lsof -ti:8002 2>/dev/null)
+        if [ -z "$REMAINING_PORT" ]; then
+            print_status "All Risk Stats processes stopped successfully"
+            # Clean up PID file
+            rm -f risk-stats-dev.pid
+        else
+            print_warning "Some processes may still be running on port 8002: $REMAINING_PORT"
+            # Try to kill remaining processes on port 8002
+            for PID in $REMAINING_PORT; do
+                print_status "Force killing remaining process $PID on port 8002"
+                kill -9 $PID 2>/dev/null
+            done
+            sleep 1
+            rm -f risk-stats-dev.pid
+        fi
+    fi
+}
+
 # Function to stop risk-query Python processes
 stop_risk_query() {
     print_header "Stopping Risk Query processes"
@@ -447,6 +524,64 @@ start_async_api_dev() {
     print_status "Logs: tail -f async-api-dev.log"
     
     cd ..
+}
+
+# Function to start risk-stats service in development mode
+start_risk_stats_dev() {
+    print_header "Starting Risk Stats service in development mode"
+    
+    if [ ! -d "$RISK_STATS_DIR" ]; then
+        print_error "Directory $RISK_STATS_DIR not found"
+        return 1
+    fi
+    
+    # Check if already running
+    if ps aux | grep -E "python.*risk_stats|uvicorn.*risk_stats|python.*api\.py" | grep risk.stats | grep -v grep > /dev/null; then
+        print_warning "Risk Stats process already running. Stopping first..."
+        stop_risk_stats
+        sleep 2
+    fi
+    
+    # Check if virtual environment exists in risk-stats directory, create if not
+    if [ ! -d "$RISK_STATS_DIR/venv" ]; then
+        print_status "Creating Python virtual environment..."
+        cd "$RISK_STATS_DIR"
+        python3 -m venv venv
+        cd ..
+    fi
+    
+    # Install dependencies if needed
+    if [ ! -f "$RISK_STATS_DIR/venv/risk_stats_installed.flag" ]; then
+        print_status "Installing Risk Stats dependencies..."
+        cd "$RISK_STATS_DIR"
+        source venv/bin/activate
+        pip install -r requirements.txt
+        touch venv/risk_stats_installed.flag
+        deactivate
+        cd ..
+    fi
+    
+    # Set environment variables
+    export NEO4J_URI=${NEO4J_URI:-"bolt://localhost:7687"}
+    export NEO4J_USER=${NEO4J_USER:-"neo4j"}
+    export NEO4J_PASS=${NEO4J_PASS:-"test.password"}
+    export DEBUG=${DEBUG:-"false"}
+    export PORT=${PORT:-"8002"}
+    export PYTHONPATH="${PYTHONPATH:+$PYTHONPATH:}./"
+    
+    print_status "Starting Risk Stats API service in background..."
+    cd "$RISK_STATS_DIR"
+    nohup ./venv/bin/python launch_api.py > ../risk-stats-dev.log 2>&1 &
+    STATS_PID=$!
+    cd ..
+    
+    echo $STATS_PID > risk-stats-dev.pid
+    print_status "Risk Stats API started with PID: $STATS_PID"
+    print_status "API available at: http://localhost:8002"
+    print_status "Swagger docs at: http://localhost:8002/docs"
+    print_status "Health check at: http://localhost:8002/health"
+    print_status "Statistics at: http://localhost:8002/stats"
+    print_status "Logs: tail -f risk-stats-dev.log"
 }
 
 # Function to start risk-query service in development mode
@@ -992,6 +1127,19 @@ show_status() {
         print_warning "Risk Query: STOPPED"
     fi
     
+    # Check Risk Stats (multiple methods)
+    STATS_PORT_PID=$(lsof -ti:8002 2>/dev/null | head -1)
+    STATS_PROCESS_PID=$(ps aux | grep -E "python.*risk_stats|uvicorn.*risk_stats|python.*api\.py" | grep risk.stats | grep -v grep | awk '{print $2}' | head -1)
+    
+    if [ -n "$STATS_PORT_PID" ] || [ -n "$STATS_PROCESS_PID" ]; then
+        ACTIVE_PID=${STATS_PORT_PID:-$STATS_PROCESS_PID}
+        print_status "Risk Stats: RUNNING (PID: $ACTIVE_PID, Port: 8002)"
+        print_status "  ↳ API Docs: http://localhost:8002/docs"
+        print_status "  ↳ Statistics: http://localhost:8002/stats"
+    else
+        print_warning "Risk Stats: STOPPED"
+    fi
+    
     # Check Legacy Subdomain Discovery API (Port 8000)
     API_PORT_PID=$(lsof -ti:8000 2>/dev/null | head -1)
     API_PROCESS_PID=$(ps aux | grep -E "python.*subdomain_discovery_api" | grep -v grep | awk '{print $2}' | head -1)
@@ -1081,6 +1229,13 @@ show_logs() {
                 print_error "No Risk Query log files found"
             fi
             ;;
+        "stats"|"rs")
+            if [ -f "risk-stats-dev.log" ]; then
+                tail -f risk-stats-dev.log
+            else
+                print_error "No Risk Stats log files found"
+            fi
+            ;;
         "discovery"|"api"|"da")
             if [ -f "discovery-api-dev.log" ]; then
                 tail -f discovery-api-dev.log
@@ -1124,11 +1279,12 @@ show_logs() {
             fi
             ;;
         *)
-            print_error "Usage: $0 logs [quarkus|react|query|discovery|async|ollama|graph|graph-frontend|report]"
+            print_error "Usage: $0 logs [quarkus|react|query|stats|discovery|async|ollama|graph|graph-frontend|report]"
             print_error "Available log types:"
             print_error "  quarkus|q    - Risk Graph Service logs"
             print_error "  react|r      - Risk Dashboard logs"
             print_error "  query|rq     - Risk Query Service logs" 
+            print_error "  stats|rs     - Risk Stats Service logs (port 8002)"
             print_error "  discovery|api|da - Legacy Discovery API logs (port 8000)"
             print_error "  async|async-api|aa - Async Discovery API logs (port 8001)"
             print_error "  ollama|o     - Ollama Service logs"
@@ -1146,6 +1302,7 @@ case $1 in
         stop_quarkus
         stop_npm
         stop_risk_query
+        stop_risk_stats
         stop_discovery_api
         stop_report_backend
         stop_graph_view
@@ -1155,6 +1312,7 @@ case $1 in
         start_quarkus_dev
         start_npm_dev
         start_risk_query_dev
+        start_risk_stats_dev
         start_async_api_dev
         start_graph_view_dev
         ;;
@@ -1168,6 +1326,7 @@ case $1 in
         stop_quarkus
         stop_npm
         stop_risk_query
+        stop_risk_stats
         stop_discovery_api
         stop_report_backend
         stop_graph_view
@@ -1176,6 +1335,7 @@ case $1 in
         start_quarkus_dev
         start_npm_dev
         start_risk_query_dev
+        start_risk_stats_dev
         start_async_api_dev
         start_graph_view_dev
         ;;
@@ -1184,6 +1344,7 @@ case $1 in
         stop_quarkus
         stop_npm
         stop_risk_query
+        stop_risk_stats
         stop_discovery_api
         stop_report_backend
         stop_graph_view
@@ -1203,6 +1364,12 @@ case $1 in
         ;;
     "stop-query")
         stop_risk_query
+        ;;
+    "start-stats")
+        start_risk_stats_dev
+        ;;
+    "stop-stats")
+        stop_risk_stats
         ;;
     "start-discovery")
         start_discovery_api_dev
@@ -1259,7 +1426,7 @@ case $1 in
     *)
         echo "Tsunami Beta Services Management Script"
         echo ""
-        echo "Usage: $0 {stop|start-dev|start-test|restart-dev|restart-test|start-ollama|stop-ollama|start-query|stop-query|start-discovery|start-async|start-discovery-legacy|stop-discovery|stop-async|start-report|stop-report|start-graph|stop-graph|restart-graph|clear-cache|restart-react|status|logs}"
+        echo "Usage: $0 {stop|start-dev|start-test|restart-dev|restart-test|start-ollama|stop-ollama|start-query|stop-query|start-stats|stop-stats|start-discovery|start-async|start-discovery-legacy|stop-discovery|stop-async|start-report|stop-report|start-graph|stop-graph|restart-graph|clear-cache|restart-react|status|logs}"
         echo ""
         echo "Commands:"
         echo "  stop        - Stop all running services"
@@ -1271,6 +1438,8 @@ case $1 in
         echo "  stop-ollama - Stop Ollama service only"
         echo "  start-query - Start Risk Query service only"
         echo "  stop-query  - Stop Risk Query service only"
+        echo "  start-stats - Start Risk Stats service only"
+        echo "  stop-stats  - Stop Risk Stats service only"
         echo "  start-async - Start NEW Async Domain Discovery API service (port 8001)"
         echo "  start-discovery-legacy - Start Legacy Subdomain Discovery API (port 8000)"
         echo "  start-discovery - Alias for start-discovery-legacy"
@@ -1285,18 +1454,20 @@ case $1 in
         echo "  clear-cache - Clear React development cache"
         echo "  restart-react- Stop React, clear cache, and restart React"
         echo "  status      - Show status of all services"
-        echo "  logs [quarkus|react|query|discovery|async|ollama|graph|graph-frontend|report] - Show logs for specific service"
+        echo "  logs [quarkus|react|query|stats|discovery|async|ollama|graph|graph-frontend|report] - Show logs for specific service"
         echo ""
         echo "Examples:"
         echo "  $0 start-dev      # Start all services (includes Graph View on ports 8082/8083)"
         echo "  $0 stop           # Stop all services"
         echo "  $0 status         # Check if services are running"
         echo "  $0 logs query     # View Risk Query logs"
+        echo "  $0 logs stats     # View Risk Stats logs"
         echo "  $0 logs async     # View Async Discovery API logs"
         echo "  $0 logs discovery # View Legacy Discovery API logs"
         echo "  $0 logs graph     # View Graph View Backend logs"
         echo "  $0 logs graph-frontend # View Graph View Frontend logs"
         echo "  $0 start-ollama   # Start only Ollama service"
+        echo "  $0 start-stats    # Start only Risk Stats service (port 8002)"
         echo "  $0 start-async    # Start only NEW Async Discovery API (port 8001)"
         echo "  $0 start-discovery-legacy # Start only Legacy Discovery API (port 8000)"
         echo "  $0 start-graph    # Start only Graph View (Backend: 8082, Frontend: 8083)"
@@ -1330,6 +1501,16 @@ case $1 in
         echo "  - Features: Neo4j graph analysis, domain risk assessment, PDF reports"
         echo "  - Default: Python/FastAPI mode (faster startup)"
         echo "  - Alternative: Quarkus mode (use 'start-report-quarkus')"
+        echo ""
+        echo "⚡ Risk Stats Service"
+        echo "  - Available at: http://localhost:8002"
+        echo "  - Swagger docs: http://localhost:8002/docs"
+        echo "  - Health check: http://localhost:8002/health"
+        echo "  - Statistics: http://localhost:8002/stats"
+        echo "  - Features: Systemic risk calculations, centrality analysis, risk propagation simulation"
+        echo "  - Algorithms: ICS, HHI-M, APR, IRC, IISP, IRN (Chilean digital ecosystem context)"
+        echo "  - CLI Mode: python main.py [calculate|single|stats|simulate]"
+        echo "  - Batch processing: Background tasks with progress tracking"
         exit 1
         ;;
 esac

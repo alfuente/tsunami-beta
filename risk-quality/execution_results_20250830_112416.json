@@ -1,0 +1,78 @@
+{
+  "timestamp": "2025-08-30T11:24:16.683108",
+  "total_gaps": 48,
+  "executed_gaps": 6,
+  "successful_executions": 0,
+  "failed_executions": 6,
+  "skipped_executions": 0,
+  "total_execution_time": 6.003843545913696,
+  "success_rate": 0.0,
+  "results": [
+    {
+      "gap_id": "dns_api.bicevida.cl",
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "api.bicevida.cl",
+      "success": false,
+      "response_code": null,
+      "error_message": "Could not parse URL from curl command",
+      "execution_time_seconds": 0.00012111663818359375,
+      "task_id": null
+    },
+    {
+      "gap_id": "dns_api.cl.xepelin.com",
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "api.cl.xepelin.com",
+      "success": false,
+      "response_code": null,
+      "error_message": "Could not parse URL from curl command",
+      "execution_time_seconds": 0.00018334388732910156,
+      "task_id": null
+    },
+    {
+      "gap_id": "dns_api.cloud.principal.cl",
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "api.cloud.principal.cl",
+      "success": false,
+      "response_code": null,
+      "error_message": "Could not parse URL from curl command",
+      "execution_time_seconds": 0.00011110305786132812,
+      "task_id": null
+    },
+    {
+      "gap_id": "dns_api.creditosconsumo.clientes.principal.cl",
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "api.creditosconsumo.clientes.principal.cl",
+      "success": false,
+      "response_code": null,
+      "error_message": "Could not parse URL from curl command",
+      "execution_time_seconds": 0.0001392364501953125,
+      "task_id": null
+    },
+    {
+      "gap_id": "dns_api.data-insights.mx.xepelin.com",
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "api.data-insights.mx.xepelin.com",
+      "success": false,
+      "response_code": null,
+      "error_message": "Could not parse URL from curl command",
+      "execution_time_seconds": 0.00021767616271972656,
+      "task_id": null
+    },
+    {
+      "gap_id": "dns_api.data.xepelin.com",
+      "data_type": "dns",
+      "priority": "critical",
+      "domain": "api.data.xepelin.com",
+      "success": false,
+      "response_code": null,
+      "error_message": "Could not parse URL from curl command",
+      "execution_time_seconds": 0.00014853477478027344,
+      "task_id": null
+    }
+  ]
+}
