@@ -1,6 +1,6 @@
-# Risk Stats Module - Tsunami Beta
+# Risk Analysis Module - Tsunami Beta
 
-Implementación de algoritmos de evaluación de riesgo sistémico para el ecosistema digital chileno, basado en las especificaciones de `docs/stats.md`.
+Implementación avanzada de algoritmos de análisis y evaluación de riesgo sistémico para el ecosistema digital chileno, basado en las especificaciones de `docs/stats.md`.
 
 ## Características Principales
 

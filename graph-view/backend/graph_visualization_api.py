@@ -162,9 +162,9 @@ class GraphVisualizationAPI:
         }
         return color_map.get(relationship_type, "#999999")
     
-    def execute_domain_multi_query(self, domain: str, include_vulnerabilities: bool = True) -> GraphData:
+    def execute_domain_multi_query(self, domain: str, include_vulnerabilities: bool = True, include_subdomains: bool = True) -> GraphData:
         """Execute multiple focused queries for a domain to avoid cartesian products"""
-        logger.info(f"Starting multi-query execution for domain: {domain}")
+        logger.info(f"Starting multi-query execution for domain: {domain}, include_subdomains: {include_subdomains}")
         start_time = datetime.now()
         
         all_nodes = {}
@@ -192,36 +192,102 @@ class GraphVisualizationAPI:
                             color=self.get_node_color(node_labels, node_props)
                         )
                 
-                # Query 2: Get direct providers
-                provider_query = """
-                MATCH (d:Domain {fqdn: $domain})-[r:USES_PROVIDER]->(p:Provider)
-                RETURN d, r, p
-                """
-                result = session.run(provider_query, {"domain": domain})
-                for record in result:
-                    total_records += 1
-                    d, r, p = record["d"], record["r"], record["p"]
-                    # Add provider node
-                    if p:
-                        node_id = str(p.id)
-                        if node_id not in all_nodes:
-                            node_props = convert_neo4j_properties(dict(p))
-                            node_labels = list(p.labels)
-                            all_nodes[node_id] = GraphNode(
-                                id=node_id,
-                                label=node_props.get('name', f"Node {node_id}"),
-                                labels=node_labels,
-                                properties=node_props,
-                                size=self.get_node_size(node_labels, node_props),
-                                color=self.get_node_color(node_labels, node_props)
-                            )
-                        # Add edge
-                        if r:
-                            edge_id = f"{d.id}-{r.type}-{p.id}"
+                # Query 2: Get direct providers (only if not showing subdomains)
+                if not include_subdomains:
+                    provider_query = """
+                    MATCH (d:Domain {fqdn: $domain})-[r:USES_PROVIDER]->(p:Provider)
+                    RETURN d, r, p
+                    """
+                    result = session.run(provider_query, {"domain": domain})
+                    for record in result:
+                        total_records += 1
+                        d, r, p = record["d"], record["r"], record["p"]
+                        # Add provider node
+                        if p:
+                            node_id = str(p.id)
+                            if node_id not in all_nodes:
+                                node_props = convert_neo4j_properties(dict(p))
+                                node_labels = list(p.labels)
+                                all_nodes[node_id] = GraphNode(
+                                    id=node_id,
+                                    label=node_props.get('name', f"Node {node_id}"),
+                                    labels=node_labels,
+                                    properties=node_props,
+                                    size=self.get_node_size(node_labels, node_props),
+                                    color=self.get_node_color(node_labels, node_props)
+                                )
+                            # Add edge from domain to provider
+                            if r:
+                                edge_id = f"{d.id}-{r.type}-{p.id}"
+                                edge_props = convert_neo4j_properties(dict(r))
+                                all_edges.append(GraphEdge(
+                                    id=edge_id,
+                                    source=str(d.id),
+                                    target=str(p.id),
+                                    relationship_type=r.type,
+                                    properties=edge_props,
+                                    weight=edge_props.get('confidence', 1.0),
+                                    color=self.get_edge_color(r.type, edge_props)
+                                ))
+                
+                # Query 3: Get subdomains and their providers (only if showing subdomains)
+                if include_subdomains:
+                    subdomain_query = """
+                    MATCH (d:Domain {fqdn: $domain})-[:HAS_SUBDOMAIN]->(sub:Subdomain)
+                    OPTIONAL MATCH (sub)-[r:USES_PROVIDER]->(p:Provider)
+                    RETURN d, sub, r, p
+                    """
+                    result = session.run(subdomain_query, {"domain": domain})
+                    for record in result:
+                        total_records += 1
+                        d, sub, r, p = record["d"], record["sub"], record["r"], record["p"]
+                        # Add subdomain node
+                        if sub:
+                            node_id = str(sub.id)
+                            if node_id not in all_nodes:
+                                node_props = convert_neo4j_properties(dict(sub))
+                                node_labels = list(sub.labels)
+                                all_nodes[node_id] = GraphNode(
+                                    id=node_id,
+                                    label=node_props.get('fqdn', f"Node {node_id}"),
+                                    labels=node_labels,
+                                    properties=node_props,
+                                    size=self.get_node_size(node_labels, node_props),
+                                    color=self.get_node_color(node_labels, node_props)
+                                )
+                            # Add HAS_SUBDOMAIN edge
+                            subdomain_edge_id = f"{d.id}-HAS_SUBDOMAIN-{sub.id}"
+                            if not any(edge.id == subdomain_edge_id for edge in all_edges):
+                                all_edges.append(GraphEdge(
+                                    id=subdomain_edge_id,
+                                    source=str(d.id),
+                                    target=str(sub.id),
+                                    relationship_type="HAS_SUBDOMAIN",
+                                    properties={},
+                                    weight=1.0,
+                                    color=self.get_edge_color("HAS_SUBDOMAIN", {})
+                                ))
+                        
+                        # Add provider node and edge if exists (connect to subdomain)
+                        if p and r:
+                            node_id = str(p.id)
+                            if node_id not in all_nodes:
+                                node_props = convert_neo4j_properties(dict(p))
+                                node_labels = list(p.labels)
+                                all_nodes[node_id] = GraphNode(
+                                    id=node_id,
+                                    label=node_props.get('name', f"Node {node_id}"),
+                                    labels=node_labels,
+                                    properties=node_props,
+                                    size=self.get_node_size(node_labels, node_props),
+                                    color=self.get_node_color(node_labels, node_props)
+                                )
+                            # Add edge from subdomain to provider
+                            edge_id = f"{sub.id}-{r.type}-{p.id}"
                             edge_props = convert_neo4j_properties(dict(r))
                             all_edges.append(GraphEdge(
                                 id=edge_id,
-                                source=str(d.id),
+                                source=str(sub.id),
                                 target=str(p.id),
                                 relationship_type=r.type,
                                 properties=edge_props,
@@ -229,69 +295,8 @@ class GraphVisualizationAPI:
                                 color=self.get_edge_color(r.type, edge_props)
                             ))
                 
-                # Query 3: Get subdomains and their providers
-                subdomain_query = """
-                MATCH (d:Domain {fqdn: $domain})-[:HAS_SUBDOMAIN]->(sub:Subdomain)
-                OPTIONAL MATCH (sub)-[r:USES_PROVIDER]->(p:Provider)
-                RETURN d, sub, r, p
-                """
-                result = session.run(subdomain_query, {"domain": domain})
-                for record in result:
-                    total_records += 1
-                    d, sub, r, p = record["d"], record["sub"], record["r"], record["p"]
-                    # Add subdomain node
-                    if sub:
-                        node_id = str(sub.id)
-                        if node_id not in all_nodes:
-                            node_props = convert_neo4j_properties(dict(sub))
-                            node_labels = list(sub.labels)
-                            all_nodes[node_id] = GraphNode(
-                                id=node_id,
-                                label=node_props.get('fqdn', f"Node {node_id}"),
-                                labels=node_labels,
-                                properties=node_props,
-                                size=self.get_node_size(node_labels, node_props),
-                                color=self.get_node_color(node_labels, node_props)
-                            )
-                        # Add HAS_SUBDOMAIN edge
-                        subdomain_edge_id = f"{d.id}-HAS_SUBDOMAIN-{sub.id}"
-                        if not any(edge.id == subdomain_edge_id for edge in all_edges):
-                            all_edges.append(GraphEdge(
-                                id=subdomain_edge_id,
-                                source=str(d.id),
-                                target=str(sub.id),
-                                relationship_type="HAS_SUBDOMAIN",
-                                properties={},
-                                weight=1.0,
-                                color=self.get_edge_color("HAS_SUBDOMAIN", {})
-                            ))
-                    
-                    # Add provider node and edge if exists
-                    if p and r:
-                        node_id = str(p.id)
-                        if node_id not in all_nodes:
-                            node_props = convert_neo4j_properties(dict(p))
-                            node_labels = list(p.labels)
-                            all_nodes[node_id] = GraphNode(
-                                id=node_id,
-                                label=node_props.get('name', f"Node {node_id}"),
-                                labels=node_labels,
-                                properties=node_props,
-                                size=self.get_node_size(node_labels, node_props),
-                                color=self.get_node_color(node_labels, node_props)
-                            )
-                        # Add edge
-                        edge_id = f"{sub.id}-{r.type}-{p.id}"
-                        edge_props = convert_neo4j_properties(dict(r))
-                        all_edges.append(GraphEdge(
-                            id=edge_id,
-                            source=str(sub.id),
-                            target=str(p.id),
-                            relationship_type=r.type,
-                            properties=edge_props,
-                            weight=edge_props.get('confidence', 1.0),
-                            color=self.get_edge_color(r.type, edge_props)
-                        ))
+                    # When showing subdomains, providers should ONLY connect to subdomains
+                    # No direct domain-to-provider connections are shown
                 
                 # Query 4: Get technologies and services
                 tech_query = """
@@ -541,20 +546,34 @@ class GraphVisualizationAPI:
                     logger.info("Creating virtual USES_PROVIDER relationships for aggregated provider data")
                     for record in session.run(query, parameters):
                         d_node = record.get('d')
-                        p_node = record.get('p')
-                        if d_node and p_node:
-                            virtual_edge_id = f"{d_node.id}-USES_PROVIDER-{p_node.id}"
-                            # Only create if virtual doesn't exist
-                            if not any(edge.id == virtual_edge_id for edge in edges):
-                                edges.append(GraphEdge(
-                                    id=virtual_edge_id,
-                                    source=str(d_node.id),
-                                    target=str(p_node.id),
-                                    relationship_type="USES_PROVIDER",
-                                    properties={"source": "aggregated_from_subdomains"},
-                                    weight=1.0,
-                                    color=self.get_edge_color("USES_PROVIDER", {})
-                                ))
+                        
+                        # Handle both p_direct and p_sub providers
+                        providers = []
+                        p_direct = record.get('p_direct')
+                        p_sub = record.get('p_sub') 
+                        p_regular = record.get('p')  # for backward compatibility
+                        
+                        if p_direct:
+                            providers.append(p_direct)
+                        if p_sub:
+                            providers.append(p_sub)
+                        if p_regular:
+                            providers.append(p_regular)
+                        
+                        for p_node in providers:
+                            if d_node and p_node:
+                                virtual_edge_id = f"{d_node.id}-USES_PROVIDER-{p_node.id}"
+                                # Only create if virtual doesn't exist
+                                if not any(edge.id == virtual_edge_id for edge in edges):
+                                    edges.append(GraphEdge(
+                                        id=virtual_edge_id,
+                                        source=str(d_node.id),
+                                        target=str(p_node.id),
+                                        relationship_type="USES_PROVIDER",
+                                        properties={"source": "aggregated_providers"},
+                                        weight=1.0,
+                                        color=self.get_edge_color("USES_PROVIDER", {})
+                                    ))
                 
                 end_time = datetime.now()
                 execution_time = (end_time - start_time).total_seconds()
@@ -626,10 +645,18 @@ async def get_complete_graph(
     optional_matches = []
     returns = ["d"]
     
-    # Always include providers (core functionality) - from domain and subdomain
-    optional_matches.append("OPTIONAL MATCH (d)-[r1:USES_PROVIDER]->(p:Provider)")
-    optional_matches.append("OPTIONAL MATCH (d)-[:HAS_SUBDOMAIN]->(sub:Subdomain)-[:USES_PROVIDER]->(p)")
-    returns.extend(["r1", "p"])
+    # Include providers - conditional logic based on subdomain setting
+    if include_subdomains:
+        # When showing subdomains, providers should connect to subdomains only
+        optional_matches.append("OPTIONAL MATCH (d)-[:HAS_SUBDOMAIN]->(sub:Subdomain)")
+        optional_matches.append("OPTIONAL MATCH (sub)-[r1:USES_PROVIDER]->(p:Provider)")
+        returns.extend(["sub", "r1", "p"])
+    else:
+        # When not showing subdomains, get all providers (direct + from subdomains)
+        # This gives a domain-level view of ALL provider dependencies
+        optional_matches.append("OPTIONAL MATCH (d)-[:USES_PROVIDER]->(p_direct:Provider)")
+        optional_matches.append("OPTIONAL MATCH (d)-[:HAS_SUBDOMAIN]->()-[:USES_PROVIDER]->(p_sub:Provider)")
+        returns.extend(["p_direct", "p_sub"])
     
     # Conditionally include industries
     if include_industries:
@@ -674,13 +701,14 @@ async def get_complete_graph(
 async def get_domain_subgraph(
     domain: str = Path(..., description="Domain to focus on"),
     depth: int = Query(2, description="Graph traversal depth"),
-    include_vulnerabilities: bool = Query(True, description="Include vulnerability nodes")
+    include_vulnerabilities: bool = Query(True, description="Include vulnerability nodes"),
+    include_subdomains: bool = Query(True, description="Include subdomain nodes and their provider connections")
 ) -> GraphData:
     """Get subgraph focused on a specific domain using multiple focused queries"""
     
     try:
         # Use the new multi-query approach
-        return graph_api.execute_domain_multi_query(domain, include_vulnerabilities)
+        return graph_api.execute_domain_multi_query(domain, include_vulnerabilities, include_subdomains)
     except Exception as e:
         logger.error(f"Error executing domain subgraph query: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -1225,6 +1253,271 @@ async def get_providers():
             
     except Exception as e:
         logger.error(f"Error getting providers: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/tlds", tags=["Metadata"])
+async def get_tlds():
+    """Get list of all TLDs/countries for filtering"""
+    
+    try:
+        with graph_api.driver.session() as session:
+            # Get TLD data from both TLD nodes and Domain nodes
+            result = session.run("""
+                // Get from TLD nodes if they exist
+                MATCH (t:TLD)
+                OPTIONAL MATCH (d:Domain)-[:BELONGS_TO]->(t)
+                WITH t.tld as tld, 
+                     t.country_name as country_name, 
+                     t.country_code as country_code,
+                     t.region as region,
+                     t.tld_type as tld_type,
+                     count(d) as domain_count
+                WHERE tld IS NOT NULL
+
+                UNION ALL
+
+                // Get from Domain nodes if no TLD nodes exist
+                MATCH (d:Domain)
+                WHERE d.tld IS NOT NULL AND d.tld <> ""
+                AND NOT EXISTS { MATCH (t:TLD) }
+                WITH d.tld as tld, 
+                     CASE 
+                        WHEN d.tld = 'cl' THEN 'Chile'
+                        WHEN d.tld = 'ar' THEN 'Argentina'
+                        WHEN d.tld = 'br' THEN 'Brazil'
+                        WHEN d.tld = 'co' THEN 'Colombia'
+                        WHEN d.tld = 'pe' THEN 'Peru'
+                        WHEN d.tld = 'mx' THEN 'Mexico'
+                        WHEN d.tld = 'com' THEN 'Global'
+                        WHEN d.tld = 'org' THEN 'Global'
+                        WHEN d.tld = 'net' THEN 'Global'
+                        ELSE 'Unknown'
+                     END as country_name,
+                     CASE 
+                        WHEN d.tld = 'cl' THEN 'CL'
+                        WHEN d.tld = 'ar' THEN 'AR'
+                        WHEN d.tld = 'br' THEN 'BR'
+                        WHEN d.tld = 'co' THEN 'CO'
+                        WHEN d.tld = 'pe' THEN 'PE'
+                        WHEN d.tld = 'mx' THEN 'MX'
+                        ELSE null
+                     END as country_code,
+                     CASE 
+                        WHEN d.tld IN ['cl', 'ar', 'br', 'co', 'pe', 'mx'] THEN 'Latin America'
+                        WHEN d.tld IN ['com', 'org', 'net'] THEN 'Global'
+                        ELSE 'Other'
+                     END as region,
+                     CASE 
+                        WHEN d.tld IN ['cl', 'ar', 'br', 'co', 'pe', 'mx'] THEN 'country_code'
+                        WHEN d.tld IN ['com', 'org', 'net'] THEN 'generic'
+                        ELSE 'unknown'
+                     END as tld_type,
+                     count(*) as domain_count
+
+                RETURN tld, country_name, country_code, region, tld_type, sum(domain_count) as total_domains
+                ORDER BY total_domains DESC, tld ASC
+            """)
+            
+            tlds = []
+            for record in result:
+                tlds.append({
+                    "tld": record["tld"],
+                    "country_name": record["country_name"],
+                    "country_code": record["country_code"],
+                    "region": record["region"],
+                    "tld_type": record["tld_type"],
+                    "domain_count": record["total_domains"],
+                    "display_name": f"{record['country_name']} (.{record['tld']}) - {record['total_domains']} domains"
+                })
+            
+            return {
+                "tlds": tlds,
+                "total_tlds": len(tlds),
+                "generated_at": datetime.now().isoformat()
+            }
+            
+    except Exception as e:
+        logger.error(f"Error getting TLDs: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/graph/country/{tld}", response_model=GraphData, tags=["Graph Data"])
+async def get_country_subgraph(
+    tld: str = Path(..., description="TLD to filter by (e.g., 'cl', 'ar', 'com')"),
+    limit: int = Query(50, description="Maximum number of domains to include"),
+    include_providers: bool = Query(True, description="Include provider nodes"),
+    include_subdomains: bool = Query(False, description="Include subdomain nodes")
+) -> GraphData:
+    """Get subgraph filtered by country/TLD"""
+    
+    logger.info(f"GET /graph/country/{tld} - limit: {limit}, include_providers: {include_providers}, include_subdomains: {include_subdomains}")
+    
+    try:
+        with graph_api.driver.session() as session:
+            nodes = []
+            edges = []
+            
+            # Base query to get domains by TLD
+            if include_subdomains:
+                base_query = f"""
+                // Get domains by TLD
+                MATCH (d:Domain)
+                WHERE d.tld = $tld OR EXISTS {{
+                    MATCH (d)-[:BELONGS_TO]->(t:TLD {{tld: $tld}})
+                }}
+                WITH d
+                LIMIT $limit
+                
+                // Get subdomains
+                OPTIONAL MATCH (d)-[r_sub:HAS_SUBDOMAIN]->(sub:Subdomain)
+                
+                // Get providers connected to subdomains (only subdomain connections when showing subdomains)
+                OPTIONAL MATCH (sub)-[r_sub_prov:USES_PROVIDER]->(p_sub:Provider)
+                
+                RETURN d, sub, r_sub, p_sub, r_sub_prov
+                """
+            else:
+                base_query = f"""
+                // Get domains by TLD
+                MATCH (d:Domain)
+                WHERE d.tld = $tld OR EXISTS {{
+                    MATCH (d)-[:BELONGS_TO]->(t:TLD {{tld: $tld}})
+                }}
+                WITH d
+                LIMIT $limit
+                
+                // Get providers
+                OPTIONAL MATCH (d)-[r_prov:USES_PROVIDER]->(p:Provider)
+                
+                RETURN d, p, r_prov
+                """
+            
+            result = session.run(base_query, {"tld": tld, "limit": limit})
+            
+            processed_nodes = {}
+            
+            for record in result:
+                d = record.get("d")
+                
+                # Add domain node
+                if d and str(d.id) not in processed_nodes:
+                    domain_props = convert_neo4j_properties(dict(d))
+                    domain_labels = list(d.labels)
+                    nodes.append(GraphNode(
+                        id=str(d.id),
+                        label=domain_props.get('fqdn', f"Domain {d.id}"),
+                        labels=domain_labels,
+                        properties=domain_props,
+                        size=graph_api.get_node_size(domain_labels, domain_props),
+                        color=graph_api.get_node_color(domain_labels, domain_props)
+                    ))
+                    processed_nodes[str(d.id)] = True
+                
+                if include_subdomains:
+                    sub = record.get("sub")
+                    r_sub = record.get("r_sub")
+                    p_sub = record.get("p_sub")
+                    r_sub_prov = record.get("r_sub_prov")
+                    
+                    # Add subdomain node
+                    if sub and str(sub.id) not in processed_nodes:
+                        sub_props = convert_neo4j_properties(dict(sub))
+                        sub_labels = list(sub.labels)
+                        nodes.append(GraphNode(
+                            id=str(sub.id),
+                            label=sub_props.get('fqdn', f"Subdomain {sub.id}"),
+                            labels=sub_labels,
+                            properties=sub_props,
+                            size=graph_api.get_node_size(sub_labels, sub_props),
+                            color=graph_api.get_node_color(sub_labels, sub_props)
+                        ))
+                        processed_nodes[str(sub.id)] = True
+                        
+                        # Add HAS_SUBDOMAIN edge
+                        if r_sub:
+                            edges.append(GraphEdge(
+                                id=f"{d.id}-HAS_SUBDOMAIN-{sub.id}",
+                                source=str(d.id),
+                                target=str(sub.id),
+                                relationship_type="HAS_SUBDOMAIN",
+                                properties={},
+                                color=graph_api.get_edge_color("HAS_SUBDOMAIN", {})
+                            ))
+                    
+                    # Add provider connected to subdomain
+                    if p_sub and include_providers and str(p_sub.id) not in processed_nodes:
+                        prov_props = convert_neo4j_properties(dict(p_sub))
+                        prov_labels = list(p_sub.labels)
+                        nodes.append(GraphNode(
+                            id=str(p_sub.id),
+                            label=prov_props.get('name', f"Provider {p_sub.id}"),
+                            labels=prov_labels,
+                            properties=prov_props,
+                            size=graph_api.get_node_size(prov_labels, prov_props),
+                            color=graph_api.get_node_color(prov_labels, prov_props)
+                        ))
+                        processed_nodes[str(p_sub.id)] = True
+                        
+                        # Add USES_PROVIDER edge from subdomain
+                        if r_sub_prov and sub:
+                            edge_props = convert_neo4j_properties(dict(r_sub_prov))
+                            edges.append(GraphEdge(
+                                id=f"{sub.id}-{r_sub_prov.type}-{p_sub.id}",
+                                source=str(sub.id),
+                                target=str(p_sub.id),
+                                relationship_type=r_sub_prov.type,
+                                properties=edge_props,
+                                color=graph_api.get_edge_color(r_sub_prov.type, edge_props)
+                            ))
+                    
+                    # When showing subdomains, providers should ONLY connect to subdomains
+                    # No direct domain-to-provider connections are shown
+                else:
+                    p = record.get("p")
+                    r_prov = record.get("r_prov")
+                    
+                    # Add provider node
+                    if p and include_providers and str(p.id) not in processed_nodes:
+                        prov_props = convert_neo4j_properties(dict(p))
+                        prov_labels = list(p.labels)
+                        nodes.append(GraphNode(
+                            id=str(p.id),
+                            label=prov_props.get('name', f"Provider {p.id}"),
+                            labels=prov_labels,
+                            properties=prov_props,
+                            size=graph_api.get_node_size(prov_labels, prov_props),
+                            color=graph_api.get_node_color(prov_labels, prov_props)
+                        ))
+                        processed_nodes[str(p.id)] = True
+                        
+                        # Add USES_PROVIDER edge
+                        if r_prov:
+                            edge_props = convert_neo4j_properties(dict(r_prov))
+                            edges.append(GraphEdge(
+                                id=f"{d.id}-{r_prov.type}-{p.id}",
+                                source=str(d.id),
+                                target=str(p.id),
+                                relationship_type=r_prov.type,
+                                properties=edge_props,
+                                color=graph_api.get_edge_color(r_prov.type, edge_props)
+                            ))
+            
+            return GraphData(
+                nodes=nodes,
+                edges=edges,
+                metadata={
+                    "query_type": "country_filter",
+                    "tld": tld,
+                    "node_count": len(nodes),
+                    "edge_count": len(edges),
+                    "include_subdomains": include_subdomains,
+                    "include_providers": include_providers,
+                    "limit": limit,
+                    "generated_at": datetime.now().isoformat()
+                }
+            )
+            
+    except Exception as e:
+        logger.error(f"Error executing country subgraph query: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":

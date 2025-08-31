@@ -1,7 +1,7 @@
 #!/bin/bash
 # Domain completion script - CRITICAL priority
 # Generated: 2025-08-30T12:32:11.449975
-# Total domains: 892
+# Total domains: 717
 # Estimated time: 48065 minutes
 
 set -e  # Exit on error
@@ -42,10 +42,10 @@ retry_curl() {
 }
 
 log "Starting CRITICAL priority domain completion"
-log "Processing 892 domains"
+log "Processing 717 domains"
 
-# Domain 1/892: dvacapital.cl
-log "Processing domain 1/892: dvacapital.cl"
+# Domain 1/717: dvacapital.cl
+log "Processing domain 1/717: dvacapital.cl"
 log "Estimated time: 43 minutes"
 
 # Step 1: amass analysis
@@ -67,8 +67,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dvacapital.cl"
 echo "---"
 
-# Domain 2/892: provida.cl
-log "Processing domain 2/892: provida.cl"
+# Domain 2/717: provida.cl
+log "Processing domain 2/717: provida.cl"
 log "Estimated time: 43 minutes"
 
 # Step 1: amass analysis
@@ -90,8 +90,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: provida.cl"
 echo "---"
 
-# Domain 3/892: hsbc.cl
-log "Processing domain 3/892: hsbc.cl"
+# Domain 3/717: hsbc.cl
+log "Processing domain 3/717: hsbc.cl"
 log "Estimated time: 43 minutes"
 
 # Step 1: amass analysis
@@ -113,8 +113,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: hsbc.cl"
 echo "---"
 
-# Domain 4/892: fintonic.cl
-log "Processing domain 4/892: fintonic.cl"
+# Domain 4/717: fintonic.cl
+log "Processing domain 4/717: fintonic.cl"
 log "Estimated time: 43 minutes"
 
 # Step 1: amass analysis
@@ -136,8 +136,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: fintonic.cl"
 echo "---"
 
-# Domain 5/892: lautarorosas.cl
-log "Processing domain 5/892: lautarorosas.cl"
+# Domain 5/717: lautarorosas.cl
+log "Processing domain 5/717: lautarorosas.cl"
 log "Estimated time: 43 minutes"
 
 # Step 1: amass analysis
@@ -159,8 +159,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: lautarorosas.cl"
 echo "---"
 
-# Domain 6/892: example.cl
-log "Processing domain 6/892: example.cl"
+# Domain 6/717: example.cl
+log "Processing domain 6/717: example.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -194,8 +194,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: example.cl"
 echo "---"
 
-# Domain 7/892: jquery.com
-log "Processing domain 7/892: jquery.com"
+# Domain 7/717: jquery.com
+log "Processing domain 7/717: jquery.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -229,65 +229,24 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: jquery.com"
 echo "---"
 
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.bci.cl"
 sleep $DELAY_BETWEEN_CALLS
 
 # Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.bci.cl"
 sleep $DELAY_BETWEEN_CALLS
 
 # Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.bci.cl"
 sleep $DELAY_BETWEEN_CALLS
 
 # Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.bci.cl"
 sleep $DELAY_BETWEEN_CALLS
 
 # Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.bci.cl"
 sleep $DELAY_BETWEEN_CALLS
 
-log "Completed domain: www.bci.cl"
 echo "---"
 
-# Domain 10/892: www.sii.cl
-log "Processing domain 10/892: www.sii.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.sii.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.sii.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.sii.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.sii.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.sii.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.sii.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.sii.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.sii.cl"
-echo "---"
-
-# Domain 11/892: achs.cl
-log "Processing domain 11/892: achs.cl"
+# Domain 8/717: achs.cl
+log "Processing domain 11/717: achs.cl"
 log "Estimated time: 50 minutes"
 
 # Step 1: amass analysis
@@ -317,43 +276,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: achs.cl"
 echo "---"
 
-# Domain 12/892: www.achs.cl
-log "Processing domain 12/892: www.achs.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.achs.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.achs.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.achs.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.achs.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.achs.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.achs.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.achs.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.achs.cl"
-echo "---"
-
-# Domain 13/892: webpay.cl
-log "Processing domain 13/892: webpay.cl"
+# Domain 9/717: webpay.cl
+log "Processing domain 13/717: webpay.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -387,43 +311,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: webpay.cl"
 echo "---"
 
-# Domain 14/892: www.webpay.cl
-log "Processing domain 14/892: www.webpay.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.webpay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.webpay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.webpay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.webpay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.webpay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.webpay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.webpay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.webpay.cl"
-echo "---"
-
-# Domain 15/892: facebook.com
-log "Processing domain 15/892: facebook.com"
+# Domain 10/717: facebook.com
+log "Processing domain 15/717: facebook.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -457,43 +346,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: facebook.com"
 echo "---"
 
-# Domain 16/892: www.facebook.com
-log "Processing domain 16/892: www.facebook.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.facebook.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.facebook.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.facebook.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.facebook.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.facebook.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.facebook.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.facebook.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.facebook.com"
-echo "---"
-
-# Domain 17/892: linkedin.com
-log "Processing domain 17/892: linkedin.com"
+# Domain 11/717: linkedin.com
+log "Processing domain 17/717: linkedin.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -527,43 +381,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: linkedin.com"
 echo "---"
 
-# Domain 18/892: www.linkedin.com
-log "Processing domain 18/892: www.linkedin.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.linkedin.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.linkedin.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.linkedin.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.linkedin.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.linkedin.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.linkedin.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.linkedin.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.linkedin.com"
-echo "---"
-
-# Domain 19/892: twitter.com
-log "Processing domain 19/892: twitter.com"
+# Domain 12/717: twitter.com
+log "Processing domain 19/717: twitter.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -597,39 +416,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: twitter.com"
 echo "---"
 
-# Domain 20/892: www.cmfchile.cl
-log "Processing domain 20/892: www.cmfchile.cl"
-log "Estimated time: 50 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.cmfchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.cmfchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.cmfchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.cmfchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.cmfchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.cmfchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.cmfchile.cl"
-echo "---"
-
-# Domain 21/892: bootstrapcdn.com
-log "Processing domain 21/892: bootstrapcdn.com"
+# Domain 13/717: bootstrapcdn.com
+log "Processing domain 21/717: bootstrapcdn.com"
 log "Estimated time: 50 minutes"
 
 # Step 1: amass analysis
@@ -659,8 +447,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bootstrapcdn.com"
 echo "---"
 
-# Domain 22/892: maxcdn.bootstrapcdn.com
-log "Processing domain 22/892: maxcdn.bootstrapcdn.com"
+# Domain 14/717: maxcdn.bootstrapcdn.com
+log "Processing domain 22/717: maxcdn.bootstrapcdn.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -694,8 +482,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: maxcdn.bootstrapcdn.com"
 echo "---"
 
-# Domain 23/892: secure.webpay.cl
-log "Processing domain 23/892: secure.webpay.cl"
+# Domain 15/717: secure.webpay.cl
+log "Processing domain 23/717: secure.webpay.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -729,8 +517,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: secure.webpay.cl"
 echo "---"
 
-# Domain 24/892: youtube.com
-log "Processing domain 24/892: youtube.com"
+# Domain 16/717: youtube.com
+log "Processing domain 24/717: youtube.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -764,43 +552,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: youtube.com"
 echo "---"
 
-# Domain 25/892: www.youtube.com
-log "Processing domain 25/892: www.youtube.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.youtube.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.youtube.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.youtube.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.youtube.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.youtube.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.youtube.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.youtube.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.youtube.com"
-echo "---"
-
-# Domain 26/892: googletagmanager.com
-log "Processing domain 26/892: googletagmanager.com"
+# Domain 17/717: googletagmanager.com
+log "Processing domain 26/717: googletagmanager.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -834,43 +587,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: googletagmanager.com"
 echo "---"
 
-# Domain 27/892: www.googletagmanager.com
-log "Processing domain 27/892: www.googletagmanager.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.googletagmanager.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.googletagmanager.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.googletagmanager.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.googletagmanager.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.googletagmanager.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.googletagmanager.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.googletagmanager.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.googletagmanager.com"
-echo "---"
-
-# Domain 28/892: apache.org
-log "Processing domain 28/892: apache.org"
+# Domain 18/717: apache.org
+log "Processing domain 28/717: apache.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -904,8 +622,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: apache.org"
 echo "---"
 
-# Domain 29/892: httpd.apache.org
-log "Processing domain 29/892: httpd.apache.org"
+# Domain 19/717: httpd.apache.org
+log "Processing domain 29/717: httpd.apache.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -939,8 +657,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: httpd.apache.org"
 echo "---"
 
-# Domain 30/892: debian.org
-log "Processing domain 30/892: debian.org"
+# Domain 20/717: debian.org
+log "Processing domain 30/717: debian.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -974,8 +692,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: debian.org"
 echo "---"
 
-# Domain 31/892: bugs.debian.org
-log "Processing domain 31/892: bugs.debian.org"
+# Domain 21/717: bugs.debian.org
+log "Processing domain 31/717: bugs.debian.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1009,8 +727,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bugs.debian.org"
 echo "---"
 
-# Domain 32/892: matomo.org
-log "Processing domain 32/892: matomo.org"
+# Domain 22/717: matomo.org
+log "Processing domain 32/717: matomo.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1044,8 +762,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: matomo.org"
 echo "---"
 
-# Domain 33/892: tiktok.com
-log "Processing domain 33/892: tiktok.com"
+# Domain 23/717: tiktok.com
+log "Processing domain 33/717: tiktok.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1079,43 +797,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tiktok.com"
 echo "---"
 
-# Domain 34/892: www.tiktok.com
-log "Processing domain 34/892: www.tiktok.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.tiktok.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.tiktok.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.tiktok.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.tiktok.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.tiktok.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.tiktok.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.tiktok.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.tiktok.com"
-echo "---"
-
-# Domain 35/892: amazonaws.com
-log "Processing domain 35/892: amazonaws.com"
+# Domain 24/717: amazonaws.com
+log "Processing domain 35/717: amazonaws.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1149,8 +832,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: amazonaws.com"
 echo "---"
 
-# Domain 36/892: repo-diseno.s3.amazonaws.com
-log "Processing domain 36/892: repo-diseno.s3.amazonaws.com"
+# Domain 25/717: repo-diseno.s3.amazonaws.com
+log "Processing domain 36/717: repo-diseno.s3.amazonaws.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1184,8 +867,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: repo-diseno.s3.amazonaws.com"
 echo "---"
 
-# Domain 37/892: jsdelivr.net
-log "Processing domain 37/892: jsdelivr.net"
+# Domain 26/717: jsdelivr.net
+log "Processing domain 37/717: jsdelivr.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1219,8 +902,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: jsdelivr.net"
 echo "---"
 
-# Domain 38/892: cdn.jsdelivr.net
-log "Processing domain 38/892: cdn.jsdelivr.net"
+# Domain 27/717: cdn.jsdelivr.net
+log "Processing domain 38/717: cdn.jsdelivr.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1254,8 +937,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn.jsdelivr.net"
 echo "---"
 
-# Domain 39/892: google.com
-log "Processing domain 39/892: google.com"
+# Domain 28/717: google.com
+log "Processing domain 39/717: google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1289,8 +972,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: google.com"
 echo "---"
 
-# Domain 40/892: accounts.google.com
-log "Processing domain 40/892: accounts.google.com"
+# Domain 29/717: accounts.google.com
+log "Processing domain 40/717: accounts.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1324,8 +1007,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: accounts.google.com"
 echo "---"
 
-# Domain 41/892: citrix.com
-log "Processing domain 41/892: citrix.com"
+# Domain 30/717: citrix.com
+log "Processing domain 41/717: citrix.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1359,43 +1042,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: citrix.com"
 echo "---"
 
-# Domain 42/892: www.citrix.com
-log "Processing domain 42/892: www.citrix.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.citrix.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.citrix.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.citrix.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.citrix.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.citrix.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.citrix.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.citrix.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.citrix.com"
-echo "---"
-
-# Domain 43/892: msftauth.net
-log "Processing domain 43/892: msftauth.net"
+# Domain 31/717: msftauth.net
+log "Processing domain 43/717: msftauth.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1429,8 +1077,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: msftauth.net"
 echo "---"
 
-# Domain 44/892: aadcdn.msftauth.net
-log "Processing domain 44/892: aadcdn.msftauth.net"
+# Domain 32/717: aadcdn.msftauth.net
+log "Processing domain 44/717: aadcdn.msftauth.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1464,8 +1112,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: aadcdn.msftauth.net"
 echo "---"
 
-# Domain 45/892: adsttc.com
-log "Processing domain 45/892: adsttc.com"
+# Domain 33/717: adsttc.com
+log "Processing domain 45/717: adsttc.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1499,8 +1147,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: adsttc.com"
 echo "---"
 
-# Domain 46/892: assets.adsttc.com
-log "Processing domain 46/892: assets.adsttc.com"
+# Domain 34/717: assets.adsttc.com
+log "Processing domain 46/717: assets.adsttc.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1534,8 +1182,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: assets.adsttc.com"
 echo "---"
 
-# Domain 47/892: recaptcha.net
-log "Processing domain 47/892: recaptcha.net"
+# Domain 35/717: recaptcha.net
+log "Processing domain 47/717: recaptcha.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1569,43 +1217,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: recaptcha.net"
 echo "---"
 
-# Domain 48/892: www.recaptcha.net
-log "Processing domain 48/892: www.recaptcha.net"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.recaptcha.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.recaptcha.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.recaptcha.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.recaptcha.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.recaptcha.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.recaptcha.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.recaptcha.net"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.recaptcha.net"
-echo "---"
-
-# Domain 49/892: cloudflare.com
-log "Processing domain 49/892: cloudflare.com"
+# Domain 36/717: cloudflare.com
+log "Processing domain 49/717: cloudflare.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1639,8 +1252,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cloudflare.com"
 echo "---"
 
-# Domain 50/892: cdnjs.cloudflare.com
-log "Processing domain 50/892: cdnjs.cloudflare.com"
+# Domain 37/717: cdnjs.cloudflare.com
+log "Processing domain 50/717: cdnjs.cloudflare.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1674,8 +1287,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdnjs.cloudflare.com"
 echo "---"
 
-# Domain 51/892: support.google.com
-log "Processing domain 51/892: support.google.com"
+# Domain 38/717: support.google.com
+log "Processing domain 51/717: support.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1709,8 +1322,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: support.google.com"
 echo "---"
 
-# Domain 52/892: instagram.com
-log "Processing domain 52/892: instagram.com"
+# Domain 39/717: instagram.com
+log "Processing domain 52/717: instagram.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1744,43 +1357,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: instagram.com"
 echo "---"
 
-# Domain 53/892: www.instagram.com
-log "Processing domain 53/892: www.instagram.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.instagram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.instagram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.instagram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.instagram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.instagram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.instagram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.instagram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.instagram.com"
-echo "---"
-
-# Domain 54/892: es-la.facebook.com
-log "Processing domain 54/892: es-la.facebook.com"
+# Domain 40/717: es-la.facebook.com
+log "Processing domain 54/717: es-la.facebook.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1814,43 +1392,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: es-la.facebook.com"
 echo "---"
 
-# Domain 55/892: www.24horas.cl
-log "Processing domain 55/892: www.24horas.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.24horas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.24horas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.24horas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.24horas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.24horas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.24horas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.24horas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.24horas.cl"
-echo "---"
-
-# Domain 56/892: tvnplay.cl
-log "Processing domain 56/892: tvnplay.cl"
+# Domain 41/717: tvnplay.cl
+log "Processing domain 56/717: tvnplay.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1884,43 +1427,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tvnplay.cl"
 echo "---"
 
-# Domain 57/892: www.tvnplay.cl
-log "Processing domain 57/892: www.tvnplay.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.tvnplay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.tvnplay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.tvnplay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.tvnplay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.tvnplay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.tvnplay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.tvnplay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.tvnplay.cl"
-echo "---"
-
-# Domain 58/892: googleapis.com
-log "Processing domain 58/892: googleapis.com"
+# Domain 42/717: googleapis.com
+log "Processing domain 58/717: googleapis.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1954,8 +1462,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: googleapis.com"
 echo "---"
 
-# Domain 59/892: ajax.googleapis.com
-log "Processing domain 59/892: ajax.googleapis.com"
+# Domain 43/717: ajax.googleapis.com
+log "Processing domain 59/717: ajax.googleapis.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -1989,8 +1497,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ajax.googleapis.com"
 echo "---"
 
-# Domain 60/892: fonts.googleapis.com
-log "Processing domain 60/892: fonts.googleapis.com"
+# Domain 44/717: fonts.googleapis.com
+log "Processing domain 60/717: fonts.googleapis.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2024,43 +1532,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: fonts.googleapis.com"
 echo "---"
 
-# Domain 61/892: www.google.com
-log "Processing domain 61/892: www.google.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.google.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.google.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.google.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.google.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.google.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.google.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.google.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.google.com"
-echo "---"
-
-# Domain 62/892: formsite.com
-log "Processing domain 62/892: formsite.com"
+# Domain 45/717: formsite.com
+log "Processing domain 62/717: formsite.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2094,8 +1567,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: formsite.com"
 echo "---"
 
-# Domain 63/892: fs16.formsite.com
-log "Processing domain 63/892: fs16.formsite.com"
+# Domain 46/717: fs16.formsite.com
+log "Processing domain 63/717: fs16.formsite.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2129,8 +1602,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: fs16.formsite.com"
 echo "---"
 
-# Domain 64/892: reqlut.com
-log "Processing domain 64/892: reqlut.com"
+# Domain 47/717: reqlut.com
+log "Processing domain 64/717: reqlut.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2164,43 +1637,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: reqlut.com"
 echo "---"
 
-# Domain 65/892: www.reqlut.com
-log "Processing domain 65/892: www.reqlut.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.reqlut.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.reqlut.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.reqlut.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.reqlut.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.reqlut.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.reqlut.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.reqlut.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.reqlut.com"
-echo "---"
-
-# Domain 66/892: reqlut2.s3.amazonaws.com
-log "Processing domain 66/892: reqlut2.s3.amazonaws.com"
+# Domain 48/717: reqlut2.s3.amazonaws.com
+log "Processing domain 66/717: reqlut2.s3.amazonaws.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2234,8 +1672,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: reqlut2.s3.amazonaws.com"
 echo "---"
 
-# Domain 67/892: userway.org
-log "Processing domain 67/892: userway.org"
+# Domain 49/717: userway.org
+log "Processing domain 67/717: userway.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2269,8 +1707,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: userway.org"
 echo "---"
 
-# Domain 68/892: cdn.userway.org
-log "Processing domain 68/892: cdn.userway.org"
+# Domain 50/717: cdn.userway.org
+log "Processing domain 68/717: cdn.userway.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2304,8 +1742,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn.userway.org"
 echo "---"
 
-# Domain 69/892: reqlut2.s3.sa-east-1.amazonaws.com
-log "Processing domain 69/892: reqlut2.s3.sa-east-1.amazonaws.com"
+# Domain 51/717: reqlut2.s3.sa-east-1.amazonaws.com
+log "Processing domain 69/717: reqlut2.s3.sa-east-1.amazonaws.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2339,8 +1777,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: reqlut2.s3.sa-east-1.amazonaws.com"
 echo "---"
 
-# Domain 70/892: adj.st
-log "Processing domain 70/892: adj.st"
+# Domain 52/717: adj.st
+log "Processing domain 70/717: adj.st"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2374,8 +1812,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: adj.st"
 echo "---"
 
-# Domain 71/892: ddnf.adj.st
-log "Processing domain 71/892: ddnf.adj.st"
+# Domain 53/717: ddnf.adj.st
+log "Processing domain 71/717: ddnf.adj.st"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2409,8 +1847,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ddnf.adj.st"
 echo "---"
 
-# Domain 72/892: mercadolibre.com
-log "Processing domain 72/892: mercadolibre.com"
+# Domain 54/717: mercadolibre.com
+log "Processing domain 72/717: mercadolibre.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2444,43 +1882,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mercadolibre.com"
 echo "---"
 
-# Domain 73/892: www.mercadolibre.com
-log "Processing domain 73/892: www.mercadolibre.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.mercadolibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.mercadolibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.mercadolibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.mercadolibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.mercadolibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.mercadolibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.mercadolibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.mercadolibre.com"
-echo "---"
-
-# Domain 74/892: news.mercadolibre.com
-log "Processing domain 74/892: news.mercadolibre.com"
+# Domain 55/717: news.mercadolibre.com
+log "Processing domain 74/717: news.mercadolibre.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2514,8 +1917,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: news.mercadolibre.com"
 echo "---"
 
-# Domain 75/892: investor.mercadolibre.com
-log "Processing domain 75/892: investor.mercadolibre.com"
+# Domain 56/717: investor.mercadolibre.com
+log "Processing domain 75/717: investor.mercadolibre.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2549,8 +1952,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: investor.mercadolibre.com"
 echo "---"
 
-# Domain 76/892: sustentabilidadmercadolibre.com
-log "Processing domain 76/892: sustentabilidadmercadolibre.com"
+# Domain 57/717: sustentabilidadmercadolibre.com
+log "Processing domain 76/717: sustentabilidadmercadolibre.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2584,8 +1987,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sustentabilidadmercadolibre.com"
 echo "---"
 
-# Domain 77/892: developers.mercadolibre.com
-log "Processing domain 77/892: developers.mercadolibre.com"
+# Domain 58/717: developers.mercadolibre.com
+log "Processing domain 77/717: developers.mercadolibre.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2619,78 +2022,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: developers.mercadolibre.com"
 echo "---"
 
-# Domain 78/892: www.mercadopago.cl
-log "Processing domain 78/892: www.mercadopago.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.mercadopago.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.mercadopago.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.mercadopago.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.mercadopago.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.mercadopago.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.mercadopago.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.mercadopago.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.mercadopago.cl"
-echo "---"
-
-# Domain 79/892: www.mercadoshops.cl
-log "Processing domain 79/892: www.mercadoshops.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.mercadoshops.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.mercadoshops.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.mercadoshops.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.mercadoshops.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.mercadoshops.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.mercadoshops.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.mercadoshops.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.mercadoshops.cl"
-echo "---"
-
-# Domain 80/892: x.com
-log "Processing domain 80/892: x.com"
+# Domain 59/717: x.com
+log "Processing domain 80/717: x.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2724,8 +2057,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: x.com"
 echo "---"
 
-# Domain 81/892: careers-meli.mercadolibre.com
-log "Processing domain 81/892: careers-meli.mercadolibre.com"
+# Domain 60/717: careers-meli.mercadolibre.com
+log "Processing domain 81/717: careers-meli.mercadolibre.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2759,8 +2092,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: careers-meli.mercadolibre.com"
 echo "---"
 
-# Domain 82/892: hp.mercadolibre.com
-log "Processing domain 82/892: hp.mercadolibre.com"
+# Domain 61/717: hp.mercadolibre.com
+log "Processing domain 82/717: hp.mercadolibre.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2794,8 +2127,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: hp.mercadolibre.com"
 echo "---"
 
-# Domain 83/892: mlstatic.com
-log "Processing domain 83/892: mlstatic.com"
+# Domain 62/717: mlstatic.com
+log "Processing domain 83/717: mlstatic.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2829,8 +2162,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mlstatic.com"
 echo "---"
 
-# Domain 84/892: http2.mlstatic.com
-log "Processing domain 84/892: http2.mlstatic.com"
+# Domain 63/717: http2.mlstatic.com
+log "Processing domain 84/717: http2.mlstatic.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2864,8 +2197,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: http2.mlstatic.com"
 echo "---"
 
-# Domain 85/892: getmdl.io
-log "Processing domain 85/892: getmdl.io"
+# Domain 64/717: getmdl.io
+log "Processing domain 85/717: getmdl.io"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2899,8 +2232,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: getmdl.io"
 echo "---"
 
-# Domain 86/892: code.getmdl.io
-log "Processing domain 86/892: code.getmdl.io"
+# Domain 65/717: code.getmdl.io
+log "Processing domain 86/717: code.getmdl.io"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2934,8 +2267,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: code.getmdl.io"
 echo "---"
 
-# Domain 87/892: pagina7.cl
-log "Processing domain 87/892: pagina7.cl"
+# Domain 66/717: pagina7.cl
+log "Processing domain 87/717: pagina7.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -2969,43 +2302,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: pagina7.cl"
 echo "---"
 
-# Domain 88/892: www.pagina7.cl
-log "Processing domain 88/892: www.pagina7.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.pagina7.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.pagina7.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.pagina7.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.pagina7.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.pagina7.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.pagina7.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.pagina7.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.pagina7.cl"
-echo "---"
-
-# Domain 89/892: threads.net
-log "Processing domain 89/892: threads.net"
+# Domain 67/717: threads.net
+log "Processing domain 89/717: threads.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3039,43 +2337,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: threads.net"
 echo "---"
 
-# Domain 90/892: www.threads.net
-log "Processing domain 90/892: www.threads.net"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.threads.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.threads.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.threads.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.threads.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.threads.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.threads.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.threads.net"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.threads.net"
-echo "---"
-
-# Domain 91/892: googletagservices.com
-log "Processing domain 91/892: googletagservices.com"
+# Domain 68/717: googletagservices.com
+log "Processing domain 91/717: googletagservices.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3109,43 +2372,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: googletagservices.com"
 echo "---"
 
-# Domain 92/892: www.googletagservices.com
-log "Processing domain 92/892: www.googletagservices.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.googletagservices.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.googletagservices.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.googletagservices.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.googletagservices.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.googletagservices.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.googletagservices.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.googletagservices.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.googletagservices.com"
-echo "---"
-
-# Domain 93/892: teads.tv
-log "Processing domain 93/892: teads.tv"
+# Domain 69/717: teads.tv
+log "Processing domain 93/717: teads.tv"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3179,8 +2407,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: teads.tv"
 echo "---"
 
-# Domain 94/892: a.teads.tv
-log "Processing domain 94/892: a.teads.tv"
+# Domain 70/717: a.teads.tv
+log "Processing domain 94/717: a.teads.tv"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3214,8 +2442,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: a.teads.tv"
 echo "---"
 
-# Domain 95/892: crazyegg.com
-log "Processing domain 95/892: crazyegg.com"
+# Domain 71/717: crazyegg.com
+log "Processing domain 95/717: crazyegg.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3249,8 +2477,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: crazyegg.com"
 echo "---"
 
-# Domain 96/892: script.crazyegg.com
-log "Processing domain 96/892: script.crazyegg.com"
+# Domain 72/717: script.crazyegg.com
+log "Processing domain 96/717: script.crazyegg.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3284,8 +2512,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: script.crazyegg.com"
 echo "---"
 
-# Domain 97/892: media.pagina7.cl
-log "Processing domain 97/892: media.pagina7.cl"
+# Domain 73/717: media.pagina7.cl
+log "Processing domain 97/717: media.pagina7.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3319,8 +2547,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: media.pagina7.cl"
 echo "---"
 
-# Domain 98/892: ticketsimply.com
-log "Processing domain 98/892: ticketsimply.com"
+# Domain 74/717: ticketsimply.com
+log "Processing domain 98/717: ticketsimply.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3354,8 +2582,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ticketsimply.com"
 echo "---"
 
-# Domain 99/892: admin.ticketsimply.com
-log "Processing domain 99/892: admin.ticketsimply.com"
+# Domain 75/717: admin.ticketsimply.com
+log "Processing domain 99/717: admin.ticketsimply.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3389,8 +2617,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: admin.ticketsimply.com"
 echo "---"
 
-# Domain 100/892: bitlasoft.com
-log "Processing domain 100/892: bitlasoft.com"
+# Domain 76/717: bitlasoft.com
+log "Processing domain 100/717: bitlasoft.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3424,78 +2652,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bitlasoft.com"
 echo "---"
 
-# Domain 101/892: www.bitlasoft.com
-log "Processing domain 101/892: www.bitlasoft.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.bitlasoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.bitlasoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.bitlasoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.bitlasoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.bitlasoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.bitlasoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.bitlasoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.bitlasoft.com"
-echo "---"
-
-# Domain 102/892: www.ticketsimply.com
-log "Processing domain 102/892: www.ticketsimply.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.ticketsimply.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.ticketsimply.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.ticketsimply.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.ticketsimply.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.ticketsimply.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.ticketsimply.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.ticketsimply.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.ticketsimply.com"
-echo "---"
-
-# Domain 103/892: maps.googleapis.com
-log "Processing domain 103/892: maps.googleapis.com"
+# Domain 77/717: maps.googleapis.com
+log "Processing domain 103/717: maps.googleapis.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3529,8 +2687,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: maps.googleapis.com"
 echo "---"
 
-# Domain 104/892: stackerhq.com
-log "Processing domain 104/892: stackerhq.com"
+# Domain 78/717: stackerhq.com
+log "Processing domain 104/717: stackerhq.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3564,8 +2722,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: stackerhq.com"
 echo "---"
 
-# Domain 105/892: cdn.stackerhq.com
-log "Processing domain 105/892: cdn.stackerhq.com"
+# Domain 79/717: cdn.stackerhq.com
+log "Processing domain 105/717: cdn.stackerhq.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3599,8 +2757,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn.stackerhq.com"
 echo "---"
 
-# Domain 106/892: wordpress.org
-log "Processing domain 106/892: wordpress.org"
+# Domain 80/717: wordpress.org
+log "Processing domain 106/717: wordpress.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3634,8 +2792,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: wordpress.org"
 echo "---"
 
-# Domain 107/892: cl.wordpress.org
-log "Processing domain 107/892: cl.wordpress.org"
+# Domain 81/717: cl.wordpress.org
+log "Processing domain 107/717: cl.wordpress.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3669,8 +2827,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cl.wordpress.org"
 echo "---"
 
-# Domain 108/892: pucv.cl
-log "Processing domain 108/892: pucv.cl"
+# Domain 82/717: pucv.cl
+log "Processing domain 108/717: pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3704,43 +2862,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: pucv.cl"
 echo "---"
 
-# Domain 109/892: www.pucv.cl
-log "Processing domain 109/892: www.pucv.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.pucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.pucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.pucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.pucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.pucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.pucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.pucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.pucv.cl"
-echo "---"
-
-# Domain 110/892: postgradospucv.cl
-log "Processing domain 110/892: postgradospucv.cl"
+# Domain 83/717: postgradospucv.cl
+log "Processing domain 110/717: postgradospucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3774,43 +2897,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: postgradospucv.cl"
 echo "---"
 
-# Domain 111/892: www.postgradospucv.cl
-log "Processing domain 111/892: www.postgradospucv.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.postgradospucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.postgradospucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.postgradospucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.postgradospucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.postgradospucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.postgradospucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.postgradospucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.postgradospucv.cl"
-echo "---"
-
-# Domain 112/892: formacioncontinuapucv.cl
-log "Processing domain 112/892: formacioncontinuapucv.cl"
+# Domain 84/717: formacioncontinuapucv.cl
+log "Processing domain 112/717: formacioncontinuapucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3844,43 +2932,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: formacioncontinuapucv.cl"
 echo "---"
 
-# Domain 113/892: www.formacioncontinuapucv.cl
-log "Processing domain 113/892: www.formacioncontinuapucv.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.formacioncontinuapucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.formacioncontinuapucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.formacioncontinuapucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.formacioncontinuapucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.formacioncontinuapucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.formacioncontinuapucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.formacioncontinuapucv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.formacioncontinuapucv.cl"
-echo "---"
-
-# Domain 114/892: dgai.pucv.cl
-log "Processing domain 114/892: dgai.pucv.cl"
+# Domain 85/717: dgai.pucv.cl
+log "Processing domain 114/717: dgai.pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3914,8 +2967,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dgai.pucv.cl"
 echo "---"
 
-# Domain 115/892: vinculacionpucv.cl
-log "Processing domain 115/892: vinculacionpucv.cl"
+# Domain 86/717: vinculacionpucv.cl
+log "Processing domain 115/717: vinculacionpucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3949,8 +3002,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: vinculacionpucv.cl"
 echo "---"
 
-# Domain 116/892: estudiantespucv.cl
-log "Processing domain 116/892: estudiantespucv.cl"
+# Domain 87/717: estudiantespucv.cl
+log "Processing domain 116/717: estudiantespucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -3984,8 +3037,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: estudiantespucv.cl"
 echo "---"
 
-# Domain 117/892: alumni.pucv.cl
-log "Processing domain 117/892: alumni.pucv.cl"
+# Domain 88/717: alumni.pucv.cl
+log "Processing domain 117/717: alumni.pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4019,8 +3072,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: alumni.pucv.cl"
 echo "---"
 
-# Domain 118/892: transparencia.pucv.cl
-log "Processing domain 118/892: transparencia.pucv.cl"
+# Domain 89/717: transparencia.pucv.cl
+log "Processing domain 118/717: transparencia.pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4054,8 +3107,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: transparencia.pucv.cl"
 echo "---"
 
-# Domain 119/892: ucvtv.cl
-log "Processing domain 119/892: ucvtv.cl"
+# Domain 90/717: ucvtv.cl
+log "Processing domain 119/717: ucvtv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4089,43 +3142,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ucvtv.cl"
 echo "---"
 
-# Domain 120/892: www.twitter.com
-log "Processing domain 120/892: www.twitter.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.twitter.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.twitter.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.twitter.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.twitter.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.twitter.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.twitter.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.twitter.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.twitter.com"
-echo "---"
-
-# Domain 121/892: docs.google.com
-log "Processing domain 121/892: docs.google.com"
+# Domain 91/717: docs.google.com
+log "Processing domain 121/717: docs.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4159,8 +3177,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: docs.google.com"
 echo "---"
 
-# Domain 122/892: pcspucv.cl
-log "Processing domain 122/892: pcspucv.cl"
+# Domain 92/717: pcspucv.cl
+log "Processing domain 122/717: pcspucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4194,8 +3212,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: pcspucv.cl"
 echo "---"
 
-# Domain 123/892: matricula.pcspucv.cl
-log "Processing domain 123/892: matricula.pcspucv.cl"
+# Domain 93/717: matricula.pcspucv.cl
+log "Processing domain 123/717: matricula.pcspucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4229,8 +3247,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: matricula.pcspucv.cl"
 echo "---"
 
-# Domain 124/892: biblioteca.pucv.cl
-log "Processing domain 124/892: biblioteca.pucv.cl"
+# Domain 94/717: biblioteca.pucv.cl
+log "Processing domain 124/717: biblioteca.pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4264,8 +3282,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: biblioteca.pucv.cl"
 echo "---"
 
-# Domain 125/892: programadeingles.pucv.cl
-log "Processing domain 125/892: programadeingles.pucv.cl"
+# Domain 95/717: programadeingles.pucv.cl
+log "Processing domain 125/717: programadeingles.pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4299,8 +3317,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: programadeingles.pucv.cl"
 echo "---"
 
-# Domain 126/892: beneficiosestudiantiles.cl
-log "Processing domain 126/892: beneficiosestudiantiles.cl"
+# Domain 96/717: beneficiosestudiantiles.cl
+log "Processing domain 126/717: beneficiosestudiantiles.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4334,43 +3352,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: beneficiosestudiantiles.cl"
 echo "---"
 
-# Domain 127/892: www.beneficiosestudiantiles.cl
-log "Processing domain 127/892: www.beneficiosestudiantiles.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.beneficiosestudiantiles.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.beneficiosestudiantiles.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.beneficiosestudiantiles.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.beneficiosestudiantiles.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.beneficiosestudiantiles.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.beneficiosestudiantiles.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.beneficiosestudiantiles.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.beneficiosestudiantiles.cl"
-echo "---"
-
-# Domain 128/892: ingresa.cl
-log "Processing domain 128/892: ingresa.cl"
+# Domain 97/717: ingresa.cl
+log "Processing domain 128/717: ingresa.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4404,8 +3387,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ingresa.cl"
 echo "---"
 
-# Domain 129/892: gratuidad.cl
-log "Processing domain 129/892: gratuidad.cl"
+# Domain 98/717: gratuidad.cl
+log "Processing domain 129/717: gratuidad.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4439,43 +3422,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: gratuidad.cl"
 echo "---"
 
-# Domain 130/892: www.gratuidad.cl
-log "Processing domain 130/892: www.gratuidad.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.gratuidad.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.gratuidad.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.gratuidad.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.gratuidad.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.gratuidad.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.gratuidad.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.gratuidad.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.gratuidad.cl"
-echo "---"
-
-# Domain 131/892: acceso.mineduc.cl
-log "Processing domain 131/892: acceso.mineduc.cl"
+# Domain 99/717: acceso.mineduc.cl
+log "Processing domain 131/717: acceso.mineduc.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4509,8 +3457,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: acceso.mineduc.cl"
 echo "---"
 
-# Domain 132/892: universia.net
-log "Processing domain 132/892: universia.net"
+# Domain 100/717: universia.net
+log "Processing domain 132/717: universia.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4544,43 +3492,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: universia.net"
 echo "---"
 
-# Domain 133/892: www.universia.net
-log "Processing domain 133/892: www.universia.net"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.universia.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.universia.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.universia.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.universia.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.universia.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.universia.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.universia.net"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.universia.net"
-echo "---"
-
-# Domain 134/892: mifuturo.cl
-log "Processing domain 134/892: mifuturo.cl"
+# Domain 101/717: mifuturo.cl
+log "Processing domain 134/717: mifuturo.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4614,43 +3527,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mifuturo.cl"
 echo "---"
 
-# Domain 135/892: www.mifuturo.cl
-log "Processing domain 135/892: www.mifuturo.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.mifuturo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.mifuturo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.mifuturo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.mifuturo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.mifuturo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.mifuturo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.mifuturo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.mifuturo.cl"
-echo "---"
-
-# Domain 136/892: demre.cl
-log "Processing domain 136/892: demre.cl"
+# Domain 102/717: demre.cl
+log "Processing domain 136/717: demre.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4684,8 +3562,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: demre.cl"
 echo "---"
 
-# Domain 137/892: navegador.pucv.cl
-log "Processing domain 137/892: navegador.pucv.cl"
+# Domain 103/717: navegador.pucv.cl
+log "Processing domain 137/717: navegador.pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4719,8 +3597,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: navegador.pucv.cl"
 echo "---"
 
-# Domain 138/892: euv.cl
-log "Processing domain 138/892: euv.cl"
+# Domain 104/717: euv.cl
+log "Processing domain 138/717: euv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4754,43 +3632,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: euv.cl"
 echo "---"
 
-# Domain 139/892: www.google.cl
-log "Processing domain 139/892: www.google.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.google.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.google.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.google.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.google.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.google.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.google.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.google.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.google.cl"
-echo "---"
-
-# Domain 140/892: cnachile.cl
-log "Processing domain 140/892: cnachile.cl"
+# Domain 105/717: cnachile.cl
+log "Processing domain 140/717: cnachile.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4824,43 +3667,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cnachile.cl"
 echo "---"
 
-# Domain 141/892: www.cnachile.cl
-log "Processing domain 141/892: www.cnachile.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.cnachile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.cnachile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.cnachile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.cnachile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.cnachile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.cnachile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.cnachile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.cnachile.cl"
-echo "---"
-
-# Domain 142/892: mathtag.com
-log "Processing domain 142/892: mathtag.com"
+# Domain 106/717: mathtag.com
+log "Processing domain 142/717: mathtag.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4894,8 +3702,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mathtag.com"
 echo "---"
 
-# Domain 143/892: pixel.mathtag.com
-log "Processing domain 143/892: pixel.mathtag.com"
+# Domain 107/717: pixel.mathtag.com
+log "Processing domain 143/717: pixel.mathtag.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4929,8 +3737,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: pixel.mathtag.com"
 echo "---"
 
-# Domain 144/892: adnxs.com
-log "Processing domain 144/892: adnxs.com"
+# Domain 108/717: adnxs.com
+log "Processing domain 144/717: adnxs.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4964,8 +3772,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: adnxs.com"
 echo "---"
 
-# Domain 145/892: secure.adnxs.com
-log "Processing domain 145/892: secure.adnxs.com"
+# Domain 109/717: secure.adnxs.com
+log "Processing domain 145/717: secure.adnxs.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -4999,8 +3807,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: secure.adnxs.com"
 echo "---"
 
-# Domain 146/892: matthewelsom.com
-log "Processing domain 146/892: matthewelsom.com"
+# Domain 110/717: matthewelsom.com
+log "Processing domain 146/717: matthewelsom.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5034,8 +3842,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: matthewelsom.com"
 echo "---"
 
-# Domain 147/892: platform.twitter.com
-log "Processing domain 147/892: platform.twitter.com"
+# Domain 111/717: platform.twitter.com
+log "Processing domain 147/717: platform.twitter.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5069,8 +3877,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: platform.twitter.com"
 echo "---"
 
-# Domain 148/892: ibm.com
-log "Processing domain 148/892: ibm.com"
+# Domain 112/717: ibm.com
+log "Processing domain 148/717: ibm.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5104,8 +3912,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ibm.com"
 echo "---"
 
-# Domain 149/892: publib.boulder.ibm.com
-log "Processing domain 149/892: publib.boulder.ibm.com"
+# Domain 113/717: publib.boulder.ibm.com
+log "Processing domain 149/717: publib.boulder.ibm.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5139,8 +3947,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: publib.boulder.ibm.com"
 echo "---"
 
-# Domain 150/892: www14.software.ibm.com
-log "Processing domain 150/892: www14.software.ibm.com"
+# Domain 114/717: www14.software.ibm.com
+log "Processing domain 150/717: www14.software.ibm.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5174,8 +3982,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: www14.software.ibm.com"
 echo "---"
 
-# Domain 151/892: www-306.ibm.com
-log "Processing domain 151/892: www-306.ibm.com"
+# Domain 115/717: www-306.ibm.com
+log "Processing domain 151/717: www-306.ibm.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5209,8 +4017,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: www-306.ibm.com"
 echo "---"
 
-# Domain 152/892: whatsapp.com
-log "Processing domain 152/892: whatsapp.com"
+# Domain 116/717: whatsapp.com
+log "Processing domain 152/717: whatsapp.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5244,8 +4052,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: whatsapp.com"
 echo "---"
 
-# Domain 153/892: api.whatsapp.com
-log "Processing domain 153/892: api.whatsapp.com"
+# Domain 117/717: api.whatsapp.com
+log "Processing domain 153/717: api.whatsapp.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5279,8 +4087,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: api.whatsapp.com"
 echo "---"
 
-# Domain 154/892: cloudfront.net
-log "Processing domain 154/892: cloudfront.net"
+# Domain 118/717: cloudfront.net
+log "Processing domain 154/717: cloudfront.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5314,8 +4122,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cloudfront.net"
 echo "---"
 
-# Domain 155/892: dojiw2m9tvv09.cloudfront.net
-log "Processing domain 155/892: dojiw2m9tvv09.cloudfront.net"
+# Domain 119/717: dojiw2m9tvv09.cloudfront.net
+log "Processing domain 155/717: dojiw2m9tvv09.cloudfront.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5349,8 +4157,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dojiw2m9tvv09.cloudfront.net"
 echo "---"
 
-# Domain 156/892: emol.com
-log "Processing domain 156/892: emol.com"
+# Domain 120/717: emol.com
+log "Processing domain 156/717: emol.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5384,8 +4192,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: emol.com"
 echo "---"
 
-# Domain 157/892: comentarista.emol.com
-log "Processing domain 157/892: comentarista.emol.com"
+# Domain 121/717: comentarista.emol.com
+log "Processing domain 157/717: comentarista.emol.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5419,8 +4227,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: comentarista.emol.com"
 echo "---"
 
-# Domain 158/892: fontawesome.com
-log "Processing domain 158/892: fontawesome.com"
+# Domain 122/717: fontawesome.com
+log "Processing domain 158/717: fontawesome.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5454,8 +4262,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: fontawesome.com"
 echo "---"
 
-# Domain 159/892: use.fontawesome.com
-log "Processing domain 159/892: use.fontawesome.com"
+# Domain 123/717: use.fontawesome.com
+log "Processing domain 159/717: use.fontawesome.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5489,8 +4297,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: use.fontawesome.com"
 echo "---"
 
-# Domain 160/892: unpkg.com
-log "Processing domain 160/892: unpkg.com"
+# Domain 124/717: unpkg.com
+log "Processing domain 160/717: unpkg.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5524,8 +4332,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: unpkg.com"
 echo "---"
 
-# Domain 161/892: mercadoads.com
-log "Processing domain 161/892: mercadoads.com"
+# Domain 125/717: mercadoads.com
+log "Processing domain 161/717: mercadoads.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5559,8 +4367,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mercadoads.com"
 echo "---"
 
-# Domain 162/892: academy.mercadoads.com
-log "Processing domain 162/892: academy.mercadoads.com"
+# Domain 126/717: academy.mercadoads.com
+log "Processing domain 162/717: academy.mercadoads.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5594,8 +4402,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: academy.mercadoads.com"
 echo "---"
 
-# Domain 163/892: netline.net
-log "Processing domain 163/892: netline.net"
+# Domain 127/717: netline.net
+log "Processing domain 163/717: netline.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5629,43 +4437,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: netline.net"
 echo "---"
 
-# Domain 164/892: www.netline.net
-log "Processing domain 164/892: www.netline.net"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.netline.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.netline.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.netline.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.netline.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.netline.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.netline.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.netline.net"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.netline.net"
-echo "---"
-
-# Domain 165/892: mi.netline.net
-log "Processing domain 165/892: mi.netline.net"
+# Domain 128/717: mi.netline.net
+log "Processing domain 165/717: mi.netline.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5699,8 +4472,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mi.netline.net"
 echo "---"
 
-# Domain 166/892: pagos.netline.net
-log "Processing domain 166/892: pagos.netline.net"
+# Domain 129/717: pagos.netline.net
+log "Processing domain 166/717: pagos.netline.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5734,8 +4507,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: pagos.netline.net"
 echo "---"
 
-# Domain 167/892: email.netline.net
-log "Processing domain 167/892: email.netline.net"
+# Domain 130/717: email.netline.net
+log "Processing domain 167/717: email.netline.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5769,8 +4542,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: email.netline.net"
 echo "---"
 
-# Domain 168/892: plus.google.com
-log "Processing domain 168/892: plus.google.com"
+# Domain 131/717: plus.google.com
+log "Processing domain 168/717: plus.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5804,8 +4577,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: plus.google.com"
 echo "---"
 
-# Domain 169/892: xenforo.com
-log "Processing domain 169/892: xenforo.com"
+# Domain 132/717: xenforo.com
+log "Processing domain 169/717: xenforo.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5839,8 +4612,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: xenforo.com"
 echo "---"
 
-# Domain 170/892: nnowa.com
-log "Processing domain 170/892: nnowa.com"
+# Domain 133/717: nnowa.com
+log "Processing domain 170/717: nnowa.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5874,8 +4647,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: nnowa.com"
 echo "---"
 
-# Domain 171/892: st-n.nnowa.com
-log "Processing domain 171/892: st-n.nnowa.com"
+# Domain 134/717: st-n.nnowa.com
+log "Processing domain 171/717: st-n.nnowa.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5909,8 +4682,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: st-n.nnowa.com"
 echo "---"
 
-# Domain 172/892: business.google.com
-log "Processing domain 172/892: business.google.com"
+# Domain 135/717: business.google.com
+log "Processing domain 172/717: business.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5944,8 +4717,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: business.google.com"
 echo "---"
 
-# Domain 173/892: myaccount.google.com
-log "Processing domain 173/892: myaccount.google.com"
+# Domain 136/717: myaccount.google.com
+log "Processing domain 173/717: myaccount.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -5979,8 +4752,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: myaccount.google.com"
 echo "---"
 
-# Domain 174/892: merchants.google.com
-log "Processing domain 174/892: merchants.google.com"
+# Domain 137/717: merchants.google.com
+log "Processing domain 174/717: merchants.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6014,8 +4787,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: merchants.google.com"
 echo "---"
 
-# Domain 175/892: analytics.google.com
-log "Processing domain 175/892: analytics.google.com"
+# Domain 138/717: analytics.google.com
+log "Processing domain 175/717: analytics.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6049,8 +4822,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: analytics.google.com"
 echo "---"
 
-# Domain 176/892: policies.google.com
-log "Processing domain 176/892: policies.google.com"
+# Domain 139/717: policies.google.com
+log "Processing domain 176/717: policies.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6084,8 +4857,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: policies.google.com"
 echo "---"
 
-# Domain 177/892: ads.google.com
-log "Processing domain 177/892: ads.google.com"
+# Domain 140/717: ads.google.com
+log "Processing domain 177/717: ads.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6119,8 +4892,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ads.google.com"
 echo "---"
 
-# Domain 178/892: blog.google
-log "Processing domain 178/892: blog.google"
+# Domain 141/717: blog.google
+log "Processing domain 178/717: blog.google"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6154,8 +4927,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: blog.google"
 echo "---"
 
-# Domain 179/892: withgoogle.com
-log "Processing domain 179/892: withgoogle.com"
+# Domain 142/717: withgoogle.com
+log "Processing domain 179/717: withgoogle.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6189,8 +4962,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: withgoogle.com"
 echo "---"
 
-# Domain 180/892: partnersdirectory.withgoogle.com
-log "Processing domain 180/892: partnersdirectory.withgoogle.com"
+# Domain 143/717: partnersdirectory.withgoogle.com
+log "Processing domain 180/717: partnersdirectory.withgoogle.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6224,8 +4997,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: partnersdirectory.withgoogle.com"
 echo "---"
 
-# Domain 181/892: developers.google.com
-log "Processing domain 181/892: developers.google.com"
+# Domain 144/717: developers.google.com
+log "Processing domain 181/717: developers.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6259,8 +5032,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: developers.google.com"
 echo "---"
 
-# Domain 182/892: google.com.mx
-log "Processing domain 182/892: google.com.mx"
+# Domain 145/717: google.com.mx
+log "Processing domain 182/717: google.com.mx"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6294,8 +5067,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: google.com.mx"
 echo "---"
 
-# Domain 183/892: workspace.google.com.mx
-log "Processing domain 183/892: workspace.google.com.mx"
+# Domain 146/717: workspace.google.com.mx
+log "Processing domain 183/717: workspace.google.com.mx"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6329,8 +5102,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: workspace.google.com.mx"
 echo "---"
 
-# Domain 184/892: cloud.google.com
-log "Processing domain 184/892: cloud.google.com"
+# Domain 147/717: cloud.google.com
+log "Processing domain 184/717: cloud.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6364,8 +5137,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cloud.google.com"
 echo "---"
 
-# Domain 185/892: adsense.google.com
-log "Processing domain 185/892: adsense.google.com"
+# Domain 148/717: adsense.google.com
+log "Processing domain 185/717: adsense.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6399,8 +5172,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: adsense.google.com"
 echo "---"
 
-# Domain 186/892: admob.google.com
-log "Processing domain 186/892: admob.google.com"
+# Domain 149/717: admob.google.com
+log "Processing domain 186/717: admob.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6434,8 +5207,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: admob.google.com"
 echo "---"
 
-# Domain 187/892: about.google
-log "Processing domain 187/892: about.google"
+# Domain 150/717: about.google
+log "Processing domain 187/717: about.google"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6469,8 +5242,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: about.google"
 echo "---"
 
-# Domain 188/892: gstatic.com
-log "Processing domain 188/892: gstatic.com"
+# Domain 151/717: gstatic.com
+log "Processing domain 188/717: gstatic.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6504,43 +5277,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: gstatic.com"
 echo "---"
 
-# Domain 189/892: www.gstatic.com
-log "Processing domain 189/892: www.gstatic.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.gstatic.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.gstatic.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.gstatic.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.gstatic.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.gstatic.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.gstatic.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.gstatic.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.gstatic.com"
-echo "---"
-
-# Domain 190/892: nginx.org
-log "Processing domain 190/892: nginx.org"
+# Domain 152/717: nginx.org
+log "Processing domain 190/717: nginx.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6574,8 +5312,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: nginx.org"
 echo "---"
 
-# Domain 191/892: nginx.com
-log "Processing domain 191/892: nginx.com"
+# Domain 153/717: nginx.com
+log "Processing domain 191/717: nginx.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6609,8 +5347,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: nginx.com"
 echo "---"
 
-# Domain 192/892: shopeemobile.com
-log "Processing domain 192/892: shopeemobile.com"
+# Domain 154/717: shopeemobile.com
+log "Processing domain 192/717: shopeemobile.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6644,8 +5382,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: shopeemobile.com"
 echo "---"
 
-# Domain 193/892: deo.shopeemobile.com
-log "Processing domain 193/892: deo.shopeemobile.com"
+# Domain 155/717: deo.shopeemobile.com
+log "Processing domain 193/717: deo.shopeemobile.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6679,8 +5417,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: deo.shopeemobile.com"
 echo "---"
 
-# Domain 194/892: sirsidynix.net
-log "Processing domain 194/892: sirsidynix.net"
+# Domain 156/717: sirsidynix.net
+log "Processing domain 194/717: sirsidynix.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6714,8 +5452,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sirsidynix.net"
 echo "---"
 
-# Domain 195/892: duchi.ent.sirsidynix.net
-log "Processing domain 195/892: duchi.ent.sirsidynix.net"
+# Domain 157/717: duchi.ent.sirsidynix.net
+log "Processing domain 195/717: duchi.ent.sirsidynix.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6749,8 +5487,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: duchi.ent.sirsidynix.net"
 echo "---"
 
-# Domain 196/892: springshare.com
-log "Processing domain 196/892: springshare.com"
+# Domain 158/717: springshare.com
+log "Processing domain 196/717: springshare.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6784,43 +5522,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: springshare.com"
 echo "---"
 
-# Domain 197/892: www.springshare.com
-log "Processing domain 197/892: www.springshare.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.springshare.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.springshare.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.springshare.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.springshare.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.springshare.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.springshare.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.springshare.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.springshare.com"
-echo "---"
-
-# Domain 198/892: libapps.com
-log "Processing domain 198/892: libapps.com"
+# Domain 159/717: libapps.com
+log "Processing domain 198/717: libapps.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6854,8 +5557,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: libapps.com"
 echo "---"
 
-# Domain 199/892: duoc.libapps.com
-log "Processing domain 199/892: duoc.libapps.com"
+# Domain 160/717: duoc.libapps.com
+log "Processing domain 199/717: duoc.libapps.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6889,8 +5592,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: duoc.libapps.com"
 echo "---"
 
-# Domain 200/892: duoclaboral.cl
-log "Processing domain 200/892: duoclaboral.cl"
+# Domain 161/717: duoclaboral.cl
+log "Processing domain 200/717: duoclaboral.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6924,8 +5627,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: duoclaboral.cl"
 echo "---"
 
-# Domain 201/892: libcal.com
-log "Processing domain 201/892: libcal.com"
+# Domain 162/717: libcal.com
+log "Processing domain 201/717: libcal.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6959,8 +5662,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: libcal.com"
 echo "---"
 
-# Domain 202/892: static-assets-us.libcal.com
-log "Processing domain 202/892: static-assets-us.libcal.com"
+# Domain 163/717: static-assets-us.libcal.com
+log "Processing domain 202/717: static-assets-us.libcal.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -6994,8 +5697,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: static-assets-us.libcal.com"
 echo "---"
 
-# Domain 203/892: libapps.s3.amazonaws.com
-log "Processing domain 203/892: libapps.s3.amazonaws.com"
+# Domain 164/717: libapps.s3.amazonaws.com
+log "Processing domain 203/717: libapps.s3.amazonaws.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7029,8 +5732,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: libapps.s3.amazonaws.com"
 echo "---"
 
-# Domain 204/892: d68g328n4ug0e.cloudfront.net
-log "Processing domain 204/892: d68g328n4ug0e.cloudfront.net"
+# Domain 165/717: d68g328n4ug0e.cloudfront.net
+log "Processing domain 204/717: d68g328n4ug0e.cloudfront.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7064,8 +5767,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: d68g328n4ug0e.cloudfront.net"
 echo "---"
 
-# Domain 205/892: d2jv02qf7xgjwx.cloudfront.net
-log "Processing domain 205/892: d2jv02qf7xgjwx.cloudfront.net"
+# Domain 166/717: d2jv02qf7xgjwx.cloudfront.net
+log "Processing domain 205/717: d2jv02qf7xgjwx.cloudfront.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7099,8 +5802,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: d2jv02qf7xgjwx.cloudfront.net"
 echo "---"
 
-# Domain 206/892: ubb.cl
-log "Processing domain 206/892: ubb.cl"
+# Domain 167/717: ubb.cl
+log "Processing domain 206/717: ubb.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7134,43 +5837,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ubb.cl"
 echo "---"
 
-# Domain 207/892: www.ubb.cl
-log "Processing domain 207/892: www.ubb.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.ubb.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.ubb.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.ubb.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.ubb.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.ubb.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.ubb.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.ubb.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.ubb.cl"
-echo "---"
-
-# Domain 208/892: web.facebook.com
-log "Processing domain 208/892: web.facebook.com"
+# Domain 168/717: web.facebook.com
+log "Processing domain 208/717: web.facebook.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7204,8 +5872,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: web.facebook.com"
 echo "---"
 
-# Domain 209/892: tapp.cl
-log "Processing domain 209/892: tapp.cl"
+# Domain 169/717: tapp.cl
+log "Processing domain 209/717: tapp.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7239,43 +5907,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tapp.cl"
 echo "---"
 
-# Domain 210/892: www.tapp.cl
-log "Processing domain 210/892: www.tapp.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.tapp.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.tapp.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.tapp.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.tapp.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.tapp.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.tapp.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.tapp.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.tapp.cl"
-echo "---"
-
-# Domain 211/892: modyo.com
-log "Processing domain 211/892: modyo.com"
+# Domain 170/717: modyo.com
+log "Processing domain 211/717: modyo.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7309,8 +5942,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: modyo.com"
 echo "---"
 
-# Domain 212/892: cla.cdn.modyo.com
-log "Processing domain 212/892: cla.cdn.modyo.com"
+# Domain 171/717: cla.cdn.modyo.com
+log "Processing domain 212/717: cla.cdn.modyo.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7344,8 +5977,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cla.cdn.modyo.com"
 echo "---"
 
-# Domain 213/892: kit.fontawesome.com
-log "Processing domain 213/892: kit.fontawesome.com"
+# Domain 172/717: kit.fontawesome.com
+log "Processing domain 213/717: kit.fontawesome.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7379,8 +6012,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: kit.fontawesome.com"
 echo "---"
 
-# Domain 214/892: d2b2j57fl09mnx.cloudfront.net
-log "Processing domain 214/892: d2b2j57fl09mnx.cloudfront.net"
+# Domain 173/717: d2b2j57fl09mnx.cloudfront.net
+log "Processing domain 214/717: d2b2j57fl09mnx.cloudfront.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7414,8 +6047,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: d2b2j57fl09mnx.cloudfront.net"
 echo "---"
 
-# Domain 215/892: clubkino.cl
-log "Processing domain 215/892: clubkino.cl"
+# Domain 174/717: clubkino.cl
+log "Processing domain 215/717: clubkino.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7449,43 +6082,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: clubkino.cl"
 echo "---"
 
-# Domain 216/892: www.clubkino.cl
-log "Processing domain 216/892: www.clubkino.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.clubkino.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.clubkino.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.clubkino.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.clubkino.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.clubkino.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.clubkino.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.clubkino.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.clubkino.cl"
-echo "---"
-
-# Domain 217/892: drupal.org
-log "Processing domain 217/892: drupal.org"
+# Domain 175/717: drupal.org
+log "Processing domain 217/717: drupal.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7519,43 +6117,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: drupal.org"
 echo "---"
 
-# Domain 218/892: www.drupal.org
-log "Processing domain 218/892: www.drupal.org"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.drupal.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.drupal.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.drupal.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.drupal.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.drupal.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.drupal.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.drupal.org"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.drupal.org"
-echo "---"
-
-# Domain 219/892: in.linkedin.com
-log "Processing domain 219/892: in.linkedin.com"
+# Domain 176/717: in.linkedin.com
+log "Processing domain 219/717: in.linkedin.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7589,8 +6152,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: in.linkedin.com"
 echo "---"
 
-# Domain 220/892: vimeo.com
-log "Processing domain 220/892: vimeo.com"
+# Domain 177/717: vimeo.com
+log "Processing domain 220/717: vimeo.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7624,8 +6187,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: vimeo.com"
 echo "---"
 
-# Domain 221/892: telegram.org
-log "Processing domain 221/892: telegram.org"
+# Domain 178/717: telegram.org
+log "Processing domain 221/717: telegram.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7659,8 +6222,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: telegram.org"
 echo "---"
 
-# Domain 222/892: web.whatsapp.com
-log "Processing domain 222/892: web.whatsapp.com"
+# Domain 179/717: web.whatsapp.com
+log "Processing domain 222/717: web.whatsapp.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7694,8 +6257,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: web.whatsapp.com"
 echo "---"
 
-# Domain 223/892: github.com
-log "Processing domain 223/892: github.com"
+# Domain 180/717: github.com
+log "Processing domain 223/717: github.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7729,8 +6292,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: github.com"
 echo "---"
 
-# Domain 224/892: magisterinnovagro.cl
-log "Processing domain 224/892: magisterinnovagro.cl"
+# Domain 181/717: magisterinnovagro.cl
+log "Processing domain 224/717: magisterinnovagro.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7764,8 +6327,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: magisterinnovagro.cl"
 echo "---"
 
-# Domain 225/892: forms.gle
-log "Processing domain 225/892: forms.gle"
+# Domain 182/717: forms.gle
+log "Processing domain 225/717: forms.gle"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7799,8 +6362,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: forms.gle"
 echo "---"
 
-# Domain 226/892: flickr.com
-log "Processing domain 226/892: flickr.com"
+# Domain 183/717: flickr.com
+log "Processing domain 226/717: flickr.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7834,78 +6397,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: flickr.com"
 echo "---"
 
-# Domain 227/892: www.flickr.com
-log "Processing domain 227/892: www.flickr.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.flickr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.flickr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.flickr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.flickr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.flickr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.flickr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.flickr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.flickr.com"
-echo "---"
-
-# Domain 228/892: www.mercadopublico.cl
-log "Processing domain 228/892: www.mercadopublico.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.mercadopublico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.mercadopublico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.mercadopublico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.mercadopublico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.mercadopublico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.mercadopublico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.mercadopublico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.mercadopublico.cl"
-echo "---"
-
-# Domain 229/892: stackpath.bootstrapcdn.com
-log "Processing domain 229/892: stackpath.bootstrapcdn.com"
+# Domain 184/717: stackpath.bootstrapcdn.com
+log "Processing domain 229/717: stackpath.bootstrapcdn.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7939,8 +6432,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: stackpath.bootstrapcdn.com"
 echo "---"
 
-# Domain 230/892: redclinica.cl
-log "Processing domain 230/892: redclinica.cl"
+# Domain 185/717: redclinica.cl
+log "Processing domain 230/717: redclinica.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -7974,43 +6467,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: redclinica.cl"
 echo "---"
 
-# Domain 231/892: www.redclinica.cl
-log "Processing domain 231/892: www.redclinica.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.redclinica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.redclinica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.redclinica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.redclinica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.redclinica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.redclinica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.redclinica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.redclinica.cl"
-echo "---"
-
-# Domain 232/892: u-cursos.cl
-log "Processing domain 232/892: u-cursos.cl"
+# Domain 186/717: u-cursos.cl
+log "Processing domain 232/717: u-cursos.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8044,43 +6502,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: u-cursos.cl"
 echo "---"
 
-# Domain 233/892: www.u-cursos.cl
-log "Processing domain 233/892: www.u-cursos.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.u-cursos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.u-cursos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.u-cursos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.u-cursos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.u-cursos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.u-cursos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.u-cursos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.u-cursos.cl"
-echo "---"
-
-# Domain 234/892: antumapu.cl
-log "Processing domain 234/892: antumapu.cl"
+# Domain 187/717: antumapu.cl
+log "Processing domain 234/717: antumapu.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8114,43 +6537,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: antumapu.cl"
 echo "---"
 
-# Domain 235/892: www.mi.antumapu.cl
-log "Processing domain 235/892: www.mi.antumapu.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.mi.antumapu.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.mi.antumapu.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.mi.antumapu.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.mi.antumapu.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.mi.antumapu.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.mi.antumapu.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.mi.antumapu.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.mi.antumapu.cl"
-echo "---"
-
-# Domain 236/892: cl.linkedin.com
-log "Processing domain 236/892: cl.linkedin.com"
+# Domain 188/717: cl.linkedin.com
+log "Processing domain 236/717: cl.linkedin.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8184,8 +6572,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cl.linkedin.com"
 echo "---"
 
-# Domain 237/892: aguasantofagasta.cl
-log "Processing domain 237/892: aguasantofagasta.cl"
+# Domain 189/717: aguasantofagasta.cl
+log "Processing domain 237/717: aguasantofagasta.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8219,8 +6607,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: aguasantofagasta.cl"
 echo "---"
 
-# Domain 238/892: wwwprod.aguasantofagasta.cl
-log "Processing domain 238/892: wwwprod.aguasantofagasta.cl"
+# Domain 190/717: wwwprod.aguasantofagasta.cl
+log "Processing domain 238/717: wwwprod.aguasantofagasta.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8254,8 +6642,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: wwwprod.aguasantofagasta.cl"
 echo "---"
 
-# Domain 239/892: abfsa.cl
-log "Processing domain 239/892: abfsa.cl"
+# Domain 191/717: abfsa.cl
+log "Processing domain 239/717: abfsa.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8289,43 +6677,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: abfsa.cl"
 echo "---"
 
-# Domain 240/892: www.abfsa.cl
-log "Processing domain 240/892: www.abfsa.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.abfsa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.abfsa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.abfsa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.abfsa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.abfsa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.abfsa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.abfsa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.abfsa.cl"
-echo "---"
-
-# Domain 241/892: hiringroom.com
-log "Processing domain 241/892: hiringroom.com"
+# Domain 192/717: hiringroom.com
+log "Processing domain 241/717: hiringroom.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8359,8 +6712,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: hiringroom.com"
 echo "---"
 
-# Domain 242/892: farmaciasahumada.hiringroom.com
-log "Processing domain 242/892: farmaciasahumada.hiringroom.com"
+# Domain 193/717: farmaciasahumada.hiringroom.com
+log "Processing domain 242/717: farmaciasahumada.hiringroom.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8394,78 +6747,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: farmaciasahumada.hiringroom.com"
 echo "---"
 
-# Domain 243/892: www.bcn.cl
-log "Processing domain 243/892: www.bcn.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.bcn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.bcn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.bcn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.bcn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.bcn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.bcn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.bcn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.bcn.cl"
-echo "---"
-
-# Domain 244/892: www.minsal.cl
-log "Processing domain 244/892: www.minsal.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.minsal.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.minsal.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.minsal.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.minsal.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.minsal.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.minsal.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.minsal.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.minsal.cl"
-echo "---"
-
-# Domain 245/892: ahumadaexperiencia.cl
-log "Processing domain 245/892: ahumadaexperiencia.cl"
+# Domain 194/717: ahumadaexperiencia.cl
+log "Processing domain 245/717: ahumadaexperiencia.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8499,43 +6782,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ahumadaexperiencia.cl"
 echo "---"
 
-# Domain 246/892: www.ahumadaexperiencia.cl
-log "Processing domain 246/892: www.ahumadaexperiencia.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.ahumadaexperiencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.ahumadaexperiencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.ahumadaexperiencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.ahumadaexperiencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.ahumadaexperiencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.ahumadaexperiencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.ahumadaexperiencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.ahumadaexperiencia.cl"
-echo "---"
-
-# Domain 247/892: quimicambiental.cl
-log "Processing domain 247/892: quimicambiental.cl"
+# Domain 195/717: quimicambiental.cl
+log "Processing domain 247/717: quimicambiental.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8569,43 +6817,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: quimicambiental.cl"
 echo "---"
 
-# Domain 248/892: www.quimicambiental.cl
-log "Processing domain 248/892: www.quimicambiental.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.quimicambiental.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.quimicambiental.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.quimicambiental.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.quimicambiental.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.quimicambiental.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.quimicambiental.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.quimicambiental.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.quimicambiental.cl"
-echo "---"
-
-# Domain 249/892: instana.io
-log "Processing domain 249/892: instana.io"
+# Domain 196/717: instana.io
+log "Processing domain 249/717: instana.io"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8639,8 +6852,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: instana.io"
 echo "---"
 
-# Domain 250/892: eum.instana.io
-log "Processing domain 250/892: eum.instana.io"
+# Domain 197/717: eum.instana.io
+log "Processing domain 250/717: eum.instana.io"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8674,8 +6887,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: eum.instana.io"
 echo "---"
 
-# Domain 251/892: brandprotectionprogram.com
-log "Processing domain 251/892: brandprotectionprogram.com"
+# Domain 198/717: brandprotectionprogram.com
+log "Processing domain 251/717: brandprotectionprogram.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8709,43 +6922,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: brandprotectionprogram.com"
 echo "---"
 
-# Domain 252/892: www.brandprotectionprogram.com
-log "Processing domain 252/892: www.brandprotectionprogram.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.brandprotectionprogram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.brandprotectionprogram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.brandprotectionprogram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.brandprotectionprogram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.brandprotectionprogram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.brandprotectionprogram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.brandprotectionprogram.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.brandprotectionprogram.com"
-echo "---"
-
-# Domain 253/892: busesaltascumbres.cl
-log "Processing domain 253/892: busesaltascumbres.cl"
+# Domain 199/717: busesaltascumbres.cl
+log "Processing domain 253/717: busesaltascumbres.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8779,8 +6957,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: busesaltascumbres.cl"
 echo "---"
 
-# Domain 254/892: maps.google.com
-log "Processing domain 254/892: maps.google.com"
+# Domain 200/717: maps.google.com
+log "Processing domain 254/717: maps.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8814,8 +6992,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: maps.google.com"
 echo "---"
 
-# Domain 255/892: fiscalizacion.cl
-log "Processing domain 255/892: fiscalizacion.cl"
+# Domain 201/717: fiscalizacion.cl
+log "Processing domain 255/717: fiscalizacion.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8849,43 +7027,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: fiscalizacion.cl"
 echo "---"
 
-# Domain 256/892: www.fiscalizacion.cl
-log "Processing domain 256/892: www.fiscalizacion.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.fiscalizacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.fiscalizacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.fiscalizacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.fiscalizacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.fiscalizacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.fiscalizacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.fiscalizacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.fiscalizacion.cl"
-echo "---"
-
-# Domain 257/892: recorridoprod.s3.amazonaws.com
-log "Processing domain 257/892: recorridoprod.s3.amazonaws.com"
+# Domain 202/717: recorridoprod.s3.amazonaws.com
+log "Processing domain 257/717: recorridoprod.s3.amazonaws.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8919,8 +7062,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: recorridoprod.s3.amazonaws.com"
 echo "---"
 
-# Domain 258/892: buddypet.cl
-log "Processing domain 258/892: buddypet.cl"
+# Domain 203/717: buddypet.cl
+log "Processing domain 258/717: buddypet.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -8954,43 +7097,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: buddypet.cl"
 echo "---"
 
-# Domain 259/892: www.buddypet.cl
-log "Processing domain 259/892: www.buddypet.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.buddypet.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.buddypet.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.buddypet.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.buddypet.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.buddypet.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.buddypet.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.buddypet.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.buddypet.cl"
-echo "---"
-
-# Domain 260/892: freshdesk.com
-log "Processing domain 260/892: freshdesk.com"
+# Domain 204/717: freshdesk.com
+log "Processing domain 260/717: freshdesk.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9024,8 +7132,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: freshdesk.com"
 echo "---"
 
-# Domain 261/892: assets1.freshdesk.com
-log "Processing domain 261/892: assets1.freshdesk.com"
+# Domain 205/717: assets1.freshdesk.com
+log "Processing domain 261/717: assets1.freshdesk.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9059,8 +7167,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: assets1.freshdesk.com"
 echo "---"
 
-# Domain 262/892: assets8.freshdesk.com
-log "Processing domain 262/892: assets8.freshdesk.com"
+# Domain 206/717: assets8.freshdesk.com
+log "Processing domain 262/717: assets8.freshdesk.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9094,8 +7202,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: assets8.freshdesk.com"
 echo "---"
 
-# Domain 263/892: freshworks.com
-log "Processing domain 263/892: freshworks.com"
+# Domain 207/717: freshworks.com
+log "Processing domain 263/717: freshworks.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9129,8 +7237,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: freshworks.com"
 echo "---"
 
-# Domain 264/892: widget.freshworks.com
-log "Processing domain 264/892: widget.freshworks.com"
+# Domain 208/717: widget.freshworks.com
+log "Processing domain 264/717: widget.freshworks.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9164,8 +7272,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: widget.freshworks.com"
 echo "---"
 
-# Domain 265/892: assets6.freshdesk.com
-log "Processing domain 265/892: assets6.freshdesk.com"
+# Domain 209/717: assets6.freshdesk.com
+log "Processing domain 265/717: assets6.freshdesk.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9199,8 +7307,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: assets6.freshdesk.com"
 echo "---"
 
-# Domain 266/892: assets9.freshdesk.com
-log "Processing domain 266/892: assets9.freshdesk.com"
+# Domain 210/717: assets9.freshdesk.com
+log "Processing domain 266/717: assets9.freshdesk.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9234,8 +7342,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: assets9.freshdesk.com"
 echo "---"
 
-# Domain 267/892: s3.amazonaws.com
-log "Processing domain 267/892: s3.amazonaws.com"
+# Domain 211/717: s3.amazonaws.com
+log "Processing domain 267/717: s3.amazonaws.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9269,8 +7377,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: s3.amazonaws.com"
 echo "---"
 
-# Domain 268/892: assets10.freshdesk.com
-log "Processing domain 268/892: assets10.freshdesk.com"
+# Domain 212/717: assets10.freshdesk.com
+log "Processing domain 268/717: assets10.freshdesk.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9304,8 +7412,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: assets10.freshdesk.com"
 echo "---"
 
-# Domain 269/892: alumniunab.cl
-log "Processing domain 269/892: alumniunab.cl"
+# Domain 213/717: alumniunab.cl
+log "Processing domain 269/717: alumniunab.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9339,43 +7447,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: alumniunab.cl"
 echo "---"
 
-# Domain 270/892: www.alumniunab.cl
-log "Processing domain 270/892: www.alumniunab.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.alumniunab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.alumniunab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.alumniunab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.alumniunab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.alumniunab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.alumniunab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.alumniunab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.alumniunab.cl"
-echo "---"
-
-# Domain 271/892: marfeel.com
-log "Processing domain 271/892: marfeel.com"
+# Domain 214/717: marfeel.com
+log "Processing domain 271/717: marfeel.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9409,78 +7482,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: marfeel.com"
 echo "---"
 
-# Domain 272/892: www.marfeel.com
-log "Processing domain 272/892: www.marfeel.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.marfeel.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.marfeel.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.marfeel.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.marfeel.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.marfeel.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.marfeel.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.marfeel.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.marfeel.com"
-echo "---"
-
-# Domain 273/892: www.tvn.cl
-log "Processing domain 273/892: www.tvn.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.tvn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.tvn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.tvn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.tvn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.tvn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.tvn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.tvn.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.tvn.cl"
-echo "---"
-
-# Domain 274/892: ampproject.org
-log "Processing domain 274/892: ampproject.org"
+# Domain 215/717: ampproject.org
+log "Processing domain 274/717: ampproject.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9514,8 +7517,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ampproject.org"
 echo "---"
 
-# Domain 275/892: cdn.ampproject.org
-log "Processing domain 275/892: cdn.ampproject.org"
+# Domain 216/717: cdn.ampproject.org
+log "Processing domain 275/717: cdn.ampproject.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9549,8 +7552,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn.ampproject.org"
 echo "---"
 
-# Domain 276/892: pressreader.com
-log "Processing domain 276/892: pressreader.com"
+# Domain 217/717: pressreader.com
+log "Processing domain 276/717: pressreader.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9584,8 +7587,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: pressreader.com"
 echo "---"
 
-# Domain 277/892: diariofinanciero.pressreader.com
-log "Processing domain 277/892: diariofinanciero.pressreader.com"
+# Domain 218/717: diariofinanciero.pressreader.com
+log "Processing domain 277/717: diariofinanciero.pressreader.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9619,8 +7622,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: diariofinanciero.pressreader.com"
 echo "---"
 
-# Domain 278/892: grupodf.cl
-log "Processing domain 278/892: grupodf.cl"
+# Domain 219/717: grupodf.cl
+log "Processing domain 278/717: grupodf.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9654,8 +7657,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: grupodf.cl"
 echo "---"
 
-# Domain 279/892: comercial.grupodf.cl
-log "Processing domain 279/892: comercial.grupodf.cl"
+# Domain 220/717: comercial.grupodf.cl
+log "Processing domain 279/717: comercial.grupodf.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9689,8 +7692,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: comercial.grupodf.cl"
 echo "---"
 
-# Domain 280/892: dfsud.com
-log "Processing domain 280/892: dfsud.com"
+# Domain 221/717: dfsud.com
+log "Processing domain 280/717: dfsud.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9724,8 +7727,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dfsud.com"
 echo "---"
 
-# Domain 281/892: mail.google.com
-log "Processing domain 281/892: mail.google.com"
+# Domain 222/717: mail.google.com
+log "Processing domain 281/717: mail.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9759,8 +7762,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mail.google.com"
 echo "---"
 
-# Domain 282/892: latercera.com
-log "Processing domain 282/892: latercera.com"
+# Domain 223/717: latercera.com
+log "Processing domain 282/717: latercera.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9794,8 +7797,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: latercera.com"
 echo "---"
 
-# Domain 283/892: especiales.latercera.com
-log "Processing domain 283/892: especiales.latercera.com"
+# Domain 224/717: especiales.latercera.com
+log "Processing domain 283/717: especiales.latercera.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9829,8 +7832,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: especiales.latercera.com"
 echo "---"
 
-# Domain 284/892: topuniversities.com
-log "Processing domain 284/892: topuniversities.com"
+# Domain 225/717: topuniversities.com
+log "Processing domain 284/717: topuniversities.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9864,43 +7867,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: topuniversities.com"
 echo "---"
 
-# Domain 285/892: www.topuniversities.com
-log "Processing domain 285/892: www.topuniversities.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.topuniversities.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.topuniversities.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.topuniversities.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.topuniversities.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.topuniversities.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.topuniversities.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.topuniversities.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.topuniversities.com"
-echo "---"
-
-# Domain 286/892: timeshighereducation.com
-log "Processing domain 286/892: timeshighereducation.com"
+# Domain 226/717: timeshighereducation.com
+log "Processing domain 286/717: timeshighereducation.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -9934,43 +7902,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: timeshighereducation.com"
 echo "---"
 
-# Domain 287/892: www.timeshighereducation.com
-log "Processing domain 287/892: www.timeshighereducation.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.timeshighereducation.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.timeshighereducation.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.timeshighereducation.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.timeshighereducation.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.timeshighereducation.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.timeshighereducation.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.timeshighereducation.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.timeshighereducation.com"
-echo "---"
-
-# Domain 288/892: anid.cl
-log "Processing domain 288/892: anid.cl"
+# Domain 227/717: anid.cl
+log "Processing domain 288/717: anid.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10004,8 +7937,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: anid.cl"
 echo "---"
 
-# Domain 289/892: auregionales.cl
-log "Processing domain 289/892: auregionales.cl"
+# Domain 228/717: auregionales.cl
+log "Processing domain 289/717: auregionales.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10039,43 +7972,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: auregionales.cl"
 echo "---"
 
-# Domain 290/892: www.auregionales.cl
-log "Processing domain 290/892: www.auregionales.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.auregionales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.auregionales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.auregionales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.auregionales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.auregionales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.auregionales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.auregionales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.auregionales.cl"
-echo "---"
-
-# Domain 291/892: cned.cl
-log "Processing domain 291/892: cned.cl"
+# Domain 229/717: cned.cl
+log "Processing domain 291/717: cned.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10109,8 +8007,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cned.cl"
 echo "---"
 
-# Domain 292/892: consejoderectores.cl
-log "Processing domain 292/892: consejoderectores.cl"
+# Domain 230/717: consejoderectores.cl
+log "Processing domain 292/717: consejoderectores.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10144,8 +8042,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: consejoderectores.cl"
 echo "---"
 
-# Domain 293/892: sesuperior.cl
-log "Processing domain 293/892: sesuperior.cl"
+# Domain 231/717: sesuperior.cl
+log "Processing domain 293/717: sesuperior.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10179,78 +8077,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sesuperior.cl"
 echo "---"
 
-# Domain 294/892: www.sesuperior.cl
-log "Processing domain 294/892: www.sesuperior.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.sesuperior.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.sesuperior.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.sesuperior.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.sesuperior.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.sesuperior.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.sesuperior.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.sesuperior.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.sesuperior.cl"
-echo "---"
-
-# Domain 295/892: www.mineduc.cl
-log "Processing domain 295/892: www.mineduc.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.mineduc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.mineduc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.mineduc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.mineduc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.mineduc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.mineduc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.mineduc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.mineduc.cl"
-echo "---"
-
-# Domain 296/892: minciencia.gob.cl
-log "Processing domain 296/892: minciencia.gob.cl"
+# Domain 232/717: minciencia.gob.cl
+log "Processing domain 296/717: minciencia.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10284,43 +8112,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: minciencia.gob.cl"
 echo "---"
 
-# Domain 297/892: www.minciencia.gob.cl
-log "Processing domain 297/892: www.minciencia.gob.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.minciencia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.minciencia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.minciencia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.minciencia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.minciencia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.minciencia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.minciencia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.minciencia.gob.cl"
-echo "---"
-
-# Domain 298/892: datosabiertos.mineduc.cl
-log "Processing domain 298/892: datosabiertos.mineduc.cl"
+# Domain 233/717: datosabiertos.mineduc.cl
+log "Processing domain 298/717: datosabiertos.mineduc.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10354,8 +8147,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: datosabiertos.mineduc.cl"
 echo "---"
 
-# Domain 299/892: uestatales.cl
-log "Processing domain 299/892: uestatales.cl"
+# Domain 234/717: uestatales.cl
+log "Processing domain 299/717: uestatales.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10389,43 +8182,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: uestatales.cl"
 echo "---"
 
-# Domain 300/892: www.uestatales.cl
-log "Processing domain 300/892: www.uestatales.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.uestatales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.uestatales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.uestatales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.uestatales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.uestatales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.uestatales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.uestatales.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.uestatales.cl"
-echo "---"
-
-# Domain 301/892: ine.gob.cl
-log "Processing domain 301/892: ine.gob.cl"
+# Domain 235/717: ine.gob.cl
+log "Processing domain 301/717: ine.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10459,43 +8217,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ine.gob.cl"
 echo "---"
 
-# Domain 302/892: www.ine.gob.cl
-log "Processing domain 302/892: www.ine.gob.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.ine.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.ine.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.ine.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.ine.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.ine.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.ine.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.ine.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.ine.gob.cl"
-echo "---"
-
-# Domain 303/892: superdesalud.gob.cl
-log "Processing domain 303/892: superdesalud.gob.cl"
+# Domain 236/717: superdesalud.gob.cl
+log "Processing domain 303/717: superdesalud.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10529,43 +8252,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: superdesalud.gob.cl"
 echo "---"
 
-# Domain 304/892: www.superdesalud.gob.cl
-log "Processing domain 304/892: www.superdesalud.gob.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.superdesalud.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.superdesalud.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.superdesalud.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.superdesalud.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.superdesalud.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.superdesalud.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.superdesalud.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.superdesalud.gob.cl"
-echo "---"
-
-# Domain 305/892: dfi.mineduc.cl
-log "Processing domain 305/892: dfi.mineduc.cl"
+# Domain 237/717: dfi.mineduc.cl
+log "Processing domain 305/717: dfi.mineduc.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10599,8 +8287,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dfi.mineduc.cl"
 echo "---"
 
-# Domain 306/892: cies.uestatales.cl
-log "Processing domain 306/892: cies.uestatales.cl"
+# Domain 238/717: cies.uestatales.cl
+log "Processing domain 306/717: cies.uestatales.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10634,8 +8322,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cies.uestatales.cl"
 echo "---"
 
-# Domain 307/892: pes.mineduc.cl
-log "Processing domain 307/892: pes.mineduc.cl"
+# Domain 239/717: pes.mineduc.cl
+log "Processing domain 307/717: pes.mineduc.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10669,8 +8357,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: pes.mineduc.cl"
 echo "---"
 
-# Domain 308/892: big.data.uestatales.cl
-log "Processing domain 308/892: big.data.uestatales.cl"
+# Domain 240/717: big.data.uestatales.cl
+log "Processing domain 308/717: big.data.uestatales.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10704,8 +8392,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: big.data.uestatales.cl"
 echo "---"
 
-# Domain 309/892: cwts.nl
-log "Processing domain 309/892: cwts.nl"
+# Domain 241/717: cwts.nl
+log "Processing domain 309/717: cwts.nl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10739,43 +8427,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cwts.nl"
 echo "---"
 
-# Domain 310/892: www.cwts.nl
-log "Processing domain 310/892: www.cwts.nl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.cwts.nl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.cwts.nl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.cwts.nl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.cwts.nl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.cwts.nl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.cwts.nl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.cwts.nl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.cwts.nl"
-echo "---"
-
-# Domain 311/892: top2percentscientists.com
-log "Processing domain 311/892: top2percentscientists.com"
+# Domain 242/717: top2percentscientists.com
+log "Processing domain 311/717: top2percentscientists.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10809,8 +8462,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: top2percentscientists.com"
 echo "---"
 
-# Domain 312/892: ac.id
-log "Processing domain 312/892: ac.id"
+# Domain 243/717: ac.id
+log "Processing domain 312/717: ac.id"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10844,8 +8497,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ac.id"
 echo "---"
 
-# Domain 313/892: greenmetric.ui.ac.id
-log "Processing domain 313/892: greenmetric.ui.ac.id"
+# Domain 244/717: greenmetric.ui.ac.id
+log "Processing domain 313/717: greenmetric.ui.ac.id"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10879,8 +8532,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: greenmetric.ui.ac.id"
 echo "---"
 
-# Domain 314/892: emailjs.com
-log "Processing domain 314/892: emailjs.com"
+# Domain 245/717: emailjs.com
+log "Processing domain 314/717: emailjs.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10914,8 +8567,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: emailjs.com"
 echo "---"
 
-# Domain 315/892: cdn.emailjs.com
-log "Processing domain 315/892: cdn.emailjs.com"
+# Domain 246/717: cdn.emailjs.com
+log "Processing domain 315/717: cdn.emailjs.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -10949,43 +8602,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn.emailjs.com"
 echo "---"
 
-# Domain 316/892: www.emol.com
-log "Processing domain 316/892: www.emol.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.emol.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.emol.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.emol.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.emol.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.emol.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.emol.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.emol.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.emol.com"
-echo "---"
-
-# Domain 317/892: elmercurio.com 
-log "Processing domain 317/892: elmercurio.com "
+# Domain 247/717: elmercurio.com
+log "Processing domain 317/717: elmercurio.com "
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11019,8 +8637,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: elmercurio.com "
 echo "---"
 
-# Domain 318/892: digital.elmercurio.com 
-log "Processing domain 318/892: digital.elmercurio.com "
+# Domain 248/717: digital.elmercurio.com
+log "Processing domain 318/717: digital.elmercurio.com "
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11054,8 +8672,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: digital.elmercurio.com "
 echo "---"
 
-# Domain 319/892: elmercurio.com
-log "Processing domain 319/892: elmercurio.com"
+# Domain 249/717: elmercurio.com
+log "Processing domain 319/717: elmercurio.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11089,43 +8707,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: elmercurio.com"
 echo "---"
 
-# Domain 320/892: www.elmercurio.com
-log "Processing domain 320/892: www.elmercurio.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.elmercurio.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.elmercurio.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.elmercurio.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.elmercurio.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.elmercurio.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.elmercurio.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.elmercurio.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.elmercurio.com"
-echo "---"
-
-# Domain 321/892: automoviles.emol.com
-log "Processing domain 321/892: automoviles.emol.com"
+# Domain 250/717: automoviles.emol.com
+log "Processing domain 321/717: automoviles.emol.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11159,8 +8742,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: automoviles.emol.com"
 echo "---"
 
-# Domain 322/892: propiedades.elmercurio.com
-log "Processing domain 322/892: propiedades.elmercurio.com"
+# Domain 251/717: propiedades.elmercurio.com
+log "Processing domain 322/717: propiedades.elmercurio.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11194,8 +8777,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: propiedades.elmercurio.com"
 echo "---"
 
-# Domain 323/892: mundolaboral.elmercurio.com
-log "Processing domain 323/892: mundolaboral.elmercurio.com"
+# Domain 252/717: mundolaboral.elmercurio.com
+log "Processing domain 323/717: mundolaboral.elmercurio.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11229,8 +8812,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mundolaboral.elmercurio.com"
 echo "---"
 
-# Domain 324/892: economicos.cl
-log "Processing domain 324/892: economicos.cl"
+# Domain 253/717: economicos.cl
+log "Processing domain 324/717: economicos.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11264,43 +8847,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: economicos.cl"
 echo "---"
 
-# Domain 325/892: www.economicos.cl
-log "Processing domain 325/892: www.economicos.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.economicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.economicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.economicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.economicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.economicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.economicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.economicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.economicos.cl"
-echo "---"
-
-# Domain 326/892: lasegunda.com
-log "Processing domain 326/892: lasegunda.com"
+# Domain 254/717: lasegunda.com
+log "Processing domain 326/717: lasegunda.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11334,43 +8882,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: lasegunda.com"
 echo "---"
 
-# Domain 327/892: www.lasegunda.com
-log "Processing domain 327/892: www.lasegunda.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.lasegunda.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.lasegunda.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.lasegunda.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.lasegunda.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.lasegunda.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.lasegunda.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.lasegunda.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.lasegunda.com"
-echo "---"
-
-# Domain 328/892: lun.com
-log "Processing domain 328/892: lun.com"
+# Domain 255/717: lun.com
+log "Processing domain 328/717: lun.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11404,43 +8917,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: lun.com"
 echo "---"
 
-# Domain 329/892: www.lun.com
-log "Processing domain 329/892: www.lun.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.lun.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.lun.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.lun.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.lun.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.lun.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.lun.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.lun.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.lun.com"
-echo "---"
-
-# Domain 330/892: tv.emol.com
-log "Processing domain 330/892: tv.emol.com"
+# Domain 256/717: tv.emol.com
+log "Processing domain 330/717: tv.emol.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11474,8 +8952,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tv.emol.com"
 echo "---"
 
-# Domain 331/892: restaurantes.emol.com
-log "Processing domain 331/892: restaurantes.emol.com"
+# Domain 257/717: restaurantes.emol.com
+log "Processing domain 331/717: restaurantes.emol.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11509,8 +8987,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: restaurantes.emol.com"
 echo "---"
 
-# Domain 332/892: clubdelectores.cl
-log "Processing domain 332/892: clubdelectores.cl"
+# Domain 258/717: clubdelectores.cl
+log "Processing domain 332/717: clubdelectores.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11544,43 +9022,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: clubdelectores.cl"
 echo "---"
 
-# Domain 333/892: www.clubdelectores.cl
-log "Processing domain 333/892: www.clubdelectores.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.clubdelectores.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.clubdelectores.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.clubdelectores.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.clubdelectores.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.clubdelectores.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.clubdelectores.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.clubdelectores.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.clubdelectores.cl"
-echo "---"
-
-# Domain 334/892: digital.elmercurio.com
-log "Processing domain 334/892: digital.elmercurio.com"
+# Domain 259/717: digital.elmercurio.com
+log "Processing domain 334/717: digital.elmercurio.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11614,43 +9057,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: digital.elmercurio.com"
 echo "---"
 
-# Domain 335/892: www.soychile.cl
-log "Processing domain 335/892: www.soychile.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.soychile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.soychile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.soychile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.soychile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.soychile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.soychile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.soychile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.soychile.cl"
-echo "---"
-
-# Domain 336/892: adxion.com
-log "Processing domain 336/892: adxion.com"
+# Domain 260/717: adxion.com
+log "Processing domain 336/717: adxion.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11684,43 +9092,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: adxion.com"
 echo "---"
 
-# Domain 337/892: www.adxion.com
-log "Processing domain 337/892: www.adxion.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.adxion.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.adxion.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.adxion.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.adxion.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.adxion.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.adxion.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.adxion.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.adxion.com"
-echo "---"
-
-# Domain 338/892: valorfuturo.com
-log "Processing domain 338/892: valorfuturo.com"
+# Domain 261/717: valorfuturo.com
+log "Processing domain 338/717: valorfuturo.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11754,43 +9127,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: valorfuturo.com"
 echo "---"
 
-# Domain 339/892: www.valorfuturo.com
-log "Processing domain 339/892: www.valorfuturo.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.valorfuturo.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.valorfuturo.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.valorfuturo.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.valorfuturo.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.valorfuturo.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.valorfuturo.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.valorfuturo.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.valorfuturo.com"
-echo "---"
-
-# Domain 340/892: mercadomayorista.lun.com
-log "Processing domain 340/892: mercadomayorista.lun.com"
+# Domain 262/717: mercadomayorista.lun.com
+log "Processing domain 340/717: mercadomayorista.lun.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11824,8 +9162,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mercadomayorista.lun.com"
 echo "---"
 
-# Domain 341/892: static.emol.cl
-log "Processing domain 341/892: static.emol.cl"
+# Domain 263/717: static.emol.cl
+log "Processing domain 341/717: static.emol.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11859,8 +9197,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: static.emol.cl"
 echo "---"
 
-# Domain 342/892: mediaserver.emol.cl
-log "Processing domain 342/892: mediaserver.emol.cl"
+# Domain 264/717: mediaserver.emol.cl
+log "Processing domain 342/717: mediaserver.emol.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11894,8 +9232,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mediaserver.emol.cl"
 echo "---"
 
-# Domain 343/892: merreader.emol.cl
-log "Processing domain 343/892: merreader.emol.cl"
+# Domain 265/717: merreader.emol.cl
+log "Processing domain 343/717: merreader.emol.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11929,8 +9267,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: merreader.emol.cl"
 echo "---"
 
-# Domain 344/892: sspnm.emol.com
-log "Processing domain 344/892: sspnm.emol.com"
+# Domain 266/717: sspnm.emol.com
+log "Processing domain 344/717: sspnm.emol.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11964,8 +9302,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sspnm.emol.com"
 echo "---"
 
-# Domain 345/892: apps.emol.com
-log "Processing domain 345/892: apps.emol.com"
+# Domain 267/717: apps.emol.com
+log "Processing domain 345/717: apps.emol.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -11999,8 +9337,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: apps.emol.com"
 echo "---"
 
-# Domain 346/892: campuscibelae.net
-log "Processing domain 346/892: campuscibelae.net"
+# Domain 268/717: campuscibelae.net
+log "Processing domain 346/717: campuscibelae.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12034,43 +9372,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: campuscibelae.net"
 echo "---"
 
-# Domain 347/892: www.campuscibelae.net
-log "Processing domain 347/892: www.campuscibelae.net"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.campuscibelae.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.campuscibelae.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.campuscibelae.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.campuscibelae.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.campuscibelae.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.campuscibelae.net"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.campuscibelae.net"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.campuscibelae.net"
-echo "---"
-
-# Domain 348/892: moodle.org
-log "Processing domain 348/892: moodle.org"
+# Domain 269/717: moodle.org
+log "Processing domain 348/717: moodle.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12104,8 +9407,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: moodle.org"
 echo "---"
 
-# Domain 349/892: conecti.me
-log "Processing domain 349/892: conecti.me"
+# Domain 270/717: conecti.me
+log "Processing domain 349/717: conecti.me"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12139,8 +9442,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: conecti.me"
 echo "---"
 
-# Domain 350/892: guaufest.cl
-log "Processing domain 350/892: guaufest.cl"
+# Domain 271/717: guaufest.cl
+log "Processing domain 350/717: guaufest.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12174,8 +9477,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: guaufest.cl"
 echo "---"
 
-# Domain 351/892: aka.ms
-log "Processing domain 351/892: aka.ms"
+# Domain 272/717: aka.ms
+log "Processing domain 351/717: aka.ms"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12209,8 +9512,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: aka.ms"
 echo "---"
 
-# Domain 352/892: microsoft.com
-log "Processing domain 352/892: microsoft.com"
+# Domain 273/717: microsoft.com
+log "Processing domain 352/717: microsoft.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12244,8 +9547,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: microsoft.com"
 echo "---"
 
-# Domain 353/892: go.microsoft.com
-log "Processing domain 353/892: go.microsoft.com"
+# Domain 274/717: go.microsoft.com
+log "Processing domain 353/717: go.microsoft.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12279,8 +9582,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: go.microsoft.com"
 echo "---"
 
-# Domain 354/892: identity.security
-log "Processing domain 354/892: identity.security"
+# Domain 275/717: identity.security
+log "Processing domain 354/717: identity.security"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12314,8 +9617,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: identity.security"
 echo "---"
 
-# Domain 355/892: signin.identity.security
-log "Processing domain 355/892: signin.identity.security"
+# Domain 276/717: signin.identity.security
+log "Processing domain 355/717: signin.identity.security"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12349,8 +9652,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: signin.identity.security"
 echo "---"
 
-# Domain 356/892: jotform.com
-log "Processing domain 356/892: jotform.com"
+# Domain 277/717: jotform.com
+log "Processing domain 356/717: jotform.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12384,8 +9687,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: jotform.com"
 echo "---"
 
-# Domain 357/892: form.jotform.com
-log "Processing domain 357/892: form.jotform.com"
+# Domain 278/717: form.jotform.com
+log "Processing domain 357/717: form.jotform.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12419,8 +9722,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: form.jotform.com"
 echo "---"
 
-# Domain 358/892: twitch.tv
-log "Processing domain 358/892: twitch.tv"
+# Domain 279/717: twitch.tv
+log "Processing domain 358/717: twitch.tv"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12454,43 +9757,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: twitch.tv"
 echo "---"
 
-# Domain 359/892: www.twitch.tv
-log "Processing domain 359/892: www.twitch.tv"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.twitch.tv"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.twitch.tv"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.twitch.tv"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.twitch.tv"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.twitch.tv"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.twitch.tv"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.twitch.tv"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.twitch.tv"
-echo "---"
-
-# Domain 360/892: chilevision.trabajando.cl
-log "Processing domain 360/892: chilevision.trabajando.cl"
+# Domain 280/717: chilevision.trabajando.cl
+log "Processing domain 360/717: chilevision.trabajando.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12524,8 +9792,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: chilevision.trabajando.cl"
 echo "---"
 
-# Domain 361/892: paramount.com
-log "Processing domain 361/892: paramount.com"
+# Domain 281/717: paramount.com
+log "Processing domain 361/717: paramount.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12559,8 +9827,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: paramount.com"
 echo "---"
 
-# Domain 362/892: privacy.paramount.com
-log "Processing domain 362/892: privacy.paramount.com"
+# Domain 282/717: privacy.paramount.com
+log "Processing domain 362/717: privacy.paramount.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12594,8 +9862,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: privacy.paramount.com"
 echo "---"
 
-# Domain 363/892: play.google.com
-log "Processing domain 363/892: play.google.com"
+# Domain 283/717: play.google.com
+log "Processing domain 363/717: play.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12629,8 +9897,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: play.google.com"
 echo "---"
 
-# Domain 364/892: apple.com
-log "Processing domain 364/892: apple.com"
+# Domain 284/717: apple.com
+log "Processing domain 364/717: apple.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12664,8 +9932,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: apple.com"
 echo "---"
 
-# Domain 365/892: apps.apple.com
-log "Processing domain 365/892: apps.apple.com"
+# Domain 285/717: apps.apple.com
+log "Processing domain 365/717: apps.apple.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12699,8 +9967,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: apps.apple.com"
 echo "---"
 
-# Domain 366/892: ebxcdn.com
-log "Processing domain 366/892: ebxcdn.com"
+# Domain 286/717: ebxcdn.com
+log "Processing domain 366/717: ebxcdn.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12734,8 +10002,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ebxcdn.com"
 echo "---"
 
-# Domain 367/892: applets.ebxcdn.com
-log "Processing domain 367/892: applets.ebxcdn.com"
+# Domain 287/717: applets.ebxcdn.com
+log "Processing domain 367/717: applets.ebxcdn.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12769,8 +10037,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: applets.ebxcdn.com"
 echo "---"
 
-# Domain 368/892: cookielaw.org
-log "Processing domain 368/892: cookielaw.org"
+# Domain 288/717: cookielaw.org
+log "Processing domain 368/717: cookielaw.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12804,8 +10072,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cookielaw.org"
 echo "---"
 
-# Domain 369/892: cdn.cookielaw.org
-log "Processing domain 369/892: cdn.cookielaw.org"
+# Domain 289/717: cdn.cookielaw.org
+log "Processing domain 369/717: cdn.cookielaw.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12839,8 +10107,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn.cookielaw.org"
 echo "---"
 
-# Domain 370/892: cdn.privacy.paramount.com
-log "Processing domain 370/892: cdn.privacy.paramount.com"
+# Domain 290/717: cdn.privacy.paramount.com
+log "Processing domain 370/717: cdn.privacy.paramount.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12874,8 +10142,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn.privacy.paramount.com"
 echo "---"
 
-# Domain 371/892: chartbeat.com
-log "Processing domain 371/892: chartbeat.com"
+# Domain 291/717: chartbeat.com
+log "Processing domain 371/717: chartbeat.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12909,8 +10177,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: chartbeat.com"
 echo "---"
 
-# Domain 372/892: static.chartbeat.com
-log "Processing domain 372/892: static.chartbeat.com"
+# Domain 292/717: static.chartbeat.com
+log "Processing domain 372/717: static.chartbeat.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12944,8 +10212,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: static.chartbeat.com"
 echo "---"
 
-# Domain 373/892: wa.me
-log "Processing domain 373/892: wa.me"
+# Domain 293/717: wa.me
+log "Processing domain 373/717: wa.me"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -12979,8 +10247,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: wa.me"
 echo "---"
 
-# Domain 374/892: android.com
-log "Processing domain 374/892: android.com"
+# Domain 294/717: android.com
+log "Processing domain 374/717: android.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13014,8 +10282,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: android.com"
 echo "---"
 
-# Domain 375/892: developer.android.com
-log "Processing domain 375/892: developer.android.com"
+# Domain 295/717: developer.android.com
+log "Processing domain 375/717: developer.android.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13049,8 +10317,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: developer.android.com"
 echo "---"
 
-# Domain 376/892: store.google.com
-log "Processing domain 376/892: store.google.com"
+# Domain 296/717: store.google.com
+log "Processing domain 376/717: store.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13084,8 +10352,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: store.google.com"
 echo "---"
 
-# Domain 377/892: fonts.gstatic.com
-log "Processing domain 377/892: fonts.gstatic.com"
+# Domain 297/717: fonts.gstatic.com
+log "Processing domain 377/717: fonts.gstatic.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13119,8 +10387,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: fonts.gstatic.com"
 echo "---"
 
-# Domain 378/892: ytimg.com
-log "Processing domain 378/892: ytimg.com"
+# Domain 298/717: ytimg.com
+log "Processing domain 378/717: ytimg.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13154,8 +10422,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ytimg.com"
 echo "---"
 
-# Domain 379/892: i.ytimg.com
-log "Processing domain 379/892: i.ytimg.com"
+# Domain 299/717: i.ytimg.com
+log "Processing domain 379/717: i.ytimg.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13189,8 +10457,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: i.ytimg.com"
 echo "---"
 
-# Domain 380/892: googleusercontent.com
-log "Processing domain 380/892: googleusercontent.com"
+# Domain 300/717: googleusercontent.com
+log "Processing domain 380/717: googleusercontent.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13224,8 +10492,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: googleusercontent.com"
 echo "---"
 
-# Domain 381/892: play-lh.googleusercontent.com
-log "Processing domain 381/892: play-lh.googleusercontent.com"
+# Domain 301/717: play-lh.googleusercontent.com
+log "Processing domain 381/717: play-lh.googleusercontent.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13259,8 +10527,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: play-lh.googleusercontent.com"
 echo "---"
 
-# Domain 382/892: ssl.gstatic.com
-log "Processing domain 382/892: ssl.gstatic.com"
+# Domain 302/717: ssl.gstatic.com
+log "Processing domain 382/717: ssl.gstatic.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13294,8 +10562,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ssl.gstatic.com"
 echo "---"
 
-# Domain 383/892: midt.dirtrab.cl
-log "Processing domain 383/892: midt.dirtrab.cl"
+# Domain 303/717: midt.dirtrab.cl
+log "Processing domain 383/717: midt.dirtrab.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13329,8 +10597,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: midt.dirtrab.cl"
 echo "---"
 
-# Domain 384/892: edu.google.com
-log "Processing domain 384/892: edu.google.com"
+# Domain 304/717: edu.google.com
+log "Processing domain 384/717: edu.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13364,8 +10632,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: edu.google.com"
 echo "---"
 
-# Domain 385/892: appsheet.com
-log "Processing domain 385/892: appsheet.com"
+# Domain 305/717: appsheet.com
+log "Processing domain 385/717: appsheet.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13399,8 +10667,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: appsheet.com"
 echo "---"
 
-# Domain 386/892: about.appsheet.com
-log "Processing domain 386/892: about.appsheet.com"
+# Domain 306/717: about.appsheet.com
+log "Processing domain 386/717: about.appsheet.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13434,8 +10702,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: about.appsheet.com"
 echo "---"
 
-# Domain 387/892: workspace.google.com
-log "Processing domain 387/892: workspace.google.com"
+# Domain 307/717: workspace.google.com
+log "Processing domain 387/717: workspace.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13469,8 +10737,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: workspace.google.com"
 echo "---"
 
-# Domain 388/892: cloudonair.withgoogle.com
-log "Processing domain 388/892: cloudonair.withgoogle.com"
+# Domain 308/717: cloudonair.withgoogle.com
+log "Processing domain 388/717: cloudonair.withgoogle.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13504,8 +10772,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cloudonair.withgoogle.com"
 echo "---"
 
-# Domain 389/892: admin.google.com
-log "Processing domain 389/892: admin.google.com"
+# Domain 309/717: admin.google.com
+log "Processing domain 389/717: admin.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13539,8 +10807,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: admin.google.com"
 echo "---"
 
-# Domain 390/892: goo.gle
-log "Processing domain 390/892: goo.gle"
+# Domain 310/717: goo.gle
+log "Processing domain 390/717: goo.gle"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13574,8 +10842,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: goo.gle"
 echo "---"
 
-# Domain 391/892: cloud.withgoogle.com
-log "Processing domain 391/892: cloud.withgoogle.com"
+# Domain 311/717: cloud.withgoogle.com
+log "Processing domain 391/717: cloud.withgoogle.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13609,8 +10877,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cloud.withgoogle.com"
 echo "---"
 
-# Domain 392/892: productforums.google.com
-log "Processing domain 392/892: productforums.google.com"
+# Domain 312/717: productforums.google.com
+log "Processing domain 392/717: productforums.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13644,8 +10912,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: productforums.google.com"
 echo "---"
 
-# Domain 393/892: googlecloudcommunity.com
-log "Processing domain 393/892: googlecloudcommunity.com"
+# Domain 313/717: googlecloudcommunity.com
+log "Processing domain 393/717: googlecloudcommunity.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13679,43 +10947,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: googlecloudcommunity.com"
 echo "---"
 
-# Domain 394/892: www.googlecloudcommunity.com
-log "Processing domain 394/892: www.googlecloudcommunity.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.googlecloudcommunity.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.googlecloudcommunity.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.googlecloudcommunity.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.googlecloudcommunity.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.googlecloudcommunity.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.googlecloudcommunity.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.googlecloudcommunity.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.googlecloudcommunity.com"
-echo "---"
-
-# Domain 395/892: domains.google.com
-log "Processing domain 395/892: domains.google.com"
+# Domain 314/717: domains.google.com
+log "Processing domain 395/717: domains.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13749,8 +10982,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: domains.google.com"
 echo "---"
 
-# Domain 396/892: chromeenterprise.google
-log "Processing domain 396/892: chromeenterprise.google"
+# Domain 315/717: chromeenterprise.google
+log "Processing domain 396/717: chromeenterprise.google"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13784,8 +11017,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: chromeenterprise.google"
 echo "---"
 
-# Domain 397/892: businessmessages.google
-log "Processing domain 397/892: businessmessages.google"
+# Domain 316/717: businessmessages.google
+log "Processing domain 397/717: businessmessages.google"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13819,8 +11052,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: businessmessages.google"
 echo "---"
 
-# Domain 398/892: userresearch.google.com
-log "Processing domain 398/892: userresearch.google.com"
+# Domain 317/717: userresearch.google.com
+log "Processing domain 398/717: userresearch.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13854,8 +11087,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: userresearch.google.com"
 echo "---"
 
-# Domain 399/892: lh3.googleusercontent.com
-log "Processing domain 399/892: lh3.googleusercontent.com"
+# Domain 318/717: lh3.googleusercontent.com
+log "Processing domain 399/717: lh3.googleusercontent.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13889,8 +11122,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: lh3.googleusercontent.com"
 echo "---"
 
-# Domain 400/892: storage.googleapis.com
-log "Processing domain 400/892: storage.googleapis.com"
+# Domain 319/717: storage.googleapis.com
+log "Processing domain 400/717: storage.googleapis.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13924,8 +11157,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: storage.googleapis.com"
 echo "---"
 
-# Domain 401/892: cloudfunctions.net
-log "Processing domain 401/892: cloudfunctions.net"
+# Domain 320/717: cloudfunctions.net
+log "Processing domain 401/717: cloudfunctions.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13959,8 +11192,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cloudfunctions.net"
 echo "---"
 
-# Domain 402/892: us-central1-gweb-cloudx-marketo.cloudfunctions.net
-log "Processing domain 402/892: us-central1-gweb-cloudx-marketo.cloudfunctions.net"
+# Domain 321/717: us-central1-gweb-cloudx-marketo.cloudfunctions.net
+log "Processing domain 402/717: us-central1-gweb-cloudx-marketo.cloudfunctions.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -13994,8 +11227,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: us-central1-gweb-cloudx-marketo.cloudfunctions.net"
 echo "---"
 
-# Domain 403/892: walmart.cl
-log "Processing domain 403/892: walmart.cl"
+# Domain 322/717: walmart.cl
+log "Processing domain 403/717: walmart.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14029,8 +11262,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: walmart.cl"
 echo "---"
 
-# Domain 404/892: marketplace.walmart.cl
-log "Processing domain 404/892: marketplace.walmart.cl"
+# Domain 323/717: marketplace.walmart.cl
+log "Processing domain 404/717: marketplace.walmart.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14064,8 +11297,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: marketplace.walmart.cl"
 echo "---"
 
-# Domain 405/892: liderbciserviciosfinancieros.cl
-log "Processing domain 405/892: liderbciserviciosfinancieros.cl"
+# Domain 324/717: liderbciserviciosfinancieros.cl
+log "Processing domain 405/717: liderbciserviciosfinancieros.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14099,8 +11332,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: liderbciserviciosfinancieros.cl"
 echo "---"
 
-# Domain 406/892: tarjetadigital.liderbciserviciosfinancieros.cl
-log "Processing domain 406/892: tarjetadigital.liderbciserviciosfinancieros.cl"
+# Domain 325/717: tarjetadigital.liderbciserviciosfinancieros.cl
+log "Processing domain 406/717: tarjetadigital.liderbciserviciosfinancieros.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14134,8 +11367,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tarjetadigital.liderbciserviciosfinancieros.cl"
 echo "---"
 
-# Domain 407/892: miclublider.cl
-log "Processing domain 407/892: miclublider.cl"
+# Domain 326/717: miclublider.cl
+log "Processing domain 407/717: miclublider.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14169,43 +11402,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: miclublider.cl"
 echo "---"
 
-# Domain 408/892: www.miclublider.cl
-log "Processing domain 408/892: www.miclublider.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.miclublider.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.miclublider.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.miclublider.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.miclublider.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.miclublider.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.miclublider.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.miclublider.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.miclublider.cl"
-echo "---"
-
-# Domain 409/892: walmartimages.com
-log "Processing domain 409/892: walmartimages.com"
+# Domain 327/717: walmartimages.com
+log "Processing domain 409/717: walmartimages.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14239,8 +11437,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: walmartimages.com"
 echo "---"
 
-# Domain 410/892: i5.walmartimages.com
-log "Processing domain 410/892: i5.walmartimages.com"
+# Domain 328/717: i5.walmartimages.com
+log "Processing domain 410/717: i5.walmartimages.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14274,8 +11472,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: i5.walmartimages.com"
 echo "---"
 
-# Domain 411/892: walmartimages.cl
-log "Processing domain 411/892: walmartimages.cl"
+# Domain 329/717: walmartimages.cl
+log "Processing domain 411/717: walmartimages.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14309,8 +11507,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: walmartimages.cl"
 echo "---"
 
-# Domain 412/892: i5.walmartimages.cl
-log "Processing domain 412/892: i5.walmartimages.cl"
+# Domain 330/717: i5.walmartimages.cl
+log "Processing domain 412/717: i5.walmartimages.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14344,8 +11542,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: i5.walmartimages.cl"
 echo "---"
 
-# Domain 413/892: tailwindcss.com
-log "Processing domain 413/892: tailwindcss.com"
+# Domain 331/717: tailwindcss.com
+log "Processing domain 413/717: tailwindcss.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14379,8 +11577,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tailwindcss.com"
 echo "---"
 
-# Domain 414/892: cdn.tailwindcss.com
-log "Processing domain 414/892: cdn.tailwindcss.com"
+# Domain 332/717: cdn.tailwindcss.com
+log "Processing domain 414/717: cdn.tailwindcss.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14414,8 +11612,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn.tailwindcss.com"
 echo "---"
 
-# Domain 415/892: icomoon.io
-log "Processing domain 415/892: icomoon.io"
+# Domain 333/717: icomoon.io
+log "Processing domain 415/717: icomoon.io"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14449,8 +11647,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: icomoon.io"
 echo "---"
 
-# Domain 416/892: cdn.icomoon.io
-log "Processing domain 416/892: cdn.icomoon.io"
+# Domain 334/717: cdn.icomoon.io
+log "Processing domain 416/717: cdn.icomoon.io"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14484,8 +11682,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn.icomoon.io"
 echo "---"
 
-# Domain 417/892: download.moodle.org
-log "Processing domain 417/892: download.moodle.org"
+# Domain 335/717: download.moodle.org
+log "Processing domain 417/717: download.moodle.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14519,8 +11717,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: download.moodle.org"
 echo "---"
 
-# Domain 418/892: media-partners.io
-log "Processing domain 418/892: media-partners.io"
+# Domain 336/717: media-partners.io
+log "Processing domain 418/717: media-partners.io"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14554,8 +11752,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: media-partners.io"
 echo "---"
 
-# Domain 419/892: hipodromochile.cl
-log "Processing domain 419/892: hipodromochile.cl"
+# Domain 337/717: hipodromochile.cl
+log "Processing domain 419/717: hipodromochile.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14589,43 +11787,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: hipodromochile.cl"
 echo "---"
 
-# Domain 420/892: www.clubhipico.cl
-log "Processing domain 420/892: www.clubhipico.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.clubhipico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.clubhipico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.clubhipico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.clubhipico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.clubhipico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.clubhipico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.clubhipico.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.clubhipico.cl"
-echo "---"
-
-# Domain 421/892: sporting.cl
-log "Processing domain 421/892: sporting.cl"
+# Domain 338/717: sporting.cl
+log "Processing domain 421/717: sporting.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14659,43 +11822,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sporting.cl"
 echo "---"
 
-# Domain 422/892: www.sporting.cl
-log "Processing domain 422/892: www.sporting.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.sporting.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.sporting.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.sporting.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.sporting.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.sporting.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.sporting.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.sporting.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.sporting.cl"
-echo "---"
-
-# Domain 423/892: clubhipicoconcepcion.cl
-log "Processing domain 423/892: clubhipicoconcepcion.cl"
+# Domain 339/717: clubhipicoconcepcion.cl
+log "Processing domain 423/717: clubhipicoconcepcion.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14729,43 +11857,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: clubhipicoconcepcion.cl"
 echo "---"
 
-# Domain 424/892: www.clubhipicoconcepcion.cl
-log "Processing domain 424/892: www.clubhipicoconcepcion.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.clubhipicoconcepcion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.clubhipicoconcepcion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.clubhipicoconcepcion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.clubhipicoconcepcion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.clubhipicoconcepcion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.clubhipicoconcepcion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.clubhipicoconcepcion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.clubhipicoconcepcion.cl"
-echo "---"
-
-# Domain 425/892: youtu.be
-log "Processing domain 425/892: youtu.be"
+# Domain 340/717: youtu.be
+log "Processing domain 425/717: youtu.be"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14799,8 +11892,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: youtu.be"
 echo "---"
 
-# Domain 426/892: mdstrm.com
-log "Processing domain 426/892: mdstrm.com"
+# Domain 341/717: mdstrm.com
+log "Processing domain 426/717: mdstrm.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14834,8 +11927,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mdstrm.com"
 echo "---"
 
-# Domain 427/892: platform-static.cdn.mdstrm.com
-log "Processing domain 427/892: platform-static.cdn.mdstrm.com"
+# Domain 342/717: platform-static.cdn.mdstrm.com
+log "Processing domain 427/717: platform-static.cdn.mdstrm.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14869,8 +11962,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: platform-static.cdn.mdstrm.com"
 echo "---"
 
-# Domain 428/892: webclass.com
-log "Processing domain 428/892: webclass.com"
+# Domain 343/717: webclass.com
+log "Processing domain 428/717: webclass.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14904,43 +11997,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: webclass.com"
 echo "---"
 
-# Domain 429/892: www.webclass.com
-log "Processing domain 429/892: www.webclass.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.webclass.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.webclass.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.webclass.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.webclass.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.webclass.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.webclass.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.webclass.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.webclass.com"
-echo "---"
-
-# Domain 430/892: devsaran.com
-log "Processing domain 430/892: devsaran.com"
+# Domain 344/717: devsaran.com
+log "Processing domain 430/717: devsaran.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -14974,43 +12032,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: devsaran.com"
 echo "---"
 
-# Domain 431/892: www.devsaran.com
-log "Processing domain 431/892: www.devsaran.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.devsaran.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.devsaran.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.devsaran.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.devsaran.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.devsaran.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.devsaran.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.devsaran.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.devsaran.com"
-echo "---"
-
-# Domain 432/892: ibb.co
-log "Processing domain 432/892: ibb.co"
+# Domain 345/717: ibb.co
+log "Processing domain 432/717: ibb.co"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15044,8 +12067,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ibb.co"
 echo "---"
 
-# Domain 433/892: i.ibb.co
-log "Processing domain 433/892: i.ibb.co"
+# Domain 346/717: i.ibb.co
+log "Processing domain 433/717: i.ibb.co"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15079,8 +12102,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: i.ibb.co"
 echo "---"
 
-# Domain 434/892: mma.gob.cl
-log "Processing domain 434/892: mma.gob.cl"
+# Domain 347/717: mma.gob.cl
+log "Processing domain 434/717: mma.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15114,8 +12137,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mma.gob.cl"
 echo "---"
 
-# Domain 435/892: sncae.mma.gob.cl
-log "Processing domain 435/892: sncae.mma.gob.cl"
+# Domain 348/717: sncae.mma.gob.cl
+log "Processing domain 435/717: sncae.mma.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15149,8 +12172,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sncae.mma.gob.cl"
 echo "---"
 
-# Domain 436/892: github.io
-log "Processing domain 436/892: github.io"
+# Domain 349/717: github.io
+log "Processing domain 436/717: github.io"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15184,8 +12207,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: github.io"
 echo "---"
 
-# Domain 437/892: argoproj.github.io
-log "Processing domain 437/892: argoproj.github.io"
+# Domain 350/717: argoproj.github.io
+log "Processing domain 437/717: argoproj.github.io"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15219,8 +12242,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: argoproj.github.io"
 echo "---"
 
-# Domain 438/892: goo.gl
-log "Processing domain 438/892: goo.gl"
+# Domain 351/717: goo.gl
+log "Processing domain 438/717: goo.gl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15254,8 +12277,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: goo.gl"
 echo "---"
 
-# Domain 439/892: cdninstagram.com
-log "Processing domain 439/892: cdninstagram.com"
+# Domain 352/717: cdninstagram.com
+log "Processing domain 439/717: cdninstagram.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15289,8 +12312,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdninstagram.com"
 echo "---"
 
-# Domain 440/892: scontent-scl2-1.cdninstagram.com
-log "Processing domain 440/892: scontent-scl2-1.cdninstagram.com"
+# Domain 353/717: scontent-scl2-1.cdninstagram.com
+log "Processing domain 440/717: scontent-scl2-1.cdninstagram.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15324,8 +12347,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: scontent-scl2-1.cdninstagram.com"
 echo "---"
 
-# Domain 441/892: edicionesarq.cl
-log "Processing domain 441/892: edicionesarq.cl"
+# Domain 354/717: edicionesarq.cl
+log "Processing domain 441/717: edicionesarq.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15359,43 +12382,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: edicionesarq.cl"
 echo "---"
 
-# Domain 442/892: www.edicionesarq.cl
-log "Processing domain 442/892: www.edicionesarq.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.edicionesarq.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.edicionesarq.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.edicionesarq.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.edicionesarq.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.edicionesarq.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.edicionesarq.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.edicionesarq.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.edicionesarq.cl"
-echo "---"
-
-# Domain 443/892: redg9.cl
-log "Processing domain 443/892: redg9.cl"
+# Domain 355/717: redg9.cl
+log "Processing domain 443/717: redg9.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15429,8 +12417,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: redg9.cl"
 echo "---"
 
-# Domain 444/892: urantiacos.cl
-log "Processing domain 444/892: urantiacos.cl"
+# Domain 356/717: urantiacos.cl
+log "Processing domain 444/717: urantiacos.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15464,43 +12452,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: urantiacos.cl"
 echo "---"
 
-# Domain 445/892: www.urantiacos.cl
-log "Processing domain 445/892: www.urantiacos.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.urantiacos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.urantiacos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.urantiacos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.urantiacos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.urantiacos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.urantiacos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.urantiacos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.urantiacos.cl"
-echo "---"
-
-# Domain 446/892: kit-digital-uc-prod.s3.amazonaws.com
-log "Processing domain 446/892: kit-digital-uc-prod.s3.amazonaws.com"
+# Domain 357/717: kit-digital-uc-prod.s3.amazonaws.com
+log "Processing domain 446/717: kit-digital-uc-prod.s3.amazonaws.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15534,8 +12487,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: kit-digital-uc-prod.s3.amazonaws.com"
 echo "---"
 
-# Domain 447/892: readspeaker.com
-log "Processing domain 447/892: readspeaker.com"
+# Domain 358/717: readspeaker.com
+log "Processing domain 447/717: readspeaker.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15569,8 +12522,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: readspeaker.com"
 echo "---"
 
-# Domain 448/892: cdn1.readspeaker.com
-log "Processing domain 448/892: cdn1.readspeaker.com"
+# Domain 359/717: cdn1.readspeaker.com
+log "Processing domain 448/717: cdn1.readspeaker.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15604,8 +12557,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn1.readspeaker.com"
 echo "---"
 
-# Domain 449/892: translate.google.com
-log "Processing domain 449/892: translate.google.com"
+# Domain 360/717: translate.google.com
+log "Processing domain 449/717: translate.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15639,8 +12592,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: translate.google.com"
 echo "---"
 
-# Domain 450/892: cnstrc.com
-log "Processing domain 450/892: cnstrc.com"
+# Domain 361/717: cnstrc.com
+log "Processing domain 450/717: cnstrc.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15674,8 +12627,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cnstrc.com"
 echo "---"
 
-# Domain 451/892: mimolivesales.com.br
-log "Processing domain 451/892: mimolivesales.com.br"
+# Domain 362/717: mimolivesales.com.br
+log "Processing domain 451/717: mimolivesales.com.br"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15709,8 +12662,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mimolivesales.com.br"
 echo "---"
 
-# Domain 452/892: pip.mimolivesales.com.br
-log "Processing domain 452/892: pip.mimolivesales.com.br"
+# Domain 363/717: pip.mimolivesales.com.br
+log "Processing domain 452/717: pip.mimolivesales.com.br"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15744,8 +12697,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: pip.mimolivesales.com.br"
 echo "---"
 
-# Domain 453/892: assets5.freshdesk.com
-log "Processing domain 453/892: assets5.freshdesk.com"
+# Domain 364/717: assets5.freshdesk.com
+log "Processing domain 453/717: assets5.freshdesk.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15779,8 +12732,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: assets5.freshdesk.com"
 echo "---"
 
-# Domain 454/892: assets3.freshdesk.com
-log "Processing domain 454/892: assets3.freshdesk.com"
+# Domain 365/717: assets3.freshdesk.com
+log "Processing domain 454/717: assets3.freshdesk.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15814,8 +12767,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: assets3.freshdesk.com"
 echo "---"
 
-# Domain 455/892: assets2.freshdesk.com
-log "Processing domain 455/892: assets2.freshdesk.com"
+# Domain 366/717: assets2.freshdesk.com
+log "Processing domain 455/717: assets2.freshdesk.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15849,8 +12802,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: assets2.freshdesk.com"
 echo "---"
 
-# Domain 456/892: zenlatam.com
-log "Processing domain 456/892: zenlatam.com"
+# Domain 367/717: zenlatam.com
+log "Processing domain 456/717: zenlatam.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15884,8 +12837,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: zenlatam.com"
 echo "---"
 
-# Domain 457/892: sign.zenlatam.com
-log "Processing domain 457/892: sign.zenlatam.com"
+# Domain 368/717: sign.zenlatam.com
+log "Processing domain 457/717: sign.zenlatam.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15919,8 +12872,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sign.zenlatam.com"
 echo "---"
 
-# Domain 458/892: dtpm.cl
-log "Processing domain 458/892: dtpm.cl"
+# Domain 369/717: dtpm.cl
+log "Processing domain 458/717: dtpm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -15954,43 +12907,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dtpm.cl"
 echo "---"
 
-# Domain 459/892: www.dtpm.cl
-log "Processing domain 459/892: www.dtpm.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.dtpm.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.dtpm.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.dtpm.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.dtpm.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.dtpm.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.dtpm.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.dtpm.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.dtpm.cl"
-echo "---"
-
-# Domain 460/892: assets4.freshdesk.com
-log "Processing domain 460/892: assets4.freshdesk.com"
+# Domain 370/717: assets4.freshdesk.com
+log "Processing domain 460/717: assets4.freshdesk.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16024,8 +12942,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: assets4.freshdesk.com"
 echo "---"
 
-# Domain 461/892: telefonicachile.cl
-log "Processing domain 461/892: telefonicachile.cl"
+# Domain 371/717: telefonicachile.cl
+log "Processing domain 461/717: telefonicachile.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16059,8 +12977,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: telefonicachile.cl"
 echo "---"
 
-# Domain 462/892: error.telefonicachile.cl
-log "Processing domain 462/892: error.telefonicachile.cl"
+# Domain 372/717: error.telefonicachile.cl
+log "Processing domain 462/717: error.telefonicachile.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16094,8 +13012,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: error.telefonicachile.cl"
 echo "---"
 
-# Domain 463/892: moodle.com
-log "Processing domain 463/892: moodle.com"
+# Domain 373/717: moodle.com
+log "Processing domain 463/717: moodle.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16129,43 +13047,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: moodle.com"
 echo "---"
 
-# Domain 464/892: www.microsoft.com
-log "Processing domain 464/892: www.microsoft.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.microsoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.microsoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.microsoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.microsoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.microsoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.microsoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.microsoft.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.microsoft.com"
-echo "---"
-
-# Domain 465/892: bigbluebutton.org
-log "Processing domain 465/892: bigbluebutton.org"
+# Domain 374/717: bigbluebutton.org
+log "Processing domain 465/717: bigbluebutton.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16199,8 +13082,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bigbluebutton.org"
 echo "---"
 
-# Domain 466/892: docs.bigbluebutton.org
-log "Processing domain 466/892: docs.bigbluebutton.org"
+# Domain 375/717: docs.bigbluebutton.org
+log "Processing domain 466/717: docs.bigbluebutton.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16234,8 +13117,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: docs.bigbluebutton.org"
 echo "---"
 
-# Domain 467/892: demo.bigbluebutton.org
-log "Processing domain 467/892: demo.bigbluebutton.org"
+# Domain 376/717: demo.bigbluebutton.org
+log "Processing domain 467/717: demo.bigbluebutton.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16269,8 +13152,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: demo.bigbluebutton.org"
 echo "---"
 
-# Domain 468/892: safesigner.com
-log "Processing domain 468/892: safesigner.com"
+# Domain 377/717: safesigner.com
+log "Processing domain 468/717: safesigner.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16304,8 +13187,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: safesigner.com"
 echo "---"
 
-# Domain 469/892: dev.safesigner.com
-log "Processing domain 469/892: dev.safesigner.com"
+# Domain 378/717: dev.safesigner.com
+log "Processing domain 469/717: dev.safesigner.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16339,43 +13222,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dev.safesigner.com"
 echo "---"
 
-# Domain 470/892: www.anid.cl
-log "Processing domain 470/892: www.anid.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.anid.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.anid.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.anid.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.anid.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.anid.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.anid.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.anid.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.anid.cl"
-echo "---"
-
-# Domain 471/892: servicios.anid.cl
-log "Processing domain 471/892: servicios.anid.cl"
+# Domain 379/717: servicios.anid.cl
+log "Processing domain 471/717: servicios.anid.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16409,8 +13257,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: servicios.anid.cl"
 echo "---"
 
-# Domain 472/892: d22v5g7t6v513h.cloudfront.net
-log "Processing domain 472/892: d22v5g7t6v513h.cloudfront.net"
+# Domain 380/717: d22v5g7t6v513h.cloudfront.net
+log "Processing domain 472/717: d22v5g7t6v513h.cloudfront.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16444,8 +13292,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: d22v5g7t6v513h.cloudfront.net"
 echo "---"
 
-# Domain 473/892: static.microsoft
-log "Processing domain 473/892: static.microsoft"
+# Domain 381/717: static.microsoft
+log "Processing domain 473/717: static.microsoft"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16479,8 +13327,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: static.microsoft"
 echo "---"
 
-# Domain 474/892: res.public.onecdn.static.microsoft
-log "Processing domain 474/892: res.public.onecdn.static.microsoft"
+# Domain 382/717: res.public.onecdn.static.microsoft
+log "Processing domain 474/717: res.public.onecdn.static.microsoft"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16514,8 +13362,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: res.public.onecdn.static.microsoft"
 echo "---"
 
-# Domain 475/892: office.net
-log "Processing domain 475/892: office.net"
+# Domain 383/717: office.net
+log "Processing domain 475/717: office.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16549,8 +13397,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: office.net"
 echo "---"
 
-# Domain 476/892: res.cdn.office.net
-log "Processing domain 476/892: res.cdn.office.net"
+# Domain 384/717: res.cdn.office.net
+log "Processing domain 476/717: res.cdn.office.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16584,8 +13432,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: res.cdn.office.net"
 echo "---"
 
-# Domain 477/892: servicenow.com
-log "Processing domain 477/892: servicenow.com"
+# Domain 385/717: servicenow.com
+log "Processing domain 477/717: servicenow.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16619,43 +13467,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: servicenow.com"
 echo "---"
 
-# Domain 478/892: www.servicenow.com
-log "Processing domain 478/892: www.servicenow.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.servicenow.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.servicenow.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.servicenow.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.servicenow.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.servicenow.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.servicenow.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.servicenow.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.servicenow.com"
-echo "---"
-
-# Domain 479/892: mynow.servicenow.com
-log "Processing domain 479/892: mynow.servicenow.com"
+# Domain 386/717: mynow.servicenow.com
+log "Processing domain 479/717: mynow.servicenow.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16689,8 +13502,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mynow.servicenow.com"
 echo "---"
 
-# Domain 480/892: store.servicenow.com
-log "Processing domain 480/892: store.servicenow.com"
+# Domain 387/717: store.servicenow.com
+log "Processing domain 480/717: store.servicenow.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16724,8 +13537,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: store.servicenow.com"
 echo "---"
 
-# Domain 481/892: learning.servicenow.com
-log "Processing domain 481/892: learning.servicenow.com"
+# Domain 388/717: learning.servicenow.com
+log "Processing domain 481/717: learning.servicenow.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16759,8 +13572,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: learning.servicenow.com"
 echo "---"
 
-# Domain 482/892: developer.servicenow.com
-log "Processing domain 482/892: developer.servicenow.com"
+# Domain 389/717: developer.servicenow.com
+log "Processing domain 482/717: developer.servicenow.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16794,8 +13607,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: developer.servicenow.com"
 echo "---"
 
-# Domain 483/892: horizon.servicenow.com
-log "Processing domain 483/892: horizon.servicenow.com"
+# Domain 390/717: horizon.servicenow.com
+log "Processing domain 483/717: horizon.servicenow.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16829,8 +13642,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: horizon.servicenow.com"
 echo "---"
 
-# Domain 484/892: support.servicenow.com
-log "Processing domain 484/892: support.servicenow.com"
+# Domain 391/717: support.servicenow.com
+log "Processing domain 484/717: support.servicenow.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16864,8 +13677,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: support.servicenow.com"
 echo "---"
 
-# Domain 485/892: service-now.com
-log "Processing domain 485/892: service-now.com"
+# Domain 392/717: service-now.com
+log "Processing domain 485/717: service-now.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16899,8 +13712,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: service-now.com"
 echo "---"
 
-# Domain 486/892: partnerportal.service-now.com
-log "Processing domain 486/892: partnerportal.service-now.com"
+# Domain 393/717: partnerportal.service-now.com
+log "Processing domain 486/717: partnerportal.service-now.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16934,8 +13747,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: partnerportal.service-now.com"
 echo "---"
 
-# Domain 487/892: careers.servicenow.com
-log "Processing domain 487/892: careers.servicenow.com"
+# Domain 394/717: careers.servicenow.com
+log "Processing domain 487/717: careers.servicenow.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -16969,8 +13782,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: careers.servicenow.com"
 echo "---"
 
-# Domain 488/892: forrester.com
-log "Processing domain 488/892: forrester.com"
+# Domain 395/717: forrester.com
+log "Processing domain 488/717: forrester.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17004,43 +13817,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: forrester.com"
 echo "---"
 
-# Domain 489/892: www.forrester.com
-log "Processing domain 489/892: www.forrester.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.forrester.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.forrester.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.forrester.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.forrester.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.forrester.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.forrester.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.forrester.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.forrester.com"
-echo "---"
-
-# Domain 490/892: docs.servicenow.com
-log "Processing domain 490/892: docs.servicenow.com"
+# Domain 396/717: docs.servicenow.com
+log "Processing domain 490/717: docs.servicenow.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17074,8 +13852,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: docs.servicenow.com"
 echo "---"
 
-# Domain 491/892: hlx.page
-log "Processing domain 491/892: hlx.page"
+# Domain 397/717: hlx.page
+log "Processing domain 491/717: hlx.page"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17109,8 +13887,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: hlx.page"
 echo "---"
 
-# Domain 492/892: rum.hlx.page
-log "Processing domain 492/892: rum.hlx.page"
+# Domain 398/717: rum.hlx.page
+log "Processing domain 492/717: rum.hlx.page"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17144,8 +13922,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: rum.hlx.page"
 echo "---"
 
-# Domain 493/892: adobedtm.com
-log "Processing domain 493/892: adobedtm.com"
+# Domain 399/717: adobedtm.com
+log "Processing domain 493/717: adobedtm.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17179,8 +13957,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: adobedtm.com"
 echo "---"
 
-# Domain 494/892: assets.adobedtm.com
-log "Processing domain 494/892: assets.adobedtm.com"
+# Domain 400/717: assets.adobedtm.com
+log "Processing domain 494/717: assets.adobedtm.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17214,8 +13992,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: assets.adobedtm.com"
 echo "---"
 
-# Domain 495/892: intercomassets.com
-log "Processing domain 495/892: intercomassets.com"
+# Domain 401/717: intercomassets.com
+log "Processing domain 495/717: intercomassets.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17249,8 +14027,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: intercomassets.com"
 echo "---"
 
-# Domain 496/892: static.intercomassets.com
-log "Processing domain 496/892: static.intercomassets.com"
+# Domain 402/717: static.intercomassets.com
+log "Processing domain 496/717: static.intercomassets.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17284,8 +14062,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: static.intercomassets.com"
 echo "---"
 
-# Domain 497/892: intercomcdn.com
-log "Processing domain 497/892: intercomcdn.com"
+# Domain 403/717: intercomcdn.com
+log "Processing domain 497/717: intercomcdn.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17319,8 +14097,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: intercomcdn.com"
 echo "---"
 
-# Domain 498/892: downloads.intercomcdn.com
-log "Processing domain 498/892: downloads.intercomcdn.com"
+# Domain 404/717: downloads.intercomcdn.com
+log "Processing domain 498/717: downloads.intercomcdn.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17354,8 +14132,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: downloads.intercomcdn.com"
 echo "---"
 
-# Domain 499/892: intercom.help
-log "Processing domain 499/892: intercom.help"
+# Domain 405/717: intercom.help
+log "Processing domain 499/717: intercom.help"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17389,8 +14167,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: intercom.help"
 echo "---"
 
-# Domain 500/892: atl-paas.net
-log "Processing domain 500/892: atl-paas.net"
+# Domain 406/717: atl-paas.net
+log "Processing domain 500/717: atl-paas.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17424,8 +14202,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: atl-paas.net"
 echo "---"
 
-# Domain 501/892: jsm-help-center-ui.prod-east.frontend.public.atl-paas.net
-log "Processing domain 501/892: jsm-help-center-ui.prod-east.frontend.public.atl-paas.net"
+# Domain 407/717: jsm-help-center-ui.prod-east.frontend.public.atl-paas.net
+log "Processing domain 501/717: jsm-help-center-ui.prod-east.frontend.public.atl-paas.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17459,8 +14237,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: jsm-help-center-ui.prod-east.frontend.public.atl-paas.net"
 echo "---"
 
-# Domain 502/892: wp.me
-log "Processing domain 502/892: wp.me"
+# Domain 408/717: wp.me
+log "Processing domain 502/717: wp.me"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17494,43 +14272,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: wp.me"
 echo "---"
 
-# Domain 503/892: www.whatsapp.com
-log "Processing domain 503/892: www.whatsapp.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.whatsapp.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.whatsapp.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.whatsapp.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.whatsapp.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.whatsapp.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.whatsapp.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.whatsapp.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.whatsapp.com"
-echo "---"
-
-# Domain 504/892: wp.com
-log "Processing domain 504/892: wp.com"
+# Domain 409/717: wp.com
+log "Processing domain 504/717: wp.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17564,8 +14307,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: wp.com"
 echo "---"
 
-# Domain 505/892: s0.wp.com
-log "Processing domain 505/892: s0.wp.com"
+# Domain 410/717: s0.wp.com
+log "Processing domain 505/717: s0.wp.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17599,8 +14342,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: s0.wp.com"
 echo "---"
 
-# Domain 506/892: stats.wp.com
-log "Processing domain 506/892: stats.wp.com"
+# Domain 411/717: stats.wp.com
+log "Processing domain 506/717: stats.wp.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17634,8 +14377,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: stats.wp.com"
 echo "---"
 
-# Domain 507/892: i0.wp.com
-log "Processing domain 507/892: i0.wp.com"
+# Domain 412/717: i0.wp.com
+log "Processing domain 507/717: i0.wp.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17669,8 +14412,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: i0.wp.com"
 echo "---"
 
-# Domain 508/892: c0.wp.com
-log "Processing domain 508/892: c0.wp.com"
+# Domain 413/717: c0.wp.com
+log "Processing domain 508/717: c0.wp.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17704,8 +14447,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: c0.wp.com"
 echo "---"
 
-# Domain 509/892: we-stats.com
-log "Processing domain 509/892: we-stats.com"
+# Domain 414/717: we-stats.com
+log "Processing domain 509/717: we-stats.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17739,8 +14482,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: we-stats.com"
 echo "---"
 
-# Domain 510/892: bcdn-god.we-stats.com
-log "Processing domain 510/892: bcdn-god.we-stats.com"
+# Domain 415/717: bcdn-god.we-stats.com
+log "Processing domain 510/717: bcdn-god.we-stats.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17774,8 +14517,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bcdn-god.we-stats.com"
 echo "---"
 
-# Domain 511/892: vtex.com.br
-log "Processing domain 511/892: vtex.com.br"
+# Domain 416/717: vtex.com.br
+log "Processing domain 511/717: vtex.com.br"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17809,8 +14552,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: vtex.com.br"
 echo "---"
 
-# Domain 512/892: io.vtex.com.br
-log "Processing domain 512/892: io.vtex.com.br"
+# Domain 417/717: io.vtex.com.br
+log "Processing domain 512/717: io.vtex.com.br"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17844,8 +14587,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: io.vtex.com.br"
 echo "---"
 
-# Domain 513/892: vtexassets.com
-log "Processing domain 513/892: vtexassets.com"
+# Domain 418/717: vtexassets.com
+log "Processing domain 513/717: vtexassets.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17879,8 +14622,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: vtexassets.com"
 echo "---"
 
-# Domain 514/892: b2bgourmet.vtexassets.com
-log "Processing domain 514/892: b2bgourmet.vtexassets.com"
+# Domain 419/717: b2bgourmet.vtexassets.com
+log "Processing domain 514/717: b2bgourmet.vtexassets.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17914,8 +14657,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: b2bgourmet.vtexassets.com"
 echo "---"
 
-# Domain 515/892: gourmetcl.vtexassets.com
-log "Processing domain 515/892: gourmetcl.vtexassets.com"
+# Domain 420/717: gourmetcl.vtexassets.com
+log "Processing domain 515/717: gourmetcl.vtexassets.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17949,8 +14692,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: gourmetcl.vtexassets.com"
 echo "---"
 
-# Domain 516/892: itaubeneficios.cl
-log "Processing domain 516/892: itaubeneficios.cl"
+# Domain 421/717: itaubeneficios.cl
+log "Processing domain 516/717: itaubeneficios.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -17984,8 +14727,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: itaubeneficios.cl"
 echo "---"
 
-# Domain 517/892: zonaestudiantes.cl
-log "Processing domain 517/892: zonaestudiantes.cl"
+# Domain 422/717: zonaestudiantes.cl
+log "Processing domain 517/717: zonaestudiantes.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18019,43 +14762,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: zonaestudiantes.cl"
 echo "---"
 
-# Domain 518/892: www.zonaestudiantes.cl
-log "Processing domain 518/892: www.zonaestudiantes.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.zonaestudiantes.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.zonaestudiantes.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.zonaestudiantes.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.zonaestudiantes.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.zonaestudiantes.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.zonaestudiantes.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.zonaestudiantes.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.zonaestudiantes.cl"
-echo "---"
-
-# Domain 519/892: itauprivatebank.com
-log "Processing domain 519/892: itauprivatebank.com"
+# Domain 423/717: itauprivatebank.com
+log "Processing domain 519/717: itauprivatebank.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18089,43 +14797,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: itauprivatebank.com"
 echo "---"
 
-# Domain 520/892: www.itauprivatebank.com
-log "Processing domain 520/892: www.itauprivatebank.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.itauprivatebank.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.itauprivatebank.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.itauprivatebank.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.itauprivatebank.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.itauprivatebank.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.itauprivatebank.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.itauprivatebank.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.itauprivatebank.com"
-echo "---"
-
-# Domain 521/892: indexa.cl
-log "Processing domain 521/892: indexa.cl"
+# Domain 424/717: indexa.cl
+log "Processing domain 521/717: indexa.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18159,8 +14832,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: indexa.cl"
 echo "---"
 
-# Domain 522/892: sire-itau.indexa.cl
-log "Processing domain 522/892: sire-itau.indexa.cl"
+# Domain 425/717: sire-itau.indexa.cl
+log "Processing domain 522/717: sire-itau.indexa.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18194,8 +14867,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sire-itau.indexa.cl"
 echo "---"
 
-# Domain 523/892: onelink.me
-log "Processing domain 523/892: onelink.me"
+# Domain 426/717: onelink.me
+log "Processing domain 523/717: onelink.me"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18229,8 +14902,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: onelink.me"
 echo "---"
 
-# Domain 524/892: banco-itau.onelink.me
-log "Processing domain 524/892: banco-itau.onelink.me"
+# Domain 427/717: banco-itau.onelink.me
+log "Processing domain 524/717: banco-itau.onelink.me"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18264,8 +14937,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: banco-itau.onelink.me"
 echo "---"
 
-# Domain 525/892: trabajaenitau.cl
-log "Processing domain 525/892: trabajaenitau.cl"
+# Domain 428/717: trabajaenitau.cl
+log "Processing domain 525/717: trabajaenitau.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18299,8 +14972,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: trabajaenitau.cl"
 echo "---"
 
-# Domain 526/892: googleoptimize.com
-log "Processing domain 526/892: googleoptimize.com"
+# Domain 429/717: googleoptimize.com
+log "Processing domain 526/717: googleoptimize.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18334,43 +15007,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: googleoptimize.com"
 echo "---"
 
-# Domain 527/892: www.googleoptimize.com
-log "Processing domain 527/892: www.googleoptimize.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.googleoptimize.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.googleoptimize.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.googleoptimize.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.googleoptimize.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.googleoptimize.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.googleoptimize.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.googleoptimize.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.googleoptimize.com"
-echo "---"
-
-# Domain 528/892: contentstack.io
-log "Processing domain 528/892: contentstack.io"
+# Domain 430/717: contentstack.io
+log "Processing domain 528/717: contentstack.io"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18404,8 +15042,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: contentstack.io"
 echo "---"
 
-# Domain 529/892: assets.contentstack.io
-log "Processing domain 529/892: assets.contentstack.io"
+# Domain 431/717: assets.contentstack.io
+log "Processing domain 529/717: assets.contentstack.io"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18439,8 +15077,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: assets.contentstack.io"
 echo "---"
 
-# Domain 530/892: images.contentstack.io
-log "Processing domain 530/892: images.contentstack.io"
+# Domain 432/717: images.contentstack.io
+log "Processing domain 530/717: images.contentstack.io"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18474,8 +15112,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: images.contentstack.io"
 echo "---"
 
-# Domain 531/892: tiqcdn.com
-log "Processing domain 531/892: tiqcdn.com"
+# Domain 433/717: tiqcdn.com
+log "Processing domain 531/717: tiqcdn.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18509,8 +15147,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tiqcdn.com"
 echo "---"
 
-# Domain 532/892: tags.tiqcdn.com
-log "Processing domain 532/892: tags.tiqcdn.com"
+# Domain 434/717: tags.tiqcdn.com
+log "Processing domain 532/717: tags.tiqcdn.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18544,8 +15182,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tags.tiqcdn.com"
 echo "---"
 
-# Domain 533/892: poderjudicialtv.cl
-log "Processing domain 533/892: poderjudicialtv.cl"
+# Domain 435/717: poderjudicialtv.cl
+log "Processing domain 533/717: poderjudicialtv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18579,43 +15217,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: poderjudicialtv.cl"
 echo "---"
 
-# Domain 534/892: www.poderjudicialtv.cl
-log "Processing domain 534/892: www.poderjudicialtv.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.poderjudicialtv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.poderjudicialtv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.poderjudicialtv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.poderjudicialtv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.poderjudicialtv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.poderjudicialtv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.poderjudicialtv.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.poderjudicialtv.cl"
-echo "---"
-
-# Domain 535/892: vi-sor.cl
-log "Processing domain 535/892: vi-sor.cl"
+# Domain 436/717: vi-sor.cl
+log "Processing domain 535/717: vi-sor.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18649,43 +15252,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: vi-sor.cl"
 echo "---"
 
-# Domain 536/892: www.vi-sor.cl
-log "Processing domain 536/892: www.vi-sor.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.vi-sor.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.vi-sor.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.vi-sor.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.vi-sor.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.vi-sor.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.vi-sor.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.vi-sor.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.vi-sor.cl"
-echo "---"
-
-# Domain 537/892: es-es.facebook.com
-log "Processing domain 537/892: es-es.facebook.com"
+# Domain 437/717: es-es.facebook.com
+log "Processing domain 537/717: es-es.facebook.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18719,8 +15287,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: es-es.facebook.com"
 echo "---"
 
-# Domain 538/892: m.me
-log "Processing domain 538/892: m.me"
+# Domain 438/717: m.me
+log "Processing domain 538/717: m.me"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18754,8 +15322,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: m.me"
 echo "---"
 
-# Domain 539/892: zoom.us
-log "Processing domain 539/892: zoom.us"
+# Domain 439/717: zoom.us
+log "Processing domain 539/717: zoom.us"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18789,8 +15357,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: zoom.us"
 echo "---"
 
-# Domain 540/892: portaltransparencia.cl
-log "Processing domain 540/892: portaltransparencia.cl"
+# Domain 440/717: portaltransparencia.cl
+log "Processing domain 540/717: portaltransparencia.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18824,43 +15392,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: portaltransparencia.cl"
 echo "---"
 
-# Domain 541/892: www.portaltransparencia.cl
-log "Processing domain 541/892: www.portaltransparencia.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.portaltransparencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.portaltransparencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.portaltransparencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.portaltransparencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.portaltransparencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.portaltransparencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.portaltransparencia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.portaltransparencia.cl"
-echo "---"
-
-# Domain 542/892: paciellogroup.com
-log "Processing domain 542/892: paciellogroup.com"
+# Domain 441/717: paciellogroup.com
+log "Processing domain 542/717: paciellogroup.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18894,43 +15427,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: paciellogroup.com"
 echo "---"
 
-# Domain 543/892: www.paciellogroup.com
-log "Processing domain 543/892: www.paciellogroup.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.paciellogroup.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.paciellogroup.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.paciellogroup.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.paciellogroup.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.paciellogroup.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.paciellogroup.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.paciellogroup.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.paciellogroup.com"
-echo "---"
-
-# Domain 544/892: nvaccess.org
-log "Processing domain 544/892: nvaccess.org"
+# Domain 442/717: nvaccess.org
+log "Processing domain 544/717: nvaccess.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -18964,43 +15462,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: nvaccess.org"
 echo "---"
 
-# Domain 545/892: www.nvaccess.org
-log "Processing domain 545/892: www.nvaccess.org"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.nvaccess.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.nvaccess.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.nvaccess.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.nvaccess.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.nvaccess.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.nvaccess.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.nvaccess.org"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.nvaccess.org"
-echo "---"
-
-# Domain 546/892: livechatinc.com
-log "Processing domain 546/892: livechatinc.com"
+# Domain 443/717: livechatinc.com
+log "Processing domain 546/717: livechatinc.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19034,43 +15497,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: livechatinc.com"
 echo "---"
 
-# Domain 547/892: www.livechatinc.com
-log "Processing domain 547/892: www.livechatinc.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.livechatinc.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.livechatinc.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.livechatinc.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.livechatinc.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.livechatinc.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.livechatinc.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.livechatinc.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.livechatinc.com"
-echo "---"
-
-# Domain 548/892: podcasts.apple.com
-log "Processing domain 548/892: podcasts.apple.com"
+# Domain 444/717: podcasts.apple.com
+log "Processing domain 548/717: podcasts.apple.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19104,8 +15532,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: podcasts.apple.com"
 echo "---"
 
-# Domain 549/892: hubspotusercontent-na1.net
-log "Processing domain 549/892: hubspotusercontent-na1.net"
+# Domain 445/717: hubspotusercontent-na1.net
+log "Processing domain 549/717: hubspotusercontent-na1.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19139,8 +15567,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: hubspotusercontent-na1.net"
 echo "---"
 
-# Domain 550/892: 7052064.fs1.hubspotusercontent-na1.net
-log "Processing domain 550/892: 7052064.fs1.hubspotusercontent-na1.net"
+# Domain 446/717: 7052064.fs1.hubspotusercontent-na1.net
+log "Processing domain 550/717: 7052064.fs1.hubspotusercontent-na1.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19174,8 +15602,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: 7052064.fs1.hubspotusercontent-na1.net"
 echo "---"
 
-# Domain 551/892: queue-it.net
-log "Processing domain 551/892: queue-it.net"
+# Domain 447/717: queue-it.net
+log "Processing domain 551/717: queue-it.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19209,8 +15637,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: queue-it.net"
 echo "---"
 
-# Domain 552/892: static.queue-it.net
-log "Processing domain 552/892: static.queue-it.net"
+# Domain 448/717: static.queue-it.net
+log "Processing domain 552/717: static.queue-it.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19244,8 +15672,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: static.queue-it.net"
 echo "---"
 
-# Domain 553/892: satisfaccion.gob.cl
-log "Processing domain 553/892: satisfaccion.gob.cl"
+# Domain 449/717: satisfaccion.gob.cl
+log "Processing domain 553/717: satisfaccion.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19279,8 +15707,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: satisfaccion.gob.cl"
 echo "---"
 
-# Domain 554/892: ayuda.anid.cl
-log "Processing domain 554/892: ayuda.anid.cl"
+# Domain 450/717: ayuda.anid.cl
+log "Processing domain 554/717: ayuda.anid.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19314,8 +15742,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ayuda.anid.cl"
 echo "---"
 
-# Domain 555/892: informacioncientifica.cl
-log "Processing domain 555/892: informacioncientifica.cl"
+# Domain 451/717: informacioncientifica.cl
+log "Processing domain 555/717: informacioncientifica.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19349,8 +15777,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: informacioncientifica.cl"
 echo "---"
 
-# Domain 556/892: revistascientificas.informacioncientifica.cl
-log "Processing domain 556/892: revistascientificas.informacioncientifica.cl"
+# Domain 452/717: revistascientificas.informacioncientifica.cl
+log "Processing domain 556/717: revistascientificas.informacioncientifica.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19384,8 +15812,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: revistascientificas.informacioncientifica.cl"
 echo "---"
 
-# Domain 557/892: acceso-abierto.anid.cl
-log "Processing domain 557/892: acceso-abierto.anid.cl"
+# Domain 453/717: acceso-abierto.anid.cl
+log "Processing domain 557/717: acceso-abierto.anid.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19419,8 +15847,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: acceso-abierto.anid.cl"
 echo "---"
 
-# Domain 558/892: beic.cl
-log "Processing domain 558/892: beic.cl"
+# Domain 454/717: beic.cl
+log "Processing domain 558/717: beic.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19454,43 +15882,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: beic.cl"
 echo "---"
 
-# Domain 559/892: www.beic.cl
-log "Processing domain 559/892: www.beic.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.beic.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.beic.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.beic.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.beic.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.beic.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.beic.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.beic.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.beic.cl"
-echo "---"
-
-# Domain 560/892: dataciencia.anid.cl
-log "Processing domain 560/892: dataciencia.anid.cl"
+# Domain 455/717: dataciencia.anid.cl
+log "Processing domain 560/717: dataciencia.anid.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19524,8 +15917,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dataciencia.anid.cl"
 echo "---"
 
-# Domain 561/892: investigadores.anid.cl
-log "Processing domain 561/892: investigadores.anid.cl"
+# Domain 456/717: investigadores.anid.cl
+log "Processing domain 561/717: investigadores.anid.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19559,8 +15952,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: investigadores.anid.cl"
 echo "---"
 
-# Domain 562/892: repositorio.anid.cl
-log "Processing domain 562/892: repositorio.anid.cl"
+# Domain 457/717: repositorio.anid.cl
+log "Processing domain 562/717: repositorio.anid.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19594,8 +15987,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: repositorio.anid.cl"
 echo "---"
 
-# Domain 563/892: scielo.anid.cl
-log "Processing domain 563/892: scielo.anid.cl"
+# Domain 458/717: scielo.anid.cl
+log "Processing domain 563/717: scielo.anid.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19629,8 +16022,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: scielo.anid.cl"
 echo "---"
 
-# Domain 564/892: territorios.anid.cl
-log "Processing domain 564/892: territorios.anid.cl"
+# Domain 459/717: territorios.anid.cl
+log "Processing domain 564/717: territorios.anid.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19664,8 +16057,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: territorios.anid.cl"
 echo "---"
 
-# Domain 565/892: lab.gob.cl
-log "Processing domain 565/892: lab.gob.cl"
+# Domain 460/717: lab.gob.cl
+log "Processing domain 565/717: lab.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19699,8 +16092,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: lab.gob.cl"
 echo "---"
 
-# Domain 566/892: indice.lab.gob.cl
-log "Processing domain 566/892: indice.lab.gob.cl"
+# Domain 461/717: indice.lab.gob.cl
+log "Processing domain 566/717: indice.lab.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19734,8 +16127,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: indice.lab.gob.cl"
 echo "---"
 
-# Domain 567/892: csirt.gob.cl
-log "Processing domain 567/892: csirt.gob.cl"
+# Domain 462/717: csirt.gob.cl
+log "Processing domain 567/717: csirt.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19769,43 +16162,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: csirt.gob.cl"
 echo "---"
 
-# Domain 568/892: www.csirt.gob.cl
-log "Processing domain 568/892: www.csirt.gob.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.csirt.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.csirt.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.csirt.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.csirt.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.csirt.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.csirt.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.csirt.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.csirt.gob.cl"
-echo "---"
-
-# Domain 569/892: microsoftonline.com
-log "Processing domain 569/892: microsoftonline.com"
+# Domain 463/717: microsoftonline.com
+log "Processing domain 569/717: microsoftonline.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19839,8 +16197,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: microsoftonline.com"
 echo "---"
 
-# Domain 570/892: login.microsoftonline.com
-log "Processing domain 570/892: login.microsoftonline.com"
+# Domain 464/717: login.microsoftonline.com
+log "Processing domain 570/717: login.microsoftonline.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19874,43 +16232,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: login.microsoftonline.com"
 echo "---"
 
-# Domain 571/892: www.empleospublicos.cl
-log "Processing domain 571/892: www.empleospublicos.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.empleospublicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.empleospublicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.empleospublicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.empleospublicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.empleospublicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.empleospublicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.empleospublicos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.empleospublicos.cl"
-echo "---"
-
-# Domain 572/892: serviciocivil.cl
-log "Processing domain 572/892: serviciocivil.cl"
+# Domain 465/717: serviciocivil.cl
+log "Processing domain 572/717: serviciocivil.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19944,8 +16267,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: serviciocivil.cl"
 echo "---"
 
-# Domain 573/892: adp.serviciocivil.cl
-log "Processing domain 573/892: adp.serviciocivil.cl"
+# Domain 466/717: adp.serviciocivil.cl
+log "Processing domain 573/717: adp.serviciocivil.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -19979,8 +16302,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: adp.serviciocivil.cl"
 echo "---"
 
-# Domain 574/892: corfo.cl
-log "Processing domain 574/892: corfo.cl"
+# Domain 467/717: corfo.cl
+log "Processing domain 574/717: corfo.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20014,43 +16337,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: corfo.cl"
 echo "---"
 
-# Domain 575/892: www.corfo.cl
-log "Processing domain 575/892: www.corfo.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.corfo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.corfo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.corfo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.corfo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.corfo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.corfo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.corfo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.corfo.cl"
-echo "---"
-
-# Domain 576/892: leylobby.gob.cl
-log "Processing domain 576/892: leylobby.gob.cl"
+# Domain 468/717: leylobby.gob.cl
+log "Processing domain 576/717: leylobby.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20084,43 +16372,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: leylobby.gob.cl"
 echo "---"
 
-# Domain 577/892: www.leylobby.gob.cl
-log "Processing domain 577/892: www.leylobby.gob.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.leylobby.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.leylobby.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.leylobby.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.leylobby.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.leylobby.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.leylobby.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.leylobby.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.leylobby.gob.cl"
-echo "---"
-
-# Domain 578/892: 5principios.cl
-log "Processing domain 578/892: 5principios.cl"
+# Domain 469/717: 5principios.cl
+log "Processing domain 578/717: 5principios.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20154,43 +16407,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: 5principios.cl"
 echo "---"
 
-# Domain 579/892: www.5principios.cl
-log "Processing domain 579/892: www.5principios.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.5principios.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.5principios.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.5principios.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.5principios.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.5principios.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.5principios.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.5principios.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.5principios.cl"
-echo "---"
-
-# Domain 580/892: accioncolectivaeducacion.cl
-log "Processing domain 580/892: accioncolectivaeducacion.cl"
+# Domain 470/717: accioncolectivaeducacion.cl
+log "Processing domain 580/717: accioncolectivaeducacion.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20224,43 +16442,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: accioncolectivaeducacion.cl"
 echo "---"
 
-# Domain 581/892: www.accioncolectivaeducacion.cl
-log "Processing domain 581/892: www.accioncolectivaeducacion.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.accioncolectivaeducacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.accioncolectivaeducacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.accioncolectivaeducacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.accioncolectivaeducacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.accioncolectivaeducacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.accioncolectivaeducacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.accioncolectivaeducacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.accioncolectivaeducacion.cl"
-echo "---"
-
-# Domain 582/892: elearning-quality.cl
-log "Processing domain 582/892: elearning-quality.cl"
+# Domain 471/717: elearning-quality.cl
+log "Processing domain 582/717: elearning-quality.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20294,8 +16477,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: elearning-quality.cl"
 echo "---"
 
-# Domain 583/892: docenciateleton.cl
-log "Processing domain 583/892: docenciateleton.cl"
+# Domain 472/717: docenciateleton.cl
+log "Processing domain 583/717: docenciateleton.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20329,8 +16512,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: docenciateleton.cl"
 echo "---"
 
-# Domain 584/892: usek.cl
-log "Processing domain 584/892: usek.cl"
+# Domain 473/717: usek.cl
+log "Processing domain 584/717: usek.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20364,8 +16547,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: usek.cl"
 echo "---"
 
-# Domain 585/892: eva.ecampus.usek.cl
-log "Processing domain 585/892: eva.ecampus.usek.cl"
+# Domain 474/717: eva.ecampus.usek.cl
+log "Processing domain 585/717: eva.ecampus.usek.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20399,8 +16582,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: eva.ecampus.usek.cl"
 echo "---"
 
-# Domain 586/892: finis.cl
-log "Processing domain 586/892: finis.cl"
+# Domain 475/717: finis.cl
+log "Processing domain 586/717: finis.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20434,8 +16617,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: finis.cl"
 echo "---"
 
-# Domain 587/892: admision.finis.cl
-log "Processing domain 587/892: admision.finis.cl"
+# Domain 476/717: admision.finis.cl
+log "Processing domain 587/717: admision.finis.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20469,8 +16652,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: admision.finis.cl"
 echo "---"
 
-# Domain 588/892: ucentral.cl
-log "Processing domain 588/892: ucentral.cl"
+# Domain 477/717: ucentral.cl
+log "Processing domain 588/717: ucentral.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20504,8 +16687,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ucentral.cl"
 echo "---"
 
-# Domain 589/892: admision.ucentral.cl
-log "Processing domain 589/892: admision.ucentral.cl"
+# Domain 478/717: admision.ucentral.cl
+log "Processing domain 589/717: admision.ucentral.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20539,8 +16722,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: admision.ucentral.cl"
 echo "---"
 
-# Domain 590/892: admision.uft.cl
-log "Processing domain 590/892: admision.uft.cl"
+# Domain 479/717: admision.uft.cl
+log "Processing domain 590/717: admision.uft.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20574,8 +16757,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: admision.uft.cl"
 echo "---"
 
-# Domain 591/892: uss.cl
-log "Processing domain 591/892: uss.cl"
+# Domain 480/717: uss.cl
+log "Processing domain 591/717: uss.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20609,8 +16792,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: uss.cl"
 echo "---"
 
-# Domain 592/892: admision.uss.cl
-log "Processing domain 592/892: admision.uss.cl"
+# Domain 481/717: admision.uss.cl
+log "Processing domain 592/717: admision.uss.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20644,8 +16827,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: admision.uss.cl"
 echo "---"
 
-# Domain 593/892: aprendoencasa.org
-log "Processing domain 593/892: aprendoencasa.org"
+# Domain 482/717: aprendoencasa.org
+log "Processing domain 593/717: aprendoencasa.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20679,43 +16862,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: aprendoencasa.org"
 echo "---"
 
-# Domain 594/892: www.aprendoencasa.org
-log "Processing domain 594/892: www.aprendoencasa.org"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.aprendoencasa.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.aprendoencasa.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.aprendoencasa.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.aprendoencasa.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.aprendoencasa.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.aprendoencasa.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.aprendoencasa.org"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.aprendoencasa.org"
-echo "---"
-
-# Domain 595/892: bienvenida.uft.cl
-log "Processing domain 595/892: bienvenida.uft.cl"
+# Domain 483/717: bienvenida.uft.cl
+log "Processing domain 595/717: bienvenida.uft.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20749,8 +16897,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bienvenida.uft.cl"
 echo "---"
 
-# Domain 596/892: cenia.cl
-log "Processing domain 596/892: cenia.cl"
+# Domain 484/717: cenia.cl
+log "Processing domain 596/717: cenia.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20784,43 +16932,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cenia.cl"
 echo "---"
 
-# Domain 597/892: www.cenia.cl
-log "Processing domain 597/892: www.cenia.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.cenia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.cenia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.cenia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.cenia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.cenia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.cenia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.cenia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.cenia.cl"
-echo "---"
-
-# Domain 598/892: centropoliticaspublicas.uft.cl
-log "Processing domain 598/892: centropoliticaspublicas.uft.cl"
+# Domain 485/717: centropoliticaspublicas.uft.cl
+log "Processing domain 598/717: centropoliticaspublicas.uft.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20854,8 +16967,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: centropoliticaspublicas.uft.cl"
 echo "---"
 
-# Domain 599/892: politicaspublicas.uss.cl
-log "Processing domain 599/892: politicaspublicas.uss.cl"
+# Domain 486/717: politicaspublicas.uss.cl
+log "Processing domain 599/717: politicaspublicas.uss.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20889,8 +17002,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: politicaspublicas.uss.cl"
 echo "---"
 
-# Domain 600/892: cidoc.uft.cl
-log "Processing domain 600/892: cidoc.uft.cl"
+# Domain 487/717: cidoc.uft.cl
+log "Processing domain 600/717: cidoc.uft.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20924,8 +17037,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cidoc.uft.cl"
 echo "---"
 
-# Domain 601/892: cifras.uss.cl
-log "Processing domain 601/892: cifras.uss.cl"
+# Domain 488/717: cifras.uss.cl
+log "Processing domain 601/717: cifras.uss.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20959,8 +17072,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cifras.uss.cl"
 echo "---"
 
-# Domain 602/892: codigomodelosismico.org
-log "Processing domain 602/892: codigomodelosismico.org"
+# Domain 489/717: codigomodelosismico.org
+log "Processing domain 602/717: codigomodelosismico.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -20994,8 +17107,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: codigomodelosismico.org"
 echo "---"
 
-# Domain 603/892: mecanica.jmc.usm.cl
-log "Processing domain 603/892: mecanica.jmc.usm.cl"
+# Domain 490/717: mecanica.jmc.usm.cl
+log "Processing domain 603/717: mecanica.jmc.usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21029,8 +17142,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mecanica.jmc.usm.cl"
 echo "---"
 
-# Domain 604/892: convivenciaescolar.uft.cl
-log "Processing domain 604/892: convivenciaescolar.uft.cl"
+# Domain 491/717: convivenciaescolar.uft.cl
+log "Processing domain 604/717: convivenciaescolar.uft.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21064,8 +17177,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: convivenciaescolar.uft.cl"
 echo "---"
 
-# Domain 605/892: cyk.cl
-log "Processing domain 605/892: cyk.cl"
+# Domain 492/717: cyk.cl
+log "Processing domain 605/717: cyk.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21099,43 +17212,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cyk.cl"
 echo "---"
 
-# Domain 606/892: www.cyk.cl
-log "Processing domain 606/892: www.cyk.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.cyk.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.cyk.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.cyk.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.cyk.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.cyk.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.cyk.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.cyk.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.cyk.cl"
-echo "---"
-
-# Domain 607/892: dcp.usm.cl
-log "Processing domain 607/892: dcp.usm.cl"
+# Domain 493/717: dcp.usm.cl
+log "Processing domain 607/717: dcp.usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21169,8 +17247,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dcp.usm.cl"
 echo "---"
 
-# Domain 608/892: eli.usm.cl
-log "Processing domain 608/892: eli.usm.cl"
+# Domain 494/717: eli.usm.cl
+log "Processing domain 608/717: eli.usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21204,8 +17282,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: eli.usm.cl"
 echo "---"
 
-# Domain 609/892: mecanica.usm.cl
-log "Processing domain 609/892: mecanica.usm.cl"
+# Domain 495/717: mecanica.usm.cl
+log "Processing domain 609/717: mecanica.usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21239,8 +17317,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mecanica.usm.cl"
 echo "---"
 
-# Domain 610/892: quimicaymedioambiente.usm.cl
-log "Processing domain 610/892: quimicaymedioambiente.usm.cl"
+# Domain 496/717: quimicaymedioambiente.usm.cl
+log "Processing domain 610/717: quimicaymedioambiente.usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21274,8 +17352,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: quimicaymedioambiente.usm.cl"
 echo "---"
 
-# Domain 611/892: elinf.usm.cl
-log "Processing domain 611/892: elinf.usm.cl"
+# Domain 497/717: elinf.usm.cl
+log "Processing domain 611/717: elinf.usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21309,8 +17387,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: elinf.usm.cl"
 echo "---"
 
-# Domain 612/892: derechovespertino.uss.cl
-log "Processing domain 612/892: derechovespertino.uss.cl"
+# Domain 498/717: derechovespertino.uss.cl
+log "Processing domain 612/717: derechovespertino.uss.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21344,8 +17422,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: derechovespertino.uss.cl"
 echo "---"
 
-# Domain 613/892: descubramosencasa.cl
-log "Processing domain 613/892: descubramosencasa.cl"
+# Domain 499/717: descubramosencasa.cl
+log "Processing domain 613/717: descubramosencasa.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21379,43 +17457,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: descubramosencasa.cl"
 echo "---"
 
-# Domain 614/892: www.descubramosencasa.cl
-log "Processing domain 614/892: www.descubramosencasa.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.descubramosencasa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.descubramosencasa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.descubramosencasa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.descubramosencasa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.descubramosencasa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.descubramosencasa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.descubramosencasa.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.descubramosencasa.cl"
-echo "---"
-
-# Domain 615/892: capacitacionyasesoria.usm.cl
-log "Processing domain 615/892: capacitacionyasesoria.usm.cl"
+# Domain 500/717: capacitacionyasesoria.usm.cl
+log "Processing domain 615/717: capacitacionyasesoria.usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21449,8 +17492,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: capacitacionyasesoria.usm.cl"
 echo "---"
 
-# Domain 616/892: dgiie.usm.cl
-log "Processing domain 616/892: dgiie.usm.cl"
+# Domain 501/717: dgiie.usm.cl
+log "Processing domain 616/717: dgiie.usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21484,8 +17527,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dgiie.usm.cl"
 echo "---"
 
-# Domain 617/892: directorio.mba.usm.cl
-log "Processing domain 617/892: directorio.mba.usm.cl"
+# Domain 502/717: directorio.mba.usm.cl
+log "Processing domain 617/717: directorio.mba.usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21519,8 +17562,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: directorio.mba.usm.cl"
 echo "---"
 
-# Domain 618/892: doctoradomecanica.usm.cl
-log "Processing domain 618/892: doctoradomecanica.usm.cl"
+# Domain 503/717: doctoradomecanica.usm.cl
+log "Processing domain 618/717: doctoradomecanica.usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21554,8 +17597,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: doctoradomecanica.usm.cl"
 echo "---"
 
-# Domain 619/892: dih.uft.cl
-log "Processing domain 619/892: dih.uft.cl"
+# Domain 504/717: dih.uft.cl
+log "Processing domain 619/717: dih.uft.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21589,8 +17632,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dih.uft.cl"
 echo "---"
 
-# Domain 620/892: ecosisteam.cl
-log "Processing domain 620/892: ecosisteam.cl"
+# Domain 505/717: ecosisteam.cl
+log "Processing domain 620/717: ecosisteam.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21624,43 +17667,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ecosisteam.cl"
 echo "---"
 
-# Domain 621/892: www.ecosisteam.cl
-log "Processing domain 621/892: www.ecosisteam.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.ecosisteam.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.ecosisteam.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.ecosisteam.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.ecosisteam.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.ecosisteam.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.ecosisteam.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.ecosisteam.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.ecosisteam.cl"
-echo "---"
-
-# Domain 622/892: ediciones.uss.cl
-log "Processing domain 622/892: ediciones.uss.cl"
+# Domain 506/717: ediciones.uss.cl
+log "Processing domain 622/717: ediciones.uss.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21694,8 +17702,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ediciones.uss.cl"
 echo "---"
 
-# Domain 623/892: cftmanpower.cl
-log "Processing domain 623/892: cftmanpower.cl"
+# Domain 507/717: cftmanpower.cl
+log "Processing domain 623/717: cftmanpower.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21729,8 +17737,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cftmanpower.cl"
 echo "---"
 
-# Domain 624/892: educacioncontinua.cftmanpower.cl
-log "Processing domain 624/892: educacioncontinua.cftmanpower.cl"
+# Domain 508/717: educacioncontinua.cftmanpower.cl
+log "Processing domain 624/717: educacioncontinua.cftmanpower.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21764,8 +17772,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: educacioncontinua.cftmanpower.cl"
 echo "---"
 
-# Domain 625/892: eligeenergia.cl
-log "Processing domain 625/892: eligeenergia.cl"
+# Domain 509/717: eligeenergia.cl
+log "Processing domain 625/717: eligeenergia.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21799,8 +17807,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: eligeenergia.cl"
 echo "---"
 
-# Domain 626/892: escriturayaprendizaje.cl
-log "Processing domain 626/892: escriturayaprendizaje.cl"
+# Domain 510/717: escriturayaprendizaje.cl
+log "Processing domain 626/717: escriturayaprendizaje.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21834,43 +17842,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: escriturayaprendizaje.cl"
 echo "---"
 
-# Domain 627/892: www.escriturayaprendizaje.cl
-log "Processing domain 627/892: www.escriturayaprendizaje.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.escriturayaprendizaje.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.escriturayaprendizaje.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.escriturayaprendizaje.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.escriturayaprendizaje.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.escriturayaprendizaje.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.escriturayaprendizaje.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.escriturayaprendizaje.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.escriturayaprendizaje.cl"
-echo "---"
-
-# Domain 628/892: eic.pucv.cl
-log "Processing domain 628/892: eic.pucv.cl"
+# Domain 511/717: eic.pucv.cl
+log "Processing domain 628/717: eic.pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21904,8 +17877,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: eic.pucv.cl"
 echo "---"
 
-# Domain 629/892: eie.pucv.cl
-log "Processing domain 629/892: eie.pucv.cl"
+# Domain 512/717: eie.pucv.cl
+log "Processing domain 629/717: eie.pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21939,8 +17912,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: eie.pucv.cl"
 echo "---"
 
-# Domain 630/892: feriavirtual.uft.cl
-log "Processing domain 630/892: feriavirtual.uft.cl"
+# Domain 513/717: feriavirtual.uft.cl
+log "Processing domain 630/717: feriavirtual.uft.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -21974,8 +17947,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: feriavirtual.uft.cl"
 echo "---"
 
-# Domain 631/892: fundacionrassmuss.org
-log "Processing domain 631/892: fundacionrassmuss.org"
+# Domain 514/717: fundacionrassmuss.org
+log "Processing domain 631/717: fundacionrassmuss.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22009,8 +17982,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: fundacionrassmuss.org"
 echo "---"
 
-# Domain 632/892: iconstruccion.cl
-log "Processing domain 632/892: iconstruccion.cl"
+# Domain 515/717: iconstruccion.cl
+log "Processing domain 632/717: iconstruccion.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22044,43 +18017,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: iconstruccion.cl"
 echo "---"
 
-# Domain 633/892: www.iconstruccion.cl
-log "Processing domain 633/892: www.iconstruccion.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.iconstruccion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.iconstruccion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.iconstruccion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.iconstruccion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.iconstruccion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.iconstruccion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.iconstruccion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.iconstruccion.cl"
-echo "---"
-
-# Domain 634/892: knl.cl
-log "Processing domain 634/892: knl.cl"
+# Domain 516/717: knl.cl
+log "Processing domain 634/717: knl.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22114,8 +18052,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: knl.cl"
 echo "---"
 
-# Domain 635/892: ecampus.usek.cl
-log "Processing domain 635/892: ecampus.usek.cl"
+# Domain 517/717: ecampus.usek.cl
+log "Processing domain 635/717: ecampus.usek.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22149,8 +18087,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ecampus.usek.cl"
 echo "---"
 
-# Domain 636/892: lidereseducativos.cl
-log "Processing domain 636/892: lidereseducativos.cl"
+# Domain 518/717: lidereseducativos.cl
+log "Processing domain 636/717: lidereseducativos.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22184,43 +18122,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: lidereseducativos.cl"
 echo "---"
 
-# Domain 637/892: www.lidereseducativos.cl
-log "Processing domain 637/892: www.lidereseducativos.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.lidereseducativos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.lidereseducativos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.lidereseducativos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.lidereseducativos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.lidereseducativos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.lidereseducativos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.lidereseducativos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.lidereseducativos.cl"
-echo "---"
-
-# Domain 638/892: sigeli.lidereseducativos.cl
-log "Processing domain 638/892: sigeli.lidereseducativos.cl"
+# Domain 519/717: sigeli.lidereseducativos.cl
+log "Processing domain 638/717: sigeli.lidereseducativos.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22254,8 +18157,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sigeli.lidereseducativos.cl"
 echo "---"
 
-# Domain 639/892: redes.lidereseducativos.cl
-log "Processing domain 639/892: redes.lidereseducativos.cl"
+# Domain 520/717: redes.lidereseducativos.cl
+log "Processing domain 639/717: redes.lidereseducativos.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22289,8 +18192,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: redes.lidereseducativos.cl"
 echo "---"
 
-# Domain 640/892: magistermecanica.usm.cl
-log "Processing domain 640/892: magistermecanica.usm.cl"
+# Domain 521/717: magistermecanica.usm.cl
+log "Processing domain 640/717: magistermecanica.usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22324,8 +18227,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: magistermecanica.usm.cl"
 echo "---"
 
-# Domain 641/892: mba.usm.cl
-log "Processing domain 641/892: mba.usm.cl"
+# Domain 522/717: mba.usm.cl
+log "Processing domain 641/717: mba.usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22359,8 +18262,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mba.usm.cl"
 echo "---"
 
-# Domain 642/892: modernizacion.uss.cl
-log "Processing domain 642/892: modernizacion.uss.cl"
+# Domain 523/717: modernizacion.uss.cl
+log "Processing domain 642/717: modernizacion.uss.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22394,8 +18297,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: modernizacion.uss.cl"
 echo "---"
 
-# Domain 643/892: bpmcenter.cl
-log "Processing domain 643/892: bpmcenter.cl"
+# Domain 524/717: bpmcenter.cl
+log "Processing domain 643/717: bpmcenter.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22429,8 +18332,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bpmcenter.cl"
 echo "---"
 
-# Domain 644/892: online.bpmcenter.cl
-log "Processing domain 644/892: online.bpmcenter.cl"
+# Domain 525/717: online.bpmcenter.cl
+log "Processing domain 644/717: online.bpmcenter.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22464,8 +18367,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: online.bpmcenter.cl"
 echo "---"
 
-# Domain 645/892: capacitacionenergetica.cl
-log "Processing domain 645/892: capacitacionenergetica.cl"
+# Domain 526/717: capacitacionenergetica.cl
+log "Processing domain 645/717: capacitacionenergetica.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22499,8 +18402,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: capacitacionenergetica.cl"
 echo "---"
 
-# Domain 646/892: cursos.capacitacionenergetica.cl
-log "Processing domain 646/892: cursos.capacitacionenergetica.cl"
+# Domain 527/717: cursos.capacitacionenergetica.cl
+log "Processing domain 646/717: cursos.capacitacionenergetica.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22534,8 +18437,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cursos.capacitacionenergetica.cl"
 echo "---"
 
-# Domain 647/892: online-capatec.cl
-log "Processing domain 647/892: online-capatec.cl"
+# Domain 528/717: online-capatec.cl
+log "Processing domain 647/717: online-capatec.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22569,8 +18472,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: online-capatec.cl"
 echo "---"
 
-# Domain 648/892: clubdejardinesdechile.cl
-log "Processing domain 648/892: clubdejardinesdechile.cl"
+# Domain 529/717: clubdejardinesdechile.cl
+log "Processing domain 648/717: clubdejardinesdechile.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22604,8 +18507,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: clubdejardinesdechile.cl"
 echo "---"
 
-# Domain 649/892: cursos.clubdejardinesdechile.cl
-log "Processing domain 649/892: cursos.clubdejardinesdechile.cl"
+# Domain 530/717: cursos.clubdejardinesdechile.cl
+log "Processing domain 649/717: cursos.clubdejardinesdechile.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22639,8 +18542,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cursos.clubdejardinesdechile.cl"
 echo "---"
 
-# Domain 650/892: fundacioncrecer.net
-log "Processing domain 650/892: fundacioncrecer.net"
+# Domain 531/717: fundacioncrecer.net
+log "Processing domain 650/717: fundacioncrecer.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22674,8 +18577,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: fundacioncrecer.net"
 echo "---"
 
-# Domain 651/892: capacitaciones.fundacioncrecer.net
-log "Processing domain 651/892: capacitaciones.fundacioncrecer.net"
+# Domain 532/717: capacitaciones.fundacioncrecer.net
+log "Processing domain 651/717: capacitaciones.fundacioncrecer.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22709,8 +18612,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: capacitaciones.fundacioncrecer.net"
 echo "---"
 
-# Domain 652/892: e.lidereseducativos.cl
-log "Processing domain 652/892: e.lidereseducativos.cl"
+# Domain 533/717: e.lidereseducativos.cl
+log "Processing domain 652/717: e.lidereseducativos.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22744,8 +18647,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: e.lidereseducativos.cl"
 echo "---"
 
-# Domain 653/892: a2hosted.com
-log "Processing domain 653/892: a2hosted.com"
+# Domain 534/717: a2hosted.com
+log "Processing domain 653/717: a2hosted.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22779,8 +18682,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: a2hosted.com"
 echo "---"
 
-# Domain 654/892: neyun.a2hosted.com
-log "Processing domain 654/892: neyun.a2hosted.com"
+# Domain 535/717: neyun.a2hosted.com
+log "Processing domain 654/717: neyun.a2hosted.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22814,8 +18717,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: neyun.a2hosted.com"
 echo "---"
 
-# Domain 655/892: gov.co
-log "Processing domain 655/892: gov.co"
+# Domain 536/717: gov.co
+log "Processing domain 655/717: gov.co"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22849,8 +18752,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: gov.co"
 echo "---"
 
-# Domain 656/892: escuelavirtual.registraduria.gov.co
-log "Processing domain 656/892: escuelavirtual.registraduria.gov.co"
+# Domain 537/717: escuelavirtual.registraduria.gov.co
+log "Processing domain 656/717: escuelavirtual.registraduria.gov.co"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22884,8 +18787,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: escuelavirtual.registraduria.gov.co"
 echo "---"
 
-# Domain 657/892: neyun.org
-log "Processing domain 657/892: neyun.org"
+# Domain 538/717: neyun.org
+log "Processing domain 657/717: neyun.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22919,43 +18822,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: neyun.org"
 echo "---"
 
-# Domain 658/892: www.neyun.org
-log "Processing domain 658/892: www.neyun.org"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.neyun.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.neyun.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.neyun.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.neyun.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.neyun.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.neyun.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.neyun.org"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.neyun.org"
-echo "---"
-
-# Domain 659/892: noticias.uft.cl
-log "Processing domain 659/892: noticias.uft.cl"
+# Domain 539/717: noticias.uft.cl
+log "Processing domain 659/717: noticias.uft.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -22989,8 +18857,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: noticias.uft.cl"
 echo "---"
 
-# Domain 660/892: parquecultural.cl
-log "Processing domain 660/892: parquecultural.cl"
+# Domain 540/717: parquecultural.cl
+log "Processing domain 660/717: parquecultural.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23024,8 +18892,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: parquecultural.cl"
 echo "---"
 
-# Domain 661/892: eli-usm.cl
-log "Processing domain 661/892: eli-usm.cl"
+# Domain 541/717: eli-usm.cl
+log "Processing domain 661/717: eli-usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23059,8 +18927,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: eli-usm.cl"
 echo "---"
 
-# Domain 662/892: rpa.eli-usm.cl
-log "Processing domain 662/892: rpa.eli-usm.cl"
+# Domain 542/717: rpa.eli-usm.cl
+log "Processing domain 662/717: rpa.eli-usm.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23094,8 +18962,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: rpa.eli-usm.cl"
 echo "---"
 
-# Domain 663/892: plataformamatch.cl
-log "Processing domain 663/892: plataformamatch.cl"
+# Domain 543/717: plataformamatch.cl
+log "Processing domain 663/717: plataformamatch.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23129,43 +18997,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: plataformamatch.cl"
 echo "---"
 
-# Domain 664/892: www.plataformamatch.cl
-log "Processing domain 664/892: www.plataformamatch.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.plataformamatch.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.plataformamatch.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.plataformamatch.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.plataformamatch.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.plataformamatch.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.plataformamatch.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.plataformamatch.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.plataformamatch.cl"
-echo "---"
-
-# Domain 665/892: premiospulsar.cl
-log "Processing domain 665/892: premiospulsar.cl"
+# Domain 544/717: premiospulsar.cl
+log "Processing domain 665/717: premiospulsar.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23199,8 +19032,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: premiospulsar.cl"
 echo "---"
 
-# Domain 666/892: jurado.premiospulsar.cl
-log "Processing domain 666/892: jurado.premiospulsar.cl"
+# Domain 545/717: jurado.premiospulsar.cl
+log "Processing domain 666/717: jurado.premiospulsar.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23234,8 +19067,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: jurado.premiospulsar.cl"
 echo "---"
 
-# Domain 667/892: plena.cenia.cl
-log "Processing domain 667/892: plena.cenia.cl"
+# Domain 546/717: plena.cenia.cl
+log "Processing domain 667/717: plena.cenia.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23269,8 +19102,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: plena.cenia.cl"
 echo "---"
 
-# Domain 668/892: postgradomedicina.uss.cl
-log "Processing domain 668/892: postgradomedicina.uss.cl"
+# Domain 547/717: postgradomedicina.uss.cl
+log "Processing domain 668/717: postgradomedicina.uss.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23304,8 +19137,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: postgradomedicina.uss.cl"
 echo "---"
 
-# Domain 669/892: postgrados.uft.cl
-log "Processing domain 669/892: postgrados.uft.cl"
+# Domain 548/717: postgrados.uft.cl
+log "Processing domain 669/717: postgrados.uft.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23339,8 +19172,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: postgrados.uft.cl"
 echo "---"
 
-# Domain 670/892: redayllusolar.cl
-log "Processing domain 670/892: redayllusolar.cl"
+# Domain 549/717: redayllusolar.cl
+log "Processing domain 670/717: redayllusolar.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23374,43 +19207,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: redayllusolar.cl"
 echo "---"
 
-# Domain 671/892: www.redayllusolar.cl
-log "Processing domain 671/892: www.redayllusolar.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.redayllusolar.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.redayllusolar.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.redayllusolar.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.redayllusolar.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.redayllusolar.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.redayllusolar.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.redayllusolar.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.redayllusolar.cl"
-echo "---"
-
-# Domain 672/892: redcampussustentable.cl
-log "Processing domain 672/892: redcampussustentable.cl"
+# Domain 550/717: redcampussustentable.cl
+log "Processing domain 672/717: redcampussustentable.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23444,43 +19242,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: redcampussustentable.cl"
 echo "---"
 
-# Domain 673/892: www.redcampussustentable.cl
-log "Processing domain 673/892: www.redcampussustentable.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.redcampussustentable.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.redcampussustentable.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.redcampussustentable.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.redcampussustentable.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.redcampussustentable.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.redcampussustentable.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.redcampussustentable.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.redcampussustentable.cl"
-echo "---"
-
-# Domain 674/892: constructorescomprometidos.cl
-log "Processing domain 674/892: constructorescomprometidos.cl"
+# Domain 551/717: constructorescomprometidos.cl
+log "Processing domain 674/717: constructorescomprometidos.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23514,43 +19277,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: constructorescomprometidos.cl"
 echo "---"
 
-# Domain 675/892: www.constructorescomprometidos.cl
-log "Processing domain 675/892: www.constructorescomprometidos.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.constructorescomprometidos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.constructorescomprometidos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.constructorescomprometidos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.constructorescomprometidos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.constructorescomprometidos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.constructorescomprometidos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.constructorescomprometidos.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.constructorescomprometidos.cl"
-echo "---"
-
-# Domain 676/892: sgmc.uft.cl
-log "Processing domain 676/892: sgmc.uft.cl"
+# Domain 552/717: sgmc.uft.cl
+log "Processing domain 676/717: sgmc.uft.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23584,8 +19312,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sgmc.uft.cl"
 echo "---"
 
-# Domain 677/892: spc.lidereseducativos.cl
-log "Processing domain 677/892: spc.lidereseducativos.cl"
+# Domain 553/717: spc.lidereseducativos.cl
+log "Processing domain 677/717: spc.lidereseducativos.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23619,8 +19347,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: spc.lidereseducativos.cl"
 echo "---"
 
-# Domain 678/892: svm.uft.cl
-log "Processing domain 678/892: svm.uft.cl"
+# Domain 554/717: svm.uft.cl
+log "Processing domain 678/717: svm.uft.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23654,8 +19382,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: svm.uft.cl"
 echo "---"
 
-# Domain 679/892: innedu.cl
-log "Processing domain 679/892: innedu.cl"
+# Domain 555/717: innedu.cl
+log "Processing domain 679/717: innedu.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23689,8 +19417,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: innedu.cl"
 echo "---"
 
-# Domain 680/892: tae.innedu.cl
-log "Processing domain 680/892: tae.innedu.cl"
+# Domain 556/717: tae.innedu.cl
+log "Processing domain 680/717: tae.innedu.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23724,8 +19452,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tae.innedu.cl"
 echo "---"
 
-# Domain 681/892: vidauniversitaria.uss.cl
-log "Processing domain 681/892: vidauniversitaria.uss.cl"
+# Domain 557/717: vidauniversitaria.uss.cl
+log "Processing domain 681/717: vidauniversitaria.uss.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23759,8 +19487,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: vidauniversitaria.uss.cl"
 echo "---"
 
-# Domain 682/892: accuc.cl
-log "Processing domain 682/892: accuc.cl"
+# Domain 558/717: accuc.cl
+log "Processing domain 682/717: accuc.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23794,43 +19522,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: accuc.cl"
 echo "---"
 
-# Domain 683/892: www.accuc.cl
-log "Processing domain 683/892: www.accuc.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.accuc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.accuc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.accuc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.accuc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.accuc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.accuc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.accuc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.accuc.cl"
-echo "---"
-
-# Domain 684/892: secretariadeparticipacion.cl
-log "Processing domain 684/892: secretariadeparticipacion.cl"
+# Domain 559/717: secretariadeparticipacion.cl
+log "Processing domain 684/717: secretariadeparticipacion.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23864,43 +19557,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: secretariadeparticipacion.cl"
 echo "---"
 
-# Domain 685/892: www.secretariadeparticipacion.cl
-log "Processing domain 685/892: www.secretariadeparticipacion.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.secretariadeparticipacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.secretariadeparticipacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.secretariadeparticipacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.secretariadeparticipacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.secretariadeparticipacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.secretariadeparticipacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.secretariadeparticipacion.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.secretariadeparticipacion.cl"
-echo "---"
-
-# Domain 686/892: wa.link
-log "Processing domain 686/892: wa.link"
+# Domain 560/717: wa.link
+log "Processing domain 686/717: wa.link"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23934,8 +19592,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: wa.link"
 echo "---"
 
-# Domain 687/892: cdn-cookieyes.com
-log "Processing domain 687/892: cdn-cookieyes.com"
+# Domain 561/717: cdn-cookieyes.com
+log "Processing domain 687/717: cdn-cookieyes.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -23969,8 +19627,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn-cookieyes.com"
 echo "---"
 
-# Domain 688/892: tarjetacruzverde.cl
-log "Processing domain 688/892: tarjetacruzverde.cl"
+# Domain 562/717: tarjetacruzverde.cl
+log "Processing domain 688/717: tarjetacruzverde.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24004,43 +19662,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tarjetacruzverde.cl"
 echo "---"
 
-# Domain 689/892: www.tarjetacruzverde.cl
-log "Processing domain 689/892: www.tarjetacruzverde.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.tarjetacruzverde.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.tarjetacruzverde.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.tarjetacruzverde.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.tarjetacruzverde.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.tarjetacruzverde.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.tarjetacruzverde.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.tarjetacruzverde.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.tarjetacruzverde.cl"
-echo "---"
-
-# Domain 690/892: mensajescruzverde.cl
-log "Processing domain 690/892: mensajescruzverde.cl"
+# Domain 563/717: mensajescruzverde.cl
+log "Processing domain 690/717: mensajescruzverde.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24074,8 +19697,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mensajescruzverde.cl"
 echo "---"
 
-# Domain 691/892: cloud.mensajescruzverde.cl
-log "Processing domain 691/892: cloud.mensajescruzverde.cl"
+# Domain 564/717: cloud.mensajescruzverde.cl
+log "Processing domain 691/717: cloud.mensajescruzverde.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24109,8 +19732,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cloud.mensajescruzverde.cl"
 echo "---"
 
-# Domain 692/892: igodigital.com
-log "Processing domain 692/892: igodigital.com"
+# Domain 565/717: igodigital.com
+log "Processing domain 692/717: igodigital.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24144,8 +19767,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: igodigital.com"
 echo "---"
 
-# Domain 693/892: 110006489.collect.igodigital.com
-log "Processing domain 693/892: 110006489.collect.igodigital.com"
+# Domain 566/717: 110006489.collect.igodigital.com
+log "Processing domain 693/717: 110006489.collect.igodigital.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24179,8 +19802,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: 110006489.collect.igodigital.com"
 echo "---"
 
-# Domain 694/892: cquotient.com
-log "Processing domain 694/892: cquotient.com"
+# Domain 567/717: cquotient.com
+log "Processing domain 694/717: cquotient.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24214,8 +19837,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cquotient.com"
 echo "---"
 
-# Domain 695/892: cdn.cquotient.com
-log "Processing domain 695/892: cdn.cquotient.com"
+# Domain 568/717: cdn.cquotient.com
+log "Processing domain 695/717: cdn.cquotient.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24249,8 +19872,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn.cquotient.com"
 echo "---"
 
-# Domain 696/892: mailmaicao.cl
-log "Processing domain 696/892: mailmaicao.cl"
+# Domain 569/717: mailmaicao.cl
+log "Processing domain 696/717: mailmaicao.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24284,8 +19907,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mailmaicao.cl"
 echo "---"
 
-# Domain 697/892: cloud.mailmaicao.cl
-log "Processing domain 697/892: cloud.mailmaicao.cl"
+# Domain 570/717: cloud.mailmaicao.cl
+log "Processing domain 697/717: cloud.mailmaicao.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24319,8 +19942,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cloud.mailmaicao.cl"
 echo "---"
 
-# Domain 698/892: spotify.com
-log "Processing domain 698/892: spotify.com"
+# Domain 571/717: spotify.com
+log "Processing domain 698/717: spotify.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24354,8 +19977,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: spotify.com"
 echo "---"
 
-# Domain 699/892: open.spotify.com
-log "Processing domain 699/892: open.spotify.com"
+# Domain 572/717: open.spotify.com
+log "Processing domain 699/717: open.spotify.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24389,78 +20012,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: open.spotify.com"
 echo "---"
 
-# Domain 700/892: www.mega.cl
-log "Processing domain 700/892: www.mega.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.mega.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.mega.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.mega.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.mega.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.mega.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.mega.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.mega.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.mega.cl"
-echo "---"
-
-# Domain 701/892: www.megatiempo.cl
-log "Processing domain 701/892: www.megatiempo.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.megatiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.megatiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.megatiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.megatiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.megatiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.megatiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.megatiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.megatiempo.cl"
-echo "---"
-
-# Domain 702/892: megamedia.cl
-log "Processing domain 702/892: megamedia.cl"
+# Domain 573/717: megamedia.cl
+log "Processing domain 702/717: megamedia.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24494,43 +20047,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: megamedia.cl"
 echo "---"
 
-# Domain 703/892: www.megamedia.cl
-log "Processing domain 703/892: www.megamedia.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.megamedia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.megamedia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.megamedia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.megamedia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.megamedia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.megamedia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.megamedia.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.megamedia.cl"
-echo "---"
-
-# Domain 704/892: infinita.cl
-log "Processing domain 704/892: infinita.cl"
+# Domain 574/717: infinita.cl
+log "Processing domain 704/717: infinita.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24564,43 +20082,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: infinita.cl"
 echo "---"
 
-# Domain 705/892: www.infinita.cl
-log "Processing domain 705/892: www.infinita.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.infinita.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.infinita.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.infinita.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.infinita.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.infinita.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.infinita.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.infinita.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.infinita.cl"
-echo "---"
-
-# Domain 706/892: romantica.cl
-log "Processing domain 706/892: romantica.cl"
+# Domain 575/717: romantica.cl
+log "Processing domain 706/717: romantica.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24634,43 +20117,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: romantica.cl"
 echo "---"
 
-# Domain 707/892: www.romantica.cl
-log "Processing domain 707/892: www.romantica.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.romantica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.romantica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.romantica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.romantica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.romantica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.romantica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.romantica.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.romantica.cl"
-echo "---"
-
-# Domain 708/892: fmtiempo.cl
-log "Processing domain 708/892: fmtiempo.cl"
+# Domain 576/717: fmtiempo.cl
+log "Processing domain 708/717: fmtiempo.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24704,43 +20152,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: fmtiempo.cl"
 echo "---"
 
-# Domain 709/892: www.fmtiempo.cl
-log "Processing domain 709/892: www.fmtiempo.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.fmtiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.fmtiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.fmtiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.fmtiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.fmtiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.fmtiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.fmtiempo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.fmtiempo.cl"
-echo "---"
-
-# Domain 710/892: carolina.cl
-log "Processing domain 710/892: carolina.cl"
+# Domain 577/717: carolina.cl
+log "Processing domain 710/717: carolina.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24774,43 +20187,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: carolina.cl"
 echo "---"
 
-# Domain 711/892: www.carolina.cl
-log "Processing domain 711/892: www.carolina.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.carolina.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.carolina.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.carolina.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.carolina.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.carolina.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.carolina.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.carolina.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.carolina.cl"
-echo "---"
-
-# Domain 712/892: radiodisney.com
-log "Processing domain 712/892: radiodisney.com"
+# Domain 578/717: radiodisney.com
+log "Processing domain 712/717: radiodisney.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24844,8 +20222,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: radiodisney.com"
 echo "---"
 
-# Domain 713/892: cl.radiodisney.com
-log "Processing domain 713/892: cl.radiodisney.com"
+# Domain 579/717: cl.radiodisney.com
+log "Processing domain 713/717: cl.radiodisney.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24879,8 +20257,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cl.radiodisney.com"
 echo "---"
 
-# Domain 714/892: etc.cl
-log "Processing domain 714/892: etc.cl"
+# Domain 580/717: etc.cl
+log "Processing domain 714/717: etc.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24914,43 +20292,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: etc.cl"
 echo "---"
 
-# Domain 715/892: www.etc.cl
-log "Processing domain 715/892: www.etc.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.etc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.etc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.etc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.etc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.etc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.etc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.etc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.etc.cl"
-echo "---"
-
-# Domain 716/892: mediakit.megamedia.cl
-log "Processing domain 716/892: mediakit.megamedia.cl"
+# Domain 581/717: mediakit.megamedia.cl
+log "Processing domain 716/717: mediakit.megamedia.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -24984,8 +20327,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: mediakit.megamedia.cl"
 echo "---"
 
-# Domain 717/892: static2-meganoticias.cdn.mdstrm.com
-log "Processing domain 717/892: static2-meganoticias.cdn.mdstrm.com"
+# Domain 582/717: static2-meganoticias.cdn.mdstrm.com
+log "Processing domain 717/717: static2-meganoticias.cdn.mdstrm.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25019,8 +20362,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: static2-meganoticias.cdn.mdstrm.com"
 echo "---"
 
-# Domain 718/892: images2-mega.cdn.mdstrm.com
-log "Processing domain 718/892: images2-mega.cdn.mdstrm.com"
+# Domain 583/717: images2-mega.cdn.mdstrm.com
+log "Processing domain 718/717: images2-mega.cdn.mdstrm.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25054,8 +20397,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: images2-mega.cdn.mdstrm.com"
 echo "---"
 
-# Domain 719/892: static-mega.cdn.mdstrm.com
-log "Processing domain 719/892: static-mega.cdn.mdstrm.com"
+# Domain 584/717: static-mega.cdn.mdstrm.com
+log "Processing domain 719/717: static-mega.cdn.mdstrm.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25089,8 +20432,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: static-mega.cdn.mdstrm.com"
 echo "---"
 
-# Domain 720/892: puntoscencosud.cl
-log "Processing domain 720/892: puntoscencosud.cl"
+# Domain 585/717: puntoscencosud.cl
+log "Processing domain 720/717: puntoscencosud.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25124,43 +20467,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: puntoscencosud.cl"
 echo "---"
 
-# Domain 721/892: www.puntoscencosud.cl
-log "Processing domain 721/892: www.puntoscencosud.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.puntoscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.puntoscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.puntoscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.puntoscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.puntoscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.puntoscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.puntoscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.puntoscencosud.cl"
-echo "---"
-
-# Domain 722/892: cencopay.cl
-log "Processing domain 722/892: cencopay.cl"
+# Domain 586/717: cencopay.cl
+log "Processing domain 722/717: cencopay.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25194,78 +20502,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cencopay.cl"
 echo "---"
 
-# Domain 723/892: www.cencopay.cl
-log "Processing domain 723/892: www.cencopay.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.cencopay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.cencopay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.cencopay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.cencopay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.cencopay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.cencopay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.cencopay.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.cencopay.cl"
-echo "---"
-
-# Domain 724/892: www.jumbo.cl
-log "Processing domain 724/892: www.jumbo.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.jumbo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.jumbo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.jumbo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.jumbo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.jumbo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.jumbo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.jumbo.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.jumbo.cl"
-echo "---"
-
-# Domain 725/892: santaisabel.cl
-log "Processing domain 725/892: santaisabel.cl"
+# Domain 587/717: santaisabel.cl
+log "Processing domain 725/717: santaisabel.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25299,43 +20537,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: santaisabel.cl"
 echo "---"
 
-# Domain 726/892: www.santaisabel.cl
-log "Processing domain 726/892: www.santaisabel.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.santaisabel.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.santaisabel.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.santaisabel.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.santaisabel.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.santaisabel.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.santaisabel.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.santaisabel.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.santaisabel.cl"
-echo "---"
-
-# Domain 727/892: spidchile.cl
-log "Processing domain 727/892: spidchile.cl"
+# Domain 588/717: spidchile.cl
+log "Processing domain 727/717: spidchile.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25369,43 +20572,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: spidchile.cl"
 echo "---"
 
-# Domain 728/892: www.mitarjetacencosud.cl
-log "Processing domain 728/892: www.mitarjetacencosud.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.mitarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.mitarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.mitarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.mitarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.mitarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.mitarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.mitarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.mitarjetacencosud.cl"
-echo "---"
-
-# Domain 729/892: seguroscencosud.cl
-log "Processing domain 729/892: seguroscencosud.cl"
+# Domain 589/717: seguroscencosud.cl
+log "Processing domain 729/717: seguroscencosud.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25439,43 +20607,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: seguroscencosud.cl"
 echo "---"
 
-# Domain 730/892: www.seguroscencosud.cl
-log "Processing domain 730/892: www.seguroscencosud.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.seguroscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.seguroscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.seguroscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.seguroscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.seguroscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.seguroscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.seguroscencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.seguroscencosud.cl"
-echo "---"
-
-# Domain 731/892: noviosparis.cl
-log "Processing domain 731/892: noviosparis.cl"
+# Domain 590/717: noviosparis.cl
+log "Processing domain 731/717: noviosparis.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25509,8 +20642,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: noviosparis.cl"
 echo "---"
 
-# Domain 732/892: club.noviosparis.cl
-log "Processing domain 732/892: club.noviosparis.cl"
+# Domain 591/717: club.noviosparis.cl
+log "Processing domain 732/717: club.noviosparis.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25544,8 +20677,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: club.noviosparis.cl"
 echo "---"
 
-# Domain 733/892: bebeparis.cl
-log "Processing domain 733/892: bebeparis.cl"
+# Domain 592/717: bebeparis.cl
+log "Processing domain 733/717: bebeparis.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25579,43 +20712,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bebeparis.cl"
 echo "---"
 
-# Domain 734/892: www.bebeparis.cl
-log "Processing domain 734/892: www.bebeparis.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.bebeparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.bebeparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.bebeparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.bebeparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.bebeparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.bebeparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.bebeparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.bebeparis.cl"
-echo "---"
-
-# Domain 735/892: tarjetacencosud.cl
-log "Processing domain 735/892: tarjetacencosud.cl"
+# Domain 593/717: tarjetacencosud.cl
+log "Processing domain 735/717: tarjetacencosud.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25649,148 +20747,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tarjetacencosud.cl"
 echo "---"
 
-# Domain 736/892: www.tarjetacencosud.cl
-log "Processing domain 736/892: www.tarjetacencosud.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.tarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.tarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.tarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.tarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.tarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.tarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.tarjetacencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.tarjetacencosud.cl"
-echo "---"
-
-# Domain 737/892: www.noviosparis.cl
-log "Processing domain 737/892: www.noviosparis.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.noviosparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.noviosparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.noviosparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.noviosparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.noviosparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.noviosparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.noviosparis.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.noviosparis.cl"
-echo "---"
-
-# Domain 738/892: www.easy.cl
-log "Processing domain 738/892: www.easy.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.easy.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.easy.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.easy.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.easy.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.easy.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.easy.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.easy.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.easy.cl"
-echo "---"
-
-# Domain 739/892: www.scotiabankchile.cl
-log "Processing domain 739/892: www.scotiabankchile.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.scotiabankchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.scotiabankchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.scotiabankchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.scotiabankchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.scotiabankchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.scotiabankchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.scotiabankchile.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.scotiabankchile.cl"
-echo "---"
-
-# Domain 740/892: ventaempresascencosud.cl
-log "Processing domain 740/892: ventaempresascencosud.cl"
+# Domain 594/717: ventaempresascencosud.cl
+log "Processing domain 740/717: ventaempresascencosud.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25824,43 +20782,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ventaempresascencosud.cl"
 echo "---"
 
-# Domain 741/892: www.ventaempresascencosud.cl
-log "Processing domain 741/892: www.ventaempresascencosud.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.ventaempresascencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.ventaempresascencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.ventaempresascencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.ventaempresascencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.ventaempresascencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.ventaempresascencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.ventaempresascencosud.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.ventaempresascencosud.cl"
-echo "---"
-
-# Domain 742/892: trabajando.com
-log "Processing domain 742/892: trabajando.com"
+# Domain 595/717: trabajando.com
+log "Processing domain 742/717: trabajando.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25894,8 +20817,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: trabajando.com"
 echo "---"
 
-# Domain 743/892: cencosud.trabajando.com
-log "Processing domain 743/892: cencosud.trabajando.com"
+# Domain 596/717: cencosud.trabajando.com
+log "Processing domain 743/717: cencosud.trabajando.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25929,8 +20852,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cencosud.trabajando.com"
 echo "---"
 
-# Domain 744/892: cencosud.com
-log "Processing domain 744/892: cencosud.com"
+# Domain 597/717: cencosud.com
+log "Processing domain 744/717: cencosud.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -25964,43 +20887,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cencosud.com"
 echo "---"
 
-# Domain 745/892: www.cencosud.com
-log "Processing domain 745/892: www.cencosud.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.cencosud.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.cencosud.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.cencosud.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.cencosud.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.cencosud.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.cencosud.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.cencosud.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.cencosud.com"
-echo "---"
-
-# Domain 746/892: cl-paris-media-hub.ecomm.cencosud.com
-log "Processing domain 746/892: cl-paris-media-hub.ecomm.cencosud.com"
+# Domain 598/717: cl-paris-media-hub.ecomm.cencosud.com
+log "Processing domain 746/717: cl-paris-media-hub.ecomm.cencosud.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26034,8 +20922,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cl-paris-media-hub.ecomm.cencosud.com"
 echo "---"
 
-# Domain 747/892: openathens.net
-log "Processing domain 747/892: openathens.net"
+# Domain 599/717: openathens.net
+log "Processing domain 747/717: openathens.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26069,8 +20957,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: openathens.net"
 echo "---"
 
-# Domain 748/892: go.openathens.net
-log "Processing domain 748/892: go.openathens.net"
+# Domain 600/717: go.openathens.net
+log "Processing domain 748/717: go.openathens.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26104,8 +20992,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: go.openathens.net"
 echo "---"
 
-# Domain 749/892: ebscohost.com
-log "Processing domain 749/892: ebscohost.com"
+# Domain 601/717: ebscohost.com
+log "Processing domain 749/717: ebscohost.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26139,8 +21027,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ebscohost.com"
 echo "---"
 
-# Domain 750/892: search.ebscohost.com
-log "Processing domain 750/892: search.ebscohost.com"
+# Domain 602/717: search.ebscohost.com
+log "Processing domain 750/717: search.ebscohost.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26174,8 +21062,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: search.ebscohost.com"
 echo "---"
 
-# Domain 751/892: springeropen.com
-log "Processing domain 751/892: springeropen.com"
+# Domain 603/717: springeropen.com
+log "Processing domain 751/717: springeropen.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26209,8 +21097,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: springeropen.com"
 echo "---"
 
-# Domain 752/892: ccj.springeropen.com
-log "Processing domain 752/892: ccj.springeropen.com"
+# Domain 604/717: ccj.springeropen.com
+log "Processing domain 752/717: ccj.springeropen.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26244,8 +21132,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ccj.springeropen.com"
 echo "---"
 
-# Domain 753/892: chemspider.com
-log "Processing domain 753/892: chemspider.com"
+# Domain 605/717: chemspider.com
+log "Processing domain 753/717: chemspider.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26279,43 +21167,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: chemspider.com"
 echo "---"
 
-# Domain 754/892: www.chemspider.com
-log "Processing domain 754/892: www.chemspider.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.chemspider.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.chemspider.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.chemspider.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.chemspider.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.chemspider.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.chemspider.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.chemspider.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.chemspider.com"
-echo "---"
-
-# Domain 755/892: nih.gov
-log "Processing domain 755/892: nih.gov"
+# Domain 606/717: nih.gov
+log "Processing domain 755/717: nih.gov"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26349,8 +21202,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: nih.gov"
 echo "---"
 
-# Domain 756/892: pubchem.ncbi.nlm.nih.gov
-log "Processing domain 756/892: pubchem.ncbi.nlm.nih.gov"
+# Domain 607/717: pubchem.ncbi.nlm.nih.gov
+log "Processing domain 756/717: pubchem.ncbi.nlm.nih.gov"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26384,8 +21237,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: pubchem.ncbi.nlm.nih.gov"
 echo "---"
 
-# Domain 757/892: oclc.org
-log "Processing domain 757/892: oclc.org"
+# Domain 608/717: oclc.org
+log "Processing domain 757/717: oclc.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26419,8 +21272,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: oclc.org"
 echo "---"
 
-# Domain 758/892: uchile.idm.oclc.org
-log "Processing domain 758/892: uchile.idm.oclc.org"
+# Domain 609/717: uchile.idm.oclc.org
+log "Processing domain 758/717: uchile.idm.oclc.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26454,8 +21307,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: uchile.idm.oclc.org"
 echo "---"
 
-# Domain 759/892: aflip.in
-log "Processing domain 759/892: aflip.in"
+# Domain 610/717: aflip.in
+log "Processing domain 759/717: aflip.in"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26489,8 +21342,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: aflip.in"
 echo "---"
 
-# Domain 760/892: indualimentos.aflip.in
-log "Processing domain 760/892: indualimentos.aflip.in"
+# Domain 611/717: indualimentos.aflip.in
+log "Processing domain 760/717: indualimentos.aflip.in"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26524,8 +21377,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: indualimentos.aflip.in"
 echo "---"
 
-# Domain 761/892: doabooks.org
-log "Processing domain 761/892: doabooks.org"
+# Domain 612/717: doabooks.org
+log "Processing domain 761/717: doabooks.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26559,43 +21412,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: doabooks.org"
 echo "---"
 
-# Domain 762/892: www.doabooks.org
-log "Processing domain 762/892: www.doabooks.org"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.doabooks.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.doabooks.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.doabooks.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.doabooks.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.doabooks.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.doabooks.org"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.doabooks.org"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.doabooks.org"
-echo "---"
-
-# Domain 763/892: com.pk
-log "Processing domain 763/892: com.pk"
+# Domain 613/717: com.pk
+log "Processing domain 763/717: com.pk"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26629,8 +21447,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: com.pk"
 echo "---"
 
-# Domain 764/892: chemistry.com.pk
-log "Processing domain 764/892: chemistry.com.pk"
+# Domain 614/717: chemistry.com.pk
+log "Processing domain 764/717: chemistry.com.pk"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26664,8 +21482,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: chemistry.com.pk"
 echo "---"
 
-# Domain 765/892: books.google.com
-log "Processing domain 765/892: books.google.com"
+# Domain 615/717: books.google.com
+log "Processing domain 765/717: books.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26699,8 +21517,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: books.google.com"
 echo "---"
 
-# Domain 766/892: tesischilenas.cl
-log "Processing domain 766/892: tesischilenas.cl"
+# Domain 616/717: tesischilenas.cl
+log "Processing domain 766/717: tesischilenas.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26734,43 +21552,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tesischilenas.cl"
 echo "---"
 
-# Domain 767/892: www.tesischilenas.cl
-log "Processing domain 767/892: www.tesischilenas.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.tesischilenas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.tesischilenas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.tesischilenas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.tesischilenas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.tesischilenas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.tesischilenas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.tesischilenas.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.tesischilenas.cl"
-echo "---"
-
-# Domain 768/892: cse.google.com
-log "Processing domain 768/892: cse.google.com"
+# Domain 617/717: cse.google.com
+log "Processing domain 768/717: cse.google.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26804,8 +21587,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cse.google.com"
 echo "---"
 
-# Domain 769/892: guiastematicas.pucv.cl
-log "Processing domain 769/892: guiastematicas.pucv.cl"
+# Domain 618/717: guiastematicas.pucv.cl
+log "Processing domain 769/717: guiastematicas.pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26839,8 +21622,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: guiastematicas.pucv.cl"
 echo "---"
 
-# Domain 770/892: catalogo.pucv.cl
-log "Processing domain 770/892: catalogo.pucv.cl"
+# Domain 619/717: catalogo.pucv.cl
+log "Processing domain 770/717: catalogo.pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26874,8 +21657,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: catalogo.pucv.cl"
 echo "---"
 
-# Domain 771/892: biblioespacios.pucv.cl
-log "Processing domain 771/892: biblioespacios.pucv.cl"
+# Domain 620/717: biblioespacios.pucv.cl
+log "Processing domain 771/717: biblioespacios.pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26909,8 +21692,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: biblioespacios.pucv.cl"
 echo "---"
 
-# Domain 772/892: pucv.idm.oclc.org
-log "Processing domain 772/892: pucv.idm.oclc.org"
+# Domain 621/717: pucv.idm.oclc.org
+log "Processing domain 772/717: pucv.idm.oclc.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26944,8 +21727,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: pucv.idm.oclc.org"
 echo "---"
 
-# Domain 773/892: bibliografiadigital.pucv.cl
-log "Processing domain 773/892: bibliografiadigital.pucv.cl"
+# Domain 622/717: bibliografiadigital.pucv.cl
+log "Processing domain 773/717: bibliografiadigital.pucv.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -26979,8 +21762,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bibliografiadigital.pucv.cl"
 echo "---"
 
-# Domain 774/892: scielo.conicyt.cl
-log "Processing domain 774/892: scielo.conicyt.cl"
+# Domain 623/717: scielo.conicyt.cl
+log "Processing domain 774/717: scielo.conicyt.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27014,8 +21797,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: scielo.conicyt.cl"
 echo "---"
 
-# Domain 775/892: infoweb-newsbank-com.pucv.idm.oclc.org
-log "Processing domain 775/892: infoweb-newsbank-com.pucv.idm.oclc.org"
+# Domain 624/717: infoweb-newsbank-com.pucv.idm.oclc.org
+log "Processing domain 775/717: infoweb-newsbank-com.pucv.idm.oclc.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27049,8 +21832,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: infoweb-newsbank-com.pucv.idm.oclc.org"
 echo "---"
 
-# Domain 776/892: elibrary-asabe-org.pucv.idm.oclc.org
-log "Processing domain 776/892: elibrary-asabe-org.pucv.idm.oclc.org"
+# Domain 625/717: elibrary-asabe-org.pucv.idm.oclc.org
+log "Processing domain 776/717: elibrary-asabe-org.pucv.idm.oclc.org"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27084,43 +21867,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: elibrary-asabe-org.pucv.idm.oclc.org"
 echo "---"
 
-# Domain 777/892: www.ncbi.nlm.nih.gov
-log "Processing domain 777/892: www.ncbi.nlm.nih.gov"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.ncbi.nlm.nih.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.ncbi.nlm.nih.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.ncbi.nlm.nih.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.ncbi.nlm.nih.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.ncbi.nlm.nih.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.ncbi.nlm.nih.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.ncbi.nlm.nih.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.ncbi.nlm.nih.gov"
-echo "---"
-
-# Domain 778/892: scimagojr.com
-log "Processing domain 778/892: scimagojr.com"
+# Domain 626/717: scimagojr.com
+log "Processing domain 778/717: scimagojr.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27154,43 +21902,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: scimagojr.com"
 echo "---"
 
-# Domain 779/892: www.scimagojr.com
-log "Processing domain 779/892: www.scimagojr.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.scimagojr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.scimagojr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.scimagojr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.scimagojr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.scimagojr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.scimagojr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.scimagojr.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.scimagojr.com"
-echo "---"
-
-# Domain 780/892: wiley.com
-log "Processing domain 780/892: wiley.com"
+# Domain 627/717: wiley.com
+log "Processing domain 780/717: wiley.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27224,8 +21937,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: wiley.com"
 echo "---"
 
-# Domain 781/892: authorservices.wiley.com
-log "Processing domain 781/892: authorservices.wiley.com"
+# Domain 628/717: authorservices.wiley.com
+log "Processing domain 781/717: authorservices.wiley.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27259,8 +21972,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: authorservices.wiley.com"
 echo "---"
 
-# Domain 782/892: springer.com
-log "Processing domain 782/892: springer.com"
+# Domain 629/717: springer.com
+log "Processing domain 782/717: springer.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27294,43 +22007,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: springer.com"
 echo "---"
 
-# Domain 783/892: www.springer.com
-log "Processing domain 783/892: www.springer.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.springer.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.springer.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.springer.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.springer.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.springer.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.springer.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.springer.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.springer.com"
-echo "---"
-
-# Domain 784/892: ebsco.com
-log "Processing domain 784/892: ebsco.com"
+# Domain 630/717: ebsco.com
+log "Processing domain 784/717: ebsco.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27364,8 +22042,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ebsco.com"
 echo "---"
 
-# Domain 785/892: searchbox.ebsco.com
-log "Processing domain 785/892: searchbox.ebsco.com"
+# Domain 631/717: searchbox.ebsco.com
+log "Processing domain 785/717: searchbox.ebsco.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27399,8 +22077,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: searchbox.ebsco.com"
 echo "---"
 
-# Domain 786/892: digital.gob.cl
-log "Processing domain 786/892: digital.gob.cl"
+# Domain 632/717: digital.gob.cl
+log "Processing domain 786/717: digital.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27434,8 +22112,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: digital.gob.cl"
 echo "---"
 
-# Domain 787/892: cdn.digital.gob.cl
-log "Processing domain 787/892: cdn.digital.gob.cl"
+# Domain 633/717: cdn.digital.gob.cl
+log "Processing domain 787/717: cdn.digital.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27469,8 +22147,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn.digital.gob.cl"
 echo "---"
 
-# Domain 788/892: sidoc.cl
-log "Processing domain 788/892: sidoc.cl"
+# Domain 634/717: sidoc.cl
+log "Processing domain 788/717: sidoc.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27504,43 +22182,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sidoc.cl"
 echo "---"
 
-# Domain 789/892: www.sidoc.cl
-log "Processing domain 789/892: www.sidoc.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.sidoc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.sidoc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.sidoc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.sidoc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.sidoc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.sidoc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.sidoc.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.sidoc.cl"
-echo "---"
-
-# Domain 790/892: harvard.edu
-log "Processing domain 790/892: harvard.edu"
+# Domain 635/717: harvard.edu
+log "Processing domain 790/717: harvard.edu"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27574,8 +22217,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: harvard.edu"
 echo "---"
 
-# Domain 791/892: hbsp.harvard.edu
-log "Processing domain 791/892: hbsp.harvard.edu"
+# Domain 636/717: hbsp.harvard.edu
+log "Processing domain 791/717: hbsp.harvard.edu"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27609,8 +22252,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: hbsp.harvard.edu"
 echo "---"
 
-# Domain 792/892: sharepoint.com
-log "Processing domain 792/892: sharepoint.com"
+# Domain 637/717: sharepoint.com
+log "Processing domain 792/717: sharepoint.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27644,8 +22287,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sharepoint.com"
 echo "---"
 
-# Domain 793/892: duoccl0.sharepoint.com
-log "Processing domain 793/892: duoccl0.sharepoint.com"
+# Domain 638/717: duoccl0.sharepoint.com
+log "Processing domain 793/717: duoccl0.sharepoint.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27679,8 +22322,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: duoccl0.sharepoint.com"
 echo "---"
 
-# Domain 794/892: libguides.com
-log "Processing domain 794/892: libguides.com"
+# Domain 639/717: libguides.com
+log "Processing domain 794/717: libguides.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27714,8 +22357,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: libguides.com"
 echo "---"
 
-# Domain 795/892: static-assets-us.libguides.com
-log "Processing domain 795/892: static-assets-us.libguides.com"
+# Domain 640/717: static-assets-us.libguides.com
+log "Processing domain 795/717: static-assets-us.libguides.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27749,8 +22392,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: static-assets-us.libguides.com"
 echo "---"
 
-# Domain 796/892: libanswers.com
-log "Processing domain 796/892: libanswers.com"
+# Domain 641/717: libanswers.com
+log "Processing domain 796/717: libanswers.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27784,8 +22427,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: libanswers.com"
 echo "---"
 
-# Domain 797/892: duoc.libanswers.com
-log "Processing domain 797/892: duoc.libanswers.com"
+# Domain 642/717: duoc.libanswers.com
+log "Processing domain 797/717: duoc.libanswers.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27819,8 +22462,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: duoc.libanswers.com"
 echo "---"
 
-# Domain 798/892: lgapi-us.libapps.com
-log "Processing domain 798/892: lgapi-us.libapps.com"
+# Domain 643/717: lgapi-us.libapps.com
+log "Processing domain 798/717: lgapi-us.libapps.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27854,8 +22497,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: lgapi-us.libapps.com"
 echo "---"
 
-# Domain 799/892: duoc.libcal.com
-log "Processing domain 799/892: duoc.libcal.com"
+# Domain 644/717: duoc.libcal.com
+log "Processing domain 799/717: duoc.libcal.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27889,8 +22532,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: duoc.libcal.com"
 echo "---"
 
-# Domain 800/892: netdna.bootstrapcdn.com
-log "Processing domain 800/892: netdna.bootstrapcdn.com"
+# Domain 645/717: netdna.bootstrapcdn.com
+log "Processing domain 800/717: netdna.bootstrapcdn.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27924,8 +22567,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: netdna.bootstrapcdn.com"
 echo "---"
 
-# Domain 801/892: webclass.cl
-log "Processing domain 801/892: webclass.cl"
+# Domain 646/717: webclass.cl
+log "Processing domain 801/717: webclass.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -27959,43 +22602,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: webclass.cl"
 echo "---"
 
-# Domain 802/892: www.webclass.cl
-log "Processing domain 802/892: www.webclass.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.webclass.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.webclass.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.webclass.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.webclass.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.webclass.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.webclass.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.webclass.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.webclass.cl"
-echo "---"
-
-# Domain 803/892: desafiocrecer.cl
-log "Processing domain 803/892: desafiocrecer.cl"
+# Domain 647/717: desafiocrecer.cl
+log "Processing domain 803/717: desafiocrecer.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28029,8 +22637,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: desafiocrecer.cl"
 echo "---"
 
-# Domain 804/892: popt.in
-log "Processing domain 804/892: popt.in"
+# Domain 648/717: popt.in
+log "Processing domain 804/717: popt.in"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28064,8 +22672,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: popt.in"
 echo "---"
 
-# Domain 805/892: cdn.popt.in
-log "Processing domain 805/892: cdn.popt.in"
+# Domain 649/717: cdn.popt.in
+log "Processing domain 805/717: cdn.popt.in"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28099,8 +22707,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn.popt.in"
 echo "---"
 
-# Domain 806/892: pro.fontawesome.com
-log "Processing domain 806/892: pro.fontawesome.com"
+# Domain 650/717: pro.fontawesome.com
+log "Processing domain 806/717: pro.fontawesome.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28134,8 +22742,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: pro.fontawesome.com"
 echo "---"
 
-# Domain 807/892: hubspot.com
-log "Processing domain 807/892: hubspot.com"
+# Domain 651/717: hubspot.com
+log "Processing domain 807/717: hubspot.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28169,8 +22777,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: hubspot.com"
 echo "---"
 
-# Domain 808/892: policy.hubspot.com
-log "Processing domain 808/892: policy.hubspot.com"
+# Domain 652/717: policy.hubspot.com
+log "Processing domain 808/717: policy.hubspot.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28204,43 +22812,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: policy.hubspot.com"
 echo "---"
 
-# Domain 809/892: www.hubspot.com
-log "Processing domain 809/892: www.hubspot.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.hubspot.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.hubspot.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.hubspot.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.hubspot.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.hubspot.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.hubspot.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.hubspot.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.hubspot.com"
-echo "---"
-
-# Domain 810/892: legal.hubspot.com
-log "Processing domain 810/892: legal.hubspot.com"
+# Domain 653/717: legal.hubspot.com
+log "Processing domain 810/717: legal.hubspot.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28274,8 +22847,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: legal.hubspot.com"
 echo "---"
 
-# Domain 811/892: knowledge.hubspot.com
-log "Processing domain 811/892: knowledge.hubspot.com"
+# Domain 654/717: knowledge.hubspot.com
+log "Processing domain 811/717: knowledge.hubspot.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28309,8 +22882,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: knowledge.hubspot.com"
 echo "---"
 
-# Domain 812/892: help.hubspot.com
-log "Processing domain 812/892: help.hubspot.com"
+# Domain 655/717: help.hubspot.com
+log "Processing domain 812/717: help.hubspot.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28344,8 +22917,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: help.hubspot.com"
 echo "---"
 
-# Domain 813/892: bugcrowd.com
-log "Processing domain 813/892: bugcrowd.com"
+# Domain 656/717: bugcrowd.com
+log "Processing domain 813/717: bugcrowd.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28379,8 +22952,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bugcrowd.com"
 echo "---"
 
-# Domain 814/892: trust.hubspot.com
-log "Processing domain 814/892: trust.hubspot.com"
+# Domain 657/717: trust.hubspot.com
+log "Processing domain 814/717: trust.hubspot.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28414,8 +22987,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: trust.hubspot.com"
 echo "---"
 
-# Domain 815/892: copyright.gov
-log "Processing domain 815/892: copyright.gov"
+# Domain 658/717: copyright.gov
+log "Processing domain 815/717: copyright.gov"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28449,43 +23022,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: copyright.gov"
 echo "---"
 
-# Domain 816/892: www.copyright.gov
-log "Processing domain 816/892: www.copyright.gov"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.copyright.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.copyright.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.copyright.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.copyright.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.copyright.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.copyright.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.copyright.gov"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.copyright.gov"
-echo "---"
-
-# Domain 817/892: grader.com
-log "Processing domain 817/892: grader.com"
+# Domain 659/717: grader.com
+log "Processing domain 817/717: grader.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28519,8 +23057,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: grader.com"
 echo "---"
 
-# Domain 818/892: website.grader.com
-log "Processing domain 818/892: website.grader.com"
+# Domain 660/717: website.grader.com
+log "Processing domain 818/717: website.grader.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28554,8 +23092,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: website.grader.com"
 echo "---"
 
-# Domain 819/892: ir.hubspot.com
-log "Processing domain 819/892: ir.hubspot.com"
+# Domain 661/717: ir.hubspot.com
+log "Processing domain 819/717: ir.hubspot.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28589,8 +23127,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ir.hubspot.com"
 echo "---"
 
-# Domain 820/892: blog.hubspot.com
-log "Processing domain 820/892: blog.hubspot.com"
+# Domain 662/717: blog.hubspot.com
+log "Processing domain 820/717: blog.hubspot.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28624,8 +23162,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: blog.hubspot.com"
 echo "---"
 
-# Domain 821/892: academy.hubspot.com
-log "Processing domain 821/892: academy.hubspot.com"
+# Domain 663/717: academy.hubspot.com
+log "Processing domain 821/717: academy.hubspot.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28659,8 +23197,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: academy.hubspot.com"
 echo "---"
 
-# Domain 822/892: typekit.net
-log "Processing domain 822/892: typekit.net"
+# Domain 664/717: typekit.net
+log "Processing domain 822/717: typekit.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28694,8 +23232,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: typekit.net"
 echo "---"
 
-# Domain 823/892: use.typekit.net
-log "Processing domain 823/892: use.typekit.net"
+# Domain 665/717: use.typekit.net
+log "Processing domain 823/717: use.typekit.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28729,8 +23267,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: use.typekit.net"
 echo "---"
 
-# Domain 824/892: compete.com
-log "Processing domain 824/892: compete.com"
+# Domain 666/717: compete.com
+log "Processing domain 824/717: compete.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28764,8 +23302,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: compete.com"
 echo "---"
 
-# Domain 825/892: c.compete.com
-log "Processing domain 825/892: c.compete.com"
+# Domain 667/717: c.compete.com
+log "Processing domain 825/717: c.compete.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28799,8 +23337,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: c.compete.com"
 echo "---"
 
-# Domain 826/892: wistia.com
-log "Processing domain 826/892: wistia.com"
+# Domain 668/717: wistia.com
+log "Processing domain 826/717: wistia.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28834,8 +23372,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: wistia.com"
 echo "---"
 
-# Domain 827/892: fast.wistia.com
-log "Processing domain 827/892: fast.wistia.com"
+# Domain 669/717: fast.wistia.com
+log "Processing domain 827/717: fast.wistia.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28869,8 +23407,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: fast.wistia.com"
 echo "---"
 
-# Domain 828/892: hubspot.net
-log "Processing domain 828/892: hubspot.net"
+# Domain 670/717: hubspot.net
+log "Processing domain 828/717: hubspot.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28904,8 +23442,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: hubspot.net"
 echo "---"
 
-# Domain 829/892: cdn2.hubspot.net
-log "Processing domain 829/892: cdn2.hubspot.net"
+# Domain 671/717: cdn2.hubspot.net
+log "Processing domain 829/717: cdn2.hubspot.net"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28939,8 +23477,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: cdn2.hubspot.net"
 echo "---"
 
-# Domain 830/892: c-col.com
-log "Processing domain 830/892: c-col.com"
+# Domain 672/717: c-col.com
+log "Processing domain 830/717: c-col.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -28974,8 +23512,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: c-col.com"
 echo "---"
 
-# Domain 831/892: ssl-hubspot-com-f286a8.c-col.com
-log "Processing domain 831/892: ssl-hubspot-com-f286a8.c-col.com"
+# Domain 673/717: ssl-hubspot-com-f286a8.c-col.com
+log "Processing domain 831/717: ssl-hubspot-com-f286a8.c-col.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29009,8 +23547,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ssl-hubspot-com-f286a8.c-col.com"
 echo "---"
 
-# Domain 832/892: static2cdn.hubspot.com
-log "Processing domain 832/892: static2cdn.hubspot.com"
+# Domain 674/717: static2cdn.hubspot.com
+log "Processing domain 832/717: static2cdn.hubspot.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29044,8 +23582,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: static2cdn.hubspot.com"
 echo "---"
 
-# Domain 833/892: newfold.com
-log "Processing domain 833/892: newfold.com"
+# Domain 675/717: newfold.com
+log "Processing domain 833/717: newfold.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29079,8 +23617,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: newfold.com"
 echo "---"
 
-# Domain 834/892: dipres.gob.cl
-log "Processing domain 834/892: dipres.gob.cl"
+# Domain 676/717: dipres.gob.cl
+log "Processing domain 834/717: dipres.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29114,43 +23652,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dipres.gob.cl"
 echo "---"
 
-# Domain 835/892: www.dipres.gob.cl
-log "Processing domain 835/892: www.dipres.gob.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.dipres.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.dipres.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.dipres.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.dipres.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.dipres.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.dipres.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.dipres.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.dipres.gob.cl"
-echo "---"
-
-# Domain 836/892: bidat.gob.cl
-log "Processing domain 836/892: bidat.gob.cl"
+# Domain 677/717: bidat.gob.cl
+log "Processing domain 836/717: bidat.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29184,8 +23687,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bidat.gob.cl"
 echo "---"
 
-# Domain 837/892: sni.gob.cl
-log "Processing domain 837/892: sni.gob.cl"
+# Domain 678/717: sni.gob.cl
+log "Processing domain 837/717: sni.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29219,8 +23722,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: sni.gob.cl"
 echo "---"
 
-# Domain 838/892: desarrollosocialyfamilia.gob.cl
-log "Processing domain 838/892: desarrollosocialyfamilia.gob.cl"
+# Domain 679/717: desarrollosocialyfamilia.gob.cl
+log "Processing domain 838/717: desarrollosocialyfamilia.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29254,43 +23757,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: desarrollosocialyfamilia.gob.cl"
 echo "---"
 
-# Domain 839/892: www.desarrollosocialyfamilia.gob.cl
-log "Processing domain 839/892: www.desarrollosocialyfamilia.gob.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.desarrollosocialyfamilia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.desarrollosocialyfamilia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.desarrollosocialyfamilia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.desarrollosocialyfamilia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.desarrollosocialyfamilia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.desarrollosocialyfamilia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.desarrollosocialyfamilia.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.desarrollosocialyfamilia.gob.cl"
-echo "---"
-
-# Domain 840/892: adis.gob.cl
-log "Processing domain 840/892: adis.gob.cl"
+# Domain 680/717: adis.gob.cl
+log "Processing domain 840/717: adis.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29324,8 +23792,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: adis.gob.cl"
 echo "---"
 
-# Domain 841/892: observatorio.ministeriodesarrollosocial.gob.cl
-log "Processing domain 841/892: observatorio.ministeriodesarrollosocial.gob.cl"
+# Domain 681/717: observatorio.ministeriodesarrollosocial.gob.cl
+log "Processing domain 841/717: observatorio.ministeriodesarrollosocial.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29359,8 +23827,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: observatorio.ministeriodesarrollosocial.gob.cl"
 echo "---"
 
-# Domain 842/892: bipdata.cl
-log "Processing domain 842/892: bipdata.cl"
+# Domain 682/717: bipdata.cl
+log "Processing domain 842/717: bipdata.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29394,8 +23862,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bipdata.cl"
 echo "---"
 
-# Domain 843/892: code.jquery.com
-log "Processing domain 843/892: code.jquery.com"
+# Domain 683/717: code.jquery.com
+log "Processing domain 843/717: code.jquery.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29429,8 +23897,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: code.jquery.com"
 echo "---"
 
-# Domain 844/892: buscalibre.com.ar
-log "Processing domain 844/892: buscalibre.com.ar"
+# Domain 684/717: buscalibre.com.ar
+log "Processing domain 844/717: buscalibre.com.ar"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29464,43 +23932,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: buscalibre.com.ar"
 echo "---"
 
-# Domain 845/892: www.buscalibre.com.ar
-log "Processing domain 845/892: www.buscalibre.com.ar"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.buscalibre.com.ar"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.buscalibre.com.ar"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.buscalibre.com.ar"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.buscalibre.com.ar"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.buscalibre.com.ar"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.buscalibre.com.ar"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.buscalibre.com.ar"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.buscalibre.com.ar"
-echo "---"
-
-# Domain 846/892: bookdelivery.com
-log "Processing domain 846/892: bookdelivery.com"
+# Domain 685/717: bookdelivery.com
+log "Processing domain 846/717: bookdelivery.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29534,43 +23967,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: bookdelivery.com"
 echo "---"
 
-# Domain 847/892: www.bookdelivery.com
-log "Processing domain 847/892: www.bookdelivery.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.bookdelivery.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.bookdelivery.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.bookdelivery.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.bookdelivery.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.bookdelivery.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.bookdelivery.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.bookdelivery.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.bookdelivery.com"
-echo "---"
-
-# Domain 848/892: buscalibre.com.co
-log "Processing domain 848/892: buscalibre.com.co"
+# Domain 686/717: buscalibre.com.co
+log "Processing domain 848/717: buscalibre.com.co"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29604,43 +24002,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: buscalibre.com.co"
 echo "---"
 
-# Domain 849/892: www.buscalibre.com.co
-log "Processing domain 849/892: www.buscalibre.com.co"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.buscalibre.com.co"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.buscalibre.com.co"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.buscalibre.com.co"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.buscalibre.com.co"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.buscalibre.com.co"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.buscalibre.com.co"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.buscalibre.com.co"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.buscalibre.com.co"
-echo "---"
-
-# Domain 850/892: buscalibre.ec
-log "Processing domain 850/892: buscalibre.ec"
+# Domain 687/717: buscalibre.ec
+log "Processing domain 850/717: buscalibre.ec"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29674,43 +24037,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: buscalibre.ec"
 echo "---"
 
-# Domain 851/892: www.buscalibre.ec
-log "Processing domain 851/892: www.buscalibre.ec"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.buscalibre.ec"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.buscalibre.ec"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.buscalibre.ec"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.buscalibre.ec"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.buscalibre.ec"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.buscalibre.ec"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.buscalibre.ec"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.buscalibre.ec"
-echo "---"
-
-# Domain 852/892: buscalibre.us
-log "Processing domain 852/892: buscalibre.us"
+# Domain 688/717: buscalibre.us
+log "Processing domain 852/717: buscalibre.us"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29744,43 +24072,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: buscalibre.us"
 echo "---"
 
-# Domain 853/892: www.buscalibre.us
-log "Processing domain 853/892: www.buscalibre.us"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.buscalibre.us"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.buscalibre.us"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.buscalibre.us"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.buscalibre.us"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.buscalibre.us"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.buscalibre.us"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.buscalibre.us"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.buscalibre.us"
-echo "---"
-
-# Domain 854/892: buscalibre.com.mx
-log "Processing domain 854/892: buscalibre.com.mx"
+# Domain 689/717: buscalibre.com.mx
+log "Processing domain 854/717: buscalibre.com.mx"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29814,43 +24107,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: buscalibre.com.mx"
 echo "---"
 
-# Domain 855/892: www.buscalibre.com.mx
-log "Processing domain 855/892: www.buscalibre.com.mx"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.buscalibre.com.mx"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.buscalibre.com.mx"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.buscalibre.com.mx"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.buscalibre.com.mx"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.buscalibre.com.mx"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.buscalibre.com.mx"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.buscalibre.com.mx"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.buscalibre.com.mx"
-echo "---"
-
-# Domain 856/892: buscalibre.pe
-log "Processing domain 856/892: buscalibre.pe"
+# Domain 690/717: buscalibre.pe
+log "Processing domain 856/717: buscalibre.pe"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29884,43 +24142,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: buscalibre.pe"
 echo "---"
 
-# Domain 857/892: www.buscalibre.pe
-log "Processing domain 857/892: www.buscalibre.pe"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.buscalibre.pe"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.buscalibre.pe"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.buscalibre.pe"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.buscalibre.pe"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.buscalibre.pe"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.buscalibre.pe"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.buscalibre.pe"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.buscalibre.pe"
-echo "---"
-
-# Domain 858/892: buscalibre.com
-log "Processing domain 858/892: buscalibre.com"
+# Domain 691/717: buscalibre.com
+log "Processing domain 858/717: buscalibre.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -29954,43 +24177,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: buscalibre.com"
 echo "---"
 
-# Domain 859/892: www.buscalibre.com
-log "Processing domain 859/892: www.buscalibre.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.buscalibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.buscalibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.buscalibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.buscalibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.buscalibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.buscalibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.buscalibre.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.buscalibre.com"
-echo "---"
-
-# Domain 860/892: buscalibre.uy
-log "Processing domain 860/892: buscalibre.uy"
+# Domain 692/717: buscalibre.uy
+log "Processing domain 860/717: buscalibre.uy"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30024,43 +24212,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: buscalibre.uy"
 echo "---"
 
-# Domain 861/892: www.buscalibre.uy
-log "Processing domain 861/892: www.buscalibre.uy"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.buscalibre.uy"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.buscalibre.uy"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.buscalibre.uy"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.buscalibre.uy"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.buscalibre.uy"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.buscalibre.uy"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.buscalibre.uy"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.buscalibre.uy"
-echo "---"
-
-# Domain 862/892: buscalibre.es
-log "Processing domain 862/892: buscalibre.es"
+# Domain 693/717: buscalibre.es
+log "Processing domain 862/717: buscalibre.es"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30094,43 +24247,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: buscalibre.es"
 echo "---"
 
-# Domain 863/892: www.buscalibre.es
-log "Processing domain 863/892: www.buscalibre.es"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.buscalibre.es"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.buscalibre.es"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.buscalibre.es"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.buscalibre.es"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.buscalibre.es"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.buscalibre.es"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.buscalibre.es"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.buscalibre.es"
-echo "---"
-
-# Domain 864/892: buscalibre.co
-log "Processing domain 864/892: buscalibre.co"
+# Domain 694/717: buscalibre.co
+log "Processing domain 864/717: buscalibre.co"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30164,43 +24282,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: buscalibre.co"
 echo "---"
 
-# Domain 865/892: www.buscalibre.co
-log "Processing domain 865/892: www.buscalibre.co"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.buscalibre.co"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.buscalibre.co"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.buscalibre.co"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.buscalibre.co"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.buscalibre.co"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.buscalibre.co"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.buscalibre.co"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.buscalibre.co"
-echo "---"
-
-# Domain 866/892: r5rh2u0m2h.execute-api.us-east-1.amazonaws.com
-log "Processing domain 866/892: r5rh2u0m2h.execute-api.us-east-1.amazonaws.com"
+# Domain 695/717: r5rh2u0m2h.execute-api.us-east-1.amazonaws.com
+log "Processing domain 866/717: r5rh2u0m2h.execute-api.us-east-1.amazonaws.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30234,8 +24317,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: r5rh2u0m2h.execute-api.us-east-1.amazonaws.com"
 echo "---"
 
-# Domain 867/892: statics.cdn0.buscalibre.com
-log "Processing domain 867/892: statics.cdn0.buscalibre.com"
+# Domain 696/717: statics.cdn0.buscalibre.com
+log "Processing domain 867/717: statics.cdn0.buscalibre.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30269,8 +24352,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: statics.cdn0.buscalibre.com"
 echo "---"
 
-# Domain 868/892: awswaf.com
-log "Processing domain 868/892: awswaf.com"
+# Domain 697/717: awswaf.com
+log "Processing domain 868/717: awswaf.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30304,8 +24387,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: awswaf.com"
 echo "---"
 
-# Domain 869/892: 9589e48bd177.us-east-1.sdk.awswaf.com
-log "Processing domain 869/892: 9589e48bd177.us-east-1.sdk.awswaf.com"
+# Domain 698/717: 9589e48bd177.us-east-1.sdk.awswaf.com
+log "Processing domain 869/717: 9589e48bd177.us-east-1.sdk.awswaf.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30339,8 +24422,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: 9589e48bd177.us-east-1.sdk.awswaf.com"
 echo "---"
 
-# Domain 870/892: blogger.com
-log "Processing domain 870/892: blogger.com"
+# Domain 699/717: blogger.com
+log "Processing domain 870/717: blogger.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30374,43 +24457,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: blogger.com"
 echo "---"
 
-# Domain 871/892: www.blogger.com
-log "Processing domain 871/892: www.blogger.com"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.blogger.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.blogger.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.blogger.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.blogger.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.blogger.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.blogger.com"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.blogger.com"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.blogger.com"
-echo "---"
-
-# Domain 872/892: ctrlitcl.blogspot.cl
-log "Processing domain 872/892: ctrlitcl.blogspot.cl"
+# Domain 700/717: ctrlitcl.blogspot.cl
+log "Processing domain 872/717: ctrlitcl.blogspot.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30444,8 +24492,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ctrlitcl.blogspot.cl"
 echo "---"
 
-# Domain 873/892: blogblog.com
-log "Processing domain 873/892: blogblog.com"
+# Domain 701/717: blogblog.com
+log "Processing domain 873/717: blogblog.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30479,8 +24527,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: blogblog.com"
 echo "---"
 
-# Domain 874/892: resources.blogblog.com
-log "Processing domain 874/892: resources.blogblog.com"
+# Domain 702/717: resources.blogblog.com
+log "Processing domain 874/717: resources.blogblog.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30514,8 +24562,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: resources.blogblog.com"
 echo "---"
 
-# Domain 875/892: blogspot.com
-log "Processing domain 875/892: blogspot.com"
+# Domain 703/717: blogspot.com
+log "Processing domain 875/717: blogspot.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30549,8 +24597,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: blogspot.com"
 echo "---"
 
-# Domain 876/892: 1.bp.blogspot.com
-log "Processing domain 876/892: 1.bp.blogspot.com"
+# Domain 704/717: 1.bp.blogspot.com
+log "Processing domain 876/717: 1.bp.blogspot.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30584,43 +24632,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: 1.bp.blogspot.com"
 echo "---"
 
-# Domain 877/892: www.meteochile.gob.cl
-log "Processing domain 877/892: www.meteochile.gob.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.meteochile.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.meteochile.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.meteochile.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.meteochile.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.meteochile.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.meteochile.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.meteochile.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.meteochile.gob.cl"
-echo "---"
-
-# Domain 878/892: dgac.gob.cl
-log "Processing domain 878/892: dgac.gob.cl"
+# Domain 705/717: dgac.gob.cl
+log "Processing domain 878/717: dgac.gob.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30654,43 +24667,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: dgac.gob.cl"
 echo "---"
 
-# Domain 879/892: www.dgac.gob.cl
-log "Processing domain 879/892: www.dgac.gob.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.dgac.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.dgac.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.dgac.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.dgac.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.dgac.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.dgac.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.dgac.gob.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.dgac.gob.cl"
-echo "---"
-
-# Domain 880/892: blogger.googleusercontent.com
-log "Processing domain 880/892: blogger.googleusercontent.com"
+# Domain 706/717: blogger.googleusercontent.com
+log "Processing domain 880/717: blogger.googleusercontent.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30724,8 +24702,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: blogger.googleusercontent.com"
 echo "---"
 
-# Domain 881/892: shareaholic.com
-log "Processing domain 881/892: shareaholic.com"
+# Domain 707/717: shareaholic.com
+log "Processing domain 881/717: shareaholic.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30759,8 +24737,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: shareaholic.com"
 echo "---"
 
-# Domain 882/892: apps.shareaholic.com
-log "Processing domain 882/892: apps.shareaholic.com"
+# Domain 708/717: apps.shareaholic.com
+log "Processing domain 882/717: apps.shareaholic.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30794,8 +24772,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: apps.shareaholic.com"
 echo "---"
 
-# Domain 883/892: zendesk.com
-log "Processing domain 883/892: zendesk.com"
+# Domain 709/717: zendesk.com
+log "Processing domain 883/717: zendesk.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30829,8 +24807,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: zendesk.com"
 echo "---"
 
-# Domain 884/892: ticketmaster-cl.zendesk.com
-log "Processing domain 884/892: ticketmaster-cl.zendesk.com"
+# Domain 710/717: ticketmaster-cl.zendesk.com
+log "Processing domain 884/717: ticketmaster-cl.zendesk.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30864,8 +24842,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: ticketmaster-cl.zendesk.com"
 echo "---"
 
-# Domain 885/892: postgradounab.cl
-log "Processing domain 885/892: postgradounab.cl"
+# Domain 711/717: postgradounab.cl
+log "Processing domain 885/717: postgradounab.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30899,43 +24877,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: postgradounab.cl"
 echo "---"
 
-# Domain 886/892: www.postgradounab.cl
-log "Processing domain 886/892: www.postgradounab.cl"
-log "Estimated time: 54 minutes"
-
-# Step 1: amass analysis
-retry_curl "http://localhost:8001/api/v1/discover/amass/www.postgradounab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 2: dns analysis
-retry_curl "http://localhost:8001/api/v1/discover/dns/www.postgradounab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 3: tls analysis
-retry_curl "http://localhost:8001/api/v1/discover/tls/www.postgradounab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 4: tech analysis
-retry_curl "http://localhost:8001/api/v1/discover/tech/www.postgradounab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 5: services analysis
-retry_curl "http://localhost:8001/api/v1/discover/services/www.postgradounab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 6: web-scraping analysis
-retry_curl "http://localhost:8001/api/v1/discover/web-scraping/www.postgradounab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-# Step 7: risk analysis
-retry_curl "http://localhost:8001/api/v1/calculate/risk/www.postgradounab.cl"
-sleep $DELAY_BETWEEN_CALLS
-
-log "Completed domain: www.postgradounab.cl"
-echo "---"
-
-# Domain 887/892: unabwps3.s3.amazonaws.com
-log "Processing domain 887/892: unabwps3.s3.amazonaws.com"
+# Domain 712/717: unabwps3.s3.amazonaws.com
+log "Processing domain 887/717: unabwps3.s3.amazonaws.com"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -30969,8 +24912,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: unabwps3.s3.amazonaws.com"
 echo "---"
 
-# Domain 888/892: campuscreativo.cl
-log "Processing domain 888/892: campuscreativo.cl"
+# Domain 713/717: campuscreativo.cl
+log "Processing domain 888/717: campuscreativo.cl"
 log "Estimated time: 54 minutes"
 
 # Step 1: amass analysis
@@ -31004,8 +24947,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: campuscreativo.cl"
 echo "---"
 
-# Domain 889/892: tempo.cl
-log "Processing domain 889/892: tempo.cl"
+# Domain 714/717: tempo.cl
+log "Processing domain 889/717: tempo.cl"
 log "Estimated time: 40 minutes"
 
 # Step 1: amass analysis
@@ -31023,8 +24966,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: tempo.cl"
 echo "---"
 
-# Domain 890/892: api.test.com
-log "Processing domain 890/892: api.test.com"
+# Domain 715/717: api.test.com
+log "Processing domain 890/717: api.test.com"
 log "Estimated time: 40 minutes"
 
 # Step 1: amass analysis
@@ -31042,8 +24985,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: api.test.com"
 echo "---"
 
-# Domain 891/892: empty.example.com
-log "Processing domain 891/892: empty.example.com"
+# Domain 716/717: empty.example.com
+log "Processing domain 891/717: empty.example.com"
 log "Estimated time: 50 minutes"
 
 # Step 1: amass analysis
@@ -31073,8 +25016,8 @@ sleep $DELAY_BETWEEN_CALLS
 log "Completed domain: empty.example.com"
 echo "---"
 
-# Domain 892/892: example.com
-log "Processing domain 892/892: example.com"
+# Domain 717/717: example.com
+log "Processing domain 892/717: example.com"
 log "Estimated time: 50 minutes"
 
 # Step 1: amass analysis

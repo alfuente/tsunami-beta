@@ -392,9 +392,19 @@
                 this.svg = null;
                 this.simulation = null;
                 
+                // Ensure DOM is ready before initialization
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', () => this.init());
+                } else {
+                    this.init();
+                }
+            }
+            
+            init() {
                 this.setupEventListeners();
                 this.initializeGraph();
-                this.testConnection();
+                // Delay connection test to ensure all elements are ready
+                setTimeout(() => this.testConnection(), 100);
                 this.loadInitialData();
             }
             
@@ -435,15 +445,18 @@
                 const includeIndustries = document.getElementById('includeIndustries');
                 const showTechnologies = document.getElementById('showTechnologies');
                 
-                dataSource.addEventListener('change', () => this.onDataSourceChange());
-                loadButton.addEventListener('click', () => this.loadGraphData());
-                testButton.addEventListener('click', () => this.testConnection());
+                // Add null checks to prevent errors if elements don't exist yet
+                if (dataSource) dataSource.addEventListener('change', () => this.onDataSourceChange());
+                if (loadButton) loadButton.addEventListener('click', () => this.loadGraphData());
+                if (testButton) testButton.addEventListener('click', () => this.testConnection());
                 
                 // Auto-reload when filter checkboxes change
-                includeOrganizations.addEventListener('change', () => this.loadGraphData());
-                includeIndustries.addEventListener('change', () => this.loadGraphData());
-                showSubdomains.addEventListener('change', () => this.loadGraphData());
-                showTechnologies.addEventListener('change', () => this.loadGraphData());
+                if (includeOrganizations) includeOrganizations.addEventListener('change', () => this.loadGraphData());
+                if (includeIndustries) includeIndustries.addEventListener('change', () => this.loadGraphData());
+                
+                const showSubdomains = document.getElementById('showSubdomains');
+                if (showSubdomains) showSubdomains.addEventListener('change', () => this.loadGraphData());
+                if (showTechnologies) showTechnologies.addEventListener('change', () => this.loadGraphData());
                 
                 // Handle window resize
                 window.addEventListener('resize', () => this.handleResize());
@@ -488,21 +501,30 @@
             
             async testConnection() {
                 try {
-                    document.getElementById('backendStatus').textContent = 'Testing...';
+                    const statusElement = document.getElementById('backendStatus');
+                    if (!statusElement) {
+                        console.warn('Backend status element not found, skipping connection test');
+                        return;
+                    }
+                    
+                    statusElement.textContent = 'Testing...';
                     const response = await fetch(`${this.apiBaseUrl}/health`);
                     const data = await response.json();
                     
                     if (data.status === 'healthy') {
-                        document.getElementById('backendStatus').textContent = '✅ Connected';
-                        document.getElementById('backendStatus').style.color = '#4CAF50';
+                        statusElement.textContent = '✅ Connected';
+                        statusElement.style.color = '#4CAF50';
                     } else {
-                        document.getElementById('backendStatus').textContent = '⚠️ Issues';
-                        document.getElementById('backendStatus').style.color = '#ff8800';
+                        statusElement.textContent = '⚠️ Issues';
+                        statusElement.style.color = '#ff8800';
                     }
                     
                 } catch (error) {
-                    document.getElementById('backendStatus').textContent = '❌ Offline';
-                    document.getElementById('backendStatus').style.color = '#ff4444';
+                    const statusElement = document.getElementById('backendStatus');
+                    if (statusElement) {
+                        statusElement.textContent = '❌ Offline';
+                        statusElement.style.color = '#ff4444';
+                    }
                     console.error('Backend connection failed:', error);
                 }
             }
