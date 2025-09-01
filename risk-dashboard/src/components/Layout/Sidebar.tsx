@@ -19,6 +19,7 @@ import {
   Business as ProviderIcon,
   Assignment as TaskIcon,
   Computer as TechnologyIcon,
+  Assessment as AssessmentIcon,
 } from '@mui/icons-material';
 
 interface SidebarProps {
@@ -30,7 +31,8 @@ const menuItems = [
   { text: 'Domain Management', path: '/domains', icon: <DomainIcon /> },
   { text: 'Provider Management', path: '/providers', icon: <ProviderIcon /> },
   { text: 'Technologies', path: '/technologies', icon: <TechnologyIcon /> },
-  { text: 'Risk Analysis', path: '/risk-analysis', icon: <AnalyticsIcon /> },
+  { text: 'Risk Analysis (Legacy)', path: '/risk-analysis', icon: <AnalyticsIcon /> },
+  { text: 'Systemic Risk Analysis', path: '/risk-analysis-new', icon: <AssessmentIcon /> },
   { text: 'Tasks Monitor', path: '/tasks', icon: <TaskIcon /> },
   { text: 'Queries', path: '/queries', icon: <SearchIcon /> },
 ];

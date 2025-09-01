@@ -244,6 +244,7 @@
         <div id="mode-toggle">
             <a href="index.html" class="active">2D View</a>
             <a href="index-3d.html">3D View</a>
+            <a href="risk-analysis.html">Risk Analysis</a>
         </div>
         
         <div id="loading">
@@ -430,11 +431,12 @@
                 // Create main group for zooming/panning
                 this.svg.append('g');
                 
-                // Initialize simulation
+                // Initialize simulation with more spacing
                 this.simulation = d3.forceSimulation()
-                    .force('link', d3.forceLink().id(d => d.id).distance(50))
-                    .force('charge', d3.forceManyBody().strength(-100))
-                    .force('center', d3.forceCenter(width / 2, height / 2));
+                    .force('link', d3.forceLink().id(d => d.id).distance(120))  // Increased from 50 to 120
+                    .force('charge', d3.forceManyBody().strength(-300))        // Increased repulsion from -100 to -300
+                    .force('center', d3.forceCenter(width / 2, height / 2))
+                    .force('collision', d3.forceCollide().radius(30));         // Added collision detection
             }
             
             setupEventListeners() {

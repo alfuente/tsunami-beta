@@ -13,6 +13,23 @@ class Neo4jConfig:
     password: str = os.getenv("NEO4J_PASSWORD", "test.password")
 
 @dataclass
+class PostgresConfig:
+    host: str = os.getenv("POSTGRES_HOST", "localhost")
+    port: int = int(os.getenv("POSTGRES_PORT", "5432"))
+    database: str = os.getenv("POSTGRES_DB", "tsunami_backend")
+    user: str = os.getenv("POSTGRES_USER", "tsunami_user")
+    password: str = os.getenv("POSTGRES_PASSWORD", "tsunami_password")
+    
+    def dict(self) -> Dict[str, Any]:
+        return {
+            'host': self.host,
+            'port': self.port,
+            'database': self.database,
+            'user': self.user,
+            'password': self.password
+        }
+
+@dataclass
 class RiskCalculationConfig:
     # Thresholds for Chilean context
     concentration_threshold: float = 0.25  # HHI > 0.25 = highly concentrated
@@ -58,11 +75,13 @@ class RiskCalculationConfig:
 @dataclass
 class SystemConfig:
     neo4j: Neo4jConfig = None
+    postgres: PostgresConfig = None
     risk: RiskCalculationConfig = None
     
     # API Configuration
     host: str = "0.0.0.0"
     port: int = int(os.getenv("PORT", "8002"))
+    async_port: int = int(os.getenv("ASYNC_PORT", "8003"))
     debug: bool = os.getenv("DEBUG", "False").lower() == "true"
     
     # Processing Configuration
@@ -73,6 +92,8 @@ class SystemConfig:
     def __post_init__(self):
         if self.neo4j is None:
             self.neo4j = Neo4jConfig()
+        if self.postgres is None:
+            self.postgres = PostgresConfig()
         if self.risk is None:
             self.risk = RiskCalculationConfig()
 

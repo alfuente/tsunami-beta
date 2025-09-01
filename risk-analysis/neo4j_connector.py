@@ -388,12 +388,15 @@ class Neo4jConnector:
         
         # Add nodes with attributes
         for node_id, node in dependency_graph.nodes.items():
+            # Filter out 'name' from properties to avoid NetworkX conflict
+            filtered_properties = {k: v for k, v in node.properties.items() if k != 'name'}
+            
             G.add_node(node_id, 
                       node_type=node.node_type.value,
-                      name=node.name,
+                      node_name=node.name,  # Changed from 'name' to 'node_name' to avoid NetworkX conflict
                       sector=node.sector,
                       is_critical=node.is_critical,
-                      **node.properties)
+                      **filtered_properties)
         
         # Add edges with weights
         for edge in dependency_graph.edges:

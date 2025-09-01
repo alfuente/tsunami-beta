@@ -529,8 +529,18 @@ export const tasksApi = {
   }
 };
 
+// Risk Analysis Service API (port 8002) - New systemic risk analysis module
+const RISK_ANALYSIS_API_URL = process.env.REACT_APP_RISK_ANALYSIS_URL || 'http://localhost:8002';
+
 // Technologies API (from domain-backend on port 8001)
 const TECHNOLOGIES_API_URL = process.env.REACT_APP_DOMAIN_BACKEND_URL || 'http://localhost:8001';
+
+const riskAnalysisApi = axios.create({
+  baseURL: RISK_ANALYSIS_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 const technologiesApi = axios.create({
   baseURL: TECHNOLOGIES_API_URL,
@@ -641,6 +651,155 @@ export const technologyApi = {
       ? `/api/v1/discover/web-scraping/${domain}?subdomain=${subdomain}`
       : `/api/v1/discover/web-scraping/${domain}`;
     const response = await technologiesApi.post(url);
+    return response.data;
+  }
+};
+
+// New Risk Analysis Service API (systemic risk calculations)
+export const newRiskAnalysisApi = {
+  // Health check
+  getHealth: async (): Promise<{
+    status: string;
+    timestamp: string;
+    services: {
+      neo4j: string;
+      risk_calculator: string;
+    };
+    graph_stats: {
+      total_nodes: number;
+      total_relationships: number;
+    };
+  }> => {
+    const response = await riskAnalysisApi.get('/health');
+    return response.data;
+  },
+
+  // Get statistics
+  getStatistics: async (): Promise<{
+    node_counts: Record<string, number>;
+    relationship_counts: Record<string, number>;
+    algorithm_counts: Record<string, number>;
+    recent_calculations: Array<any>;
+  }> => {
+    const response = await riskAnalysisApi.get('/stats');
+    return response.data;
+  },
+
+  // Calculate risk for a single domain
+  calculateDomainRisk: async (domain: string, algorithms?: string[]): Promise<{
+    domain: string;
+    calculation_id: string;
+    results: Record<string, any>;
+    metadata: {
+      total_algorithms: number;
+      execution_time_seconds: number;
+      timestamp: string;
+    };
+  }> => {
+    const response = await riskAnalysisApi.post(`/calculate/domain/${domain}`, {
+      algorithms: algorithms || []
+    });
+    return response.data;
+  },
+
+  // Calculate risk for multiple domains
+  calculateMultipleRisk: async (domains: string[], algorithms?: string[]): Promise<{
+    task_id: string;
+    domains: string[];
+    algorithms: string[];
+    status: string;
+    estimated_completion: string;
+  }> => {
+    const response = await riskAnalysisApi.post('/calculate/multiple', {
+      domains,
+      algorithms: algorithms || []
+    });
+    return response.data;
+  },
+
+  // Get available algorithms
+  getAlgorithms: async (): Promise<{
+    algorithms: Array<{
+      name: string;
+      description: string;
+      type: string;
+      enabled: boolean;
+      parameters: Record<string, any>;
+    }>;
+    total_algorithms: number;
+  }> => {
+    const response = await riskAnalysisApi.get('/algorithms');
+    return response.data;
+  },
+
+  // Simulate risk propagation
+  simulateRiskPropagation: async (scenario: {
+    name: string;
+    description: string;
+    initial_failures: Array<{
+      node_type: string;
+      node_id: string;
+      failure_probability: number;
+    }>;
+    propagation_rules: Array<{
+      relationship_type: string;
+      propagation_probability: number;
+      decay_factor: number;
+    }>;
+    simulation_steps: number;
+    monte_carlo_runs: number;
+  }): Promise<{
+    simulation_id: string;
+    scenario: any;
+    results: {
+      final_state: Record<string, any>;
+      propagation_paths: Array<any>;
+      failure_statistics: Record<string, any>;
+      risk_distribution: Record<string, number>;
+    };
+    metadata: {
+      execution_time_seconds: number;
+      total_monte_carlo_runs: number;
+      convergence_achieved: boolean;
+      timestamp: string;
+    };
+  }> => {
+    const response = await riskAnalysisApi.post('/simulate/risk-propagation', scenario);
+    return response.data;
+  },
+
+  // Get task status
+  getTaskStatus: async (taskId: string): Promise<{
+    task_id: string;
+    status: 'pending' | 'running' | 'completed' | 'failed';
+    progress: number;
+    current_step?: string;
+    result?: any;
+    error?: string;
+    started_at?: string;
+    completed_at?: string;
+  }> => {
+    const response = await riskAnalysisApi.get(`/tasks/${taskId}`);
+    return response.data;
+  },
+
+  // Get all tasks
+  getAllTasks: async (status?: string): Promise<{
+    tasks: Array<{
+      task_id: string;
+      status: string;
+      progress: number;
+      current_step?: string;
+      started_at: string;
+      completed_at?: string;
+      task_type: string;
+      parameters: any;
+    }>;
+    total_count: number;
+    status_filter?: string;
+  }> => {
+    const params = status ? { status } : {};
+    const response = await riskAnalysisApi.get('/tasks', { params });
     return response.data;
   }
 };

@@ -8,6 +8,7 @@ import Header from './components/Layout/Header';
 import Dashboard from './pages/Dashboard';
 import DomainManagement from './pages/DomainManagement';
 import RiskAnalysis from './pages/RiskAnalysis';
+import NewRiskAnalysis from './pages/NewRiskAnalysis';
 import DomainDetail from './pages/DomainDetail';
 import BaseDomainDetail from './pages/BaseDomainDetail';
 import ProviderManagement from './pages/ProviderManagement';
@@ -64,6 +65,7 @@ function App() {
               <Route path="/providers" element={<ProviderManagement />} />
               <Route path="/providers/:providerId" element={<ProviderDetail />} />
               <Route path="/risk-analysis" element={<RiskAnalysis />} />
+              <Route path="/risk-analysis-new" element={<NewRiskAnalysis />} />
               <Route path="/technologies" element={<Technologies />} />
               <Route path="/technologies/:technologyName" element={<TechnologyDetail />} />
               <Route path="/tasks" element={<TasksMonitor />} />
